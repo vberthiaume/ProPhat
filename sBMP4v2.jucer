@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT name="sBMP4v2" companyName="JUCE" version="1.0.0" companyWebsite="http://juce.com"
-              defines="PIP_JUCE_EXAMPLES_DIRECTORY=QzpcVXNlcnNcSGFha2VcRG9jdW1lbnRzXGdpdFxhdWRpb3dvcmtzXFNvdW5kc1VuaXRlQXBwXHN1Ym1vZHVsZXNcSlVDRVxleGFtcGxlcw=="
-              projectType="audioplug" pluginManufacturer="JUCE" pluginAUIsSandboxSafe="1"
+<JUCERPROJECT name="sBMP4" companyName="BMP4" version="0.0.1" defines="PIP_JUCE_EXAMPLES_DIRECTORY=QzpcVXNlcnNcSGFha2VcRG9jdW1lbnRzXGdpdFxhdWRpb3dvcmtzXFNvdW5kc1VuaXRlQXBwXHN1Ym1vZHVsZXNcSlVDRVxleGFtcGxlcw=="
+              projectType="audioplug" pluginManufacturer="BMP4" pluginAUIsSandboxSafe="1"
               pluginFormats="buildAU,buildStandalone,buildVST,buildVST3" id="Pybx3b"
-              jucerVersion="5.4.1" pluginCharacteristicsValue="pluginIsSynth">
-  <MAINGROUP id="xcjoOm" name="sBMP4v2">
+              jucerVersion="5.4.1" pluginCharacteristicsValue="pluginIsSynth"
+              cppLanguageStandard="17" pluginManufacturerCode="BMP4" pluginCode="sBMP">
+  <MAINGROUP id="xcjoOm" name="sBMP4">
     <GROUP id="{9E790ABE-F484-67A0-AF6A-838FDD75B724}" name="Source">
       <FILE id="L5GssZ" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="n0Zqru" name="sBMP4.h" compile="0" resource="0" file="Source/sBMP4.h"/>
@@ -32,8 +32,8 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstLegacyFolder="./submodules/VST2_SDK">
       <CONFIGURATIONS>
-        <CONFIGURATIONS name="Debug" isDebug="1" optimisation="1" targetName="SamplerPlugin"/>
-        <CONFIGURATIONS name="Release" isDebug="0" optimisation="3" targetName="SamplerPlugin"/>
+        <CONFIGURATIONS name="Debug" isDebug="1" optimisation="1" targetName="sBMP4"/>
+        <CONFIGURATIONS name="Release" isDebug="0" optimisation="3" targetName="sBMP4"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="submodules/JUCE/modules"/>
@@ -52,8 +52,8 @@
     </XCODE_MAC>
     <VS2017 targetFolder="Builds/VisualStudio2017" vstLegacyFolder="./submodules/VST2_SDK">
       <CONFIGURATIONS>
-        <CONFIGURATIONS name="Debug" isDebug="1" optimisation="1" targetName="SamplerPlugin"/>
-        <CONFIGURATIONS name="Release" isDebug="0" optimisation="3" targetName="SamplerPlugin"/>
+        <CONFIGURATIONS name="Debug" isDebug="1" optimisation="1" targetName="sBMP4"/>
+        <CONFIGURATIONS name="Release" isDebug="0" optimisation="3" targetName="sBMP4"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="submodules/JUCE/modules"/>

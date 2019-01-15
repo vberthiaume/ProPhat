@@ -37,9 +37,9 @@
 #if ! JUCE_DONT_DECLARE_PROJECTINFO
 namespace ProjectInfo
 {
-    const char* const  projectName    = "sBMP4v2";
-    const char* const  companyName    = "JUCE";
-    const char* const  versionString  = "1.0.0";
-    const int          versionNumber  = 0x10000;
+    const char* const  projectName    = "sBMP4";
+    const char* const  companyName    = "BMP4";
+    const char* const  versionString  = "0.0.1";
+    const int          versionNumber  = 0x1;
 }
 #endif
