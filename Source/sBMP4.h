@@ -2115,7 +2115,7 @@ public:
     //==============================================================================
     void processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages) override
     {
-#if 0
+#if 1
         int i = 0;
         if (midiMessages.getNumEvents() > 0)
             ++i;
