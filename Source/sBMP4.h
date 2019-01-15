@@ -17,38 +17,7 @@
   ==============================================================================
 */
 
-/*******************************************************************************
- The block below describes the properties of this PIP. A PIP is a short snippet
- of code that can be read by the Projucer and used to generate a JUCE project.
-
- BEGIN_JUCE_PIP_METADATA
-
- name:             SamplerPlugin
- version:          1.0.0
- vendor:           JUCE
- website:          http://juce.com
- description:      Sampler audio plugin.
-
- dependencies:     juce_audio_basics, juce_audio_devices, juce_audio_formats,
-                   juce_audio_plugin_client, juce_audio_processors,
-                   juce_audio_utils, juce_core, juce_data_structures,
-                   juce_events, juce_graphics, juce_gui_basics, juce_gui_extra
- exporters:        xcode_mac, vs2017
-
- moduleFlags:      JUCE_STRICT_REFCOUNTEDPOINTER=1
-
- type:             AudioProcessor
- mainClass:        SamplerAudioProcessor
-
- useLocalCopy:     1
-
- END_JUCE_PIP_METADATA
-
-*******************************************************************************/
-
 #pragma once
-
-#include "DemoUtilities.h"
 
 #include <array>
 #include <atomic>
@@ -198,8 +167,7 @@ public:
     void setLoopPointsInSeconds (Range<double> value)
     {
         loopPoints = sample == nullptr ? value
-                                       : Range<double> (0, sample->getLength() / sample->getSampleRate())
-                                                        .constrainRange (value);
+                                       : Range<double> (0, sample->getLength() / sample->getSampleRate()).constrainRange (value);
     }
 
     Range<double> getLoopPointsInSeconds() const
@@ -2062,7 +2030,8 @@ public:
     SamplerAudioProcessor()
         : AudioProcessor (BusesProperties().withOutput ("Output", AudioChannelSet::stereo(), true))
     {
-        if (auto* asset = createAssetInputStream ("cello.wav"))
+        auto desktop = File::getSpecialLocation (File::SpecialLocationType::userDesktopDirectory);
+        if (auto* asset = desktop.getChildFile ("cello.wav").createInputStream())
         {
             std::unique_ptr<InputStream> inputStream (asset);
             inputStream->readIntoMemoryBlock (mb);

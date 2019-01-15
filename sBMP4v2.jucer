@@ -10,9 +10,6 @@
       <FILE id="L5GssZ" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="n0Zqru" name="sBMP4.h" compile="0" resource="0" file="Source/sBMP4.h"/>
     </GROUP>
-    <GROUP id="rHgoBl" name="Assets">
-      <FILE id="aSCWF3" name="DemoUtilities.h" compile="0" resource="0" file="Source/DemoUtilities.h"/>
-    </GROUP>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
