@@ -2115,6 +2115,12 @@ public:
     //==============================================================================
     void processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages) override
     {
+#if 0
+        int i = 0;
+        if (midiMessages.getNumEvents() > 0)
+            ++i;
+#endif
+
         // Try to acquire a lock on the command queue.
         // If we were successful, we pop all pending commands off the queue and
         // apply them to the processor.
@@ -2407,6 +2413,8 @@ private:
 
             return Component::keyPressed (key);
         }
+
+        void paint (Graphics&) override {}
 
         bool isInterestedInFileDrag (const StringArray& files) override
         {
