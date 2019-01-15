@@ -7,7 +7,7 @@
 */
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "SamplerPluginDemo.h"
+#include "sBMP4.h"
 
 //==============================================================================
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()

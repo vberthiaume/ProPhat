@@ -3,13 +3,12 @@
 <JUCERPROJECT name="sBMP4v2" companyName="JUCE" version="1.0.0" userNotes="Sampler audio plugin."
               companyWebsite="http://juce.com" defines="PIP_JUCE_EXAMPLES_DIRECTORY=QzpcVXNlcnNcSGFha2VcRG9jdW1lbnRzXGdpdFxhdWRpb3dvcmtzXFNvdW5kc1VuaXRlQXBwXHN1Ym1vZHVsZXNcSlVDRVxleGFtcGxlcw=="
               projectType="audioplug" pluginManufacturer="JUCE" pluginAUIsSandboxSafe="1"
-              pluginFormats="buildVST3,buildAU,buildStandalone" id="Pybx3b"
+              pluginFormats="buildAU,buildStandalone,buildVST,buildVST3" id="Pybx3b"
               jucerVersion="5.4.1">
   <MAINGROUP id="xcjoOm" name="sBMP4v2">
     <GROUP id="{9E790ABE-F484-67A0-AF6A-838FDD75B724}" name="Source">
       <FILE id="L5GssZ" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
-      <FILE id="n0Zqru" name="SamplerPluginDemo.h" compile="0" resource="0"
-            file="Source/SamplerPluginDemo.h"/>
+      <FILE id="n0Zqru" name="sBMP4.h" compile="0" resource="0" file="Source/sBMP4.h"/>
     </GROUP>
     <GROUP id="rHgoBl" name="Assets">
       <FILE id="aSCWF3" name="DemoUtilities.h" compile="0" resource="0" file="Source/DemoUtilities.h"/>
