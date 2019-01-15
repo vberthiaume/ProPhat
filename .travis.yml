@@ -36,7 +36,7 @@ before_install:
 script:
   - cd $TRAVIS_BUILD_DIR/
   - $PROJUCER --set-global-search-path $TRAVIS_OS_NAME defaultJuceModulePath $TRAVIS_BUILD_DIR/submodules/JUCE/modules
-  - $PROJUCER --set-global-search-path $TRAVIS_OS_NAME vstLegacyPath $TRAVIS_BUILD_DIR/VST2_SDK
+  - $PROJUCER --set-global-search-path $TRAVIS_OS_NAME vstLegacyPath $TRAVIS_BUILD_DIR/submodules/VST2_SDK
   - $PROJUCER --resave sBMP4v2.jucer
 
   - cd $TRAVIS_BUILD_DIR/Builds/$BUILD_FOLDER/
