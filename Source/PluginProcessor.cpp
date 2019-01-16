@@ -27,6 +27,11 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     })
 {
     state.state.addListener (this);
+
+    for (auto i = 0; i < 4; ++i)
+        synth.addVoice (new SineWaveVoice());
+
+    synth.addSound (new SineWaveSound());
 }
 
 sBMP4AudioProcessor::~sBMP4AudioProcessor()
@@ -95,6 +100,8 @@ void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
     lrFilter.prepare (spec);
     lrFilter.coefficients = dsp::IIR::Coefficients<float>::makePeakFilter (sampleRate, 1000.f, .3f, Decibels::decibelsToGain (-6.f));
+
+    synth.setCurrentPlaybackSampleRate (sampleRate);
 }
 
 void sBMP4AudioProcessor::releaseResources()
@@ -125,18 +132,23 @@ void sBMP4AudioProcessor::processBlock (AudioBuffer<double>& /*ogBuffer*/, MidiB
     //process (ogBuffer, midiMessages);
 }
 
-void sBMP4AudioProcessor::process (AudioBuffer<float>& ogBuffer, MidiBuffer& /*midiMessages*/)
+void sBMP4AudioProcessor::process (AudioBuffer<float>& ogBuffer, MidiBuffer& midiMessages)
 {
-    //clear unused lfo channels, if there's any (there shoudn't, but whatever)
-    for (auto channel = getTotalNumInputChannels(); channel < getTotalNumOutputChannels(); ++channel)
-        ogBuffer.clear (channel, 0, numSamples);
 
-    processLeftRight (ogBuffer);
 
-    //apply lfoGain
-    const auto lfoGain = getSliderLinearGain (lfoSliderID);
-    for (auto channel = getTotalNumInputChannels(); channel < getTotalNumOutputChannels(); ++channel)
-        ogBuffer.applyGain (channel, 0, numSamples, lfoGain);
+
+    synth.renderNextBlock (ogBuffer, midiMessages, 0, ogBuffer.getNumSamples());
+
+    ////clear unused lfo channels, if there's any (there shoudn't, but whatever)
+    //for (auto channel = getTotalNumInputChannels(); channel < getTotalNumOutputChannels(); ++channel)
+    //    ogBuffer.clear (channel, 0, numSamples);
+
+    //processLeftRight (ogBuffer);
+
+    ////apply lfoGain
+    //const auto lfoGain = getSliderLinearGain (lfoSliderID);
+    //for (auto channel = getTotalNumInputChannels(); channel < getTotalNumOutputChannels(); ++channel)
+    //    ogBuffer.applyGain (channel, 0, numSamples, lfoGain);
 }
 
 void sBMP4AudioProcessor::processLeftRight (AudioBuffer<float>& ogBuffer)
