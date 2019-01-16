@@ -4,7 +4,7 @@
 
 static const NormalisableRange<float> sliderRange = {-12.0f, 12.0f};
 
-namespace Jero2BAudioProcessorIDs
+namespace sBMP4AudioProcessorIDs
 {
     const String shotgunComboID = "shotgunCombo";
     const String shotgunSliderID = "shotgunSlider";
@@ -26,7 +26,7 @@ namespace Jero2BAudioProcessorIDs
     const String outputSectionID = "outputSection";
 }
 
-namespace Jero2BAudioProcessorNames
+namespace sBMP4AudioProcessorNames
 {
     const String shotgunComboDescription = "Shotgun Model";
     const String shotgunSliderDescription = "Shotgun Gain";
@@ -48,7 +48,7 @@ namespace Jero2BAudioProcessorNames
     const String outputSectionDescription = "Output";
 }
 
-namespace Jero2BAudioProcessorChoices
+namespace sBMP4AudioProcessorChoices
 {
     const String shotgunChoice0 = "DPA 4017";
     const String shotgunChoice1 = "Other";
@@ -59,13 +59,13 @@ namespace Jero2BAudioProcessorChoices
 
 //==============================================================================
 
-class Jero2BAudioProcessor  : public AudioProcessor, public ValueTree::Listener
+class sBMP4AudioProcessor  : public AudioProcessor, public ValueTree::Listener
 {
 public:
 
     //==============================================================================
-    Jero2BAudioProcessor();
-    ~Jero2BAudioProcessor();
+    sBMP4AudioProcessor();
+    ~sBMP4AudioProcessor();
 
     void valueTreePropertyChanged (juce::ValueTree &/*v*/, const juce::Identifier &/*id*/) override
     {
@@ -138,5 +138,5 @@ private:
 
     dsp::IIR::Filter<float> lrFilter;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Jero2BAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessor)
 };

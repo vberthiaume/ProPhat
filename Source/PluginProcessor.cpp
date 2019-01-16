@@ -2,12 +2,12 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-using namespace Jero2BAudioProcessorIDs;
-using namespace Jero2BAudioProcessorNames;
-using namespace Jero2BAudioProcessorChoices;
+using namespace sBMP4AudioProcessorIDs;
+using namespace sBMP4AudioProcessorNames;
+using namespace sBMP4AudioProcessorChoices;
 
 //==============================================================================
-Jero2BAudioProcessor::Jero2BAudioProcessor() :
+sBMP4AudioProcessor::sBMP4AudioProcessor() :
     AudioProcessor (BusesProperties().withInput  ("Input", AudioChannelSet::stereo(), true)
                                      .withOutput ("Output", AudioChannelSet::stereo(), true)),
     state (*this, nullptr, "state",
@@ -29,63 +29,63 @@ Jero2BAudioProcessor::Jero2BAudioProcessor() :
     state.state.addListener (this);
 }
 
-Jero2BAudioProcessor::~Jero2BAudioProcessor()
+sBMP4AudioProcessor::~sBMP4AudioProcessor()
 {
 }
 
 //==============================================================================
-const String Jero2BAudioProcessor::getName() const
+const String sBMP4AudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool Jero2BAudioProcessor::acceptsMidi() const
+bool sBMP4AudioProcessor::acceptsMidi() const
 {
     return false;
 
 }
 
-bool Jero2BAudioProcessor::producesMidi() const
+bool sBMP4AudioProcessor::producesMidi() const
 {
     return false;
 }
 
-bool Jero2BAudioProcessor::isMidiEffect() const
+bool sBMP4AudioProcessor::isMidiEffect() const
 {
     return false;
 }
 
-double Jero2BAudioProcessor::getTailLengthSeconds() const
+double sBMP4AudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int Jero2BAudioProcessor::getNumPrograms()
+int sBMP4AudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int Jero2BAudioProcessor::getCurrentProgram()
+int sBMP4AudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void Jero2BAudioProcessor::setCurrentProgram (int /*index*/)
+void sBMP4AudioProcessor::setCurrentProgram (int /*index*/)
 {
 }
 
-const String Jero2BAudioProcessor::getProgramName (int /*index*/)
+const String sBMP4AudioProcessor::getProgramName (int /*index*/)
 {
     return {};
 }
 
-void Jero2BAudioProcessor::changeProgramName (int /*index*/, const String& /*newName*/)
+void sBMP4AudioProcessor::changeProgramName (int /*index*/, const String& /*newName*/)
 {
 }
 
 //==============================================================================
-void Jero2BAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     numSamples = samplesPerBlock;
 
@@ -97,14 +97,14 @@ void Jero2BAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     lrFilter.coefficients = dsp::IIR::Coefficients<float>::makePeakFilter (sampleRate, 1000.f, .3f, Decibels::decibelsToGain (-6.f));
 }
 
-void Jero2BAudioProcessor::releaseResources()
+void sBMP4AudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool Jero2BAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool sBMP4AudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
     return layouts.getMainOutputChannelSet() == AudioChannelSet::mono()
         || layouts.getMainOutputChannelSet() == AudioChannelSet::stereo();
@@ -112,20 +112,20 @@ bool Jero2BAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) c
 #endif
 
 //============================================================================= =
-void Jero2BAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void sBMP4AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     jassert (! isUsingDoublePrecision());
     process (buffer, midiMessages);
 }
 
-void Jero2BAudioProcessor::processBlock (AudioBuffer<double>& /*ogBuffer*/, MidiBuffer& /*midiMessages*/)
+void sBMP4AudioProcessor::processBlock (AudioBuffer<double>& /*ogBuffer*/, MidiBuffer& /*midiMessages*/)
 {
     jassertfalse;
     jassert (isUsingDoublePrecision());
     //process (ogBuffer, midiMessages);
 }
 
-void Jero2BAudioProcessor::process (AudioBuffer<float>& ogBuffer, MidiBuffer& /*midiMessages*/)
+void sBMP4AudioProcessor::process (AudioBuffer<float>& ogBuffer, MidiBuffer& /*midiMessages*/)
 {
     //clear unused output channels, if there's any (there shoudn't, but whatever)
     for (auto channel = getTotalNumInputChannels(); channel < getTotalNumOutputChannels(); ++channel)
@@ -139,7 +139,7 @@ void Jero2BAudioProcessor::process (AudioBuffer<float>& ogBuffer, MidiBuffer& /*
         ogBuffer.applyGain (channel, 0, numSamples, outputGain);
 }
 
-void Jero2BAudioProcessor::processLeftRight (AudioBuffer<float>& ogBuffer)
+void sBMP4AudioProcessor::processLeftRight (AudioBuffer<float>& ogBuffer)
 {
     for (int i = 0; i < ogBuffer.getNumChannels(); ++i)
     {
@@ -152,7 +152,7 @@ void Jero2BAudioProcessor::processLeftRight (AudioBuffer<float>& ogBuffer)
 }
 
 //==============================================================================
-void Jero2BAudioProcessor::getStateInformation (MemoryBlock& destData)
+void sBMP4AudioProcessor::getStateInformation (MemoryBlock& destData)
 {
     std::unique_ptr<XmlElement> xmlState (state.copyState().createXml());
 
@@ -160,7 +160,7 @@ void Jero2BAudioProcessor::getStateInformation (MemoryBlock& destData)
         copyXmlToBinary (*xmlState, destData);
 }
 
-void Jero2BAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void sBMP4AudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     std::unique_ptr<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
 
@@ -169,12 +169,12 @@ void Jero2BAudioProcessor::setStateInformation (const void* data, int sizeInByte
 }
 
 //==============================================================================
-AudioProcessorEditor* Jero2BAudioProcessor::createEditor()
+AudioProcessorEditor* sBMP4AudioProcessor::createEditor()
 {
-    return new Jero2BAudioProcessorEditor (*this);
+    return new sBMP4AudioProcessorEditor (*this);
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new Jero2BAudioProcessor();
+    return new sBMP4AudioProcessor();
 }

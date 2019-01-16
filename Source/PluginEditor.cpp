@@ -1,8 +1,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-using namespace Jero2BAudioProcessorIDs;
-using namespace Jero2BAudioProcessorNames;
+using namespace sBMP4AudioProcessorIDs;
+using namespace sBMP4AudioProcessorNames;
 
 enum sizes
 {
@@ -22,7 +22,7 @@ enum sizes
 };
 
 //==============================================================================
-Jero2BAudioProcessorEditor::Jero2BAudioProcessorEditor (Jero2BAudioProcessor& p) :
+sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     AudioProcessorEditor (p),
     processor (p),
 
@@ -100,18 +100,18 @@ Jero2BAudioProcessorEditor::Jero2BAudioProcessorEditor (Jero2BAudioProcessor& p)
     addAndMakeVisible (outputSection);
 }
 
-Jero2BAudioProcessorEditor::~Jero2BAudioProcessorEditor()
+sBMP4AudioProcessorEditor::~sBMP4AudioProcessorEditor()
 {
 }
 
 //==============================================================================
-void Jero2BAudioProcessorEditor::paint (Graphics& g)
+void sBMP4AudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
     g.setColour (Colours::whitesmoke);
 }
 
-void Jero2BAudioProcessorEditor::resized()
+void sBMP4AudioProcessorEditor::resized()
 {
     auto bounds = getLocalBounds().reduced (overallGap);
 

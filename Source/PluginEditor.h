@@ -30,12 +30,12 @@ private:
 //==============================================================================
 /**
 */
-class Jero2BAudioProcessorEditor : public AudioProcessorEditor
+class sBMP4AudioProcessorEditor : public AudioProcessorEditor
 {
 public:
 
-    Jero2BAudioProcessorEditor (Jero2BAudioProcessor&);
-    ~Jero2BAudioProcessorEditor();
+    sBMP4AudioProcessorEditor (sBMP4AudioProcessor&);
+    ~sBMP4AudioProcessorEditor();
 
     //==============================================================================
     void paint (Graphics&) override;
@@ -43,7 +43,7 @@ public:
 
 private:
 
-    Jero2BAudioProcessor& processor;
+    sBMP4AudioProcessor& processor;
 
     Label shotgunChoiceLabel, shotgunGainLabel, frontBackGainLabel, upDownGainLabel, bFormatChoiceLabel, outputGainLabel;
 
@@ -58,5 +58,5 @@ private:
 
     GroupComponent shotgunSection, frontBackSection, upDownSection, outputSection;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Jero2BAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessorEditor)
 };
