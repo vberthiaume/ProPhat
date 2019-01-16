@@ -12,18 +12,18 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
                                      .withOutput ("Output", AudioChannelSet::stereo(), true)),
     state (*this, nullptr, "state",
     {
-        std::make_unique<AudioParameterChoice> (shotgunComboID,  shotgunComboDescription,  StringArray {shotgunChoice0, shotgunChoice1}, 0),
-        std::make_unique<AudioParameterFloat> (shotgunSliderID, shotgunSliderDescription, sliderRange, 0.0f),
-        std::make_unique<AudioParameterBool> (shotgunButtonID, shotgunButtonDescription, true, shotgunButtonDescription),
+        std::make_unique<AudioParameterChoice> (oscillatorsComboID,  oscillatorsComboDescription,  StringArray {oscillatorsChoice0, oscillatorsChoice1}, 0),
+        std::make_unique<AudioParameterFloat> (oscillatorsSliderID, oscillatorsSliderDescription, sliderRange, 0.0f),
+        std::make_unique<AudioParameterBool> (oscillatorsButtonID, oscillatorsButtonDescription, true, oscillatorsButtonDescription),
 
-        std::make_unique<AudioParameterFloat> (frontBackSliderID, frontBackSliderDescription, sliderRange, 0.0f),
-        std::make_unique<AudioParameterBool> (frontBackButtonID, frontBackButtonDescription, true, frontBackButtonDescription),
+        std::make_unique<AudioParameterFloat> (filterSliderID, filterSliderDescription, sliderRange, 0.0f),
+        std::make_unique<AudioParameterBool> (filterButtonID, filterButtonDescription, true, filterButtonDescription),
 
-        std::make_unique<AudioParameterFloat> (upDownSliderID, upDownSliderDescription, sliderRange, 0.0f),
-        std::make_unique<AudioParameterBool> (upDownButtonID, upDownButtonDescription, true, upDownButtonDescription),
+        std::make_unique<AudioParameterFloat> (envelopeSliderID, envelopeSliderDescription, sliderRange, 0.0f),
+        std::make_unique<AudioParameterBool> (envelopeButtonID, envelopeButtonDescription, true, envelopeButtonDescription),
 
-        std::make_unique<AudioParameterChoice> (bFormatComboID,  bFormatComboDescription,  StringArray {bFormatChoices0, bFormatChoices1}, 0),
-        std::make_unique<AudioParameterFloat> (outputSliderID, outputSliderDescription, sliderRange, 0.0f)
+        std::make_unique<AudioParameterChoice> (lfoComboID,  lfoComboDescription,  StringArray {lfoChoices0, lfoChoices1}, 0),
+        std::make_unique<AudioParameterFloat> (lfoSliderID, lfoSliderDescription, sliderRange, 0.0f)
     })
 {
     state.state.addListener (this);
@@ -127,16 +127,16 @@ void sBMP4AudioProcessor::processBlock (AudioBuffer<double>& /*ogBuffer*/, MidiB
 
 void sBMP4AudioProcessor::process (AudioBuffer<float>& ogBuffer, MidiBuffer& /*midiMessages*/)
 {
-    //clear unused output channels, if there's any (there shoudn't, but whatever)
+    //clear unused lfo channels, if there's any (there shoudn't, but whatever)
     for (auto channel = getTotalNumInputChannels(); channel < getTotalNumOutputChannels(); ++channel)
         ogBuffer.clear (channel, 0, numSamples);
 
     processLeftRight (ogBuffer);
 
-    //apply outputGain
-    const auto outputGain = getSliderLinearGain (outputSliderID);
+    //apply lfoGain
+    const auto lfoGain = getSliderLinearGain (lfoSliderID);
     for (auto channel = getTotalNumInputChannels(); channel < getTotalNumOutputChannels(); ++channel)
-        ogBuffer.applyGain (channel, 0, numSamples, outputGain);
+        ogBuffer.applyGain (channel, 0, numSamples, lfoGain);
 }
 
 void sBMP4AudioProcessor::processLeftRight (AudioBuffer<float>& ogBuffer)

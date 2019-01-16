@@ -45,18 +45,18 @@ private:
 
     sBMP4AudioProcessor& processor;
 
-    Label shotgunChoiceLabel, shotgunGainLabel, frontBackGainLabel, upDownGainLabel, bFormatChoiceLabel, outputGainLabel;
+    Label oscillatorsChoiceLabel, oscillatorsGainLabel, filterGainLabel, envelopeGainLabel, lfoChoiceLabel, lfoGainLabel;
 
-    SnappingSlider shotgunSlider, frontBackSlider, upDownSlider, outputSlider;
-    AudioProcessorValueTreeState::SliderAttachment shotgunSliderAttachment, frontBackSliderAttachment, upDownSliderAttachment, outputSliderAttachment;
+    SnappingSlider oscillatorsSlider, filterSlider, envelopeSlider, lfoSlider;
+    AudioProcessorValueTreeState::SliderAttachment oscillatorsSliderAttachment, filterSliderAttachment, envelopeSliderAttachment, lfoSliderAttachment;
 
-    ComboBox shotgunCombo, bFormatCombo;
-    AudioProcessorValueTreeState::ComboBoxAttachment shotgunComboAttachment, formatComboAttachment;
+    ComboBox oscillatorsCombo, lfoCombo;
+    AudioProcessorValueTreeState::ComboBoxAttachment oscillatorsComboAttachment, formatComboAttachment;
 
-    ToggleButton shotgunButton, frontBackButton, upDownButton;
-    AudioProcessorValueTreeState::ButtonAttachment shotgunButtonAttachment, frontBackButtonAttachment, upDownButtonAttachment;
+    ToggleButton oscillatorsButton, filterButton, envelopeButton;
+    AudioProcessorValueTreeState::ButtonAttachment oscillatorsButtonAttachment, filterButtonAttachment, envelopeButtonAttachment;
 
-    GroupComponent shotgunSection, frontBackSection, upDownSection, outputSection;
+    GroupComponent oscillatorsSection, filterSection, envelopeSection, lfoSection;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessorEditor)
 };

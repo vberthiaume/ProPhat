@@ -6,55 +6,55 @@ static const NormalisableRange<float> sliderRange = {-12.0f, 12.0f};
 
 namespace sBMP4AudioProcessorIDs
 {
-    const String shotgunComboID = "shotgunCombo";
-    const String shotgunSliderID = "shotgunSlider";
-    const String shotgunButtonID = "shotgunButton";
+    const String oscillatorsComboID = "oscillatorsCombo";
+    const String oscillatorsSliderID = "oscillatorsSlider";
+    const String oscillatorsButtonID = "oscillatorsButton";
 
-    const String frontBackSliderID = "frontBackSlider";
-    const String frontBackButtonID = "frontBackButton";
+    const String filterSliderID = "filterSlider";
+    const String filterButtonID = "filterButton";
 
-    const String upDownSliderID = "upDownSlider";
-    const String upDownButtonID = "upDownButton";
+    const String envelopeSliderID = "envelopeSlider";
+    const String envelopeButtonID = "envelopeButton";
 
-    const String bFormatComboID = "bFormatCombo";
+    const String lfoComboID = "lfoCombo";
 
-    const String outputSliderID = "outputSlider";
+    const String lfoSliderID = "lfoSlider";
 
-    const String shotgunSectionID = "shotgunSection";
-    const String frontBackSectionID = "frontBackSection";
-    const String upDownSectionID = "upDownSection";
-    const String outputSectionID = "outputSection";
+    const String oscillatorsSectionID = "oscillatorsSection";
+    const String filterSectionID = "filterSection";
+    const String envelopeSectionID = "envelopeSection";
+    const String lfoSectionID = "lfoSection";
 }
 
 namespace sBMP4AudioProcessorNames
 {
-    const String shotgunComboDescription = "Shotgun Model";
-    const String shotgunSliderDescription = "Shotgun Gain";
-    const String shotgunButtonDescription = "Shotgun ON";
+    const String oscillatorsComboDescription = "Oscillators Model";
+    const String oscillatorsSliderDescription = "Oscillators Gain";
+    const String oscillatorsButtonDescription = "Oscillators ON";
 
-    const String frontBackSliderDescription = "Front-Back Axis Gain";
-    const String frontBackButtonDescription = "Front-Back Axis ON";
+    const String filterSliderDescription = "Filter Gain";
+    const String filterButtonDescription = "Filter ON";
 
-    const String upDownSliderDescription = "Up-Down Axis Gain";
-    const String upDownButtonDescription = "Up-Down Axis ON";
+    const String envelopeSliderDescription = "Envelope Gain";
+    const String envelopeButtonDescription = "Envelope ON";
 
-    const String bFormatComboDescription = "B-Format Type";
+    const String lfoComboDescription = "B-Format Type";
 
-    const String outputSliderDescription = "Output Gain";
+    const String lfoSliderDescription = "LFO Frequency";
 
-    const String shotgunSectionDescription = "Shotgun";
-    const String frontBackSectionDescription = "Front-Back";
-    const String upDownSectionDescription = "Up-Down";
-    const String outputSectionDescription = "Output";
+    const String oscillatorsSectionDescription = "Oscillators";
+    const String filterSectionDescription = "Filter";
+    const String envelopeSectionDescription = "Envelope";
+    const String lfoSectionDescription = "Output";
 }
 
 namespace sBMP4AudioProcessorChoices
 {
-    const String shotgunChoice0 = "DPA 4017";
-    const String shotgunChoice1 = "Other";
+    const String oscillatorsChoice0 = "Sine";
+    const String oscillatorsChoice1 = "Other";
 
-    const String bFormatChoices0 = "ambiX";
-    const String bFormatChoices1 = "FuMa";
+    const String lfoChoices0 = "Sine";
+    const String lfoChoices1 = "Pulse";
 }
 
 //==============================================================================

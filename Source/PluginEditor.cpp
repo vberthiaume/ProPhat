@@ -26,22 +26,22 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     AudioProcessorEditor (p),
     processor (p),
 
-    shotgunSliderAttachment (p.state, shotgunSliderID, shotgunSlider),
-    frontBackSliderAttachment (p.state, frontBackSliderID, frontBackSlider),
-    upDownSliderAttachment (p.state, upDownSliderID, upDownSlider),
-    outputSliderAttachment (p.state, outputSliderID, outputSlider),
+    oscillatorsSliderAttachment (p.state, oscillatorsSliderID, oscillatorsSlider),
+    filterSliderAttachment (p.state, filterSliderID, filterSlider),
+    envelopeSliderAttachment (p.state, envelopeSliderID, envelopeSlider),
+    lfoSliderAttachment (p.state, lfoSliderID, lfoSlider),
 
-    shotgunComboAttachment (p.state, shotgunComboID, shotgunCombo),
-    formatComboAttachment (p.state, bFormatComboID, bFormatCombo),
+    oscillatorsComboAttachment (p.state, oscillatorsComboID, oscillatorsCombo),
+    formatComboAttachment (p.state, lfoComboID, lfoCombo),
 
-    shotgunButtonAttachment (p.state, shotgunButtonID, shotgunButton),
-    frontBackButtonAttachment (p.state, frontBackButtonID, frontBackButton),
-    upDownButtonAttachment (p.state, upDownButtonID, upDownButton),
+    oscillatorsButtonAttachment (p.state, oscillatorsButtonID, oscillatorsButton),
+    filterButtonAttachment (p.state, filterButtonID, filterButton),
+    envelopeButtonAttachment (p.state, envelopeButtonID, envelopeButton),
 
-    shotgunSection (shotgunSectionID, shotgunSectionDescription),
-    frontBackSection (frontBackSectionID, frontBackSectionDescription),
-    upDownSection (upDownSectionID, upDownSectionDescription),
-    outputSection (outputSectionID, outputSectionDescription)
+    oscillatorsSection (oscillatorsSectionID, oscillatorsSectionDescription),
+    filterSection (filterSectionID, filterSectionDescription),
+    envelopeSection (envelopeSectionID, envelopeSectionDescription),
+    lfoSection (lfoSectionID, lfoSectionDescription)
 {
     setSize (width, height);
     setResizable (false, false);
@@ -61,13 +61,13 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
         addAndMakeVisible (combo);
     };
 
-    auto shotgunComboParam = (AudioParameterChoice*) processor.state.getParameter (shotgunComboID);
-    if (shotgunComboParam != nullptr)
-        addComboBox (shotgunCombo, shotgunChoiceLabel, shotgunComboDescription, shotgunComboParam->choices);
+    auto oscillatorsComboParam = (AudioParameterChoice*) processor.state.getParameter (oscillatorsComboID);
+    if (oscillatorsComboParam != nullptr)
+        addComboBox (oscillatorsCombo, oscillatorsChoiceLabel, oscillatorsComboDescription, oscillatorsComboParam->choices);
 
-    auto bFormatComboParam = (AudioParameterChoice*) processor.state.getParameter (bFormatComboID);
-    if (bFormatComboParam != nullptr)
-        addComboBox (bFormatCombo, bFormatChoiceLabel, bFormatComboDescription, bFormatComboParam->choices);
+    auto lfoComboParam = (AudioParameterChoice*) processor.state.getParameter (lfoComboID);
+    if (lfoComboParam != nullptr)
+        addComboBox (lfoCombo, lfoChoiceLabel, lfoComboDescription, lfoComboParam->choices);
 
     auto addSlider = [this] (Slider& slider, Label& label, StringRef labelText)
     {
@@ -79,10 +79,10 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
         addAndMakeVisible (slider);
     };
 
-    addSlider (shotgunSlider, shotgunGainLabel, shotgunSliderDescription);
-    addSlider (frontBackSlider, frontBackGainLabel, frontBackSliderDescription);
-    addSlider (upDownSlider, upDownGainLabel, upDownSliderDescription);
-    addSlider (outputSlider, outputGainLabel, outputSliderDescription);
+    addSlider (oscillatorsSlider, oscillatorsGainLabel, oscillatorsSliderDescription);
+    addSlider (filterSlider, filterGainLabel, filterSliderDescription);
+    addSlider (envelopeSlider, envelopeGainLabel, envelopeSliderDescription);
+    addSlider (lfoSlider, lfoGainLabel, lfoSliderDescription);
 
     auto addButton = [this] (Button& button, StringRef text)
     {
@@ -90,14 +90,14 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
         addAndMakeVisible (button);
     };
 
-    addButton (shotgunButton, shotgunButtonDescription);
-    addButton (frontBackButton, frontBackButtonDescription);
-    addButton (upDownButton, upDownButtonDescription);
+    addButton (oscillatorsButton, oscillatorsButtonDescription);
+    addButton (filterButton, filterButtonDescription);
+    addButton (envelopeButton, envelopeButtonDescription);
 
-    addAndMakeVisible (shotgunSection);
-    addAndMakeVisible (frontBackSection);
-    addAndMakeVisible (upDownSection);
-    addAndMakeVisible (outputSection);
+    addAndMakeVisible (oscillatorsSection);
+    addAndMakeVisible (filterSection);
+    addAndMakeVisible (envelopeSection);
+    addAndMakeVisible (lfoSection);
 }
 
 sBMP4AudioProcessorEditor::~sBMP4AudioProcessorEditor()
@@ -115,66 +115,66 @@ void sBMP4AudioProcessorEditor::resized()
 {
     auto bounds = getLocalBounds().reduced (overallGap);
 
-    //shotgun section
+    //oscillators section
     {
         const auto lines = 3;
         auto sectionBounds = bounds.removeFromTop (lines * (lineH + lineGap) + panelGap);
-        shotgunSection.setBounds (sectionBounds);
+        oscillatorsSection.setBounds (sectionBounds);
 
         sectionBounds.reduce (panelGap, panelGap);
 
         sectionBounds.removeFromTop (lineGap);
-        shotgunButton.setBounds (sectionBounds.removeFromTop (lineH));
+        oscillatorsButton.setBounds (sectionBounds.removeFromTop (lineH));
 
         sectionBounds.removeFromTop (lineGap);
-        shotgunCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboDeltaW).reduced (0, 2));
+        oscillatorsCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboDeltaW).reduced (0, 2));
 
         sectionBounds.removeFromTop (lineGap);
-        shotgunSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
+        oscillatorsSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
     }
     
     //front-back section
     {
         const auto lines = 2;
         auto sectionBounds = bounds.removeFromTop (lines * (lineH + lineGap) + panelGap);
-        frontBackSection.setBounds (sectionBounds);
+        filterSection.setBounds (sectionBounds);
 
         sectionBounds.reduce (panelGap, panelGap);
         
         sectionBounds.removeFromTop (lineGap);
-        frontBackButton.setBounds (sectionBounds.removeFromTop (lineH));
+        filterButton.setBounds (sectionBounds.removeFromTop (lineH));
 
         sectionBounds.removeFromTop (lineGap);
-        frontBackSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
+        filterSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
     }
     
     //up-down section
     {
         const auto lines = 2;
         auto sectionBounds = bounds.removeFromTop (lines * (lineH + lineGap) + panelGap);
-        upDownSection.setBounds (sectionBounds);
+        envelopeSection.setBounds (sectionBounds);
 
         sectionBounds.reduce (panelGap, panelGap);
         
         sectionBounds.removeFromTop (lineGap);
-        upDownButton.setBounds (sectionBounds.removeFromTop (lineH));
+        envelopeButton.setBounds (sectionBounds.removeFromTop (lineH));
 
         sectionBounds.removeFromTop (lineGap);
-        upDownSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
+        envelopeSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
     }
     
-    //output section
+    //lfo section
     {
         const auto lines = 2;
         auto sectionBounds = bounds.removeFromTop (lines * lineH + 2 * panelGap);
-        outputSection.setBounds (sectionBounds);
+        lfoSection.setBounds (sectionBounds);
 
         sectionBounds.reduce (panelGap, panelGap);
         
         sectionBounds.removeFromTop (lineGap);
-        bFormatCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboDeltaW).reduced (0, 2));
+        lfoCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboDeltaW).reduced (0, 2));
 
         sectionBounds.removeFromTop (lineGap);
-        outputSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
+        lfoSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
     }
 }
