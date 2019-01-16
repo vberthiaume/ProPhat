@@ -38,14 +38,14 @@ namespace sBMP4AudioProcessorNames
     const String envelopeSliderDescription = "Envelope Gain";
     const String envelopeButtonDescription = "Envelope ON";
 
-    const String lfoComboDescription = "B-Format Type";
+    const String lfoComboDescription = "Wave Type";
 
     const String lfoSliderDescription = "LFO Frequency";
 
     const String oscillatorsSectionDescription = "Oscillators";
     const String filterSectionDescription = "Filter";
     const String envelopeSectionDescription = "Envelope";
-    const String lfoSectionDescription = "Output";
+    const String lfoSectionDescription = "LFO";
 }
 
 namespace sBMP4AudioProcessorChoices
