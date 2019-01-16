@@ -7,7 +7,7 @@ using namespace sBMP4AudioProcessorNames;
 enum sizes
 {
     width = 400,
-    height = 400,
+    height = 350,
 
     overallGap = 8,
     panelGap = 10,
@@ -15,7 +15,7 @@ enum sizes
     lineH = 30,
     lineGap = 2,
     labelW = 130,
-    comboDeltaW = 8,
+    comboExtraGap = 8,
     horizontalGap = 4,
 
     font = 14
@@ -127,7 +127,7 @@ void sBMP4AudioProcessorEditor::resized()
         oscillatorsButton.setBounds (sectionBounds.removeFromTop (lineH));
 
         sectionBounds.removeFromTop (lineGap);
-        oscillatorsCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboDeltaW).reduced (0, 2));
+        oscillatorsCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboExtraGap).reduced (0, 2));
 
         sectionBounds.removeFromTop (lineGap);
         oscillatorsSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
@@ -172,7 +172,7 @@ void sBMP4AudioProcessorEditor::resized()
         sectionBounds.reduce (panelGap, panelGap);
         
         sectionBounds.removeFromTop (lineGap);
-        lfoCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboDeltaW).reduced (0, 2));
+        lfoCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboExtraGap).reduced (0, 2));
 
         sectionBounds.removeFromTop (lineGap);
         lfoSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
