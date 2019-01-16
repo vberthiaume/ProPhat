@@ -19,6 +19,11 @@ namespace Jero2BAudioProcessorIDs
     const String bFormatComboID = "bFormatCombo";
 
     const String outputSliderID = "outputSlider";
+
+    const String shotgunSectionID = "shotgunSection";
+    const String frontBackSectionID = "frontBackSection";
+    const String upDownSectionID = "upDownSection";
+    const String outputSectionID = "outputSection";
 }
 
 namespace Jero2BAudioProcessorNames
@@ -36,6 +41,11 @@ namespace Jero2BAudioProcessorNames
     const String bFormatComboDescription = "B-Format Type";
 
     const String outputSliderDescription = "Output Gain";
+
+    const String shotgunSectionDescription = "Shotgun";
+    const String frontBackSectionDescription = "Front-Back";
+    const String upDownSectionDescription = "Up-Down";
+    const String outputSectionDescription = "Output";
 }
 
 namespace Jero2BAudioProcessorChoices
@@ -46,7 +56,6 @@ namespace Jero2BAudioProcessorChoices
     const String bFormatChoices0 = "ambiX";
     const String bFormatChoices1 = "FuMa";
 }
-
 
 //==============================================================================
 

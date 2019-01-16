@@ -4,6 +4,23 @@
 using namespace Jero2BAudioProcessorIDs;
 using namespace Jero2BAudioProcessorNames;
 
+enum sizes
+{
+    width = 400,
+    height = 400,
+
+    overallGap = 8,
+    panelGap = 10,
+
+    lineH = 30,
+    lineGap = 2,
+    labelW = 130,
+    comboDeltaW = 8,
+    horizontalGap = 4,
+
+    font = 14
+};
+
 //==============================================================================
 Jero2BAudioProcessorEditor::Jero2BAudioProcessorEditor (Jero2BAudioProcessor& p) :
     AudioProcessorEditor (p),
@@ -19,17 +36,21 @@ Jero2BAudioProcessorEditor::Jero2BAudioProcessorEditor (Jero2BAudioProcessor& p)
 
     shotgunButtonAttachment (p.state, shotgunButtonID, shotgunButton),
     frontBackButtonAttachment (p.state, frontBackButtonID, frontBackButton),
-    upDownButtonAttachment (p.state, upDownButtonID, upDownButton)
+    upDownButtonAttachment (p.state, upDownButtonID, upDownButton),
 
+    shotgunSection (shotgunSectionID, shotgunSectionDescription),
+    frontBackSection (frontBackSectionID, frontBackSectionDescription),
+    upDownSection (upDownSectionID, upDownSectionDescription),
+    outputSection (outputSectionID, outputSectionDescription)
 {
-    setSize (400, 300);
+    setSize (width, height);
     setResizable (false, false);
 
     auto addComboBox = [this] (ComboBox& combo, Label& label, StringRef text, const StringArray &choices)
     {
         label.setText (text, dontSendNotification);
         label.attachToComponent (&combo, true);
-        label.setFont (Font (14.0f));
+        label.setFont (Font (font));
 
         int i = 1;
         for (auto choice : choices)
@@ -52,7 +73,7 @@ Jero2BAudioProcessorEditor::Jero2BAudioProcessorEditor (Jero2BAudioProcessor& p)
     {
         label.setText (labelText, dontSendNotification);
         label.attachToComponent (&slider, true);
-        label.setFont (Font (14.0f));
+        label.setFont (Font (font));
 
         slider.setTextBoxStyle (Slider::TextBoxRight, false, 40, 20);
         addAndMakeVisible (slider);
@@ -73,6 +94,10 @@ Jero2BAudioProcessorEditor::Jero2BAudioProcessorEditor (Jero2BAudioProcessor& p)
     addButton (frontBackButton, frontBackButtonDescription);
     addButton (upDownButton, upDownButtonDescription);
 
+    addAndMakeVisible (shotgunSection);
+    addAndMakeVisible (frontBackSection);
+    addAndMakeVisible (upDownSection);
+    addAndMakeVisible (outputSection);
 }
 
 Jero2BAudioProcessorEditor::~Jero2BAudioProcessorEditor()
@@ -82,48 +107,74 @@ Jero2BAudioProcessorEditor::~Jero2BAudioProcessorEditor()
 //==============================================================================
 void Jero2BAudioProcessorEditor::paint (Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-
     g.setColour (Colours::whitesmoke);
-    g.drawRoundedRectangle (shotgunSection, 1.0f, 2.0f);
-    g.drawRoundedRectangle (frontBackSection, 1.0f, 2.0f);
-    g.drawRoundedRectangle (upDownSection, 1.0f, 2.0f);
 }
 
 void Jero2BAudioProcessorEditor::resized()
 {
-    auto bounds = getLocalBounds().reduced (8);
-
-    const auto lineW = 30;
-    const auto labelW = 130;
-    const auto comboDeltaW = 8;
+    auto bounds = getLocalBounds().reduced (overallGap);
 
     //shotgun section
-    shotgunButton.setBounds (bounds.removeFromTop (lineW));
-    shotgunCombo.setBounds (bounds.removeFromTop (lineW).withLeft (labelW + comboDeltaW).reduced (0, 2));
-    shotgunSlider.setBounds (bounds.removeFromTop (lineW).withLeft (labelW));
+    {
+        const auto lines = 3;
+        auto sectionBounds = bounds.removeFromTop (lines * (lineH + lineGap) + panelGap);
+        shotgunSection.setBounds (sectionBounds);
 
-    shotgunSection = shotgunButton.getBounds().toFloat().expanded (4.f, 0.f);;
-    shotgunSection.setHeight (3 * lineW);
+        sectionBounds.reduce (panelGap, panelGap);
 
+        sectionBounds.removeFromTop (lineGap);
+        shotgunButton.setBounds (sectionBounds.removeFromTop (lineH));
+
+        sectionBounds.removeFromTop (lineGap);
+        shotgunCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboDeltaW).reduced (0, 2));
+
+        sectionBounds.removeFromTop (lineGap);
+        shotgunSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
+    }
+    
     //front-back section
-    frontBackButton.setBounds (bounds.removeFromTop (lineW));
-    frontBackSlider.setBounds (bounds.removeFromTop (lineW).withLeft (labelW));
+    {
+        const auto lines = 2;
+        auto sectionBounds = bounds.removeFromTop (lines * (lineH + lineGap) + panelGap);
+        frontBackSection.setBounds (sectionBounds);
 
-    frontBackSection = frontBackButton.getBounds().toFloat().expanded (4.f, 0.f);
-    frontBackSection.setHeight (2 * lineW);
+        sectionBounds.reduce (panelGap, panelGap);
+        
+        sectionBounds.removeFromTop (lineGap);
+        frontBackButton.setBounds (sectionBounds.removeFromTop (lineH));
 
+        sectionBounds.removeFromTop (lineGap);
+        frontBackSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
+    }
+    
     //up-down section
-    upDownButton.setBounds (bounds.removeFromTop (lineW));
-    upDownSlider.setBounds (bounds.removeFromTop (lineW).withLeft (labelW));
+    {
+        const auto lines = 2;
+        auto sectionBounds = bounds.removeFromTop (lines * (lineH + lineGap) + panelGap);
+        upDownSection.setBounds (sectionBounds);
 
-    upDownSection = upDownButton.getBounds().toFloat().expanded (4.f, 0.f);;
-    upDownSection.setHeight (2 * lineW);
+        sectionBounds.reduce (panelGap, panelGap);
+        
+        sectionBounds.removeFromTop (lineGap);
+        upDownButton.setBounds (sectionBounds.removeFromTop (lineH));
 
-    //b format section
-    bFormatCombo.setBounds (bounds.removeFromTop (lineW).withLeft (labelW + comboDeltaW).reduced (0, 2));
+        sectionBounds.removeFromTop (lineGap);
+        upDownSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
+    }
+    
+    //output section
+    {
+        const auto lines = 2;
+        auto sectionBounds = bounds.removeFromTop (lines * lineH + 2 * panelGap);
+        outputSection.setBounds (sectionBounds);
 
-    //bounds.removeFromTop (25);
-    outputSlider.setBounds (bounds.removeFromTop (lineW).withLeft (labelW));
+        sectionBounds.reduce (panelGap, panelGap);
+        
+        sectionBounds.removeFromTop (lineGap);
+        bFormatCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboDeltaW).reduced (0, 2));
+
+        sectionBounds.removeFromTop (lineGap);
+        outputSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
+    }
 }

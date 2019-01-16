@@ -56,7 +56,7 @@ private:
     ToggleButton shotgunButton, frontBackButton, upDownButton;
     AudioProcessorValueTreeState::ButtonAttachment shotgunButtonAttachment, frontBackButtonAttachment, upDownButtonAttachment;
 
-    Rectangle<float> shotgunSection, frontBackSection, upDownSection;
+    GroupComponent shotgunSection, frontBackSection, upDownSection, outputSection;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Jero2BAudioProcessorEditor)
 };
