@@ -23,7 +23,9 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
         std::make_unique<AudioParameterBool> (envelopeButtonID, envelopeButtonDescription, true, envelopeButtonDescription),
 
         std::make_unique<AudioParameterChoice> (lfoComboID,  lfoComboDescription,  StringArray {lfoChoices0, lfoChoices1}, 0),
-        std::make_unique<AudioParameterFloat> (lfoSliderID, lfoSliderDescription, sliderRange, 0.0f)
+        std::make_unique<AudioParameterFloat> (lfoSliderID, lfoSliderDescription, sliderRange, 0.0f),
+
+        std::make_unique<AudioParameterFloat> (roomSizeID, roomSizeDescription, sliderRange, 0.0f)
     })
 {
     state.state.addListener (this);
@@ -102,6 +104,7 @@ void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     lrFilter.coefficients = dsp::IIR::Coefficients<float>::makePeakFilter (sampleRate, 1000.f, .3f, Decibels::decibelsToGain (-6.f));
 
     synth.setCurrentPlaybackSampleRate (sampleRate);
+    reverb.setSampleRate (sampleRate);
 }
 
 void sBMP4AudioProcessor::releaseResources()
@@ -132,23 +135,18 @@ void sBMP4AudioProcessor::processBlock (AudioBuffer<double>& /*ogBuffer*/, MidiB
     //process (ogBuffer, midiMessages);
 }
 
-void sBMP4AudioProcessor::process (AudioBuffer<float>& ogBuffer, MidiBuffer& midiMessages)
+void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+    Reverb::Parameters reverbParameters;
+    reverbParameters.roomSize = state.getParameter (roomSizeID)->getValue();
 
+    reverb.setParameters (reverbParameters);
+    synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
-
-    synth.renderNextBlock (ogBuffer, midiMessages, 0, ogBuffer.getNumSamples());
-
-    ////clear unused lfo channels, if there's any (there shoudn't, but whatever)
-    //for (auto channel = getTotalNumInputChannels(); channel < getTotalNumOutputChannels(); ++channel)
-    //    ogBuffer.clear (channel, 0, numSamples);
-
-    //processLeftRight (ogBuffer);
-
-    ////apply lfoGain
-    //const auto lfoGain = getSliderLinearGain (lfoSliderID);
-    //for (auto channel = getTotalNumInputChannels(); channel < getTotalNumOutputChannels(); ++channel)
-    //    ogBuffer.applyGain (channel, 0, numSamples, lfoGain);
+    if (getMainBusNumOutputChannels() == 1)
+        reverb.processMono (buffer.getWritePointer (0), buffer.getNumSamples());
+    else if (getMainBusNumOutputChannels() == 2)
+        reverb.processStereo (buffer.getWritePointer (0), buffer.getWritePointer (1), buffer.getNumSamples());
 }
 
 void sBMP4AudioProcessor::processLeftRight (AudioBuffer<float>& ogBuffer)

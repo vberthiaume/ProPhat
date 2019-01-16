@@ -29,7 +29,9 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     oscillatorsSliderAttachment (p.state, oscillatorsSliderID, oscillatorsSlider),
     filterSliderAttachment (p.state, filterSliderID, filterSlider),
     envelopeSliderAttachment (p.state, envelopeSliderID, envelopeSlider),
-    lfoSliderAttachment (p.state, lfoSliderID, lfoSlider),
+    /*lfoSliderAttachment (p.state, lfoSliderID, lfoSlider),*/
+
+    lfoSliderAttachment (p.state, roomSizeID, lfoSlider),
 
     oscillatorsComboAttachment (p.state, oscillatorsComboID, oscillatorsCombo),
     formatComboAttachment (p.state, lfoComboID, lfoCombo),
@@ -82,7 +84,9 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     addSlider (oscillatorsSlider, oscillatorsGainLabel, oscillatorsSliderDescription);
     addSlider (filterSlider, filterGainLabel, filterSliderDescription);
     addSlider (envelopeSlider, envelopeGainLabel, envelopeSliderDescription);
-    addSlider (lfoSlider, lfoGainLabel, lfoSliderDescription);
+
+    /*addSlider (lfoSlider, lfoGainLabel, lfoSliderDescription);*/
+    addSlider (lfoSlider, lfoGainLabel, roomSizeDescription);
 
     auto addButton = [this] (Button& button, StringRef text)
     {

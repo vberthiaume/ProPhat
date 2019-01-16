@@ -24,6 +24,8 @@ namespace sBMP4AudioProcessorIDs
     const String filterSectionID = "filterSection";
     const String envelopeSectionID = "envelopeSection";
     const String lfoSectionID = "lfoSection";
+
+    const String roomSizeID = "roomSize";
 }
 
 namespace sBMP4AudioProcessorNames
@@ -46,6 +48,8 @@ namespace sBMP4AudioProcessorNames
     const String filterSectionDescription = "Filter";
     const String envelopeSectionDescription = "Envelope";
     const String lfoSectionDescription = "LFO";
+
+    const String roomSizeDescription = "Room Size";
 }
 
 namespace sBMP4AudioProcessorChoices
@@ -230,6 +234,7 @@ private:
     //==============================================================================
     int numSamples = -1;
     Synthesiser synth;
+    Reverb reverb;
 
     dsp::IIR::Filter<float> lrFilter;
 
