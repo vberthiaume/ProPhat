@@ -7,8 +7,13 @@
               cppLanguageStandard="17" pluginManufacturerCode="BMP4" pluginCode="sBMP">
   <MAINGROUP id="xcjoOm" name="sBMP4">
     <GROUP id="{9E790ABE-F484-67A0-AF6A-838FDD75B724}" name="Source">
-      <FILE id="L5GssZ" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
-      <FILE id="n0Zqru" name="sBMP4.h" compile="0" resource="0" file="Source/sBMP4.h"/>
+      <FILE id="eO0GxJ" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="gu1LaM" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="rGiw2j" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="vFMGf9" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>
@@ -21,6 +26,7 @@
     <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
@@ -45,6 +51,7 @@
         <MODULEPATH id="juce_graphics" path="submodules/JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="submodules/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="submodules/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2017 targetFolder="Builds/VisualStudio2017" vstLegacyFolder="./submodules/VST2_SDK">
@@ -65,6 +72,7 @@
         <MODULEPATH id="juce_graphics" path="submodules/JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="submodules/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="submodules/JUCE/modules"/>
       </MODULEPATHS>
     </VS2017>
   </EXPORTFORMATS>
