@@ -30,8 +30,12 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 {
     state.state.addListener (this);
 
+    createWavetable();
+
+    //@todo this is the switch between wave table and sine
     for (auto i = 0; i < 4; ++i)
-        synth.addVoice (new SineWaveVoice());
+        synth.addVoice (new SineWaveTableVoice (sineTable));
+        //synth.addVoice (new SineWaveVoice());
 
     synth.addSound (new SineWaveSound());
 }
@@ -94,7 +98,7 @@ void sBMP4AudioProcessor::changeProgramName (int /*index*/, const String& /*newN
 //==============================================================================
 void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    numSamples = samplesPerBlock;
+    lastSampleRate = sampleRate;
 
     auto channels = static_cast<uint32> (jmin (getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
 
@@ -137,6 +141,9 @@ void sBMP4AudioProcessor::processBlock (AudioBuffer<double>& /*ogBuffer*/, MidiB
 
 void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+    //@TODO not sure there's actually a point o this?
+    //buffer.clear();
+
     Reverb::Parameters reverbParameters;
     reverbParameters.roomSize = state.getParameter (roomSizeID)->getValue();
 
@@ -155,7 +162,7 @@ void sBMP4AudioProcessor::processLeftRight (AudioBuffer<float>& ogBuffer)
     {
         auto audioBlock = dsp::AudioBlock<float> (ogBuffer).getSingleChannelBlock (i);
 
-        // This class can only process mono signals. Use the ProcessorDuplicator class
+        //TODO This class can only process mono signals. Use the ProcessorDuplicator class
         // to apply this filter on a multi-channel audio stream.
         lrFilter.process (dsp::ProcessContextReplacing<float> (audioBlock));
     }

@@ -71,8 +71,9 @@ struct SineWaveSound : public SynthesiserSound
 };
 
 //==============================================================================
-struct SineWaveVoice : public SynthesiserVoice
+class SineWaveVoice : public SynthesiserVoice
 {
+public:
     SineWaveVoice() {}
 
     bool canPlaySound (SynthesiserSound* sound) override
@@ -153,8 +154,106 @@ struct SineWaveVoice : public SynthesiserVoice
         }
     }
 
-private:
+protected:
     double currentAngle = 0.0, angleDelta = 0.0, level = 0.0, tailOff = 0.0;
+};
+
+//==============================================================================
+
+class SineWaveTableVoice : public SineWaveVoice
+{
+public:
+    SineWaveTableVoice (const AudioSampleBuffer& wavetableToUse)
+        : wavetable (wavetableToUse),
+        tableSize (wavetable.getNumSamples() - 1)
+    {
+        jassert (wavetable.getNumChannels() == 1);
+    }
+
+    void startNote (int midiNoteNumber, float velocity, SynthesiserSound*, int /*currentPitchWheelPosition*/) override
+    {
+        currentAngle = 0.0;
+        level = velocity * 0.15;
+        tailOff = 0.0;
+
+        auto cyclesPerSecond = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
+        setFrequency ((float) cyclesPerSecond);
+        auto cyclesPerSample = cyclesPerSecond / getSampleRate();
+
+        angleDelta = cyclesPerSample * 2.0 * MathConstants<double>::pi;
+    }
+    void renderNextBlock (AudioSampleBuffer& outputBuffer, int startSample, int numSamples) override
+    {
+        if (angleDelta != 0.0)
+        {
+            if (tailOff > 0.0) // [7]
+            {
+                while (--numSamples >= 0)
+                {
+                    auto currentSample = (float) (getNextSample()/*std::sin (currentAngle)*/ * level * tailOff);
+
+                    for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
+                        outputBuffer.addSample (i, startSample, currentSample);
+
+                    currentAngle += angleDelta;
+                    ++startSample;
+
+                    tailOff *= 0.99; // [8]
+
+                    if (tailOff <= 0.005)
+                    {
+                        clearCurrentNote(); // [9]
+
+                        angleDelta = 0.0;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                while (--numSamples >= 0) // [6]
+                {
+                    auto currentSample = (float) (getNextSample()/*std::sin (currentAngle)*/  * level);
+
+                    for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
+                        outputBuffer.addSample (i, startSample, currentSample);
+
+                    currentAngle += angleDelta;
+                    ++startSample;
+                }
+            }
+        }
+    }
+
+    void setFrequency (float frequency)
+    {
+        auto tableSizeOverSampleRate = tableSize / getSampleRate();
+        tableDelta = frequency * (float) tableSizeOverSampleRate;
+    }
+
+    forcedinline float getNextSample() noexcept
+    {
+        auto index0 = (unsigned int) currentIndex;
+        auto index1 = index0 + 1;
+
+        auto frac = currentIndex - (float) index0;
+
+        auto* table = wavetable.getReadPointer (0);
+        auto value0 = table[index0];
+        auto value1 = table[index1];
+
+        auto currentSample = value0 + frac * (value1 - value0);
+
+        if ((currentIndex += tableDelta) > tableSize)
+            currentIndex -= tableSize;
+
+        return currentSample;
+    }
+
+private:
+    const AudioSampleBuffer& wavetable;
+    const int tableSize;
+    float currentIndex = 0.0f, tableDelta = 0.0f;
 };
 
 
@@ -231,10 +330,47 @@ public:
     AudioProcessorValueTreeState state;
 
 private:
+
+    void createWavetable()
+    {
+        sineTable.setSize (1, tableSize + 1);
+        sineTable.clear();
+
+        auto* samples = sineTable.getWritePointer (0);
+
+        //int harmonics[] = {1, 3, 5, 6, 7, 9, 13, 15};
+        //float harmonicWeights[] = {0.5f, 0.1f, 0.05f, 0.125f, 0.09f, 0.005f, 0.002f, 0.001f};
+
+        int harmonics[] = {1};
+        float harmonicWeights[] = {1.f};
+
+        jassert (numElementsInArray (harmonics) == numElementsInArray (harmonicWeights));
+
+        for (auto harmonic = 0; harmonic < numElementsInArray (harmonics); ++harmonic)
+        {
+            auto angleDelta = MathConstants<double>::twoPi / (double) (tableSize - 1) * harmonics[harmonic];
+            auto currentAngle = 0.0;
+
+            for (size_t i = 0; i < tableSize; ++i)
+            {
+                auto sample = std::sin (currentAngle);
+                samples[i] += (float) sample * harmonicWeights[harmonic];
+                currentAngle += angleDelta;
+            }
+        }
+
+        samples[tableSize] = samples[0];
+    }
+
     //==============================================================================
-    int numSamples = -1;
+    double lastSampleRate = {};
+
     Synthesiser synth;
     Reverb reverb;
+
+    const unsigned int tableSize = 1 << 7;
+    int numberOfOscillators = 16;
+    AudioSampleBuffer sineTable;
 
     dsp::IIR::Filter<float> lrFilter;
 
