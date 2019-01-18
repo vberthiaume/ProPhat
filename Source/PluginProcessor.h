@@ -140,6 +140,10 @@ public:
 
     AudioProcessorValueTreeState state;
 
+#if CPU_USAGE
+    PerformanceCounter perfCounter;
+#endif
+
 private:
 
     void createWavetable()

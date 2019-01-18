@@ -45,7 +45,17 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     envelopeSection (envelopeSectionID, envelopeSectionDescription),
     lfoSection (lfoSectionID, lfoSectionDescription)
 {
+#if CPU_USAGE
+    setSize (width, height + 50);
+
+    cpuUsageLabel.setText ("CPU Usage", dontSendNotification);
+    cpuUsageText.setJustificationType (Justification::right);
+    addAndMakeVisible (cpuUsageLabel);
+    addAndMakeVisible (cpuUsageText);
+    startTimer (50);
+#else
     setSize (width, height);
+#endif
     setResizable (false, false);
 
     auto addComboBox = [this] (ComboBox& combo, Label& label, StringRef text, const StringArray &choices)
@@ -85,6 +95,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     addSlider (filterSlider, filterGainLabel, filterSliderDescription);
     addSlider (envelopeSlider, envelopeGainLabel, envelopeSliderDescription);
 
+    //@TODO have the right things control the right other things
     /*addSlider (lfoSlider, lfoGainLabel, lfoSliderDescription);*/
     addSlider (lfoSlider, lfoGainLabel, roomSizeDescription);
 
@@ -181,4 +192,9 @@ void sBMP4AudioProcessorEditor::resized()
         sectionBounds.removeFromTop (lineGap);
         lfoSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
     }
+
+#if CPU_USAGE
+    cpuUsageLabel.setBounds (10, getHeight() - 50, getWidth() - 20, 50);
+    cpuUsageText.setBounds (10, getHeight() - 50, getWidth() - 20, 50);
+#endif
 }

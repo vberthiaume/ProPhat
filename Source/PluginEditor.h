@@ -31,6 +31,9 @@ private:
 /**
 */
 class sBMP4AudioProcessorEditor : public AudioProcessorEditor
+#if CPU_USAGE
+    , public Timer
+#endif
 {
 public:
 
@@ -40,6 +43,19 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
+
+#if CPU_USAGE
+    void timerCallback() override
+    {
+        //so this is only available to audio applications. Jules says to use a PerformanceCounter
+        //auto cpu = deviceManager.getCpuUsage() * 100;
+
+       auto stats = processor.perfCounter.getStatisticsAndReset();
+       stats.toString();
+        //cpuUsageText.setText (String (cpu, 6) + " %", dontSendNotification);
+       cpuUsageText.setText (stats.toString(), dontSendNotification);
+    }
+#endif
 
 private:
 
@@ -57,6 +73,12 @@ private:
     AudioProcessorValueTreeState::ButtonAttachment oscillatorsButtonAttachment, filterButtonAttachment, envelopeButtonAttachment;
 
     GroupComponent oscillatorsSection, filterSection, envelopeSection, lfoSection;
+
+#if CPU_USAGE
+
+    Label cpuUsageLabel;
+    Label cpuUsageText;
+#endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessorEditor)
 };

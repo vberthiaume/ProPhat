@@ -27,6 +27,10 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 
         std::make_unique<AudioParameterFloat> (roomSizeID, roomSizeDescription, sliderRange, 0.0f)
     })
+
+#if CPU_USAGE
+    , perfCounter ("ProcessBlock")
+#endif
 {
     state.state.addListener (this);
 
@@ -141,6 +145,9 @@ void sBMP4AudioProcessor::processBlock (AudioBuffer<double>& /*ogBuffer*/, MidiB
 
 void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+#if CPU_USAGE
+    perfCounter.start();
+#endif
     //@TODO not sure there's actually a point o this?
     //buffer.clear();
 
@@ -154,6 +161,10 @@ void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiM
         reverb.processMono (buffer.getWritePointer (0), buffer.getNumSamples());
     else if (getMainBusNumOutputChannels() == 2)
         reverb.processStereo (buffer.getWritePointer (0), buffer.getWritePointer (1), buffer.getNumSamples());
+
+#if CPU_USAGE
+    perfCounter.stop();
+#endif
 }
 
 void sBMP4AudioProcessor::processLeftRight (AudioBuffer<float>& ogBuffer)
