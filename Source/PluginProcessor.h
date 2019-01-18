@@ -1,8 +1,14 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "SineWaveVoice.h"
 
 static const NormalisableRange<float> sliderRange = {-12.0f, 12.0f};
+
+#ifndef CPU_USAGE
+    #define CPU_USAGE 1
+#endif
+
 
 namespace sBMP4AudioProcessorIDs
 {
@@ -60,201 +66,6 @@ namespace sBMP4AudioProcessorChoices
     const String lfoChoices0 = "Sine";
     const String lfoChoices1 = "Pulse";
 }
-
-//==============================================================================
-struct SineWaveSound : public SynthesiserSound
-{
-    SineWaveSound() {}
-
-    bool appliesToNote    (int) override { return true; }
-    bool appliesToChannel (int) override { return true; }
-};
-
-//==============================================================================
-class SineWaveVoice : public SynthesiserVoice
-{
-public:
-    SineWaveVoice() {}
-
-    bool canPlaySound (SynthesiserSound* sound) override
-    {
-        return dynamic_cast<SineWaveSound*> (sound) != nullptr;
-    }
-
-    void startNote (int midiNoteNumber, float velocity,
-                    SynthesiserSound*, int /*currentPitchWheelPosition*/) override
-    {
-        currentAngle = 0.0;
-        level = velocity * 0.15;
-        tailOff = 0.0;
-
-        auto cyclesPerSecond = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
-        auto cyclesPerSample = cyclesPerSecond / getSampleRate();
-
-        angleDelta = cyclesPerSample * 2.0 * MathConstants<double>::pi;
-    }
-
-    void stopNote (float /*velocity*/, bool allowTailOff) override
-    {
-        if (allowTailOff)
-        {
-            if (tailOff == 0.0)
-                tailOff = 1.0;
-        }
-        else
-        {
-            clearCurrentNote();
-            angleDelta = 0.0;
-        }
-    }
-
-    void pitchWheelMoved (int) override {}
-    void controllerMoved (int, int) override {}
-
-    void renderNextBlock (AudioSampleBuffer& outputBuffer, int startSample, int numSamples) override
-    {
-        if (angleDelta != 0.0)
-        {
-            if (tailOff > 0.0) // [7]
-            {
-                while (--numSamples >= 0)
-                {
-                    auto currentSample = (float) (std::sin (currentAngle) * level * tailOff);
-
-                    for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
-                        outputBuffer.addSample (i, startSample, currentSample);
-
-                    currentAngle += angleDelta;
-                    ++startSample;
-
-                    tailOff *= 0.99; // [8]
-
-                    if (tailOff <= 0.005)
-                    {
-                        clearCurrentNote(); // [9]
-
-                        angleDelta = 0.0;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                while (--numSamples >= 0) // [6]
-                {
-                    auto currentSample = (float) (std::sin (currentAngle) * level);
-
-                    for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
-                        outputBuffer.addSample (i, startSample, currentSample);
-
-                    currentAngle += angleDelta;
-                    ++startSample;
-                }
-            }
-        }
-    }
-
-protected:
-    double currentAngle = 0.0, angleDelta = 0.0, level = 0.0, tailOff = 0.0;
-};
-
-//==============================================================================
-
-class SineWaveTableVoice : public SineWaveVoice
-{
-public:
-    SineWaveTableVoice (const AudioSampleBuffer& wavetableToUse)
-        : wavetable (wavetableToUse),
-        tableSize (wavetable.getNumSamples() - 1)
-    {
-        jassert (wavetable.getNumChannels() == 1);
-    }
-
-    void startNote (int midiNoteNumber, float velocity, SynthesiserSound*, int /*currentPitchWheelPosition*/) override
-    {
-        currentAngle = 0.0;
-        level = velocity * 0.15;
-        tailOff = 0.0;
-
-        auto cyclesPerSecond = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
-        setFrequency ((float) cyclesPerSecond);
-        auto cyclesPerSample = cyclesPerSecond / getSampleRate();
-
-        angleDelta = cyclesPerSample * 2.0 * MathConstants<double>::pi;
-    }
-    void renderNextBlock (AudioSampleBuffer& outputBuffer, int startSample, int numSamples) override
-    {
-        if (angleDelta != 0.0)
-        {
-            if (tailOff > 0.0) // [7]
-            {
-                while (--numSamples >= 0)
-                {
-                    auto currentSample = (float) (getNextSample()/*std::sin (currentAngle)*/ * level * tailOff);
-
-                    for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
-                        outputBuffer.addSample (i, startSample, currentSample);
-
-                    currentAngle += angleDelta;
-                    ++startSample;
-
-                    tailOff *= 0.99; // [8]
-
-                    if (tailOff <= 0.005)
-                    {
-                        clearCurrentNote(); // [9]
-
-                        angleDelta = 0.0;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                while (--numSamples >= 0) // [6]
-                {
-                    auto currentSample = (float) (getNextSample()/*std::sin (currentAngle)*/  * level);
-
-                    for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
-                        outputBuffer.addSample (i, startSample, currentSample);
-
-                    currentAngle += angleDelta;
-                    ++startSample;
-                }
-            }
-        }
-    }
-
-    void setFrequency (float frequency)
-    {
-        auto tableSizeOverSampleRate = tableSize / getSampleRate();
-        tableDelta = frequency * (float) tableSizeOverSampleRate;
-    }
-
-    forcedinline float getNextSample() noexcept
-    {
-        auto index0 = (unsigned int) currentIndex;
-        auto index1 = index0 + 1;
-
-        auto frac = currentIndex - (float) index0;
-
-        auto* table = wavetable.getReadPointer (0);
-        auto value0 = table[index0];
-        auto value1 = table[index1];
-
-        auto currentSample = value0 + frac * (value1 - value0);
-
-        if ((currentIndex += tableDelta) > tableSize)
-            currentIndex -= tableSize;
-
-        return currentSample;
-    }
-
-private:
-    const AudioSampleBuffer& wavetable;
-    const int tableSize;
-    float currentIndex = 0.0f, tableDelta = 0.0f;
-};
 
 
 //==============================================================================

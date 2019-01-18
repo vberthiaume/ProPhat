@@ -7,6 +7,9 @@
               cppLanguageStandard="17" pluginManufacturerCode="BMP4" pluginCode="sBMP">
   <MAINGROUP id="xcjoOm" name="sBMP4">
     <GROUP id="{9E790ABE-F484-67A0-AF6A-838FDD75B724}" name="Source">
+      <FILE id="BFt6hz" name="SineWaveVoice.cpp" compile="1" resource="0"
+            file="Source/SineWaveVoice.cpp"/>
+      <FILE id="EYvqXu" name="SineWaveVoice.h" compile="0" resource="0" file="Source/SineWaveVoice.h"/>
       <FILE id="eO0GxJ" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="gu1LaM" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>

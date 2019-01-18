@@ -34,8 +34,8 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 
     //@todo this is the switch between wave table and sine
     for (auto i = 0; i < 4; ++i)
-        synth.addVoice (new SineWaveTableVoice (sineTable));
-        //synth.addVoice (new SineWaveVoice());
+        //synth.addVoice (new SineWaveTableVoice (sineTable));
+        synth.addVoice (new SineWaveVoice());
 
     synth.addSound (new SineWaveSound());
 }
