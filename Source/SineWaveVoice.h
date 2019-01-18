@@ -37,7 +37,11 @@ public:
 
     void renderNextBlock (AudioSampleBuffer& outputBuffer, int startSample, int numSamples) override;
 
+    virtual forcedinline float getNextSample() noexcept { return (float) std::sin (currentAngle); }
+
 protected:
+    
+
     double currentAngle = 0.0, angleDelta = 0.0, level = 0.0, tailOff = 0.0;
 };
 
@@ -55,13 +59,35 @@ public:
 
     void startNote (int midiNoteNumber, float velocity, SynthesiserSound*, int /*currentPitchWheelPosition*/) override;
 
-    void renderNextBlock (AudioSampleBuffer& outputBuffer, int startSample, int numSamples) override;
+    forcedinline float getNextSample() noexcept override
+    {
+        auto index0 = (unsigned int) currentIndex;
+        auto index1 = index0 + 1;
 
-    void setFrequency (float frequency);
+        auto frac = currentIndex - (float) index0;
 
-    forcedinline float getNextSample() noexcept;
+        auto* table = wavetable.getReadPointer (0);
+        auto value0 = table[index0];
+        auto value1 = table[index1];
+
+        auto currentSample = value0 + frac * (value1 - value0);
+
+        if ((currentIndex += tableDelta) > tableSize)
+            currentIndex -= tableSize;
+
+        return currentSample;
+    }
+    
+
+
+protected:
+    
 
 private:
+    void setFrequency (float frequency);
+    
+
+
     const AudioSampleBuffer& wavetable;
     const int tableSize;
     float currentIndex = 0.0f, tableDelta = 0.0f;
