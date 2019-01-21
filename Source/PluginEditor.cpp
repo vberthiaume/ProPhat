@@ -26,21 +26,21 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     AudioProcessorEditor (p),
     processor (p),
 
-    oscillatorsSliderAttachment (p.state, oscillatorsSliderID, oscillatorsSlider),
+    oscSliderAttachment (p.state, oscSliderID, oscSlider),
     filterSliderAttachment (p.state, filterSliderID, filterSlider),
     envelopeSliderAttachment (p.state, envelopeSliderID, envelopeSlider),
     /*lfoSliderAttachment (p.state, lfoSliderID, lfoSlider),*/
 
     lfoSliderAttachment (p.state, roomSizeID, lfoSlider),
 
-    oscillatorsComboAttachment (p.state, oscillatorsComboID, oscillatorsCombo),
+    oscComboAttachment (p.state, oscComboID, oscCombo),
     formatComboAttachment (p.state, lfoComboID, lfoCombo),
 
-    oscillatorsButtonAttachment (p.state, oscillatorsEnableButtonID, oscillatorsButton),
+    oscButtonAttachment (p.state, oscEnableButtonID, oscButton),
     filterButtonAttachment (p.state, filterButtonID, filterButton),
     envelopeButtonAttachment (p.state, envelopeButtonID, envelopeButton),
 
-    oscillatorsSection (oscillatorsSectionID, oscillatorsSectionDescription),
+    oscSection (oscSectionID, oscSectionDescription),
     filterSection (filterSectionID, filterSectionDescription),
     envelopeSection (envelopeSectionID, envelopeSectionDescription),
     lfoSection (lfoSectionID, lfoSectionDescription)
@@ -73,9 +73,9 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
         addAndMakeVisible (combo);
     };
 
-    auto oscillatorsComboParam = (AudioParameterChoice*) processor.state.getParameter (oscillatorsComboID);
-    if (oscillatorsComboParam != nullptr)
-        addComboBox (oscillatorsCombo, oscillatorsChoiceLabel, oscillatorsComboDescription, oscillatorsComboParam->choices);
+    auto oscComboParam = (AudioParameterChoice*) processor.state.getParameter (oscComboID);
+    if (oscComboParam != nullptr)
+        addComboBox (oscCombo, oscChoiceLabel, oscComboDescription, oscComboParam->choices);
 
     auto lfoComboParam = (AudioParameterChoice*) processor.state.getParameter (lfoComboID);
     if (lfoComboParam != nullptr)
@@ -91,7 +91,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
         addAndMakeVisible (slider);
     };
 
-    addSlider (oscillatorsSlider, oscillatorsGainLabel, oscillatorsSliderDescription);
+    addSlider (oscSlider, oscGainLabel, oscSliderDescription);
     addSlider (filterSlider, filterGainLabel, filterSliderDescription);
     addSlider (envelopeSlider, envelopeGainLabel, envelopeSliderDescription);
 
@@ -105,11 +105,11 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
         addAndMakeVisible (button);
     };
 
-    addButton (oscillatorsButton, oscillatorsEnableButtonDescription);
+    addButton (oscButton, oscEnableButtonDescription);
     addButton (filterButton, filterButtonDescription);
     addButton (envelopeButton, envelopeButtonDescription);
 
-    addAndMakeVisible (oscillatorsSection);
+    addAndMakeVisible (oscSection);
     addAndMakeVisible (filterSection);
     addAndMakeVisible (envelopeSection);
     addAndMakeVisible (lfoSection);
@@ -130,22 +130,22 @@ void sBMP4AudioProcessorEditor::resized()
 {
     auto bounds = getLocalBounds().reduced (overallGap);
 
-    //oscillators section
+    //osc section
     {
         const auto lines = 3;
         auto sectionBounds = bounds.removeFromTop (lines * (lineH + lineGap) + panelGap);
-        oscillatorsSection.setBounds (sectionBounds);
+        oscSection.setBounds (sectionBounds);
 
         sectionBounds.reduce (panelGap, panelGap);
 
         sectionBounds.removeFromTop (lineGap);
-        oscillatorsButton.setBounds (sectionBounds.removeFromTop (lineH));
+        oscButton.setBounds (sectionBounds.removeFromTop (lineH));
 
         sectionBounds.removeFromTop (lineGap);
-        oscillatorsCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboExtraGap).reduced (0, 2));
+        oscCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboExtraGap).reduced (0, 2));
 
         sectionBounds.removeFromTop (lineGap);
-        oscillatorsSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
+        oscSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
     }
     
     //front-back section

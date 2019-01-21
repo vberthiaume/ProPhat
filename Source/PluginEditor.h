@@ -55,18 +55,18 @@ public:
 private:
     sBMP4AudioProcessor& processor;
 
-    Label oscillatorsChoiceLabel, oscillatorsGainLabel, filterGainLabel, envelopeGainLabel, lfoChoiceLabel, lfoGainLabel;
+    Label oscChoiceLabel, oscGainLabel, filterGainLabel, envelopeGainLabel, lfoChoiceLabel, lfoGainLabel;
 
-    SnappingSlider oscillatorsSlider, filterSlider, envelopeSlider, lfoSlider;
-    AudioProcessorValueTreeState::SliderAttachment oscillatorsSliderAttachment, filterSliderAttachment, envelopeSliderAttachment, lfoSliderAttachment;
+    SnappingSlider oscSlider, filterSlider, envelopeSlider, lfoSlider;
+    AudioProcessorValueTreeState::SliderAttachment oscSliderAttachment, filterSliderAttachment, envelopeSliderAttachment, lfoSliderAttachment;
 
-    ComboBox oscillatorsCombo, lfoCombo;
-    AudioProcessorValueTreeState::ComboBoxAttachment oscillatorsComboAttachment, formatComboAttachment;
+    ComboBox oscCombo, lfoCombo;
+    AudioProcessorValueTreeState::ComboBoxAttachment oscComboAttachment, formatComboAttachment;
 
-    ToggleButton oscillatorsButton, filterButton, envelopeButton;
-    AudioProcessorValueTreeState::ButtonAttachment oscillatorsButtonAttachment, filterButtonAttachment, envelopeButtonAttachment;
+    ToggleButton oscButton, filterButton, envelopeButton;
+    AudioProcessorValueTreeState::ButtonAttachment oscButtonAttachment, filterButtonAttachment, envelopeButtonAttachment;
 
-    GroupComponent oscillatorsSection, filterSection, envelopeSection, lfoSection;
+    GroupComponent oscSection, filterSection, envelopeSection, lfoSection;
 
 #if CPU_USAGE
     Label cpuUsageLabel;

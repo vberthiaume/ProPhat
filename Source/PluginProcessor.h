@@ -11,10 +11,10 @@ static const NormalisableRange<float> sliderRange = {-12.0f, 12.0f};
 
 namespace sBMP4AudioProcessorIDs
 {
-    const String oscillatorsComboID = "oscillatorsCombo";
-    const String oscillatorsSliderID = "oscillatorsSlider";
-    const String oscillatorsEnableButtonID = "oscillatorsButton";
-    const String oscillatorsWavetableButtonID = "oscillatorsWaveTableButton";
+    const String oscComboID = "oscCombo";
+    const String oscSliderID = "oscSlider";
+    const String oscEnableButtonID = "oscButton";
+    const String oscWavetableButtonID = "oscWaveTableButton";
 
     const String filterSliderID = "filterSlider";
     const String filterButtonID = "filterButton";
@@ -26,7 +26,7 @@ namespace sBMP4AudioProcessorIDs
 
     const String lfoSliderID = "lfoSlider";
 
-    const String oscillatorsSectionID = "oscillatorsSection";
+    const String oscSectionID = "oscSection";
     const String filterSectionID = "filterSection";
     const String envelopeSectionID = "envelopeSection";
     const String lfoSectionID = "lfoSection";
@@ -36,9 +36,9 @@ namespace sBMP4AudioProcessorIDs
 
 namespace sBMP4AudioProcessorNames
 {
-    const String oscillatorsComboDescription = "Oscillators Model";
-    const String oscillatorsSliderDescription = "Oscillators Gain";
-    const String oscillatorsEnableButtonDescription = "Oscillators ON";
+    const String oscComboDescription = "Oscillators Model";
+    const String oscSliderDescription = "Oscillators Gain";
+    const String oscEnableButtonDescription = "Oscillators ON";
 
     const String filterSliderDescription = "Filter Gain";
     const String filterButtonDescription = "Filter ON";
@@ -50,7 +50,7 @@ namespace sBMP4AudioProcessorNames
 
     const String lfoSliderDescription = "LFO Frequency";
 
-    const String oscillatorsSectionDescription = "Oscillators";
+    const String oscSectionDescription = "Oscillators";
     const String filterSectionDescription = "Filter";
     const String envelopeSectionDescription = "Envelope";
     const String lfoSectionDescription = "LFO";
@@ -60,8 +60,8 @@ namespace sBMP4AudioProcessorNames
 
 namespace sBMP4AudioProcessorChoices
 {
-    const String oscillatorsChoice0 = "Sine";
-    const String oscillatorsChoice1 = "Other";
+    const String oscChoice0 = "Sine";
+    const String oscChoice1 = "Other";
 
     const String lfoChoices0 = "Sine";
     const String lfoChoices1 = "Pulse";

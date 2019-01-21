@@ -12,10 +12,10 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
                                      .withOutput ("Output", AudioChannelSet::stereo(), true)),
     state (*this, nullptr, "state",
     {
-        std::make_unique<AudioParameterChoice> (oscillatorsComboID,  oscillatorsComboDescription,  StringArray {oscillatorsChoice0, oscillatorsChoice1}, 0),
-        std::make_unique<AudioParameterFloat> (oscillatorsSliderID, oscillatorsSliderDescription, sliderRange, 0.0f),
-        std::make_unique<AudioParameterBool> (oscillatorsEnableButtonID, oscillatorsEnableButtonDescription, true, oscillatorsEnableButtonDescription),
-        std::make_unique<AudioParameterBool> (oscillatorsWavetableButtonID, oscillatorsEnableButtonDescription, true, oscillatorsEnableButtonDescription),
+        std::make_unique<AudioParameterChoice> (oscComboID,  oscComboDescription,  StringArray {oscChoice0, oscChoice1}, 0),
+        std::make_unique<AudioParameterFloat> (oscSliderID, oscSliderDescription, sliderRange, 0.0f),
+        std::make_unique<AudioParameterBool> (oscEnableButtonID, oscEnableButtonDescription, true, oscEnableButtonDescription),
+        std::make_unique<AudioParameterBool> (oscWavetableButtonID, oscEnableButtonDescription, true, oscEnableButtonDescription),
 
 
         std::make_unique<AudioParameterFloat> (filterSliderID, filterSliderDescription, sliderRange, 0.0f),
