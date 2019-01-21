@@ -49,7 +49,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     setSize (width, height + 50);
 
     cpuUsageLabel.setText ("CPU Usage", dontSendNotification);
-    cpuUsageText.setJustificationType (Justification::right);
+    cpuUsageText.setJustificationType (Justification::left);
     addAndMakeVisible (cpuUsageLabel);
     addAndMakeVisible (cpuUsageText);
     startTimer (50);
@@ -194,7 +194,9 @@ void sBMP4AudioProcessorEditor::resized()
     }
 
 #if CPU_USAGE
-    cpuUsageLabel.setBounds (10, getHeight() - 50, getWidth() - 20, 50);
-    cpuUsageText.setBounds (10, getHeight() - 50, getWidth() - 20, 50);
+    auto labelW = 100;
+
+    cpuUsageLabel.setBounds (10, getHeight() - 50, labelW, 50);
+    cpuUsageText.setBounds (10 + labelW, getHeight() - 50, getWidth() - 10 - labelW, 50);
 #endif
 }
