@@ -173,21 +173,19 @@ private:
 
     void createWavetable()
     {
+        //initialize the table
         sineTable.setSize (1, tableSize + 1);
         sineTable.clear();
-
         auto* samples = sineTable.getWritePointer (0);
 
-        //int harmonics[] = {1, 3, 5, 6, 7, 9, 13, 15};
-        //float harmonicWeights[] = {0.5f, 0.1f, 0.05f, 0.125f, 0.09f, 0.005f, 0.002f, 0.001f};
-
-        int harmonics[] = {1};
-        float harmonicWeights[] = {.75f};
-
+        //decide on the harmonics
+        int harmonics[] = {1}; //{1, 3, 5, 6, 7, 9, 13, 15};
+        float harmonicWeights[] = {1.f}; //{0.5f, 0.1f, 0.05f, 0.125f, 0.09f, 0.005f, 0.002f, 0.001f};
         jassert (numElementsInArray (harmonics) == numElementsInArray (harmonicWeights));
 
         for (auto harmonic = 0; harmonic < numElementsInArray (harmonics); ++harmonic)
         {
+            //we divide 2pi by the table size. Like this, the table will cover one full cycle
             auto angleDelta = MathConstants<double>::twoPi / (double) (tableSize - 1) * harmonics[harmonic];
             auto currentAngle = 0.0;
 
@@ -208,7 +206,7 @@ private:
     Synthesiser synth;
     Reverb reverb;
 
-    const unsigned int tableSize = 1 << 7;
+    const unsigned int tableSize = 1 << 7; // 1 shifted 7 times == 128 in binary
     int numberOfOscillators = 16;
     AudioSampleBuffer sineTable;
     bool usingWavetables = false, needToSwitchWavetableStatus = false;

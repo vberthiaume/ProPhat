@@ -44,7 +44,10 @@ void SineWaveVoice::renderNextBlock (AudioSampleBuffer& outputBuffer, int startS
         {
             while (--numSamples >= 0)
             {
-                auto currentSample = (float) (getNextSample() * level * tailOff);
+
+                auto sample = getNextSample();
+                //DBG (sample);
+                auto currentSample = (float) (sample * level * tailOff);
 
                 for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
                     outputBuffer.addSample (i, startSample, currentSample);
@@ -67,7 +70,9 @@ void SineWaveVoice::renderNextBlock (AudioSampleBuffer& outputBuffer, int startS
         {
             while (--numSamples >= 0) // [6]
             {
-                auto currentSample = (float) (getNextSample() * level);
+                auto sample = getNextSample();
+                //DBG (sample);
+                auto currentSample = (float) (sample/*getNextSample()*/ * level);
 
                 for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
                     outputBuffer.addSample (i, startSample, currentSample);
@@ -89,13 +94,14 @@ void SineWaveTableVoice::startNote (int midiNoteNumber, float velocity, Synthesi
 
     auto cyclesPerSecond = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
     setFrequency ((float) cyclesPerSecond);
-    auto cyclesPerSample = cyclesPerSecond / getSampleRate();
 
+    auto cyclesPerSample = cyclesPerSecond / getSampleRate();
     angleDelta = cyclesPerSample * 2.0 * MathConstants<double>::pi;
 }
 
 void SineWaveTableVoice::setFrequency (float frequency)
 {
+    //the sample rate and the table size are used to calculate the table delta equivalent to the frequency
     auto tableSizeOverSampleRate = tableSize / getSampleRate();
     tableDelta = frequency * (float) tableSizeOverSampleRate;
 }

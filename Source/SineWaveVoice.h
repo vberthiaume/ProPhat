@@ -61,17 +61,20 @@ protected:
 
     forcedinline float getNextSample() noexcept override
     {
-        auto index0 = (unsigned int) currentIndex;
-        auto index1 = index0 + 1;
-
-        auto frac = currentIndex - (float) index0;
-
         auto* table = wavetable.getReadPointer (0);
-        auto value0 = table[index0];
-        auto value1 = table[index1];
 
-        auto currentSample = value0 + frac * (value1 - value0);
+        //get the rounded table indices and values surrounding the next value we want
+        auto firstIndex = (unsigned int) currentIndex;
+        auto secondIndex = firstIndex + 1;
+        auto firstValue = table[firstIndex];
+        auto secondValue = table[secondIndex];
 
+        //calculate the fraction required to get from the first index to the actual, float index
+        auto frac = currentIndex - (float) firstIndex;
+        //and do the interpolation
+        auto currentSample = firstValue + frac * (secondValue - firstValue);
+
+        //increase the index, going round the table if it overflows
         if ((currentIndex += tableDelta) > tableSize)
             currentIndex -= tableSize;
 
