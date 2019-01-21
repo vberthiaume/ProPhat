@@ -12,6 +12,11 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+enum Constants
+{
+    numVoices = 16
+};
+
 inline bool getVarAsBool (const ValueTree& v, const Identifier& id) { return static_cast<bool> (v.getProperty (id)); }
 inline int getVarAsInt (const ValueTree& v, const Identifier& id) { return static_cast<int> (v.getProperty (id)); }
 inline int64 getVarAsInt64 (const ValueTree& v, const Identifier& id) { return static_cast<int64> (v.getProperty (id)); }

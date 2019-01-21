@@ -18,6 +18,13 @@
 
 // (You can add your own code in this section, and the Projucer will not overwrite it)
 
+//remove this while we're in development
+#undef JUCE_DISPLAY_SPLASH_SCREEN
+#define JUCE_DISPLAY_SPLASH_SCREEN 0
+
+#undef JUCE_REPORT_APP_USAGE
+#define JUCE_REPORT_APP_USAGE 0
+
 // [END_USER_CODE_SECTION]
 
 /*

@@ -46,50 +46,23 @@ sBMP4AudioProcessor::~sBMP4AudioProcessor()
 {
 }
 
-void sBMP4AudioProcessor::useWavetables (bool useThem)
+void sBMP4AudioProcessor::setUseWavetables (bool useThem)
 {
     synth.clearVoices();
     synth.clearSounds();
 
     usingWavetables = useThem;
-    if (usingWavetables)
-        for (auto i = 0; i < 4; ++i)
-            synth.addVoice (new SineWaveTableVoice (sineTable));
-    else
-        for (auto i = 0; i < 4; ++i)
-            synth.addVoice (new SineWaveVoice());
 
+    for (auto i = 0; i < numVoices; ++i)
+        if (usingWavetables)
+            synth.addVoice (new SineWaveTableVoice (sineTable));
+        else
+            synth.addVoice (new SineWaveVoice());
 
     synth.addSound (new SineWaveSound());
 }
 
 //==============================================================================
-const String sBMP4AudioProcessor::getName() const
-{
-    return JucePlugin_Name;
-}
-
-bool sBMP4AudioProcessor::acceptsMidi() const
-{
-    return false;
-
-}
-
-bool sBMP4AudioProcessor::producesMidi() const
-{
-    return false;
-}
-
-bool sBMP4AudioProcessor::isMidiEffect() const
-{
-    return false;
-}
-
-double sBMP4AudioProcessor::getTailLengthSeconds() const
-{
-    return 0.0;
-}
-
 int sBMP4AudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
@@ -129,7 +102,7 @@ void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     synth.setCurrentPlaybackSampleRate (sampleRate);
     reverb.setSampleRate (sampleRate);
 
-    useWavetables (usingWavetables);
+    setUseWavetables (usingWavetables);
 }
 
 void sBMP4AudioProcessor::releaseResources()
@@ -170,7 +143,7 @@ void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiM
 
     if (needToSwitchWavetableStatus)
     {
-        useWavetables (! usingWavetables);
+        setUseWavetables (! usingWavetables);
         needToSwitchWavetableStatus = false;
     }
 

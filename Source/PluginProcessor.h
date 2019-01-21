@@ -143,12 +143,12 @@ public:
     bool hasEditor() const override { return true; }
 
     //==============================================================================
-    const String getName() const override;
+    const String getName() const override { return JucePlugin_Name; }
 
-    bool acceptsMidi() const override;
-    bool producesMidi() const override;
-    bool isMidiEffect() const override;
-    double getTailLengthSeconds() const override;
+    bool acceptsMidi() const override { return true; }
+    bool producesMidi() const override { return false; }
+    bool isMidiEffect() const override { return false; }
+    double getTailLengthSeconds() const override { return 0.0; }
 
     //==============================================================================
     int getNumPrograms() override;
@@ -169,7 +169,7 @@ public:
 
 private:
 
-    void useWavetables (bool useThem);
+    void setUseWavetables (bool useThem);
 
     void createWavetable()
     {
@@ -206,7 +206,7 @@ private:
     Synthesiser synth;
     Reverb reverb;
 
-    const unsigned int tableSize = 1 << 7; // 1 shifted 7 times == 128 in binary
+    const unsigned int tableSize = 2 << 15; // 2^15 == 32768 slots; 32768 * 4 = 131kB
     int numberOfOscillators = 16;
     AudioSampleBuffer sineTable;
     bool usingWavetables = false, needToSwitchWavetableStatus = false;

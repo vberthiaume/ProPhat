@@ -40,14 +40,11 @@ void SineWaveVoice::renderNextBlock (AudioSampleBuffer& outputBuffer, int startS
 {
     if (angleDelta != 0.0)
     {
-        if (tailOff > 0.0) // [7]
+        if (tailOff > 0.0)
         {
             while (--numSamples >= 0)
             {
-
-                auto sample = getNextSample();
-                //DBG (sample);
-                auto currentSample = (float) (sample * level * tailOff);
+                auto currentSample = (float) (getNextSample() * level * tailOff);
 
                 for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
                     outputBuffer.addSample (i, startSample, currentSample);
@@ -55,11 +52,11 @@ void SineWaveVoice::renderNextBlock (AudioSampleBuffer& outputBuffer, int startS
                 currentAngle += angleDelta;
                 ++startSample;
 
-                tailOff *= 0.99; // [8]
+                tailOff *= 0.99;
 
                 if (tailOff <= 0.005)
                 {
-                    clearCurrentNote(); // [9]
+                    clearCurrentNote();
 
                     angleDelta = 0.0;
                     break;
@@ -68,11 +65,9 @@ void SineWaveVoice::renderNextBlock (AudioSampleBuffer& outputBuffer, int startS
         }
         else
         {
-            while (--numSamples >= 0) // [6]
+            while (--numSamples >= 0)
             {
-                auto sample = getNextSample();
-                //DBG (sample);
-                auto currentSample = (float) (sample/*getNextSample()*/ * level);
+                auto currentSample = (float) (getNextSample() * level);
 
                 for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
                     outputBuffer.addSample (i, startSample, currentSample);
