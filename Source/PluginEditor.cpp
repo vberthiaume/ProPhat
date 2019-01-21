@@ -36,7 +36,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     oscillatorsComboAttachment (p.state, oscillatorsComboID, oscillatorsCombo),
     formatComboAttachment (p.state, lfoComboID, lfoCombo),
 
-    oscillatorsButtonAttachment (p.state, oscillatorsButtonID, oscillatorsButton),
+    oscillatorsButtonAttachment (p.state, oscillatorsEnableButtonID, oscillatorsButton),
     filterButtonAttachment (p.state, filterButtonID, filterButton),
     envelopeButtonAttachment (p.state, envelopeButtonID, envelopeButton),
 
@@ -105,7 +105,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
         addAndMakeVisible (button);
     };
 
-    addButton (oscillatorsButton, oscillatorsButtonDescription);
+    addButton (oscillatorsButton, oscillatorsEnableButtonDescription);
     addButton (filterButton, filterButtonDescription);
     addButton (envelopeButton, envelopeButtonDescription);
 

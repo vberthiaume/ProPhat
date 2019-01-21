@@ -53,7 +53,6 @@ public:
 #endif
 
 private:
-
     sBMP4AudioProcessor& processor;
 
     Label oscillatorsChoiceLabel, oscillatorsGainLabel, filterGainLabel, envelopeGainLabel, lfoChoiceLabel, lfoGainLabel;
@@ -70,7 +69,6 @@ private:
     GroupComponent oscillatorsSection, filterSection, envelopeSection, lfoSection;
 
 #if CPU_USAGE
-
     Label cpuUsageLabel;
     Label cpuUsageText;
 #endif

@@ -9,12 +9,12 @@ static const NormalisableRange<float> sliderRange = {-12.0f, 12.0f};
     #define CPU_USAGE 1
 #endif
 
-
 namespace sBMP4AudioProcessorIDs
 {
     const String oscillatorsComboID = "oscillatorsCombo";
     const String oscillatorsSliderID = "oscillatorsSlider";
-    const String oscillatorsButtonID = "oscillatorsButton";
+    const String oscillatorsEnableButtonID = "oscillatorsButton";
+    const String oscillatorsWavetableButtonID = "oscillatorsWaveTableButton";
 
     const String filterSliderID = "filterSlider";
     const String filterButtonID = "filterButton";
@@ -38,7 +38,7 @@ namespace sBMP4AudioProcessorNames
 {
     const String oscillatorsComboDescription = "Oscillators Model";
     const String oscillatorsSliderDescription = "Oscillators Gain";
-    const String oscillatorsButtonDescription = "Oscillators ON";
+    const String oscillatorsEnableButtonDescription = "Oscillators ON";
 
     const String filterSliderDescription = "Filter Gain";
     const String filterButtonDescription = "Filter ON";
@@ -66,7 +66,6 @@ namespace sBMP4AudioProcessorChoices
     const String lfoChoices0 = "Sine";
     const String lfoChoices1 = "Pulse";
 }
-
 
 //==============================================================================
 
@@ -105,9 +104,9 @@ public:
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
-   #ifndef JucePlugin_PreferredChannelConfigurations
+#ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
-   #endif
+#endif
 
     void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
     void processBlock (AudioBuffer<double>&, MidiBuffer&) override;

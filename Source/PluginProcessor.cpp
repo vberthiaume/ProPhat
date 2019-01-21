@@ -14,7 +14,9 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     {
         std::make_unique<AudioParameterChoice> (oscillatorsComboID,  oscillatorsComboDescription,  StringArray {oscillatorsChoice0, oscillatorsChoice1}, 0),
         std::make_unique<AudioParameterFloat> (oscillatorsSliderID, oscillatorsSliderDescription, sliderRange, 0.0f),
-        std::make_unique<AudioParameterBool> (oscillatorsButtonID, oscillatorsButtonDescription, true, oscillatorsButtonDescription),
+        std::make_unique<AudioParameterBool> (oscillatorsEnableButtonID, oscillatorsEnableButtonDescription, true, oscillatorsEnableButtonDescription),
+        std::make_unique<AudioParameterBool> (oscillatorsWavetableButtonID, oscillatorsEnableButtonDescription, true, oscillatorsEnableButtonDescription),
+
 
         std::make_unique<AudioParameterFloat> (filterSliderID, filterSliderDescription, sliderRange, 0.0f),
         std::make_unique<AudioParameterBool> (filterButtonID, filterButtonDescription, true, filterButtonDescription),

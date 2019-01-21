@@ -85,8 +85,6 @@ protected:
 
 private:
     void setFrequency (float frequency);
-    
-
 
     const AudioSampleBuffer& wavetable;
     const int tableSize;
