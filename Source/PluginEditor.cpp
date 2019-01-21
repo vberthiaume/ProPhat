@@ -40,10 +40,10 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     filterButtonAttachment (p.state, filterButtonID, filterButton),
     envelopeButtonAttachment (p.state, envelopeButtonID, envelopeButton),
 
-    oscSection (oscSectionID, oscSectionDescription),
-    filterSection (filterSectionID, filterSectionDescription),
-    envelopeSection (envelopeSectionID, envelopeSectionDescription),
-    lfoSection (lfoSectionID, lfoSectionDescription)
+    oscSection (oscSectionID, oscSectionDesc),
+    filterSection (filterSectionID, filterSectionDesc),
+    envelopeSection (envelopeSectionID, envelopeSectionDesc),
+    lfoSection (lfoSectionID, lfoSectionDesc)
 {
 #if CPU_USAGE
     setSize (width, height + 50);
@@ -75,11 +75,11 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 
     auto oscComboParam = (AudioParameterChoice*) processor.state.getParameter (oscComboID);
     if (oscComboParam != nullptr)
-        addComboBox (oscCombo, oscChoiceLabel, oscComboDescription, oscComboParam->choices);
+        addComboBox (oscCombo, oscChoiceLabel, oscComboDesc, oscComboParam->choices);
 
     auto lfoComboParam = (AudioParameterChoice*) processor.state.getParameter (lfoComboID);
     if (lfoComboParam != nullptr)
-        addComboBox (lfoCombo, lfoChoiceLabel, lfoComboDescription, lfoComboParam->choices);
+        addComboBox (lfoCombo, lfoChoiceLabel, lfoComboDesc, lfoComboParam->choices);
 
     auto addSlider = [this] (Slider& slider, Label& label, StringRef labelText)
     {
@@ -91,13 +91,13 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
         addAndMakeVisible (slider);
     };
 
-    addSlider (oscSlider, oscGainLabel, oscSliderDescription);
-    addSlider (filterSlider, filterGainLabel, filterSliderDescription);
-    addSlider (envelopeSlider, envelopeGainLabel, envelopeSliderDescription);
+    addSlider (oscSlider, oscGainLabel, oscSliderDesc);
+    addSlider (filterSlider, filterGainLabel, filterSliderDesc);
+    addSlider (envelopeSlider, envelopeGainLabel, envelopeSliderDesc);
 
     //@TODO have the right things control the right other things
-    /*addSlider (lfoSlider, lfoGainLabel, lfoSliderDescription);*/
-    addSlider (lfoSlider, lfoGainLabel, roomSizeDescription);
+    /*addSlider (lfoSlider, lfoGainLabel, lfoSliderDesc);*/
+    addSlider (lfoSlider, lfoGainLabel, roomSizeDesc);
 
     auto addButton = [this] (Button& button, StringRef text)
     {
@@ -105,9 +105,9 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
         addAndMakeVisible (button);
     };
 
-    addButton (oscButton, oscEnableButtonDescription);
-    addButton (filterButton, filterButtonDescription);
-    addButton (envelopeButton, envelopeButtonDescription);
+    addButton (oscButton, oscEnableButtonDesc);
+    addButton (filterButton, filterButtonDesc);
+    addButton (envelopeButton, envelopeButtonDesc);
 
     addAndMakeVisible (oscSection);
     addAndMakeVisible (filterSection);

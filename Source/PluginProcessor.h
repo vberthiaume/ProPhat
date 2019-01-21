@@ -36,26 +36,26 @@ namespace sBMP4AudioProcessorIDs
 
 namespace sBMP4AudioProcessorNames
 {
-    const String oscComboDescription = "Oscillators Model";
-    const String oscSliderDescription = "Oscillators Gain";
-    const String oscEnableButtonDescription = "Oscillators ON";
+    const String oscComboDesc = "Oscillators Model";
+    const String oscSliderDesc = "Oscillators Gain";
+    const String oscEnableButtonDesc = "Oscillators ON";
 
-    const String filterSliderDescription = "Filter Gain";
-    const String filterButtonDescription = "Filter ON";
+    const String filterSliderDesc = "Filter Gain";
+    const String filterButtonDesc = "Filter ON";
 
-    const String envelopeSliderDescription = "Envelope Gain";
-    const String envelopeButtonDescription = "Envelope ON";
+    const String envelopeSliderDesc = "Envelope Gain";
+    const String envelopeButtonDesc = "Envelope ON";
 
-    const String lfoComboDescription = "Wave Type";
+    const String lfoComboDesc = "Wave Type";
 
-    const String lfoSliderDescription = "LFO Frequency";
+    const String lfoSliderDesc = "LFO Frequency";
 
-    const String oscSectionDescription = "Oscillators";
-    const String filterSectionDescription = "Filter";
-    const String envelopeSectionDescription = "Envelope";
-    const String lfoSectionDescription = "LFO";
+    const String oscSectionDesc = "Oscillators";
+    const String filterSectionDesc = "Filter";
+    const String envelopeSectionDesc = "Envelope";
+    const String lfoSectionDesc = "LFO";
 
-    const String roomSizeDescription = "Room Size";
+    const String roomSizeDesc = "Room Size";
 }
 
 namespace sBMP4AudioProcessorChoices

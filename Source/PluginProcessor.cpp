@@ -12,22 +12,22 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
                                      .withOutput ("Output", AudioChannelSet::stereo(), true)),
     state (*this, nullptr, "state",
     {
-        std::make_unique<AudioParameterChoice> (oscComboID,  oscComboDescription,  StringArray {oscChoice0, oscChoice1}, 0),
-        std::make_unique<AudioParameterFloat> (oscSliderID, oscSliderDescription, sliderRange, 0.0f),
-        std::make_unique<AudioParameterBool> (oscEnableButtonID, oscEnableButtonDescription, true, oscEnableButtonDescription),
-        std::make_unique<AudioParameterBool> (oscWavetableButtonID, oscEnableButtonDescription, true, oscEnableButtonDescription),
+        std::make_unique<AudioParameterChoice> (oscComboID,  oscComboDesc,  StringArray {oscChoice0, oscChoice1}, 0),
+        std::make_unique<AudioParameterFloat> (oscSliderID, oscSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterBool> (oscEnableButtonID, oscEnableButtonDesc, true, oscEnableButtonDesc),
+        std::make_unique<AudioParameterBool> (oscWavetableButtonID, oscEnableButtonDesc, true, oscEnableButtonDesc),
 
 
-        std::make_unique<AudioParameterFloat> (filterSliderID, filterSliderDescription, sliderRange, 0.0f),
-        std::make_unique<AudioParameterBool> (filterButtonID, filterButtonDescription, true, filterButtonDescription),
+        std::make_unique<AudioParameterFloat> (filterSliderID, filterSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterBool> (filterButtonID, filterButtonDesc, true, filterButtonDesc),
 
-        std::make_unique<AudioParameterFloat> (envelopeSliderID, envelopeSliderDescription, sliderRange, 0.0f),
-        std::make_unique<AudioParameterBool> (envelopeButtonID, envelopeButtonDescription, true, envelopeButtonDescription),
+        std::make_unique<AudioParameterFloat> (envelopeSliderID, envelopeSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterBool> (envelopeButtonID, envelopeButtonDesc, true, envelopeButtonDesc),
 
-        std::make_unique<AudioParameterChoice> (lfoComboID,  lfoComboDescription,  StringArray {lfoChoices0, lfoChoices1}, 0),
-        std::make_unique<AudioParameterFloat> (lfoSliderID, lfoSliderDescription, sliderRange, 0.0f),
+        std::make_unique<AudioParameterChoice> (lfoComboID,  lfoComboDesc,  StringArray {lfoChoices0, lfoChoices1}, 0),
+        std::make_unique<AudioParameterFloat> (lfoSliderID, lfoSliderDesc, sliderRange, 0.0f),
 
-        std::make_unique<AudioParameterFloat> (roomSizeID, roomSizeDescription, sliderRange, 0.0f)
+        std::make_unique<AudioParameterFloat> (roomSizeID, roomSizeDesc, sliderRange, 0.0f)
     })
 
 #if CPU_USAGE
