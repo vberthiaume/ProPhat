@@ -15,7 +15,7 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
         std::make_unique<AudioParameterBool> (oscEnableButtonID, oscEnableButtonDesc, true, oscEnableButtonDesc),
         std::make_unique<AudioParameterChoice> (oscComboID,  oscComboDesc,  StringArray {oscChoice0, oscChoice1}, 0),
         std::make_unique<AudioParameterFloat> (oscSliderID, oscSliderDesc, sliderRange, 0.0f),
-        std::make_unique<AudioParameterBool> (oscWavetableButtonID, oscWavetableButtonDesc, true, oscWavetableButtonDesc),
+        std::make_unique<AudioParameterBool> (oscWavetableButtonID, oscWavetableButtonDesc, false, oscWavetableButtonDesc),
 
         std::make_unique<AudioParameterBool> (filterEnableButtonID, filterEnableButtonDesc, true, filterEnableButtonDesc),
         std::make_unique<AudioParameterFloat> (filterSliderID, filterSliderDesc, sliderRange, 0.0f),
@@ -36,22 +36,31 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 #if STANDARD_LISTENER
     state.state.addListener (this);
 #else
-    state.addParameterListener (oscWavetableButtonIDthis);
+    state.addParameterListener (oscWavetableButtonID, this);
 #endif
     
-
     createWavetable();
-
-    //@todo this is the switch between wave table and sine
-    for (auto i = 0; i < 4; ++i)
-        //synth.addVoice (new SineWaveTableVoice (sineTable));
-        synth.addVoice (new SineWaveVoice());
-
-    synth.addSound (new SineWaveSound());
 }
 
 sBMP4AudioProcessor::~sBMP4AudioProcessor()
 {
+}
+
+void sBMP4AudioProcessor::useWavetables (bool useThem)
+{
+    synth.clearVoices();
+    synth.clearSounds();
+
+    usingWavetables = useThem;
+    if (usingWavetables)
+        for (auto i = 0; i < 4; ++i)
+            synth.addVoice (new SineWaveTableVoice (sineTable));
+    else
+        for (auto i = 0; i < 4; ++i)
+            synth.addVoice (new SineWaveVoice());
+
+
+    synth.addSound (new SineWaveSound());
 }
 
 //==============================================================================
@@ -119,6 +128,8 @@ void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
     synth.setCurrentPlaybackSampleRate (sampleRate);
     reverb.setSampleRate (sampleRate);
+
+    useWavetables (usingWavetables);
 }
 
 void sBMP4AudioProcessor::releaseResources()
@@ -154,8 +165,14 @@ void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiM
 #if CPU_USAGE
     perfCounter.start();
 #endif
-    //@TODO not sure there's actually a point o this?
+    //@TODO not sure there's actually a point to this?
     //buffer.clear();
+
+    if (needToSwitchWavetableStatus)
+    {
+        useWavetables (! usingWavetables);
+        needToSwitchWavetableStatus = false;
+    }
 
     Reverb::Parameters reverbParameters;
     reverbParameters.roomSize = state.getParameter (roomSizeID)->getValue();

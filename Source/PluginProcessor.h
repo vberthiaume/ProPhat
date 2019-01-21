@@ -11,7 +11,7 @@ static const NormalisableRange<float> sliderRange = {-12.0f, 12.0f};
 #endif
 
 #ifndef STANDARD_LISTENER
-    #define STANDARD_LISTENER 1
+    #define STANDARD_LISTENER 0
 #endif
 
 namespace sBMP4AudioProcessorIDs
@@ -92,11 +92,11 @@ public:
         if (v.getParent() != state.state)
             return;
 
-            auto paramName = v.getProperty ("id").toString();
-            auto paramValue = v.getProperty ("value").toString();
-            auto paramValue2 = (float) state.getParameterAsValue (paramName).getValue();
-            
-            DBG (paramName + "now has the value: " + paramValue + ", which is the same as this: " + String (paramValue2));
+        auto paramName = v.getProperty ("id").toString();
+        auto paramValue = v.getProperty ("value").toString();
+        auto paramValue2 = (float) state.getParameterAsValue (paramName).getValue();
+
+        DBG (paramName + "now has the value: " + paramValue + ", which is the same as this: " + String (paramValue2));
     }
 
     void valueTreeChildAdded (juce::ValueTree &/*parentTree*/, juce::ValueTree &/*childWhichHasBeenAdded*/) override {}
@@ -106,9 +106,9 @@ public:
 #else
     void parameterChanged (const String& parameterID, float newValue) override
     {
-        DBG (parameterID);
-        DBG (String (newValue));
-    };
+        if (parameterID == sBMP4AudioProcessorIDs::oscWavetableButtonID && usingWavetables != (bool) newValue)
+            needToSwitchWavetableStatus = true;
+    }
 #endif
     float getSliderLinearGain (StringRef id)
     {
@@ -123,8 +123,6 @@ public:
     bool getIsButtonEnabled (StringRef id) { return state.getParameter (id)->getValue(); }
 
     String getSelectedChoice (StringRef id) { return ((AudioParameterChoice*) state.getParameter (id))->getCurrentValueAsText(); }
-
-
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -171,6 +169,8 @@ public:
 
 private:
 
+    void useWavetables (bool useThem);
+
     void createWavetable()
     {
         sineTable.setSize (1, tableSize + 1);
@@ -182,7 +182,7 @@ private:
         //float harmonicWeights[] = {0.5f, 0.1f, 0.05f, 0.125f, 0.09f, 0.005f, 0.002f, 0.001f};
 
         int harmonics[] = {1};
-        float harmonicWeights[] = {1.f};
+        float harmonicWeights[] = {.75f};
 
         jassert (numElementsInArray (harmonics) == numElementsInArray (harmonicWeights));
 
@@ -211,6 +211,7 @@ private:
     const unsigned int tableSize = 1 << 7;
     int numberOfOscillators = 16;
     AudioSampleBuffer sineTable;
+    bool usingWavetables = false, needToSwitchWavetableStatus = false;
 
     dsp::IIR::Filter<float> lrFilter;
 

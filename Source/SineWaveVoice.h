@@ -37,10 +37,8 @@ public:
 
     void renderNextBlock (AudioSampleBuffer& outputBuffer, int startSample, int numSamples) override;
 
-    virtual forcedinline float getNextSample() noexcept { return (float) std::sin (currentAngle); }
-
 protected:
-    
+    virtual forcedinline float getNextSample() noexcept { return (float) std::sin (currentAngle); }
 
     double currentAngle = 0.0, angleDelta = 0.0, level = 0.0, tailOff = 0.0;
 };
@@ -50,14 +48,16 @@ protected:
 class SineWaveTableVoice : public SineWaveVoice
 {
 public:
-    SineWaveTableVoice (const AudioSampleBuffer& wavetableToUse)
-        : wavetable (wavetableToUse),
+    SineWaveTableVoice (const AudioSampleBuffer& wavetableToUse) :
+        wavetable (wavetableToUse),
         tableSize (wavetable.getNumSamples() - 1)
     {
         jassert (wavetable.getNumChannels() == 1);
     }
 
     void startNote (int midiNoteNumber, float velocity, SynthesiserSound*, int /*currentPitchWheelPosition*/) override;
+
+protected:
 
     forcedinline float getNextSample() noexcept override
     {
@@ -77,11 +77,6 @@ public:
 
         return currentSample;
     }
-    
-
-
-protected:
-    
 
 private:
     void setFrequency (float frequency);
@@ -90,5 +85,3 @@ private:
     const int tableSize;
     float currentIndex = 0.0f, tableDelta = 0.0f;
 };
-
-
