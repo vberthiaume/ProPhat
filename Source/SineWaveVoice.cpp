@@ -44,7 +44,7 @@ void SineWaveVoice::renderNextBlock (AudioSampleBuffer& outputBuffer, int startS
         {
             while (--numSamples >= 0)
             {
-                auto currentSample = (float) (getNextSample()/*std::sin (currentAngle)*/ * level * tailOff);
+                auto currentSample = (float) (getNextSample() * level * tailOff);
 
                 for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
                     outputBuffer.addSample (i, startSample, currentSample);
@@ -67,7 +67,7 @@ void SineWaveVoice::renderNextBlock (AudioSampleBuffer& outputBuffer, int startS
         {
             while (--numSamples >= 0) // [6]
             {
-                auto currentSample = (float) (getNextSample()/*std::sin (currentAngle)*/ * level);
+                auto currentSample = (float) (getNextSample() * level);
 
                 for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
                     outputBuffer.addSample (i, startSample, currentSample);

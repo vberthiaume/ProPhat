@@ -2,11 +2,16 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "SineWaveVoice.h"
+#include "Helpers.h"
 
 static const NormalisableRange<float> sliderRange = {-12.0f, 12.0f};
 
 #ifndef CPU_USAGE
     #define CPU_USAGE 1
+#endif
+
+#ifndef STANDARD_LISTENER
+    #define STANDARD_LISTENER 1
 #endif
 
 namespace sBMP4AudioProcessorIDs
@@ -68,7 +73,12 @@ namespace sBMP4AudioProcessorChoices
 
 //==============================================================================
 
-class sBMP4AudioProcessor : public AudioProcessor, public ValueTree::Listener
+class sBMP4AudioProcessor : public AudioProcessor
+#if STANDARD_LISTENER
+    , public ValueTree::Listener
+#else
+    , public AudioProcessorValueTreeState::Listener
+#endif
 {
 public:
 
@@ -76,10 +86,30 @@ public:
     sBMP4AudioProcessor();
     ~sBMP4AudioProcessor();
 
-    void valueTreePropertyChanged (juce::ValueTree &/*v*/, const juce::Identifier &/*id*/) override
+#if STANDARD_LISTENER
+    void valueTreePropertyChanged (juce::ValueTree &v, const juce::Identifier &/*id*/) override
     {
+        if (v.getParent() != state.state)
+            return;
+
+            auto paramName = v.getProperty ("id").toString();
+            auto paramValue = v.getProperty ("value").toString();
+            auto paramValue2 = (float) state.getParameterAsValue (paramName).getValue();
+            
+            DBG (paramName + "now has the value: " + paramValue + ", which is the same as this: " + String (paramValue2));
     }
 
+    void valueTreeChildAdded (juce::ValueTree &/*parentTree*/, juce::ValueTree &/*childWhichHasBeenAdded*/) override {}
+    void valueTreeChildRemoved (juce::ValueTree &/*parentTree*/, juce::ValueTree &/*childWhichHasBeenRemoved*/, int /*indexFromWhichChildWasRemoved*/) override {}
+    void valueTreeChildOrderChanged (juce::ValueTree &/*parentTreeWhoseChildrenHaveMoved*/, int /*oldIndex*/, int /*newIndex*/) override {}
+    void valueTreeParentChanged (juce::ValueTree &/*treeWhoseParentHasChanged*/) override {}
+#else
+    void parameterChanged (const String& parameterID, float newValue) override
+    {
+        DBG (parameterID);
+        DBG (String (newValue));
+    };
+#endif
     float getSliderLinearGain (StringRef id)
     {
         return Decibels::decibelsToGain (sliderRange.convertFrom0to1 (state.getParameter (id)->getValue()));
@@ -94,10 +124,7 @@ public:
 
     String getSelectedChoice (StringRef id) { return ((AudioParameterChoice*) state.getParameter (id))->getCurrentValueAsText(); }
 
-    void valueTreeChildAdded (juce::ValueTree &/*parentTree*/, juce::ValueTree &/*childWhichHasBeenAdded*/) override {}
-    void valueTreeChildRemoved (juce::ValueTree &/*parentTree*/, juce::ValueTree &/*childWhichHasBeenRemoved*/, int /*indexFromWhichChildWasRemoved*/) override {}
-    void valueTreeChildOrderChanged (juce::ValueTree &/*parentTreeWhoseChildrenHaveMoved*/, int /*oldIndex*/, int /*newIndex*/) override {}
-    void valueTreeParentChanged (juce::ValueTree &/*treeWhoseParentHasChanged*/) override {}
+
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;

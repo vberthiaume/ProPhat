@@ -33,7 +33,12 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     , perfCounter ("ProcessBlock")
 #endif
 {
+#if STANDARD_LISTENER
     state.state.addListener (this);
+#else
+    state.addParameterListener (oscWavetableButtonIDthis);
+#endif
+    
 
     createWavetable();
 
