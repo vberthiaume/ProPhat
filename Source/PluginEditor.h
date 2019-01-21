@@ -63,8 +63,11 @@ private:
     ComboBox oscCombo, lfoCombo;
     AudioProcessorValueTreeState::ComboBoxAttachment oscComboAttachment, formatComboAttachment;
 
-    ToggleButton oscButton, filterButton, envelopeButton;
-    AudioProcessorValueTreeState::ButtonAttachment oscButtonAttachment, filterButtonAttachment, envelopeButtonAttachment;
+    ToggleButton oscEnableButton, oscWavetableButton, filterEnableButton, envelopeEnableButton;
+    AudioProcessorValueTreeState::ButtonAttachment oscEnableButtonAttachment;
+    AudioProcessorValueTreeState::ButtonAttachment oscWaveTableButtonAttachment;
+    AudioProcessorValueTreeState::ButtonAttachment filterEnableButtonAttachment;
+    AudioProcessorValueTreeState::ButtonAttachment envelopeEnableButtonAttachment;
 
     GroupComponent oscSection, filterSection, envelopeSection, lfoSection;
 

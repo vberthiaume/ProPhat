@@ -11,19 +11,18 @@ static const NormalisableRange<float> sliderRange = {-12.0f, 12.0f};
 
 namespace sBMP4AudioProcessorIDs
 {
+    const String oscEnableButtonID = "oscEnableButton";
     const String oscComboID = "oscCombo";
     const String oscSliderID = "oscSlider";
-    const String oscEnableButtonID = "oscButton";
     const String oscWavetableButtonID = "oscWaveTableButton";
 
+    const String filterEnableButtonID = "filterEnableButton";
     const String filterSliderID = "filterSlider";
-    const String filterButtonID = "filterButton";
 
+    const String envelopeEnableButtonID = "envelopeEnableButton";
     const String envelopeSliderID = "envelopeSlider";
-    const String envelopeButtonID = "envelopeButton";
 
     const String lfoComboID = "lfoCombo";
-
     const String lfoSliderID = "lfoSlider";
 
     const String oscSectionID = "oscSection";
@@ -36,18 +35,18 @@ namespace sBMP4AudioProcessorIDs
 
 namespace sBMP4AudioProcessorNames
 {
+    const String oscEnableButtonDesc = "Oscillators ON";
     const String oscComboDesc = "Oscillators Model";
     const String oscSliderDesc = "Oscillators Gain";
-    const String oscEnableButtonDesc = "Oscillators ON";
+    const String oscWavetableButtonDesc = "Use WaveTable";
 
+    const String filterEnableButtonDesc = "Filter ON";
     const String filterSliderDesc = "Filter Gain";
-    const String filterButtonDesc = "Filter ON";
 
+    const String envelopeEnableButtonDesc = "Envelope ON";
     const String envelopeSliderDesc = "Envelope Gain";
-    const String envelopeButtonDesc = "Envelope ON";
 
     const String lfoComboDesc = "Wave Type";
-
     const String lfoSliderDesc = "LFO Frequency";
 
     const String oscSectionDesc = "Oscillators";

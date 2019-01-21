@@ -36,9 +36,10 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     oscComboAttachment (p.state, oscComboID, oscCombo),
     formatComboAttachment (p.state, lfoComboID, lfoCombo),
 
-    oscButtonAttachment (p.state, oscEnableButtonID, oscButton),
-    filterButtonAttachment (p.state, filterButtonID, filterButton),
-    envelopeButtonAttachment (p.state, envelopeButtonID, envelopeButton),
+    oscEnableButtonAttachment (p.state, oscEnableButtonID, oscEnableButton),
+    oscWaveTableButtonAttachment (p.state, oscWavetableButtonID, oscWavetableButton),
+    filterEnableButtonAttachment (p.state, filterEnableButtonID, filterEnableButton),
+    envelopeEnableButtonAttachment (p.state, envelopeEnableButtonID, envelopeEnableButton),
 
     oscSection (oscSectionID, oscSectionDesc),
     filterSection (filterSectionID, filterSectionDesc),
@@ -105,9 +106,10 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
         addAndMakeVisible (button);
     };
 
-    addButton (oscButton, oscEnableButtonDesc);
-    addButton (filterButton, filterButtonDesc);
-    addButton (envelopeButton, envelopeButtonDesc);
+    addButton (oscEnableButton, oscEnableButtonDesc);
+    addButton (oscWavetableButton, oscWavetableButtonDesc);
+    addButton (filterEnableButton, filterEnableButtonDesc);
+    addButton (envelopeEnableButton, envelopeEnableButtonDesc);
 
     addAndMakeVisible (oscSection);
     addAndMakeVisible (filterSection);
@@ -139,7 +141,9 @@ void sBMP4AudioProcessorEditor::resized()
         sectionBounds.reduce (panelGap, panelGap);
 
         sectionBounds.removeFromTop (lineGap);
-        oscButton.setBounds (sectionBounds.removeFromTop (lineH));
+        auto buttonSection = sectionBounds.removeFromTop (lineH);
+        oscEnableButton.setBounds (buttonSection.removeFromLeft ((width - panelGap) / 2));
+        oscWavetableButton.setBounds (buttonSection);
 
         sectionBounds.removeFromTop (lineGap);
         oscCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboExtraGap).reduced (0, 2));
@@ -157,7 +161,7 @@ void sBMP4AudioProcessorEditor::resized()
         sectionBounds.reduce (panelGap, panelGap);
         
         sectionBounds.removeFromTop (lineGap);
-        filterButton.setBounds (sectionBounds.removeFromTop (lineH));
+        filterEnableButton.setBounds (sectionBounds.removeFromTop (lineH));
 
         sectionBounds.removeFromTop (lineGap);
         filterSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
@@ -172,7 +176,7 @@ void sBMP4AudioProcessorEditor::resized()
         sectionBounds.reduce (panelGap, panelGap);
         
         sectionBounds.removeFromTop (lineGap);
-        envelopeButton.setBounds (sectionBounds.removeFromTop (lineH));
+        envelopeEnableButton.setBounds (sectionBounds.removeFromTop (lineH));
 
         sectionBounds.removeFromTop (lineGap);
         envelopeSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
