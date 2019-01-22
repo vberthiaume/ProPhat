@@ -53,7 +53,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     cpuUsageText.setJustificationType (Justification::left);
     addAndMakeVisible (cpuUsageLabel);
     addAndMakeVisible (cpuUsageText);
-    startTimer (50);
+    startTimer (500);
 #else
     setSize (width, height);
 #endif

@@ -176,11 +176,11 @@ private:
         //initialize the table
         sineTable.setSize (1, tableSize + 1);
         sineTable.clear();
-        auto* samples = sineTable.getWritePointer (0);
+        double* samples = sineTable.getWritePointer (0);
 
         //decide on the harmonics
         int harmonics[] = {1}; //{1, 3, 5, 6, 7, 9, 13, 15};
-        float harmonicWeights[] = {1.f}; //{0.5f, 0.1f, 0.05f, 0.125f, 0.09f, 0.005f, 0.002f, 0.001f};
+        double harmonicWeights[] = {1.0}; //{0.5f, 0.1f, 0.05f, 0.125f, 0.09f, 0.005f, 0.002f, 0.001f};
         jassert (numElementsInArray (harmonics) == numElementsInArray (harmonicWeights));
 
         for (auto harmonic = 0; harmonic < numElementsInArray (harmonics); ++harmonic)
@@ -192,7 +192,7 @@ private:
             for (size_t i = 0; i < tableSize; ++i)
             {
                 auto sample = std::sin (currentAngle);
-                samples[i] += (float) sample * harmonicWeights[harmonic];
+                samples[i] += sample * harmonicWeights[harmonic];
                 currentAngle += angleDelta;
             }
         }
@@ -208,7 +208,7 @@ private:
 
     const unsigned int tableSize = 2 << 15; // 2^15 == 32768 slots; 32768 * 4 = 131kB
     int numberOfOscillators = 16;
-    AudioSampleBuffer sineTable;
+    AudioBuffer<double> sineTable;
     bool usingWavetables = false, needToSwitchWavetableStatus = false;
 
     dsp::IIR::Filter<float> lrFilter;

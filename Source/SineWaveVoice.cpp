@@ -10,17 +10,21 @@
 
 #include "SineWaveVoice.h"
 
-void SineWaveVoice::startNote (int midiNoteNumber, float velocity,
-                SynthesiserSound*, int /*currentPitchWheelPosition*/)
+void SineWaveVoice::startNote (int midiNoteNumber, float velocity, SynthesiserSound*, int /*currentPitchWheelPosition*/)
 {
-    currentAngle = 0.0;
     level = velocity * 0.15;
     tailOff = 0.0;
 
-    auto cyclesPerSecond = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
-    auto cyclesPerSample = cyclesPerSecond / getSampleRate();
+    setFrequency ((float) MidiMessage::getMidiNoteInHertz (midiNoteNumber));
 
-    angleDelta = cyclesPerSample * 2.0 * MathConstants<double>::pi;
+    isPlaying = true;
+}
+
+void SineWaveVoice::setFrequency (double frequency)
+{
+    currentAngle = 0.0;
+    auto cyclesPerSample = frequency / getSampleRate();
+    delta = cyclesPerSample * 2.0 * MathConstants<double>::pi;
 }
 
 void SineWaveVoice::stopNote (float /*velocity*/, bool allowTailOff)
@@ -33,71 +37,35 @@ void SineWaveVoice::stopNote (float /*velocity*/, bool allowTailOff)
     else
     {
         clearCurrentNote();
-        angleDelta = 0.0;
+        isPlaying = false;
     }
 }
-void SineWaveVoice::renderNextBlock (AudioSampleBuffer& outputBuffer, int startSample, int numSamples)
+
+void SineWaveVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
-    if (angleDelta != 0.0)
+    if (! isPlaying)
+        return;
+
+    while (--numSamples >= 0)
     {
+        auto curTailOff = tailOff > 0.0 ? tailOff : 1;
+
+        auto currentSample = (float) (getNextSample() * level * curTailOff);
+        for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
+            outputBuffer.addSample (i, startSample, currentSample);
+
+        ++startSample;
+
         if (tailOff > 0.0)
         {
-            while (--numSamples >= 0)
+            tailOff *= 0.99;
+
+            if (tailOff <= 0.005)
             {
-                auto currentSample = (float) (getNextSample() * level * tailOff);
-
-                for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
-                    outputBuffer.addSample (i, startSample, currentSample);
-
-                currentAngle += angleDelta;
-                ++startSample;
-
-                tailOff *= 0.99;
-
-                if (tailOff <= 0.005)
-                {
-                    clearCurrentNote();
-
-                    angleDelta = 0.0;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            while (--numSamples >= 0)
-            {
-                auto currentSample = (float) (getNextSample() * level);
-
-                for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
-                    outputBuffer.addSample (i, startSample, currentSample);
-
-                currentAngle += angleDelta;
-                ++startSample;
+                clearCurrentNote();
+                isPlaying = false;
+                break;
             }
         }
     }
 }
-
-//==============================================================================
-
-void SineWaveTableVoice::startNote (int midiNoteNumber, float velocity, SynthesiserSound*, int /*currentPitchWheelPosition*/)
-{
-    currentAngle = 0.0;
-    level = velocity * 0.15;
-    tailOff = 0.0;
-
-    auto cyclesPerSecond = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
-    setFrequency ((float) cyclesPerSecond);
-
-    auto cyclesPerSample = cyclesPerSecond / getSampleRate();
-    angleDelta = cyclesPerSample * 2.0 * MathConstants<double>::pi;
-}
-
-void SineWaveTableVoice::setFrequency (float frequency)
-{
-    //the sample rate and the table size are used to calculate the table delta equivalent to the frequency
-    auto tableSizeOverSampleRate = tableSize / getSampleRate();
-    tableDelta = frequency * (float) tableSizeOverSampleRate;
-}
-
