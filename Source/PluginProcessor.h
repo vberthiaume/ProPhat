@@ -6,9 +6,9 @@
 
 static const NormalisableRange<float> sliderRange = {-12.0f, 12.0f};
 
-#ifndef CPU_USAGE
-    #define CPU_USAGE 1
-#endif
+//#ifndef CPU_USAGE
+//    #define CPU_USAGE 1
+//#endif
 
 #ifndef STANDARD_LISTENER
     #define STANDARD_LISTENER 0
@@ -30,11 +30,6 @@ namespace sBMP4AudioProcessorIDs
     const String lfoComboID = "lfoCombo";
     const String lfoSliderID = "lfoSlider";
 
-    const String oscSectionID = "oscSection";
-    const String filterSectionID = "filterSection";
-    const String envelopeSectionID = "envelopeSection";
-    const String lfoSectionID = "lfoSection";
-
     const String roomSizeID = "roomSize";
 }
 
@@ -54,10 +49,11 @@ namespace sBMP4AudioProcessorNames
     const String lfoComboDesc = "Wave Type";
     const String lfoSliderDesc = "LFO Frequency";
 
-    const String oscSectionDesc = "Oscillators";
-    const String filterSectionDesc = "Filter";
-    const String envelopeSectionDesc = "Envelope";
-    const String lfoSectionDesc = "LFO";
+    const String oscGroupDesc = "Oscillators";
+    const String filterGroupDesc = "Filter";
+    const String envelopeGroupDesc = "Envelope";
+    const String lfoGroupDesc = "LFO";
+    const String effectGroupDesc = "Effect";
 
     const String roomSizeDesc = "Room Size";
 }

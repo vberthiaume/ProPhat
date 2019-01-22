@@ -38,7 +38,6 @@ class sBMP4AudioProcessorEditor : public AudioProcessorEditor
 public:
 
     sBMP4AudioProcessorEditor (sBMP4AudioProcessor&);
-    ~sBMP4AudioProcessorEditor();
 
     //==============================================================================
     void paint (Graphics&) override;
@@ -64,12 +63,11 @@ private:
     AudioProcessorValueTreeState::ComboBoxAttachment oscComboAttachment, formatComboAttachment;
 
     ToggleButton oscEnableButton, oscWavetableButton, filterEnableButton, envelopeEnableButton;
-    AudioProcessorValueTreeState::ButtonAttachment oscEnableButtonAttachment;
-    AudioProcessorValueTreeState::ButtonAttachment oscWaveTableButtonAttachment;
-    AudioProcessorValueTreeState::ButtonAttachment filterEnableButtonAttachment;
-    AudioProcessorValueTreeState::ButtonAttachment envelopeEnableButtonAttachment;
+    AudioProcessorValueTreeState::ButtonAttachment oscEnableButtonAttachment, oscWaveTableButtonAttachment,
+                                                   filterEnableButtonAttachment, envelopeEnableButtonAttachment;
 
-    GroupComponent oscSection, filterSection, envelopeSection, lfoSection;
+    GroupComponent oscGroup, filterGroup, envelopeGroup, lfoGroup, effectGroup;
+    
 
 #if CPU_USAGE
     Label cpuUsageLabel;

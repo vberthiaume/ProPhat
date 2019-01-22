@@ -41,10 +41,11 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     filterEnableButtonAttachment (p.state, filterEnableButtonID, filterEnableButton),
     envelopeEnableButtonAttachment (p.state, envelopeEnableButtonID, envelopeEnableButton),
 
-    oscSection (oscSectionID, oscSectionDesc),
-    filterSection (filterSectionID, filterSectionDesc),
-    envelopeSection (envelopeSectionID, envelopeSectionDesc),
-    lfoSection (lfoSectionID, lfoSectionDesc)
+    oscGroup ({}, oscGroupDesc),
+    filterGroup ({}, filterGroupDesc),
+    envelopeGroup ({}, envelopeGroupDesc),
+    lfoGroup ({}, lfoGroupDesc),
+    effectGroup ({}, effectGroupDesc)
 {
 #if CPU_USAGE
     setSize (width, height + 50);
@@ -59,7 +60,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 #endif
     setResizable (false, false);
 
-    auto addComboBox = [this] (ComboBox& combo, Label& label, StringRef text, const StringArray &choices)
+    auto addComboBox = [this](ComboBox& combo, Label& label, StringRef text, const StringArray &choices)
     {
         label.setText (text, dontSendNotification);
         label.attachToComponent (&combo, true);
@@ -82,7 +83,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     if (lfoComboParam != nullptr)
         addComboBox (lfoCombo, lfoChoiceLabel, lfoComboDesc, lfoComboParam->choices);
 
-    auto addSlider = [this] (Slider& slider, Label& label, StringRef labelText)
+    auto addSlider = [this](Slider& slider, Label& label, StringRef labelText)
     {
         label.setText (labelText, dontSendNotification);
         label.attachToComponent (&slider, true);
@@ -100,7 +101,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     /*addSlider (lfoSlider, lfoGainLabel, lfoSliderDesc);*/
     addSlider (lfoSlider, lfoGainLabel, roomSizeDesc);
 
-    auto addButton = [this] (Button& button, StringRef text)
+    auto addButton = [this](Button& button, StringRef text)
     {
         button.setButtonText (text);
         addAndMakeVisible (button);
@@ -111,14 +112,17 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     addButton (filterEnableButton, filterEnableButtonDesc);
     addButton (envelopeEnableButton, envelopeEnableButtonDesc);
 
-    addAndMakeVisible (oscSection);
-    addAndMakeVisible (filterSection);
-    addAndMakeVisible (envelopeSection);
-    addAndMakeVisible (lfoSection);
-}
+    auto addGroup = [this](GroupComponent& group)
+    {
+        group.setTextLabelPosition (Justification::centred);
+        addAndMakeVisible (group);
+    };
 
-sBMP4AudioProcessorEditor::~sBMP4AudioProcessorEditor()
-{
+    addGroup (oscGroup);
+    addGroup (filterGroup);
+    addGroup (envelopeGroup);
+    addGroup (lfoGroup);
+    addGroup (effectGroup);
 }
 
 //==============================================================================
@@ -136,14 +140,14 @@ void sBMP4AudioProcessorEditor::resized()
     {
         const auto lines = 3;
         auto sectionBounds = bounds.removeFromTop (lines * (lineH + lineGap) + panelGap);
-        oscSection.setBounds (sectionBounds);
+        oscGroup.setBounds (sectionBounds);
 
         sectionBounds.reduce (panelGap, panelGap);
 
         sectionBounds.removeFromTop (lineGap);
-        auto buttonSection = sectionBounds.removeFromTop (lineH);
-        oscEnableButton.setBounds (buttonSection.removeFromLeft ((width - panelGap) / 2));
-        oscWavetableButton.setBounds (buttonSection);
+        auto buttonGroup = sectionBounds.removeFromTop (lineH);
+        oscEnableButton.setBounds (buttonGroup.removeFromLeft ((width - panelGap) / 2));
+        oscWavetableButton.setBounds (buttonGroup);
 
         sectionBounds.removeFromTop (lineGap);
         oscCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboExtraGap).reduced (0, 2));
@@ -156,7 +160,7 @@ void sBMP4AudioProcessorEditor::resized()
     {
         const auto lines = 2;
         auto sectionBounds = bounds.removeFromTop (lines * (lineH + lineGap) + panelGap);
-        filterSection.setBounds (sectionBounds);
+        filterGroup.setBounds (sectionBounds);
 
         sectionBounds.reduce (panelGap, panelGap);
         
@@ -171,7 +175,7 @@ void sBMP4AudioProcessorEditor::resized()
     {
         const auto lines = 2;
         auto sectionBounds = bounds.removeFromTop (lines * (lineH + lineGap) + panelGap);
-        envelopeSection.setBounds (sectionBounds);
+        envelopeGroup.setBounds (sectionBounds);
 
         sectionBounds.reduce (panelGap, panelGap);
         
@@ -186,7 +190,7 @@ void sBMP4AudioProcessorEditor::resized()
     {
         const auto lines = 2;
         auto sectionBounds = bounds.removeFromTop (lines * lineH + 2 * panelGap);
-        lfoSection.setBounds (sectionBounds);
+        lfoGroup.setBounds (sectionBounds);
 
         sectionBounds.reduce (panelGap, panelGap);
         
