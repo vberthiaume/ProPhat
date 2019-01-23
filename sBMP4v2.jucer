@@ -7,6 +7,14 @@
               cppLanguageStandard="17" pluginManufacturerCode="BMP4" pluginCode="sBMP">
   <MAINGROUP id="xcjoOm" name="sBMP4">
     <GROUP id="{9E790ABE-F484-67A0-AF6A-838FDD75B724}" name="Source">
+      <FILE id="CnNsCn" name="sBMP4LookAndFeel.cpp" compile="1" resource="0"
+            file="Source/sBMP4LookAndFeel.cpp"/>
+      <FILE id="s6VuX3" name="sBMP4LookAndFeel.h" compile="0" resource="0"
+            file="Source/sBMP4LookAndFeel.h"/>
+      <FILE id="Fz1xUN" name="ButtonGroupComponent.cpp" compile="1" resource="0"
+            file="Source/ButtonGroupComponent.cpp"/>
+      <FILE id="x11DHa" name="ButtonGroupComponent.h" compile="0" resource="0"
+            file="Source/ButtonGroupComponent.h"/>
       <FILE id="t3Y7nl" name="Helpers.h" compile="0" resource="0" file="Source/Helpers.h"/>
       <FILE id="BFt6hz" name="SineWaveVoice.cpp" compile="1" resource="0"
             file="Source/SineWaveVoice.cpp"/>
@@ -24,7 +32,6 @@
             file="Assets/blackTexture.jpg"/>
       <FILE id="BkdKO2" name="redTexture.png" compile="0" resource="1" file="Assets/redTexture.png"/>
       <FILE id="I7aupD" name="blackMetal.jpg" compile="0" resource="1" file="Assets/blackMetal.jpg"/>
-      <FILE id="Kvw7HB" name="metalKnob.eps" compile="0" resource="1" file="Assets/metalKnob.eps"/>
       <FILE id="N4mkaj" name="metalKnob.png" compile="0" resource="1" file="Assets/metalKnob.png"/>
     </GROUP>
   </MAINGROUP>
