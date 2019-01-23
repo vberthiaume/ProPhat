@@ -3,22 +3,24 @@
 
 using namespace sBMP4AudioProcessorIDs;
 using namespace sBMP4AudioProcessorNames;
+using namespace sBMP4AudioProcessorChoices;
 
 enum sizes
 {
-    width = 400,
-    height = 350,
-
     overallGap = 8,
     panelGap = 10,
 
-    lineH = 30,
-    lineGap = 2,
-    labelW = 130,
-    comboExtraGap = 8,
-    horizontalGap = 4,
+    lineCount = 4,
+    //this is only used for the total height calculation... needs to be recalculated
+    lineH = 75,
 
-    font = 14
+    columnCount = 4,
+    columnW = 130,
+
+    height =    2 * overallGap + 4 * panelGap + lineCount   * lineH,
+    width =     2 * overallGap + 4 * panelGap + columnCount * columnW,
+
+    fontSize = 14
 };
 
 //==============================================================================
@@ -26,26 +28,33 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     AudioProcessorEditor (p),
     processor (p),
 
-    oscSliderAttachment (p.state, oscSliderID, oscSlider),
-    filterSliderAttachment (p.state, filterSliderID, filterSlider),
-    envelopeSliderAttachment (p.state, envelopeSliderID, envelopeSlider),
-    /*lfoSliderAttachment (p.state, lfoSliderID, lfoSlider),*/
-
-    lfoSliderAttachment (p.state, roomSizeID, lfoSlider),
-
-    oscComboAttachment (p.state, oscComboID, oscCombo),
-    formatComboAttachment (p.state, lfoComboID, lfoCombo),
-
-    oscEnableButtonAttachment (p.state, oscEnableButtonID, oscEnableButton),
-    oscWaveTableButtonAttachment (p.state, oscWavetableButtonID, oscWavetableButton),
-    filterEnableButtonAttachment (p.state, filterEnableButtonID, filterEnableButton),
-    envelopeEnableButtonAttachment (p.state, envelopeEnableButtonID, envelopeEnableButton),
-
+    //OSCILLATORS
     oscGroup ({}, oscGroupDesc),
+    oscWaveTableButtonAttachment (p.state, oscWavetableButtonID, oscWavetableButton),
+    oscShapeButtons (oscShapeDesc, {oscShape0, oscShape1, oscShape2, oscShape3}),
+    oscFreqAttachment (p.state, oscFreqSliderID, oscFreqSlider),
+
+    //FILTERS
     filterGroup ({}, filterGroupDesc),
-    envelopeGroup ({}, envelopeGroupDesc),
+    filterCutoffAttachment (p.state, filterCutoffSliderID, filterCutoffSlider),
+    filterResonanceAttachment (p.state, filterResonanceSliderID, filterResonanceSlider),
+
+    //AMPLIFIER
+    ampGroup ({}, ampGroupDesc),
+    ampAttackAttachment (p.state, ampAttackSliderID, ampAttackSlider),
+    ampDecayAttachment (p.state, ampDecaySliderID, ampDecaySlider),
+    ampSustainAttachment (p.state, ampSustainSliderID, ampSustainSlider),
+    ampReleaseAttachment (p.state, ampReleaseSliderID, ampReleaseSlider),
+
+    //LFO
     lfoGroup ({}, lfoGroupDesc),
-    effectGroup ({}, effectGroupDesc)
+    lfoShapeButtons (lfoShapeDesc, {lfoShape0, lfoShape1, lfoShape2, lfoShape3, lfoShape4}),
+    lfoFreqAttachment (p.state, lfoFreqSliderID, lfoFreqSlider),
+
+    //EFFECT
+    effectGroup ({}, effectGroupDesc),
+    effectParam1Attachment (p.state, effectParam1ID, effectParam1Slider),
+    effectParam2Attachment (p.state, effectParam2ID, effectParam2Slider)
 {
 #if CPU_USAGE
     setSize (width, height + 50);
@@ -58,153 +67,109 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 #else
     setSize (width, height);
 #endif
-    setResizable (false, false);
+    setResizable (true, true);
 
-    auto addComboBox = [this](ComboBox& combo, Label& label, StringRef text, const StringArray &choices)
-    {
-        label.setText (text, dontSendNotification);
-        label.attachToComponent (&combo, true);
-        label.setFont (Font (font));
+    backgroundTexture = Helpers::getImage (BinaryData::blackMetal_jpg, BinaryData::blackMetal_jpgSize);
 
-        int i = 1;
-        for (auto choice : choices)
-            combo.addItem (choice, i++);
-
-        combo.setSelectedItemIndex (0, sendNotification);
-
-        addAndMakeVisible (combo);
-    };
-
-    auto oscComboParam = (AudioParameterChoice*) processor.state.getParameter (oscComboID);
-    if (oscComboParam != nullptr)
-        addComboBox (oscCombo, oscChoiceLabel, oscComboDesc, oscComboParam->choices);
-
-    auto lfoComboParam = (AudioParameterChoice*) processor.state.getParameter (lfoComboID);
-    if (lfoComboParam != nullptr)
-        addComboBox (lfoCombo, lfoChoiceLabel, lfoComboDesc, lfoComboParam->choices);
-
-    auto addSlider = [this](Slider& slider, Label& label, StringRef labelText)
-    {
-        label.setText (labelText, dontSendNotification);
-        label.attachToComponent (&slider, true);
-        label.setFont (Font (font));
-
-        slider.setTextBoxStyle (Slider::TextBoxRight, false, 40, 20);
-        addAndMakeVisible (slider);
-    };
-
-    addSlider (oscSlider, oscGainLabel, oscSliderDesc);
-    addSlider (filterSlider, filterGainLabel, filterSliderDesc);
-    addSlider (envelopeSlider, envelopeGainLabel, envelopeSliderDesc);
-
-    //@TODO have the right things control the right other things
-    /*addSlider (lfoSlider, lfoGainLabel, lfoSliderDesc);*/
-    addSlider (lfoSlider, lfoGainLabel, roomSizeDesc);
-
+    //set up buttons
     auto addButton = [this](Button& button, StringRef text)
     {
         button.setButtonText (text);
         addAndMakeVisible (button);
     };
-
-    addButton (oscEnableButton, oscEnableButtonDesc);
     addButton (oscWavetableButton, oscWavetableButtonDesc);
-    addButton (filterEnableButton, filterEnableButtonDesc);
-    addButton (envelopeEnableButton, envelopeEnableButtonDesc);
 
-    auto addGroup = [this](GroupComponent& group)
+    //set up everything else
+    auto addGroup = [this](GroupComponent& group, Array<Label*> labels, Array<StringRef> labelTexts, Array<Component*> components)
     {
+        jassert (labels.size() == components.size());
+
         group.setTextLabelPosition (Justification::centred);
         addAndMakeVisible (group);
+
+        for (int i = 0; i < labels.size(); ++i)
+        {
+            if (labels[i] != nullptr)
+            {
+                labels[i]->setText (labelTexts[i], dontSendNotification);
+                labels[i]->setJustificationType (Justification::centredBottom);
+
+                labels[i]->attachToComponent (components[i], false);
+                labels[i]->setFont (Font (fontSize));
+            }
+
+            addAndMakeVisible (components[i]);
+        }
     };
 
-    addGroup (oscGroup);
-    addGroup (filterGroup);
-    addGroup (envelopeGroup);
-    addGroup (lfoGroup);
-    addGroup (effectGroup);
+    addGroup (oscGroup, {nullptr, &oscFreqSliderLabel}, {String(), oscFreqSliderDesc}, {&oscShapeButtons, &oscFreqSlider});
+
+    addGroup (filterGroup, {&filterCutoffLabel, &filterResonanceLabel},
+                           {filterCutoffSliderDesc, filterResonanceSliderDesc},
+                           {&filterCutoffSlider, &filterResonanceSlider});
+
+    addGroup (ampGroup, {&ampAttackLabel, &ampDecayLabel, &ampSustainLabel, &ampReleaseLabel},
+                        {ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc},
+                        {&ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider});
+
+    addGroup (lfoGroup, {nullptr, &lfoFreqLabel}, {String(), lfoSliderDesc}, {&lfoShapeButtons, &lfoFreqSlider});
+
+    addGroup (effectGroup, {&effectParam1Label, &effectParam2Label}, {effectParam1Desc, effectParam2Desc}, {&effectParam1Slider, &effectParam2Slider});
 }
 
 //==============================================================================
 void sBMP4AudioProcessorEditor::paint (Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-    g.setColour (Colours::whitesmoke);
+    g.drawImage (backgroundTexture, getLocalBounds().toFloat());
 }
 
 void sBMP4AudioProcessorEditor::resized()
 {
     auto bounds = getLocalBounds().reduced (overallGap);
 
-    //osc section
+    //set up sections
+    auto topSection = bounds.removeFromTop (bounds.getHeight() / 2);
+    auto bottomSection = bounds;
+
+    auto setupGroup = [](GroupComponent& group, Rectangle<int> groupBounds, Array<Component*> components, int numLines, int numColumns)
     {
-        const auto lines = 3;
-        auto sectionBounds = bounds.removeFromTop (lines * (lineH + lineGap) + panelGap);
-        oscGroup.setBounds (sectionBounds);
+        jassert (components.size() <= numLines * numColumns);
 
-        sectionBounds.reduce (panelGap, panelGap);
+        //setup group
+        group.setBounds (groupBounds);
+        groupBounds.reduce (panelGap, panelGap);
+        auto ogHeight = groupBounds.getHeight();
+        auto ogWidth = groupBounds.getWidth();
 
-        sectionBounds.removeFromTop (lineGap);
-        auto buttonGroup = sectionBounds.removeFromTop (lineH);
-        oscEnableButton.setBounds (buttonGroup.removeFromLeft ((width - panelGap) / 2));
-        oscWavetableButton.setBounds (buttonGroup);
+        DBG (groupBounds.getHeight());
 
-        sectionBounds.removeFromTop (lineGap);
-        oscCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboExtraGap).reduced (0, 2));
+        auto curComponentIndex = 0;
+        for (int i = 0; i < numLines; ++i)
+        {
+            auto lineBounds = groupBounds.removeFromTop (ogHeight / numLines);
+            //lineBounds.removeFromTop (otherLineGapWtf);
+            DBG (lineBounds.getHeight());
 
-        sectionBounds.removeFromTop (lineGap);
-        oscSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
-    }
-    
-    //front-back section
-    {
-        const auto lines = 2;
-        auto sectionBounds = bounds.removeFromTop (lines * (lineH + lineGap) + panelGap);
-        filterGroup.setBounds (sectionBounds);
+            for (int j = 0; j < numColumns; ++j)
+            {
+                auto bounds = lineBounds.removeFromLeft (ogWidth / numColumns);
 
-        sectionBounds.reduce (panelGap, panelGap);
-        
-        sectionBounds.removeFromTop (lineGap);
-        filterEnableButton.setBounds (sectionBounds.removeFromTop (lineH));
+                if (curComponentIndex < components.size())
+                    components[curComponentIndex++]->setBounds (bounds);
+            }
+        }
+    };
 
-        sectionBounds.removeFromTop (lineGap);
-        filterSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
-    }
-    
-    //up-down section
-    {
-        const auto lines = 2;
-        auto sectionBounds = bounds.removeFromTop (lines * (lineH + lineGap) + panelGap);
-        envelopeGroup.setBounds (sectionBounds);
-
-        sectionBounds.reduce (panelGap, panelGap);
-        
-        sectionBounds.removeFromTop (lineGap);
-        envelopeEnableButton.setBounds (sectionBounds.removeFromTop (lineH));
-
-        sectionBounds.removeFromTop (lineGap);
-        envelopeSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
-    }
-    
-    //lfo section
-    {
-        const auto lines = 2;
-        auto sectionBounds = bounds.removeFromTop (lines * lineH + 2 * panelGap);
-        lfoGroup.setBounds (sectionBounds);
-
-        sectionBounds.reduce (panelGap, panelGap);
-        
-        sectionBounds.removeFromTop (lineGap);
-        lfoCombo.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW + comboExtraGap).reduced (0, 2));
-
-        sectionBounds.removeFromTop (lineGap);
-        lfoSlider.setBounds (sectionBounds.removeFromTop (lineH).withLeft (labelW));
-    }
+    setupGroup (oscGroup, topSection.removeFromLeft (topSection.getWidth() / 2), {&oscFreqSlider, &oscShapeButtons, &oscWavetableButton}, 2, 2);
+    setupGroup (filterGroup, topSection, {&filterCutoffSlider, &filterResonanceSlider}, 2, 2);
+    setupGroup (ampGroup, bottomSection.removeFromLeft (bottomSection.getWidth() / 2), {&ampAttackSlider,&ampDecaySlider, &ampSustainSlider, &ampReleaseSlider}, 2, 2);
+    setupGroup (lfoGroup, bottomSection, {&lfoShapeButtons, &lfoFreqSlider}, 2, 2);
+    //setupGroup (effectGroup, topSection, {&effectParam1Slider, &effectParam2Slider}, 1, 2);
 
 #if CPU_USAGE
-    auto labelW = 100;
+    auto cpuSectionH = 100;
 
-    cpuUsageLabel.setBounds (10, getHeight() - 50, labelW, 50);
-    cpuUsageText.setBounds (10 + labelW, getHeight() - 50, getWidth() - 10 - labelW, 50);
+    cpuUsageLabel.setBounds (10, getHeight() - 50, cpuSectionH, 50);
+    cpuUsageText.setBounds (10 + cpuSectionH, getHeight() - 50, getWidth() - 10 - cpuSectionH, 50);
 #endif
 }

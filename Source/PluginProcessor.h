@@ -6,66 +6,13 @@
 
 static const NormalisableRange<float> sliderRange = {-12.0f, 12.0f};
 
-//#ifndef CPU_USAGE
-//    #define CPU_USAGE 1
-//#endif
+#ifndef CPU_USAGE
+    #define CPU_USAGE 0
+#endif
 
 #ifndef STANDARD_LISTENER
     #define STANDARD_LISTENER 0
 #endif
-
-namespace sBMP4AudioProcessorIDs
-{
-    const String oscEnableButtonID = "oscEnableButton";
-    const String oscComboID = "oscCombo";
-    const String oscSliderID = "oscSlider";
-    const String oscWavetableButtonID = "oscWaveTableButton";
-
-    const String filterEnableButtonID = "filterEnableButton";
-    const String filterSliderID = "filterSlider";
-
-    const String envelopeEnableButtonID = "envelopeEnableButton";
-    const String envelopeSliderID = "envelopeSlider";
-
-    const String lfoComboID = "lfoCombo";
-    const String lfoSliderID = "lfoSlider";
-
-    const String roomSizeID = "roomSize";
-}
-
-namespace sBMP4AudioProcessorNames
-{
-    const String oscEnableButtonDesc = "Oscillators ON";
-    const String oscComboDesc = "Oscillators Model";
-    const String oscSliderDesc = "Oscillators Gain";
-    const String oscWavetableButtonDesc = "Use WaveTable";
-
-    const String filterEnableButtonDesc = "Filter ON";
-    const String filterSliderDesc = "Filter Gain";
-
-    const String envelopeEnableButtonDesc = "Envelope ON";
-    const String envelopeSliderDesc = "Envelope Gain";
-
-    const String lfoComboDesc = "Wave Type";
-    const String lfoSliderDesc = "LFO Frequency";
-
-    const String oscGroupDesc = "Oscillators";
-    const String filterGroupDesc = "Filter";
-    const String envelopeGroupDesc = "Envelope";
-    const String lfoGroupDesc = "LFO";
-    const String effectGroupDesc = "Effect";
-
-    const String roomSizeDesc = "Room Size";
-}
-
-namespace sBMP4AudioProcessorChoices
-{
-    const String oscChoice0 = "Sine";
-    const String oscChoice1 = "Other";
-
-    const String lfoChoices0 = "Sine";
-    const String lfoChoices1 = "Pulse";
-}
 
 //==============================================================================
 

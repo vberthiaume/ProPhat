@@ -14,8 +14,94 @@
 
 enum Constants
 {
-    numVoices = 16
+    numVoices = 16,
+
+    oscShapeRadioGroupId
 };
+
+namespace sBMP4AudioProcessorIDs
+{
+    const String oscWavetableButtonID = "oscWaveTableButton";
+    const String oscShapeID = "oscCombo";
+    const String oscFreqSliderID = "oscFreqSlider";
+
+    const String filterCutoffSliderID = "filterCutoffSlider";
+    const String filterResonanceSliderID = "filterResonanceSlider";
+
+    const String ampAttackSliderID = "envAttackSlider";
+    const String ampDecaySliderID = "envDelaySlider";
+    const String ampSustainSliderID = "ampSustainSlider";
+    const String ampReleaseSliderID = "ampReleaseSlider";
+
+    const String lfoComboID = "lfoCombo";
+    const String lfoFreqSliderID = "lfoFreqSlider";
+
+    const String effectComboID = "effectCombo";
+    const String effectParam1ID = "effectParam1";
+    const String effectParam2ID = "effectParam2";
+}
+
+namespace sBMP4AudioProcessorNames
+{
+    const String oscGroupDesc = "OSCILLATORS";
+    const String oscWavetableButtonDesc = "WAVETABLE";
+    const String oscShapeDesc = "SHAPE";
+    const String oscFreqSliderDesc = "OSC 1 FREQ";
+
+    const String filterGroupDesc = "LOW-PASS FILTER";
+    const String filterCutoffSliderDesc = "CUTOFF";
+    const String filterResonanceSliderDesc = "RESONANCE";
+
+    const String ampGroupDesc = "AMPLIFIER";
+    const String ampAttackSliderDesc = "ATTACK";
+    const String ampDecaySliderDesc = "DECAY";
+    const String ampSustainSliderDesc = "SUSTAIN";
+    const String ampReleaseSliderDesc = "RELEASE";
+
+    const String lfoGroupDesc = "LFO";
+    const String lfoShapeDesc = "SHAPE";
+    const String lfoSliderDesc = "FREQUENCY";
+
+    const String effectGroupDesc = "EFFECT";
+    const String effectParam1Desc = "PARAM 1";
+    const String effectParam2Desc = "PARAM 2";
+}
+
+enum class lfoShape
+{
+    triangle,
+    saw,
+    revSaw,
+    Square,
+    Random,
+    total
+};
+
+enum class oscShape
+{
+    saw,
+    sawTri,
+    triangle,
+    pulse,
+    total
+};
+
+namespace sBMP4AudioProcessorChoices
+{
+    const String oscShape0 = "Sawtooth";
+    const String oscShape1 = "Saw + Tri";
+    const String oscShape2 = "Triangle";
+    const String oscShape3 = "Pulse";
+
+    const String lfoShape0 = "Triangle";
+    const String lfoShape1 = "Sawtooth";
+    const String lfoShape2 = "Rev Saw";
+    const String lfoShape3 = "Square";
+    const String lfoShape4 = "Random";
+
+    const String effectChoices0 = "Reverb";
+    const String effectChoices1 = "None";
+}
 
 inline bool getVarAsBool (const ValueTree& v, const Identifier& id) { return static_cast<bool> (v.getProperty (id)); }
 inline int getVarAsInt (const ValueTree& v, const Identifier& id) { return static_cast<int> (v.getProperty (id)); }
@@ -24,3 +110,37 @@ inline double getVarAsDouble (const ValueTree& v, const Identifier& id) { return
 inline float getVarAsFloat (const ValueTree& v, const Identifier& id) { return static_cast<float> (getVarAsDouble (v, id)); }
 inline String getVarAsString (const ValueTree& v, const Identifier& id) { return v.getProperty (id).toString(); }
 inline Identifier getVarAsIdentifier (const ValueTree& v, const Identifier& id) { return static_cast<Identifier> (v.getProperty (id)); }
+
+struct Helpers
+{
+    static Image getImage (const void* imageData, const int dataSize)
+    {
+        return ImageCache::getFromMemory (imageData, dataSize);
+    }
+
+    static Drawable* getDrawable (const void* imageData, const int dataSize)
+    {
+        return Drawable::createFromImageData (imageData, dataSize);
+    }
+};
+
+#if 0
+auto addChoicesToComboBox = [this](Array<ComboBox*> combos, Array<StringRef> comboIDs)
+{
+    jassert (combos.size() == comboIDs.size());
+
+    for (int i = 0; i < combos.size(); ++i)
+    {
+        auto comboParam = (AudioParameterChoice*) processor.state.getParameter (comboIDs[i]);
+        jassert (comboParam != nullptr);
+
+        int j = 1;
+        for (auto choice : comboParam->choices)
+            combos[i]->addItem (choice, j++);
+
+        combos[i]->setSelectedItemIndex (0, sendNotification);
+    }
+};
+
+addChoicesToComboBox ({ /*&oscCombo,*/ &lfoCombo}, { /*oscShapeID, */lfoComboID});
+#endif

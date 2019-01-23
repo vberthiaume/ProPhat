@@ -12,21 +12,20 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
                                      .withOutput ("Output", AudioChannelSet::stereo(), true)),
     state (*this, nullptr, "state",
     {
-        std::make_unique<AudioParameterBool> (oscEnableButtonID, oscEnableButtonDesc, true, oscEnableButtonDesc),
-        std::make_unique<AudioParameterChoice> (oscComboID,  oscComboDesc,  StringArray {oscChoice0, oscChoice1}, 0),
-        std::make_unique<AudioParameterFloat> (oscSliderID, oscSliderDesc, sliderRange, 0.0f),
         std::make_unique<AudioParameterBool> (oscWavetableButtonID, oscWavetableButtonDesc, false, oscWavetableButtonDesc),
+        std::make_unique<AudioParameterChoice> (oscShapeID,  oscShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
+        std::make_unique<AudioParameterFloat> (oscFreqSliderID, oscFreqSliderDesc, sliderRange, 0.0f),
 
-        std::make_unique<AudioParameterBool> (filterEnableButtonID, filterEnableButtonDesc, true, filterEnableButtonDesc),
-        std::make_unique<AudioParameterFloat> (filterSliderID, filterSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (filterCutoffSliderID, filterCutoffSliderDesc, sliderRange, 0.0f),
         
-        std::make_unique<AudioParameterBool> (envelopeEnableButtonID, envelopeEnableButtonDesc, true, envelopeEnableButtonDesc),
-        std::make_unique<AudioParameterFloat> (envelopeSliderID, envelopeSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (ampAttackSliderID, ampAttackSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (ampDecaySliderID, ampDecaySliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (ampSustainSliderID, ampSustainSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (ampReleaseSliderID, ampReleaseSliderDesc, sliderRange, 0.0f),
         
-        std::make_unique<AudioParameterChoice> (lfoComboID,  lfoComboDesc,  StringArray {lfoChoices0, lfoChoices1}, 0),
-        std::make_unique<AudioParameterFloat> (lfoSliderID, lfoSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (lfoFreqSliderID, lfoSliderDesc, sliderRange, 0.0f),
 
-        std::make_unique<AudioParameterFloat> (roomSizeID, roomSizeDesc, sliderRange, 0.0f)
+        std::make_unique<AudioParameterFloat> (effectParam1ID, effectParam1Desc, sliderRange, 0.0f)
     })
 
 #if CPU_USAGE
@@ -148,7 +147,7 @@ void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiM
     }
 
     Reverb::Parameters reverbParameters;
-    reverbParameters.roomSize = state.getParameter (roomSizeID)->getValue();
+    reverbParameters.roomSize = state.getParameter (effectParam1ID)->getValue();
 
     reverb.setParameters (reverbParameters);
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
