@@ -22,8 +22,14 @@ public:
     {
         mainButton.addListener (this);
 
-        ScopedPointer<Drawable> drawable = Helpers::getDrawable (BinaryData::blackTexture_jpg, BinaryData::blackTexture_jpgSize);
-        mainButton.setImages (drawable);
+        ScopedPointer<Drawable> nonSelectedDrawable = Helpers::getDrawable (BinaryData::blackTexture_jpg, BinaryData::blackTexture_jpgSize);
+
+        ScopedPointer<DrawableImage> selectedDrawable = new DrawableImage();
+        Image image = Helpers::getImage (BinaryData::redTexture_png, BinaryData::redTexture_pngSize);
+        selectedDrawable->setImage (image);
+        selectedDrawable->setBoundingBox (mainButton.getBounds().reduced (50).toFloat());
+
+        mainButton.setImages (nonSelectedDrawable, nonSelectedDrawable, selectedDrawable);
 
         addAndMakeVisible (mainButton);
 
