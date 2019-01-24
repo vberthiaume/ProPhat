@@ -13,6 +13,23 @@
 #include "Helpers.h"
 #include "sBMP4LookAndFeel.h"
 
+class FilledDrawableButton : public DrawableButton
+{
+public:
+    FilledDrawableButton (const String& buttonName, ButtonStyle buttonStyle) :
+        DrawableButton (buttonName, buttonStyle)
+    {
+    }
+
+    Rectangle<float> getImageBounds() const override
+    {
+        auto bounds = getLocalBounds().toFloat();
+        auto half = bounds.getHeight() / 4;
+        auto reduced = bounds.reduced (0, half);
+        return reduced;
+    }
+};
+
 class ButtonGroupComponent : public Component, public Button::Listener
 {
 public:
@@ -23,12 +40,7 @@ public:
         mainButton.addListener (this);
 
         ScopedPointer<Drawable> nonSelectedDrawable = Helpers::getDrawable (BinaryData::blackTexture_jpg, BinaryData::blackTexture_jpgSize);
-
-        ScopedPointer<DrawableImage> selectedDrawable = new DrawableImage();
-        Image image = Helpers::getImage (BinaryData::redTexture_png, BinaryData::redTexture_pngSize);
-        selectedDrawable->setImage (image);
-        selectedDrawable->setBoundingBox (mainButton.getBounds().reduced (50).toFloat());
-
+        ScopedPointer<Drawable> selectedDrawable = Helpers::getDrawable (BinaryData::redTexture_png, BinaryData::redTexture_pngSize);
         mainButton.setImages (nonSelectedDrawable, nonSelectedDrawable, selectedDrawable);
 
         addAndMakeVisible (mainButton);
@@ -91,6 +103,6 @@ private:
 
     sBMP4LookAndFeel lf;
 
-    DrawableButton mainButton;
+    FilledDrawableButton mainButton;
     OwnedArray<ToggleButton> selectionButtons;
 };
