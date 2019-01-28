@@ -12,6 +12,10 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Helpers.h"
 
+#ifndef USE_SVG
+#define USE_SVG 1
+#endif
+
 class sBMP4LookAndFeel : public LookAndFeel_V4
 {
 public:
@@ -30,9 +34,9 @@ public:
 private:
     Image tickedButtonImage, untickedButtonImage;
 
-#if 1
-    Image rotarySliderImage;
-#else
+#if USE_SVG
     ScopedPointer<Drawable> rotarySliderDrawableImage;
+#else
+    Image rotarySliderImage;
 #endif
 };

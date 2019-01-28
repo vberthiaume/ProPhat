@@ -15,11 +15,11 @@ sBMP4LookAndFeel::sBMP4LookAndFeel()
     tickedButtonImage = Helpers::getImage (BinaryData::redTexture_png, BinaryData::redTexture_pngSize);
     untickedButtonImage = Helpers::getImage (BinaryData::blackTexture_jpg, BinaryData::blackTexture_jpgSize);
 
-#if 1
-    rotarySliderImage = Helpers::getImage (BinaryData::metalKnobFitted_png, BinaryData::metalKnobFitted_pngSize);
+#if USE_SVG
+    rotarySliderDrawableImage = Helpers::getDrawable (BinaryData::sBMP4Knob_svg, BinaryData::sBMP4Knob_svgSize); 
 #else
     //LOADING SVG USING DRAWABLES
-    rotarySliderDrawableImage = Helpers::getDrawable (BinaryData::sBMP4Knob_svg, BinaryData::sBMP4Knob_svgSize);
+    rotarySliderImage = Helpers::getImage (BinaryData::metalKnobFitted_png, BinaryData::metalKnobFitted_pngSize);
 #endif
 }
 
@@ -41,50 +41,41 @@ void sBMP4LookAndFeel::drawTickBox (Graphics& g, Component& /*component*/,
 }
 
 void sBMP4LookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
-                                         const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider)
+                                         const float rotaryStartAngle, const float rotaryEndAngle, Slider& /*slider*/)
 {
+    const auto gap = 6;
+    x += gap;
+    y += gap;
+    width -= gap * 2;
+    height -= gap * 2;
+
     const auto bounds = Rectangle<int> (x, y, width, height).toFloat();
     const auto toAngle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
 
-#if 1
-    auto imageBounds = rotarySliderImage.getBounds().toFloat();
-
     float squareSide = 0.f, xTranslation = 0.f, yTranslation = 0.f;
-
     if (height < width)
     {
-        squareSide = height;
+        squareSide = (float) height;
         xTranslation = (width - height) / 2.f;
     }
     else
     {
-        squareSide = width;
+        squareSide = (float) width;
         yTranslation = (height - width) / 2.f;
     }
 
+#if USE_SVG
+    const auto imageBounds = rotarySliderDrawableImage->getBounds().toFloat();
+    const auto scaleFactor = squareSide / imageBounds.getWidth();
+
+    rotarySliderDrawableImage->draw (g, 1.f, AffineTransform::scale (scaleFactor).translated (xTranslation + gap, yTranslation + gap)
+                                                             .rotated (toAngle, bounds.getCentreX(), bounds.getCentreY()));
+#else
+    auto imageBounds = rotarySliderImage.getBounds().toFloat();
     auto scaleFactor = squareSide / imageBounds.getWidth();
 
-    g.drawImageTransformed (rotarySliderImage, AffineTransform::scale (scaleFactor).translated (xTranslation, yTranslation)
-                                                              .rotated (toAngle, bounds.getCentreX(), bounds.getCentreY()));
-
-#else
-    ////LOADING SVG USING DRAWABLES
-    auto sliderBounds = slider.getLocalBounds().withWidth (slider.getHeight()).toFloat();
-    auto imageBounds = rotarySliderDrawableImage->getBounds().toFloat();
-    auto xScaleFactor = sliderBounds.getWidth() / imageBounds.getWidth();
-    auto yScaleFactor = sliderBounds.getHeight() / imageBounds.getHeight();
-
-    rotarySliderDrawableImage->draw (g, 1.f, AffineTransform::scale (xScaleFactor, yScaleFactor)
-                                                              .translated (sliderBounds.getX(), 0)
-                                                              .rotated (toAngle, sliderBounds.getCentreX(), sliderBounds.getCentreY()));
-        
-
-    g.setColour (Colours::red);
-    g.drawRect (bounds);
-
-    g.setColour (Colours::blue);
-    g.drawRect (sliderBounds);
-
+    g.drawImageTransformed (rotarySliderImage, AffineTransform::scale (scaleFactor).translated (xTranslation + gap, yTranslation + gap)
+                                                               .rotated (toAngle, bounds.getCentreX(), bounds.getCentreY()));
 #endif
 
     //g.setColour (Colours::red);
