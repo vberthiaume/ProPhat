@@ -34,72 +34,19 @@ class ButtonGroupComponent : public Component, public Button::Listener
 {
 public:
 
-    ButtonGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames) :
-        mainButton (mainButtonName, DrawableButton::ImageAboveTextLabel)
-    {
-        mainButton.addListener (this);
+    ButtonGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames);
 
-        ScopedPointer<Drawable> nonSelectedDrawable = Helpers::getDrawable (BinaryData::blackTexture_jpg, BinaryData::blackTexture_jpgSize);
-        ScopedPointer<Drawable> selectedDrawable = Helpers::getDrawable (BinaryData::redTexture_png, BinaryData::redTexture_pngSize);
-        mainButton.setImages (nonSelectedDrawable, nonSelectedDrawable, selectedDrawable);
-
-        addAndMakeVisible (mainButton);
-
-        for (auto names : selectionButtonNames)
-        {
-            auto button = new ToggleButton (names);
-            button->setRadioGroupId (oscShapeRadioGroupId);
-            button->setLookAndFeel (&lf);
-            selectionButtons.add (button);
-            addAndMakeVisible (button);
-        }
-    }
-
-    void buttonClicked (Button* button) override
-    {
-        if (button == &mainButton)
-            selectNextToggleButton();
-    }
+    void buttonClicked (Button* button) override;
 
     //void paint (Graphics& g) override
     //{
     //    g.fillAll (Colours::red);
     //}
 
-    void resized() override
-    {
-        auto bounds = getLocalBounds();
-        auto ogHeight = bounds.getHeight();
-
-        auto mainButtonBounds = bounds.removeFromLeft (bounds.getWidth() / 3);
-        mainButtonBounds.reduce (0, ogHeight / 5);
-        mainButton.setBounds (mainButtonBounds);
-
-        for (auto button : selectionButtons)
-            button->setBounds (bounds.removeFromTop (ogHeight / selectionButtons.size()));
-    }
+    void resized() override;
 
 private:
-    void selectNextToggleButton()
-    {
-        auto selected = -1;
-        auto i = 0;
-        for (; i < selectionButtons.size(); ++i)
-        {
-            if (selectionButtons[i]->getToggleState())
-            {
-                selected = i;
-                break;
-            }
-        }
-
-        if (selected == -1)
-            selectionButtons[0]->setToggleState (true, sendNotification);
-        else if (selected == selectionButtons.size() - 1)
-            selectionButtons[selected]->setToggleState (false, sendNotification);
-        else
-            selectionButtons[++i]->setToggleState (true, sendNotification);
-    }
+    void selectNextToggleButton();
 
     sBMP4LookAndFeel lf;
 
