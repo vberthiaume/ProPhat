@@ -12,6 +12,11 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+static const NormalisableRange<float> dBRange = {-12.f, 12.f};
+static const NormalisableRange<float> sliderRange = {0.f, 1.f};
+static const NormalisableRange<float> hzRange = {0.1f, 18000.f};
+static const NormalisableRange<float> lfoRange = {0.1f, 30.f};
+
 enum Constants
 {
     numVoices = 16,
@@ -21,24 +26,24 @@ enum Constants
 
 namespace sBMP4AudioProcessorIDs
 {
-    const String oscWavetableButtonID = "oscWaveTableButton";
-    const String oscShapeID = "oscCombo";
-    const String oscFreqSliderID = "oscFreqSlider";
+    const String oscWavetableID = "oscWavetableID";
+    const String oscShapeID = "oscShapeID";
+    const String osc1FreqID = "osc1FreqID";
 
-    const String filterCutoffSliderID = "filterCutoffSlider";
-    const String filterResonanceSliderID = "filterResonanceSlider";
+    const String filterCutoffID = "filterCutoffID";
+    const String filterResonanceID = "filterResonanceID";
 
-    const String ampAttackSliderID = "envAttackSlider";
-    const String ampDecaySliderID = "envDelaySlider";
-    const String ampSustainSliderID = "ampSustainSlider";
-    const String ampReleaseSliderID = "ampReleaseSlider";
+    const String ampAttackID = "ampAttackID";
+    const String ampDecayID = "ampDecayID";
+    const String ampSustainID = "ampSustainID";
+    const String ampReleaseID = "ampReleaseID";
 
-    const String lfoComboID = "lfoCombo";
-    const String lfoFreqSliderID = "lfoFreqSlider";
+    const String lfoShapeID = "lfoShapeID";
+    const String lfoFreqID = "lfoFreqID";
 
-    const String effectComboID = "effectCombo";
-    const String effectParam1ID = "effectParam1";
-    const String effectParam2ID = "effectParam2";
+    const String effectID = "effectID";
+    const String effectParam1ID = "effectParam1ID";
+    const String effectParam2ID = "effectParam2ID";
 }
 
 namespace sBMP4AudioProcessorNames
@@ -142,5 +147,5 @@ auto addChoicesToComboBox = [this](Array<ComboBox*> combos, Array<StringRef> com
     }
 };
 
-addChoicesToComboBox ({ /*&oscCombo,*/ &lfoCombo}, { /*oscShapeID, */lfoComboID});
+addChoicesToComboBox ({ /*&oscCombo,*/ &lfoCombo}, { /*oscShapeID, */lfoShapeID});
 #endif

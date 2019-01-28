@@ -4,8 +4,6 @@
 #include "SineWaveVoice.h"
 #include "Helpers.h"
 
-static const NormalisableRange<float> sliderRange = {-12.0f, 12.0f};
-
 #ifndef CPU_USAGE
     #define CPU_USAGE 0
 #endif
@@ -49,19 +47,23 @@ public:
 #else
     void parameterChanged (const String& parameterID, float newValue) override
     {
-        if (parameterID == sBMP4AudioProcessorIDs::oscWavetableButtonID && usingWavetables != (bool) newValue)
-            needToSwitchWavetableStatus = true;
+        if (parameterID == sBMP4AudioProcessorIDs::oscWavetableID)
+        {
+            if (usingWavetables != (bool) newValue)
+                needToSwitchWavetableStatus = true;
+        }
+        else if (parameterID == sBMP4AudioProcessorIDs::effectParam1ID)
+        {
+
+        }
+        //else if (parameterID == sBMP4AudioProcessorIDs::)
+        //{
+
+        //}
     }
 #endif
-    float getSliderLinearGain (StringRef id)
-    {
-        return Decibels::decibelsToGain (sliderRange.convertFrom0to1 (state.getParameter (id)->getValue()));
-    }
 
-    void reset() override
-    {
-        lrFilter.reset();
-    }
+    void reset() override;
 
     bool getIsButtonEnabled (StringRef id) { return state.getParameter (id)->getValue(); }
 
@@ -79,13 +81,13 @@ public:
     void processBlock (AudioBuffer<double>&, MidiBuffer&) override;
 
     void process (AudioBuffer<float>& buffer, MidiBuffer& midiMessages);
-    void processLeftRight (AudioBuffer<float>& ogBuffer);
+    void processFilter (AudioBuffer<float>& buffer);
+    void processReverb (AudioBuffer<float>& buffer);
 
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
-
-    //==============================================================================
+//==============================================================================
     const String getName() const override { return JucePlugin_Name; }
 
     bool acceptsMidi() const override { return true; }
@@ -154,7 +156,8 @@ private:
     AudioBuffer<double> sineTable;
     bool usingWavetables = false, needToSwitchWavetableStatus = false;
 
-    dsp::IIR::Filter<float> lrFilter;
+    //dsp::IIR::Filter<float> lrFilter;
+    dsp::LadderFilter<float> ladderFilter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessor)
 };

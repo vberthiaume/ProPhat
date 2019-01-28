@@ -12,18 +12,18 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
                                      .withOutput ("Output", AudioChannelSet::stereo(), true)),
     state (*this, nullptr, "state",
     {
-        std::make_unique<AudioParameterBool> (oscWavetableButtonID, oscWavetableButtonDesc, false, oscWavetableButtonDesc),
+        std::make_unique<AudioParameterBool> (oscWavetableID, oscWavetableButtonDesc, false, oscWavetableButtonDesc),
         std::make_unique<AudioParameterChoice> (oscShapeID,  oscShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
-        std::make_unique<AudioParameterFloat> (oscFreqSliderID, oscFreqSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (osc1FreqID, oscFreqSliderDesc, hzRange, 0.0f),
 
-        std::make_unique<AudioParameterFloat> (filterCutoffSliderID, filterCutoffSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (filterCutoffID, filterCutoffSliderDesc, hzRange, 1000.0f),
         
-        std::make_unique<AudioParameterFloat> (ampAttackSliderID, ampAttackSliderDesc, sliderRange, 0.0f),
-        std::make_unique<AudioParameterFloat> (ampDecaySliderID, ampDecaySliderDesc, sliderRange, 0.0f),
-        std::make_unique<AudioParameterFloat> (ampSustainSliderID, ampSustainSliderDesc, sliderRange, 0.0f),
-        std::make_unique<AudioParameterFloat> (ampReleaseSliderID, ampReleaseSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (ampAttackID, ampAttackSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (ampDecayID, ampDecaySliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (ampSustainID, ampSustainSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (ampReleaseID, ampReleaseSliderDesc, sliderRange, 0.0f),
         
-        std::make_unique<AudioParameterFloat> (lfoFreqSliderID, lfoSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (lfoFreqID, lfoSliderDesc, lfoRange, 0.0f),
 
         std::make_unique<AudioParameterFloat> (effectParam1ID, effectParam1Desc, sliderRange, 0.0f)
     })
@@ -35,7 +35,7 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 #if STANDARD_LISTENER
     state.state.addListener (this);
 #else
-    state.addParameterListener (oscWavetableButtonID, this);
+    state.addParameterListener (oscWavetableID, this);
 #endif
     
     createWavetable();
@@ -86,6 +86,12 @@ void sBMP4AudioProcessor::changeProgramName (int /*index*/, const String& /*newN
 {
 }
 
+void sBMP4AudioProcessor::reset()
+{
+    //lrFilter.reset();
+    ladderFilter.reset();
+}
+
 //==============================================================================
 void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
@@ -95,8 +101,11 @@ void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
     dsp::ProcessSpec spec { sampleRate, static_cast<uint32> (samplesPerBlock), channels };
 
-    lrFilter.prepare (spec);
-    lrFilter.coefficients = dsp::IIR::Coefficients<float>::makePeakFilter (sampleRate, 1000.f, .3f, Decibels::decibelsToGain (-6.f));
+    //lrFilter.prepare (spec);
+    //lrFilter.coefficients = dsp::IIR::Coefficients<float>::makePeakFilter (sampleRate, 1000.f, .3f, Decibels::decibelsToGain (-6.f));
+
+    ladderFilter.prepare (spec);
+    ladderFilter.setMode (juce::dsp::LadderFilter<float>::Mode::LPF12);
 
     synth.setCurrentPlaybackSampleRate (sampleRate);
     reverb.setSampleRate (sampleRate);
@@ -137,8 +146,8 @@ void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiM
 #if CPU_USAGE
     perfCounter.start();
 #endif
-    //@TODO not sure there's actually a point to this?
-    //buffer.clear();
+    //we're not dealing with any inputs here, so clear the buffer
+    buffer.clear();
 
     if (needToSwitchWavetableStatus)
     {
@@ -146,32 +155,49 @@ void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiM
         needToSwitchWavetableStatus = false;
     }
 
-    Reverb::Parameters reverbParameters;
-    reverbParameters.roomSize = state.getParameter (effectParam1ID)->getValue();
-
-    reverb.setParameters (reverbParameters);
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
-    if (getMainBusNumOutputChannels() == 1)
-        reverb.processMono (buffer.getWritePointer (0), buffer.getNumSamples());
-    else if (getMainBusNumOutputChannels() == 2)
-        reverb.processStereo (buffer.getWritePointer (0), buffer.getWritePointer (1), buffer.getNumSamples());
+    processFilter (buffer);
+
+    processReverb (buffer);
+
 
 #if CPU_USAGE
     perfCounter.stop();
 #endif
 }
 
-void sBMP4AudioProcessor::processLeftRight (AudioBuffer<float>& ogBuffer)
+void sBMP4AudioProcessor::processFilter (AudioBuffer<float>& buffer)
 {
-    for (int i = 0; i < ogBuffer.getNumChannels(); ++i)
+    /*auto cutOff = state.getParameter (filterCutoffID)->getValue();*/
+    auto cutOff = state.getParameter (filterCutoffID)->convertFrom0to1 (state.getParameter (filterCutoffID)->getValue());
+
+    if (cutOff == 0.f)
+        return;
+
+    ladderFilter.setCutoffFrequencyHz (cutOff);
+
+    for (int i = 0; i < buffer.getNumChannels(); ++i)
     {
-        auto audioBlock = dsp::AudioBlock<float> (ogBuffer).getSingleChannelBlock (i);
+        auto audioBlock = dsp::AudioBlock<float> (buffer).getSingleChannelBlock (i);
 
         //TODO This class can only process mono signals. Use the ProcessorDuplicator class
         // to apply this filter on a multi-channel audio stream.
-        lrFilter.process (dsp::ProcessContextReplacing<float> (audioBlock));
+        //lrFilter.process (dsp::ProcessContextReplacing<float> (audioBlock));
+        ladderFilter.process (dsp::ProcessContextReplacing<float> (audioBlock));
     }
+}
+
+void sBMP4AudioProcessor::processReverb (AudioBuffer<float>& buffer)
+{
+    Reverb::Parameters reverbParameters;
+    reverbParameters.roomSize = state.getParameter (effectParam1ID)->getValue();
+    reverb.setParameters (reverbParameters);
+
+    if (getMainBusNumOutputChannels() == 1)
+        reverb.processMono (buffer.getWritePointer (0), buffer.getNumSamples());
+    else if (getMainBusNumOutputChannels() == 2)
+        reverb.processStereo (buffer.getWritePointer (0), buffer.getWritePointer (1), buffer.getNumSamples());
 }
 
 //==============================================================================

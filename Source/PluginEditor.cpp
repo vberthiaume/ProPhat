@@ -30,26 +30,26 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 
     //OSCILLATORS
     oscGroup ({}, oscGroupDesc),
-    oscWaveTableButtonAttachment (p.state, oscWavetableButtonID, oscWavetableButton),
+    oscWaveTableButtonAttachment (p.state, oscWavetableID, oscWavetableButton),
     oscShapeButtons (oscShapeDesc, {oscShape0, oscShape1, oscShape2, oscShape3}),
-    oscFreqAttachment (p.state, oscFreqSliderID, oscFreqSlider),
+    oscFreqAttachment (p.state, osc1FreqID, oscFreqSlider),
 
     //FILTERS
     filterGroup ({}, filterGroupDesc),
-    filterCutoffAttachment (p.state, filterCutoffSliderID, filterCutoffSlider),
-    filterResonanceAttachment (p.state, filterResonanceSliderID, filterResonanceSlider),
+    filterCutoffAttachment (p.state, filterCutoffID, filterCutoffSlider),
+    filterResonanceAttachment (p.state, filterResonanceID, filterResonanceSlider),
 
     //AMPLIFIER
     ampGroup ({}, ampGroupDesc),
-    ampAttackAttachment (p.state, ampAttackSliderID, ampAttackSlider),
-    ampDecayAttachment (p.state, ampDecaySliderID, ampDecaySlider),
-    ampSustainAttachment (p.state, ampSustainSliderID, ampSustainSlider),
-    ampReleaseAttachment (p.state, ampReleaseSliderID, ampReleaseSlider),
+    ampAttackAttachment (p.state, ampAttackID, ampAttackSlider),
+    ampDecayAttachment (p.state, ampDecayID, ampDecaySlider),
+    ampSustainAttachment (p.state, ampSustainID, ampSustainSlider),
+    ampReleaseAttachment (p.state, ampReleaseID, ampReleaseSlider),
 
     //LFO
     lfoGroup ({}, lfoGroupDesc),
     lfoShapeButtons (lfoShapeDesc, {lfoShape0, lfoShape1, lfoShape2, lfoShape3, lfoShape4}),
-    lfoFreqAttachment (p.state, lfoFreqSliderID, lfoFreqSlider),
+    lfoFreqAttachment (p.state, lfoFreqID, lfoFreqSlider),
 
     //EFFECT
     effectGroup ({}, effectGroupDesc),
