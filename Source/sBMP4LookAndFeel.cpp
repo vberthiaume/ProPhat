@@ -18,11 +18,10 @@ sBMP4LookAndFeel::sBMP4LookAndFeel()
 }
 
 void sBMP4LookAndFeel::drawTickBox (Graphics& g, Component& /*component*/,
-                                  float x, float y, float w, float h,
-                                  const bool ticked,
-                                  const bool isEnabled,
-                                  const bool shouldDrawButtonAsHighlighted,
-                                  const bool shouldDrawButtonAsDown)
+                                    float x, float y, float w, float h,
+                                    const bool ticked, const bool isEnabled,
+                                    const bool shouldDrawButtonAsHighlighted,
+                                    const bool shouldDrawButtonAsDown)
 {
     ignoreUnused (isEnabled, shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
 
@@ -36,7 +35,7 @@ void sBMP4LookAndFeel::drawTickBox (Graphics& g, Component& /*component*/,
 }
 
 void sBMP4LookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
-                                   const float rotaryStartAngle, const float rotaryEndAngle, Slider& /*slider*/)
+                                         const float rotaryStartAngle, const float rotaryEndAngle, Slider& /*slider*/)
 {
     const auto bounds = Rectangle<int> (x, y, width, height).toFloat();
     const auto toAngle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
@@ -45,8 +44,8 @@ void sBMP4LookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, i
     //@TODO: this is a joke! Proper way to rotate and translated using non-random values is needed. The slider is not centered.
     const auto translationRatio = .2f;
     g.drawImageTransformed (rotarySliderImage, AffineTransform::scale (.05f)
-                                                        .translated (translationRatio * width, 0)
-                                                        .rotated (toAngle, bounds.getCentreX() - 2.f, bounds.getCentreY() + 5.2f));
+                                                               .translated (translationRatio * width, 0)
+                                                               .rotated (toAngle, bounds.getCentreX() - 2.f, bounds.getCentreY() + 5.2f));
 
     //g.setColour (Colours::red);
     //g.drawRect (bounds);
