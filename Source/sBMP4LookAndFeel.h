@@ -28,5 +28,11 @@ public:
                            Slider& /*slider*/) override;
 
 private:
-    Image tickedButtonImage, untickedButtonImage, rotarySliderImage;
+    Image tickedButtonImage, untickedButtonImage;
+
+#if 1
+    Image rotarySliderImage;
+#else
+    ScopedPointer<Drawable> rotarySliderDrawableImage;
+#endif
 };

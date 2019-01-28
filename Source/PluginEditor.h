@@ -15,6 +15,8 @@ public:
         tolerance (snapTolerance)
     {
         setLookAndFeel (&lf);
+        /*auto params = getRotaryParameters();
+        const auto toAngle = params.startAngleRadians + getValue() * (params.endAngleRadians- params.startAngleRadians);*/
     }
 
     ~SnappingSlider()

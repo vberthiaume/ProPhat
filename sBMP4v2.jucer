@@ -28,10 +28,13 @@
             file="Source/PluginProcessor.h"/>
     </GROUP>
     <GROUP id="{EDC12C90-B6F9-4BAF-F5B3-C6F128665043}" name="Assets">
+      <FILE id="U5x5e7" name="sBMP4Knob.svg" compile="0" resource="1" file="Assets/sBMP4Knob.svg"/>
       <FILE id="tp88Ab" name="blackTexture.jpg" compile="0" resource="1"
             file="Assets/blackTexture.jpg"/>
       <FILE id="BkdKO2" name="redTexture.png" compile="0" resource="1" file="Assets/redTexture.png"/>
       <FILE id="I7aupD" name="blackMetal.jpg" compile="0" resource="1" file="Assets/blackMetal.jpg"/>
+      <FILE id="x4jECf" name="metalKnobFitted.png" compile="0" resource="1"
+            file="Assets/metalKnobFitted.png"/>
       <FILE id="N4mkaj" name="metalKnob.png" compile="0" resource="1" file="Assets/metalKnob.png"/>
     </GROUP>
   </MAINGROUP>
