@@ -47,34 +47,25 @@ void sBMP4LookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, i
     const auto toAngle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
 
 #if 1
-    //USING TRIMMED PGN WITHOUT TRANSFORM (WOULD NEED TO TRANSFORM TO ROTATE)
-    //g.drawImage (rotarySliderImage, bounds);
-
-
     auto imageBounds = rotarySliderImage.getBounds().toFloat();
-    
 
-    //get square side
+    float squareSide = 0.f, xTranslation = 0.f, yTranslation = 0.f;
+
     if (height < width)
     {
-        auto squareSide = height;
-        auto translation = (width - height) / 2.f;
-        auto scaleFactor = squareSide / imageBounds.getWidth();
-
-        g.drawImageTransformed (rotarySliderImage, AffineTransform::scale (scaleFactor)
-                                                                  .translated (translation, 0)
-                                                                  .rotated (toAngle, bounds.getCentreX(), bounds.getCentreY()));
+        squareSide = height;
+        xTranslation = (width - height) / 2.f;
     }
     else
     {
-        auto squareSide = width;
-        auto translation = (height - width) / 2.f;
-        auto scaleFactor = squareSide / imageBounds.getWidth();
-
-        g.drawImageTransformed (rotarySliderImage, AffineTransform::scale (scaleFactor)
-                                                                   .translated (0, translation)
-                                                                   .rotated (toAngle, bounds.getCentreX(), bounds.getCentreY()));
+        squareSide = width;
+        yTranslation = (height - width) / 2.f;
     }
+
+    auto scaleFactor = squareSide / imageBounds.getWidth();
+
+    g.drawImageTransformed (rotarySliderImage, AffineTransform::scale (scaleFactor).translated (xTranslation, yTranslation)
+                                                              .rotated (toAngle, bounds.getCentreX(), bounds.getCentreY()));
 
 #else
     ////LOADING SVG USING DRAWABLES
