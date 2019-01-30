@@ -45,21 +45,9 @@ sBMP4AudioProcessor::~sBMP4AudioProcessor()
 {
 }
 
-void sBMP4AudioProcessor::setUseWavetables (bool useThem)
+void sBMP4AudioProcessor::setUseWavetables (bool /*useThem*/)
 {
-    //synth.clearVoices();
-    //synth.clearSounds();
 
-    //usingWavetables = useThem;
-
-    //for (auto i = 0; i < numVoices; ++i)
-    //    synth.addVoice (new Voice());
-    //    //if (usingWavetables)
-    //    //    synth.addVoice (new SineWaveTableVoice (sineTable));
-    //    //else
-    //    //    synth.addVoice (new SineWaveVoice());
-
-    //synth.addSound (new SineWaveSound());
 }
 
 //==============================================================================
@@ -90,7 +78,6 @@ void sBMP4AudioProcessor::changeProgramName (int /*index*/, const String& /*newN
 void sBMP4AudioProcessor::reset()
 {
     //lrFilter.reset();
-    ladderFilter.reset();
 }
 
 //==============================================================================
@@ -105,13 +92,7 @@ void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     //lrFilter.prepare (spec);
     //lrFilter.coefficients = dsp::IIR::Coefficients<float>::makePeakFilter (sampleRate, 1000.f, .3f, Decibels::decibelsToGain (-6.f));
 
-    ladderFilter.prepare (spec);
-    //ladderFilter.setMode (juce::dsp::LadderFilter<float>::Mode::LPF12);
-    ladderFilter.setResonance (.5);
-
-    //synth.setCurrentPlaybackSampleRate (sampleRate);
     synth.prepare ({sampleRate, (uint32) samplesPerBlock, 2});
-    //midiMessageCollector.reset (sampleRate);
 
     reverb.setSampleRate (sampleRate);
 
@@ -164,8 +145,6 @@ void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiM
 
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
-    processFilter (buffer);
-
     processReverb (buffer);
 
 
@@ -174,25 +153,11 @@ void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiM
 #endif
 }
 
-void sBMP4AudioProcessor::processFilter (AudioBuffer<float>& buffer)
+void sBMP4AudioProcessor::processReverb (AudioBuffer<float>& /*buffer*/)
 {
+    //only keeping this in case we need it later, but we have a reverb right in the synth
+#if 0
 
-    auto cutOff = Helpers::getRangedParamValue (state, filterCutoffID, hzRange);
-    ladderFilter.setCutoffFrequencyHz (cutOff);
-
-    for (int i = 0; i < buffer.getNumChannels(); ++i)
-    {
-        auto audioBlock = dsp::AudioBlock<float> (buffer).getSingleChannelBlock (i);
-
-        //TODO This class can only process mono signals. Use the ProcessorDuplicator class
-        // to apply this filter on a multi-channel audio stream.
-        //lrFilter.process (dsp::ProcessContextReplacing<float> (audioBlock));
-        ladderFilter.process (dsp::ProcessContextReplacing<float> (audioBlock));
-    }
-}
-
-void sBMP4AudioProcessor::processReverb (AudioBuffer<float>& buffer)
-{
     Reverb::Parameters reverbParameters;
     reverbParameters.roomSize = state.getParameter (effectParam1ID)->getValue();
     reverb.setParameters (reverbParameters);
@@ -201,6 +166,7 @@ void sBMP4AudioProcessor::processReverb (AudioBuffer<float>& buffer)
         reverb.processMono (buffer.getWritePointer (0), buffer.getNumSamples());
     else if (getMainBusNumOutputChannels() == 2)
         reverb.processStereo (buffer.getWritePointer (0), buffer.getWritePointer (1), buffer.getNumSamples());
+#endif
 }
 
 //==============================================================================

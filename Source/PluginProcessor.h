@@ -82,7 +82,6 @@ public:
     void processBlock (AudioBuffer<double>&, MidiBuffer&) override;
 
     void process (AudioBuffer<float>& buffer, MidiBuffer& midiMessages);
-    void processFilter (AudioBuffer<float>& buffer);
     void processReverb (AudioBuffer<float>& buffer);
 
     //==============================================================================
@@ -159,7 +158,6 @@ private:
     bool usingWavetables = false, needToSwitchWavetableStatus = false;
 
     //dsp::IIR::Filter<float> lrFilter;
-    dsp::LadderFilter<float> ladderFilter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessor)
 };
