@@ -82,7 +82,6 @@ public:
     void processBlock (AudioBuffer<double>&, MidiBuffer&) override;
 
     void process (AudioBuffer<float>& buffer, MidiBuffer& midiMessages);
-    void processReverb (AudioBuffer<float>& buffer);
 
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
@@ -116,48 +115,12 @@ private:
 
     void setUseWavetables (bool useThem);
 
-    void createWavetable()
-    {
-        //initialize the table
-        sineTable.setSize (1, tableSize + 1);
-        sineTable.clear();
-        double* samples = sineTable.getWritePointer (0);
-
-        //decide on the harmonics
-        int harmonics[] = {1}; //{1, 3, 5, 6, 7, 9, 13, 15};
-        double harmonicWeights[] = {1.0}; //{0.5f, 0.1f, 0.05f, 0.125f, 0.09f, 0.005f, 0.002f, 0.001f};
-        jassert (numElementsInArray (harmonics) == numElementsInArray (harmonicWeights));
-
-        for (auto harmonic = 0; harmonic < numElementsInArray (harmonics); ++harmonic)
-        {
-            //we divide 2pi by the table size. Like this, the table will cover one full cycle
-            auto angleDelta = MathConstants<double>::twoPi / (double) (tableSize - 1) * harmonics[harmonic];
-            auto currentAngle = 0.0;
-
-            for (size_t i = 0; i < tableSize; ++i)
-            {
-                auto sample = std::sin (currentAngle);
-                samples[i] += sample * harmonicWeights[harmonic];
-                currentAngle += angleDelta;
-            }
-        }
-
-        samples[tableSize] = samples[0];
-    }
-
     //==============================================================================
     double lastSampleRate = {};
 
-    /*Synthesiser synth;*/
     sBMP4Synthesiser synth;
-    Reverb reverb;
 
-    const unsigned int tableSize = 2 << 15; // 2^15 == 32768 slots; 32768 * 4 = 131kB
-    int numberOfOscillators = 16;
-    AudioBuffer<double> sineTable;
     bool usingWavetables = false, needToSwitchWavetableStatus = false;
-
-    //dsp::IIR::Filter<float> lrFilter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessor)
 };

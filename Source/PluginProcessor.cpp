@@ -37,8 +37,6 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 #else
     state.addParameterListener (oscWavetableID, this);
 #endif
-    
-    createWavetable();
 }
 
 sBMP4AudioProcessor::~sBMP4AudioProcessor()
@@ -77,7 +75,6 @@ void sBMP4AudioProcessor::changeProgramName (int /*index*/, const String& /*newN
 
 void sBMP4AudioProcessor::reset()
 {
-    //lrFilter.reset();
 }
 
 //==============================================================================
@@ -85,16 +82,7 @@ void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     lastSampleRate = sampleRate;
 
-    auto channels = static_cast<uint32> (jmin (getMainBusNumInputChannels(), getMainBusNumOutputChannels()));
-
-    dsp::ProcessSpec spec { sampleRate, static_cast<uint32> (samplesPerBlock), channels };
-
-    //lrFilter.prepare (spec);
-    //lrFilter.coefficients = dsp::IIR::Coefficients<float>::makePeakFilter (sampleRate, 1000.f, .3f, Decibels::decibelsToGain (-6.f));
-
     synth.prepare ({sampleRate, (uint32) samplesPerBlock, 2});
-
-    reverb.setSampleRate (sampleRate);
 
     setUseWavetables (usingWavetables);
 }
@@ -145,27 +133,8 @@ void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiM
 
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
-    processReverb (buffer);
-
-
 #if CPU_USAGE
     perfCounter.stop();
-#endif
-}
-
-void sBMP4AudioProcessor::processReverb (AudioBuffer<float>& /*buffer*/)
-{
-    //only keeping this in case we need it later, but we have a reverb right in the synth
-#if 0
-
-    Reverb::Parameters reverbParameters;
-    reverbParameters.roomSize = state.getParameter (effectParam1ID)->getValue();
-    reverb.setParameters (reverbParameters);
-
-    if (getMainBusNumOutputChannels() == 1)
-        reverb.processMono (buffer.getWritePointer (0), buffer.getNumSamples());
-    else if (getMainBusNumOutputChannels() == 2)
-        reverb.processStereo (buffer.getWritePointer (0), buffer.getWritePointer (1), buffer.getNumSamples());
 #endif
 }
 

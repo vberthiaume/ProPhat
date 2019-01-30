@@ -16,12 +16,10 @@
 class sBMP4Synthesiser : public Synthesiser
 {
 public:
-    //static constexpr auto maxNumVoices = 4;
-
     sBMP4Synthesiser()
     {
         for (auto i = 0; i < numVoices; ++i)
-            addVoice (new Voice());
+            addVoice (new sBMP4Voice());
 
         setNoteStealingEnabled (true);
 
@@ -33,15 +31,17 @@ public:
         setCurrentPlaybackSampleRate (spec.sampleRate);
 
         for (auto* v : voices)
-            dynamic_cast<Voice*> (v)->prepare (spec);
+            dynamic_cast<sBMP4Voice*> (v)->prepare (spec);
 
         fxChain.prepare (spec);
     }
 
 private:
+
     void renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples) override
     {
         for (auto* voice : voices)
+            //@TODO for some FUCKED UP reason, this renderVoices renders all the time if I don't check this. It should NOT render when there's no note off
             if (voice->isKeyDown())
                 voice->renderNextBlock (outputAudio, startSample, numSamples);
 
@@ -50,6 +50,7 @@ private:
         auto contextToUse = dsp::ProcessContextReplacing<float> (blockToUse);
         fxChain.process (contextToUse);
     }
+
 
     enum
     {
