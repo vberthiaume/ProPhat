@@ -121,6 +121,13 @@ public:
                                            (float) MidiMessage::getMidiNoteInHertz (midiNote + 2));
     }
 
+    void setOscTuning (int oscNum, float newValue)
+    {
+        auto freq = jmap (newValue, (float) MidiMessage::getMidiNoteInHertz (0), (float) MidiMessage::getMidiNoteInHertz (69));
+
+        processorChain.get<osc1Index>().setFrequency (freq);
+    }
+
     virtual void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
     {
         midiNote = midiNoteNumber;

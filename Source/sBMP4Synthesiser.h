@@ -36,6 +36,12 @@ public:
         fxChain.prepare (spec);
     }
 
+    void setOscTuning (int oscNum, float newValue)
+    {
+        for (auto voice : voices)
+            dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (oscNum, newValue);
+    }
+
 private:
 
     void renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples) override

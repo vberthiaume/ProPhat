@@ -53,9 +53,9 @@ public:
             if (usingWavetables != (bool) newValue)
                 needToSwitchWavetableStatus = true;
         }
-        else if (parameterID == sBMP4AudioProcessorIDs::effectParam1ID)
+        else if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID)
         {
-
+            synth.setOscTuning (1, newValue);
         }
         //else if (parameterID == sBMP4AudioProcessorIDs::)
         //{

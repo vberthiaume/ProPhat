@@ -36,6 +36,7 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     state.state.addListener (this);
 #else
     state.addParameterListener (oscWavetableID, this);
+    state.addParameterListener (osc1FreqID, this);
 #endif
 }
 
