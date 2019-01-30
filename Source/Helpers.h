@@ -127,6 +127,11 @@ struct Helpers
     {
         return Drawable::createFromImageData (imageData, dataSize);
     }
+
+    static float getRangedParamValue (AudioProcessorValueTreeState& state, StringRef id, NormalisableRange<float> range)
+    {
+        return range.convertFrom0to1 (state.getParameter (id)->getValue());
+    }
 };
 
 #if 0

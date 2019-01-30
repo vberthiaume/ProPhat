@@ -105,7 +105,8 @@ void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     //lrFilter.coefficients = dsp::IIR::Coefficients<float>::makePeakFilter (sampleRate, 1000.f, .3f, Decibels::decibelsToGain (-6.f));
 
     ladderFilter.prepare (spec);
-    ladderFilter.setMode (juce::dsp::LadderFilter<float>::Mode::LPF12);
+    //ladderFilter.setMode (juce::dsp::LadderFilter<float>::Mode::LPF12);
+    ladderFilter.setResonance (.5);
 
     synth.setCurrentPlaybackSampleRate (sampleRate);
     reverb.setSampleRate (sampleRate);
@@ -169,12 +170,8 @@ void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiM
 
 void sBMP4AudioProcessor::processFilter (AudioBuffer<float>& buffer)
 {
-    /*auto cutOff = state.getParameter (filterCutoffID)->getValue();*/
-    auto cutOff = state.getParameter (filterCutoffID)->convertFrom0to1 (state.getParameter (filterCutoffID)->getValue());
 
-    if (cutOff == 0.f)
-        return;
-
+    auto cutOff = Helpers::getRangedParamValue (state, filterCutoffID, hzRange);
     ladderFilter.setCutoffFrequencyHz (cutOff);
 
     for (int i = 0; i < buffer.getNumChannels(); ++i)
