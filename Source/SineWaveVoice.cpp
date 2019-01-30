@@ -10,6 +10,7 @@
 
 #include "SineWaveVoice.h"
 
+#if 0
 void SineWaveVoice::startNote (int midiNoteNumber, float velocity, SynthesiserSound*, int /*currentPitchWheelPosition*/)
 {
     level = velocity * 0.15;
@@ -69,3 +70,5 @@ void SineWaveVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int start
         }
     }
 }
+
+#endif

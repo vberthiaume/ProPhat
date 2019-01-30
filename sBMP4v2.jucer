@@ -26,6 +26,8 @@
             file="Source/PluginProcessor.cpp"/>
       <FILE id="vFMGf9" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
+      <FILE id="iDRnxR" name="sBMP4Synthesiser.h" compile="0" resource="0"
+            file="Source/sBMP4Synthesiser.h"/>
     </GROUP>
     <GROUP id="{EDC12C90-B6F9-4BAF-F5B3-C6F128665043}" name="Assets">
       <FILE id="U5x5e7" name="sBMP4Knob.svg" compile="0" resource="1" file="Assets/sBMP4Knob.svg"/>
@@ -35,7 +37,6 @@
       <FILE id="I7aupD" name="blackMetal.jpg" compile="0" resource="1" file="Assets/blackMetal.jpg"/>
       <FILE id="x4jECf" name="metalKnobFitted.png" compile="0" resource="1"
             file="Assets/metalKnobFitted.png"/>
-      <FILE id="N4mkaj" name="metalKnob.png" compile="0" resource="1" file="Assets/metalKnob.png"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>

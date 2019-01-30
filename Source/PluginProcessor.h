@@ -2,6 +2,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "SineWaveVoice.h"
+#include "sBMP4Synthesiser.h"
 #include "Helpers.h"
 
 #ifndef CPU_USAGE
@@ -148,7 +149,8 @@ private:
     //==============================================================================
     double lastSampleRate = {};
 
-    Synthesiser synth;
+    /*Synthesiser synth;*/
+    sBMP4Synthesiser synth;
     Reverb reverb;
 
     const unsigned int tableSize = 2 << 15; // 2^15 == 32768 slots; 32768 * 4 = 131kB

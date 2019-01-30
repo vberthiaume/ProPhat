@@ -47,18 +47,19 @@ sBMP4AudioProcessor::~sBMP4AudioProcessor()
 
 void sBMP4AudioProcessor::setUseWavetables (bool useThem)
 {
-    synth.clearVoices();
-    synth.clearSounds();
+    //synth.clearVoices();
+    //synth.clearSounds();
 
-    usingWavetables = useThem;
+    //usingWavetables = useThem;
 
-    for (auto i = 0; i < numVoices; ++i)
-        if (usingWavetables)
-            synth.addVoice (new SineWaveTableVoice (sineTable));
-        else
-            synth.addVoice (new SineWaveVoice());
+    //for (auto i = 0; i < numVoices; ++i)
+    //    synth.addVoice (new Voice());
+    //    //if (usingWavetables)
+    //    //    synth.addVoice (new SineWaveTableVoice (sineTable));
+    //    //else
+    //    //    synth.addVoice (new SineWaveVoice());
 
-    synth.addSound (new SineWaveSound());
+    //synth.addSound (new SineWaveSound());
 }
 
 //==============================================================================
@@ -108,7 +109,10 @@ void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     //ladderFilter.setMode (juce::dsp::LadderFilter<float>::Mode::LPF12);
     ladderFilter.setResonance (.5);
 
-    synth.setCurrentPlaybackSampleRate (sampleRate);
+    //synth.setCurrentPlaybackSampleRate (sampleRate);
+    synth.prepare ({sampleRate, (uint32) samplesPerBlock, 2});
+    //midiMessageCollector.reset (sampleRate);
+
     reverb.setSampleRate (sampleRate);
 
     setUseWavetables (usingWavetables);
@@ -144,6 +148,8 @@ void sBMP4AudioProcessor::processBlock (AudioBuffer<double>& /*ogBuffer*/, MidiB
 
 void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+    ScopedNoDenormals noDenormals;
+
 #if CPU_USAGE
     perfCounter.start();
 #endif

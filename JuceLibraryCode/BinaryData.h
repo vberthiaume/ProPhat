@@ -23,11 +23,8 @@ namespace BinaryData
     extern const char*   metalKnobFitted_png;
     const int            metalKnobFitted_pngSize = 408619;
 
-    extern const char*   metalKnob_png;
-    const int            metalKnob_pngSize = 436566;
-
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 6;
+    const int namedResourceListSize = 5;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];

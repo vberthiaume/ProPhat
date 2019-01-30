@@ -9,8 +9,10 @@
 */
 
 #pragma once
-
 #include "../JuceLibraryCode/JuceHeader.h"
+
+#if 0
+
 
 //==============================================================================
 struct SineWaveSound : public SynthesiserSound
@@ -106,4 +108,191 @@ private:
     const AudioBuffer<double>& wavetable;
     const int tableSize;
     double currentIndex = 0.0f;
+};
+#endif
+
+/*
+  ==============================================================================
+
+    voice.h
+    Created: 29 Jan 2019 10:59:38am
+    Author:  Haake
+
+  ==============================================================================
+*/
+
+#pragma once
+
+struct SineWaveSound : public SynthesiserSound
+{
+    SineWaveSound() {}
+
+    bool appliesToNote    (int) override { return true; }
+    bool appliesToChannel (int) override { return true; }
+};
+
+
+//==============================================================================
+template <typename Type>
+class CustomOscillator
+{
+public:
+
+    CustomOscillator()
+    {
+        auto& osc = processorChain.template get<oscIndex>();
+        osc.initialise ([](Type x)
+        {
+            return jmap (x, Type (-MathConstants<double>::pi), Type (MathConstants<double>::pi), Type (-1), Type (1));
+        }, 2);
+    }
+
+    void setFrequency (Type newValue, bool force = false)
+    {
+        auto& osc = processorChain.template get<oscIndex>();
+        osc.setFrequency (newValue, force);
+    }
+
+    void setLevel (Type newValue)
+    {
+        auto& gain = processorChain.template get<gainIndex>();
+        gain.setGainLinear (newValue);
+    }
+
+    void reset() noexcept
+    {
+        processorChain.reset();
+    }
+
+    template <typename ProcessContext>
+    void process (const ProcessContext& context) noexcept
+    {
+        processorChain.process (context);
+    }
+
+    void prepare (const dsp::ProcessSpec& spec)
+    {
+        processorChain.prepare (spec);
+    }
+
+private:
+    enum
+    {
+        oscIndex,
+        gainIndex
+    };
+
+    dsp::ProcessorChain<dsp::Oscillator<Type>, dsp::Gain<Type>> processorChain;
+};
+
+//==============================================================================
+class Voice : public SynthesiserVoice
+{
+public:
+    Voice()
+    {
+        auto& masterGain = processorChain.get<masterGainIndex>();
+        masterGain.setGainLinear (0.7f);
+
+        auto& filter = processorChain.get<filterIndex>();
+        filter.setCutoffFrequencyHz (1000.0f);
+        filter.setResonance (0.7f);
+        lfo.initialise ([](float x) { return std::sin(x); }, 128);
+        lfo.setFrequency (3.0f);
+    }
+
+    void prepare (const dsp::ProcessSpec& spec)
+    {
+        tempBlock = dsp::AudioBlock<float> (heapBlock, spec.numChannels, spec.maximumBlockSize);
+        processorChain.prepare (spec);
+
+        lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
+    }
+
+    virtual void startNote (int midiNoteNumber, float velocity, SynthesiserSound* sound, int currentPitchWheelPosition)
+    {
+        //@TODO use the currentPitchWheelPosition
+
+        midiNote = midiNoteNumber;
+        freqHz = (float) MidiMessage::getMidiNoteInHertz (midiNote);
+
+        processorChain.get<osc1Index>().setFrequency (freqHz, true);
+        processorChain.get<osc1Index>().setLevel (velocity);
+
+        processorChain.get<osc2Index>().setFrequency (freqHz * 1.01f, true);
+        processorChain.get<osc2Index>().setLevel (velocity);
+    }
+
+    /**
+        newPitchWheelValue is a 14 bit number with a range of 0-16383. Since it's a bipolar control, it always starts at the center, 8192
+    */
+    void pitchWheelMoved (int newPitchWheelValue) override
+    {
+        //@TODO this works but the new picth doesn't make any sense
+        //jmap (FloatType (i), FloatType (0), FloatType (numPoints - 1), minInputValueToUse, maxInputValueToUse))
+        auto ratio = newPitchWheelValue / 16382.f + 1;
+        processorChain.get<osc1Index>().setFrequency (freqHz * ratio);
+        processorChain.get<osc2Index>().setFrequency (freqHz * 1.01f * ratio);
+    }
+
+    void stopNote (float /*velocity*/, bool /*allowTailOff*/) override
+    {
+        clearCurrentNote();
+    }
+
+    bool canPlaySound (SynthesiserSound* sound) override
+    {
+        return dynamic_cast<SineWaveSound*> (sound) != nullptr;
+    }
+
+    void controllerMoved (int, int) override {}
+
+    void renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override
+    {
+        auto output = tempBlock.getSubBlock (0, (size_t) numSamples);
+        output.clear();
+
+        for (size_t pos = 0; pos < numSamples;)
+        {
+            auto max = jmin (static_cast<size_t> (numSamples - pos), lfoUpdateCounter);
+            auto block = output.getSubBlock (pos, max);
+
+            dsp::ProcessContextReplacing<float> context (block);
+            processorChain.process (context);
+
+            pos += max;
+            lfoUpdateCounter -= max;
+
+            if (lfoUpdateCounter == 0)
+            {
+                lfoUpdateCounter = lfoUpdateRate;
+                auto lfoOut = lfo.processSample (0.0f);
+                auto curoffFreqHz = jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);
+                processorChain.get<filterIndex>().setCutoffFrequencyHz (curoffFreqHz);
+            }
+        }
+
+        dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (tempBlock);
+    }
+
+private:
+    HeapBlock<char> heapBlock;
+    dsp::AudioBlock<float> tempBlock;
+
+    enum
+    {
+        osc1Index,
+        osc2Index,
+        filterIndex,
+        masterGainIndex
+    };
+
+    dsp::ProcessorChain<CustomOscillator<float>, CustomOscillator<float>, dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
+
+    static constexpr size_t lfoUpdateRate = 100;
+    size_t lfoUpdateCounter = lfoUpdateRate;
+    dsp::Oscillator<float> lfo;
+
+    float freqHz = 0.f;
+    int midiNote = 0;
 };
