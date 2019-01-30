@@ -209,12 +209,22 @@ public:
         lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
     }
 
-    virtual void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int /*currentPitchWheelPosition*/)
+    /**
+        pitchWheelValue is a 14 bit number with a range of 0-16383. Since it's a bipolar control, it always starts at the center, 8192.
+        On rev 2, max values are +/- 2 note. So 0 = -2 notes, 8192 = same note, 16383 = 2 notes
+    */
+    float getFreqAfterApplyingPitchWheel (int pitchWheelValue)
     {
-        //@TODO use the currentPitchWheelPosition
+        auto deltaNote = jmap ((float) pitchWheelValue, 0.f, 16383.f, -2.f, 2.f);
 
+        return jmap (deltaNote, -2.f, 2.f, (float) MidiMessage::getMidiNoteInHertz (midiNote - 2),
+                                           (float) MidiMessage::getMidiNoteInHertz (midiNote + 2));
+    }
+
+    virtual void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
+    {
         midiNote = midiNoteNumber;
-        freqHz = (float) MidiMessage::getMidiNoteInHertz (midiNote);
+        freqHz = getFreqAfterApplyingPitchWheel (currentPitchWheelPosition);
 
         processorChain.get<osc1Index>().setFrequency (freqHz, true);
         processorChain.get<osc1Index>().setLevel (velocity);
@@ -223,16 +233,13 @@ public:
         processorChain.get<osc2Index>().setLevel (velocity);
     }
 
-    /**
-        newPitchWheelValue is a 14 bit number with a range of 0-16383. Since it's a bipolar control, it always starts at the center, 8192
-    */
+
     void pitchWheelMoved (int newPitchWheelValue) override
     {
-        //@TODO this works but the new picth doesn't make any sense
-        //jmap (FloatType (i), FloatType (0), FloatType (numPoints - 1), minInputValueToUse, maxInputValueToUse))
-        auto ratio = newPitchWheelValue / 16382.f + 1;
-        processorChain.get<osc1Index>().setFrequency (freqHz * ratio);
-        processorChain.get<osc2Index>().setFrequency (freqHz * 1.01f * ratio);
+        auto newFreq = freqHz = getFreqAfterApplyingPitchWheel (newPitchWheelValue);
+
+        processorChain.get<osc1Index>().setFrequency (newFreq);
+        processorChain.get<osc2Index>().setFrequency (newFreq * 1.01f);
     }
 
     void stopNote (float /*velocity*/, bool /*allowTailOff*/) override
