@@ -55,7 +55,7 @@ public:
         }
         else if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID)
         {
-            synth.setOscTuning (sBMP4Voice::processorId::osc1Index, newValue);
+            synth.setOscTuning (sBMP4Voice::processorId::osc1Index, (int) newValue);
         }
         //else if (parameterID == sBMP4AudioProcessorIDs::)
         //{

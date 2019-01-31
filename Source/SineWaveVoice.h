@@ -92,7 +92,7 @@ public:
     enum processorId
     {
         osc1Index,
-        osc2Index,
+        //osc2Index,
         filterIndex,
         masterGainIndex
     };
@@ -130,14 +130,12 @@ public:
                                            (float) MidiMessage::getMidiNoteInHertz (midiNote + 2));
     }
 
-    void setOscTuning (processorId oscNum, float newValue)
+    void setOscTuning (processorId oscNum, int newMidiNote)
     {
-        if (oscNum != osc1Index && oscNum != osc2Index)
+        if (oscNum != osc1Index /*&& oscNum != osc2Index*/)
             return;
 
-        auto freq = jmap (newValue, (float) MidiMessage::getMidiNoteInHertz (0), (float) MidiMessage::getMidiNoteInHertz (69));
-
-        processorChain.get<osc1Index>().setFrequency (freq);
+        processorChain.get<osc1Index>().setFrequency ((float) MidiMessage::getMidiNoteInHertz (newMidiNote));
     }
 
     virtual void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
@@ -148,8 +146,8 @@ public:
         processorChain.get<osc1Index>().setFrequency (freqHz, true);
         processorChain.get<osc1Index>().setLevel (velocity);
 
-        processorChain.get<osc2Index>().setFrequency (freqHz * 1.01f, true);
-        processorChain.get<osc2Index>().setLevel (velocity);
+        //processorChain.get<osc2Index>().setFrequency (freqHz * 1.01f, true);
+        //processorChain.get<osc2Index>().setLevel (velocity);
     }
 
 
@@ -158,7 +156,7 @@ public:
         auto newFreq = freqHz = getFreqAfterApplyingPitchWheel (newPitchWheelValue);
 
         processorChain.get<osc1Index>().setFrequency (newFreq);
-        processorChain.get<osc2Index>().setFrequency (newFreq * 1.01f);
+        //processorChain.get<osc2Index>().setFrequency (newFreq * 1.01f);
     }
 
     void stopNote (float /*velocity*/, bool /*allowTailOff*/) override
@@ -207,9 +205,7 @@ private:
     HeapBlock<char> heapBlock;
     dsp::AudioBlock<float> tempBlock;
 
-
-
-    dsp::ProcessorChain<GainedOscillator<float>, GainedOscillator<float>, dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
+    dsp::ProcessorChain<GainedOscillator<float>, /*GainedOscillator<float>, */dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
 
     static constexpr size_t lfoUpdateRate = 100;
     size_t lfoUpdateCounter = lfoUpdateRate;

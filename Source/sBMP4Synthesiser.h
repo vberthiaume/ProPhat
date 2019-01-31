@@ -36,21 +36,36 @@ public:
         fxChain.prepare (spec);
     }
 
-    void setOscTuning (sBMP4Voice::processorId oscNum, float newValue)
+    void setOscTuning (sBMP4Voice::processorId oscNum, int newMidiNote)
     {
         for (auto voice : voices)
             if (voice->isKeyDown())
-                dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (oscNum, newValue);
+            {
+                dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (sBMP4Voice::processorId::osc1Index, newMidiNote);
+                //dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (sBMP4Voice::processorId::osc2Index, newValue);
+            }
+
+        //for (int i = 0; i < voices.size(); ++i)
+        //    if (voices[i]->isKeyDown())
+        //        dynamic_cast<sBMP4Voice*> (voices[i])->setOscTuning (oscNum, newValue);
     }
 
 private:
 #if 1
     void renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples) override
     {
-        for (auto* voice : voices)
-            //@TODO for some FUCKED UP reason, this renderVoices renders all the time if I don't check this. It should NOT render when there's no note off
-            if (voice->isKeyDown())
-                voice->renderNextBlock (outputAudio, startSample, numSamples);
+        //for (auto* voice : voices)
+        //    //@TODO for some FUCKED UP reason, this renderVoices renders all the time if I don't check this. It should NOT render when there's no note off
+        //    if (voice->isKeyDown())
+        //        voice->renderNextBlock (outputAudio, startSample, numSamples);
+
+        for (int i = 0; i < voices.size(); ++i)
+            if (voices[i]->isKeyDown())
+            {
+                //DBG (i);
+                voices[i]->renderNextBlock (outputAudio, startSample, numSamples);
+
+            }
 
         auto block = dsp::AudioBlock<float> (outputAudio);
         auto blockToUse = block.getSubBlock ((size_t) startSample, (size_t) numSamples);

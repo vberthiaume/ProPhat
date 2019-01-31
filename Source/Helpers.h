@@ -17,9 +17,14 @@ static const NormalisableRange<float> sliderRange = {0.f, 1.f};
 static const NormalisableRange<float> hzRange = {0.1f, 18000.f};
 static const NormalisableRange<float> lfoRange = {0.1f, 30.f};
 
+//Sets the base frequency of Oscillator 1 or 2 over a 9-octave
+//range from 16 Hz to 8KHz (when used with the Transpose buttons). Adjustment is in semitones.
+static const NormalisableRange<int> midiNoteRange = {12, 120};   //actual midi note range is (0,127), but rev2, at least for oscilators is C0(0) to C10(120)
+
 enum Constants
 {
     numVoices = 16,
+    defaultOscMidiNote = 48, //C2 on rev2
 
     oscShapeRadioGroupId
 };

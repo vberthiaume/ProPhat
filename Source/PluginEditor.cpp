@@ -141,14 +141,14 @@ void sBMP4AudioProcessorEditor::resized()
         auto ogHeight = groupBounds.getHeight();
         auto ogWidth = groupBounds.getWidth();
 
-        DBG (groupBounds.getHeight());
+        //DBG (groupBounds.getHeight());
 
         auto curComponentIndex = 0;
         for (int i = 0; i < numLines; ++i)
         {
             auto lineBounds = groupBounds.removeFromTop (ogHeight / numLines);
             //lineBounds.removeFromTop (otherLineGapWtf);
-            DBG (lineBounds.getHeight());
+            //DBG (lineBounds.getHeight());
 
             for (int j = 0; j < numColumns; ++j)
             {
