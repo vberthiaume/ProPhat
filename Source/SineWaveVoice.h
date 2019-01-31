@@ -88,6 +88,15 @@ private:
 class sBMP4Voice : public SynthesiserVoice
 {
 public:
+
+    enum processorId
+    {
+        osc1Index,
+        osc2Index,
+        filterIndex,
+        masterGainIndex
+    };
+
     sBMP4Voice()
     {
         auto& masterGain = processorChain.get<masterGainIndex>();
@@ -121,8 +130,11 @@ public:
                                            (float) MidiMessage::getMidiNoteInHertz (midiNote + 2));
     }
 
-    void setOscTuning (int oscNum, float newValue)
+    void setOscTuning (processorId oscNum, float newValue)
     {
+        if (oscNum != osc1Index && oscNum != osc2Index)
+            return;
+
         auto freq = jmap (newValue, (float) MidiMessage::getMidiNoteInHertz (0), (float) MidiMessage::getMidiNoteInHertz (69));
 
         processorChain.get<osc1Index>().setFrequency (freq);
@@ -195,13 +207,7 @@ private:
     HeapBlock<char> heapBlock;
     dsp::AudioBlock<float> tempBlock;
 
-    enum
-    {
-        osc1Index,
-        osc2Index,
-        filterIndex,
-        masterGainIndex
-    };
+
 
     dsp::ProcessorChain<GainedOscillator<float>, GainedOscillator<float>, dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
 

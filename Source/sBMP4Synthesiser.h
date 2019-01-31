@@ -36,14 +36,15 @@ public:
         fxChain.prepare (spec);
     }
 
-    void setOscTuning (int oscNum, float newValue)
+    void setOscTuning (sBMP4Voice::processorId oscNum, float newValue)
     {
         for (auto voice : voices)
-            dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (oscNum, newValue);
+            if (voice->isKeyDown())
+                dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (oscNum, newValue);
     }
 
 private:
-
+#if 1
     void renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples) override
     {
         for (auto* voice : voices)
@@ -56,7 +57,7 @@ private:
         auto contextToUse = dsp::ProcessContextReplacing<float> (blockToUse);
         fxChain.process (contextToUse);
     }
-
+#endif
 
     enum
     {
