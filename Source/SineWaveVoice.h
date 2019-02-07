@@ -115,6 +115,11 @@ public:
         tempBlock = dsp::AudioBlock<float> (heapBlock, spec.numChannels, spec.maximumBlockSize);
         processorChain.prepare (spec);
 
+        adsr.setSampleRate (spec.sampleRate);
+        ADSR::Parameters params;
+        params.attack = 5.f;
+        adsr.setParameters (params);
+
         lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
     }
 
@@ -143,6 +148,10 @@ public:
         midiNote = midiNoteNumber;
         freqHz = getFreqAfterApplyingPitchWheel (currentPitchWheelPosition);
 
+        //@TODO these need to be modified when we change the sliders
+        //adsr.setParameters (sound->params);
+        adsr.noteOn();
+
         processorChain.get<osc1Index>().setFrequency (freqHz, true);
         processorChain.get<osc1Index>().setLevel (velocity);
 
@@ -159,10 +168,18 @@ public:
         //processorChain.get<osc2Index>().setFrequency (newFreq * 1.01f);
     }
 
-    void stopNote (float /*velocity*/, bool /*allowTailOff*/) override
+    void stopNote (float /*velocity*/, bool allowTailOff) override
     {
-        //@TODO this should actually stop the voice, but it doesn't
-        clearCurrentNote();
+        if (allowTailOff)
+        {
+            adsr.noteOff();
+        }
+        else
+        {
+            //@TODO this should actually stop the voice, but it doesn't
+            clearCurrentNote();
+            adsr.reset();
+        }
     }
 
     bool canPlaySound (SynthesiserSound* sound) override
@@ -199,13 +216,17 @@ public:
         }
 
         dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (tempBlock);
+
+        //@TODO this is probably not right...
+        adsr.applyEnvelopeToBuffer (outputBuffer, startSample, numSamples);
     }
 
 private:
     HeapBlock<char> heapBlock;
     dsp::AudioBlock<float> tempBlock;
-
     dsp::ProcessorChain<GainedOscillator<float>, /*GainedOscillator<float>, */dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
+
+    ADSR adsr;
 
     static constexpr size_t lfoUpdateRate = 100;
     size_t lfoUpdateCounter = lfoUpdateRate;
