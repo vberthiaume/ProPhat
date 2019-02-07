@@ -10,6 +10,7 @@
 
 #pragma once
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "Helpers.h"
 
 struct SineWaveSound : public SynthesiserSound
 {
@@ -106,7 +107,7 @@ public:
         filter.setCutoffFrequencyHz (1000.0f);
         filter.setResonance (0.7f);
 
-        lfo.initialise ([](float x) { return std::sin(x); }, 128);
+        lfo.initialise ([](float x) { return x; /*std::sin(x);*/ }, 128);
         lfo.setFrequency (3.0f);
     }
 
@@ -123,48 +124,70 @@ public:
         lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
     }
 
-    /**
-        pitchWheelValue is a 14 bit number with a range of 0-16383. Since it's a bipolar control, it always starts at the center, 8192.
-        On rev 2, max values are +/- 2 note. So 0 = -2 notes, 8192 = same note, 16383 = 2 notes
-    */
-    float getFreqAfterApplyingPitchWheel (int pitchWheelValue)
+    void updateOscFrequencies()
     {
-        auto deltaNote = jmap ((float) pitchWheelValue, 0.f, 16383.f, -2.f, 2.f);
+        auto pitchWheelDeltaNote = jmap ((float) pitchWheelPosition, 0.f, 16383.f, -2.f, 2.f);
 
-        return jmap (deltaNote, -2.f, 2.f, (float) MidiMessage::getMidiNoteInHertz (midiNote - 2),
-                                           (float) MidiMessage::getMidiNoteInHertz (midiNote + 2));
+        //auto osc1Freq = Helpers::getFloatMidiNoteInHertz (midiNote - osc1NoteOffset + pitchWheelDeltaNote);
+        auto osc1Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc1NoteOffset + pitchWheelDeltaNote);
+
+
+        //auto osc1Freq = MidiMessage::getMidiNoteInHertz (midiNote - osc1NoteOffset + pitchWheelDeltaNote);
+
+        processorChain.get<osc1Index>().setFrequency (osc1Freq, true);
+
+        //auto osc2Freq = (float) MidiMessage::getMidiNoteInHertz (midiNote - (int) osc2NoteOffset) + getFreqDeltaFromPitchWheel();
+        //processorChain.get<osc2Index>().setFrequency (osc2Freq);
     }
 
+    /**
+        So here, we have to transform newMidiNote into a delta.
+        The frequency to use for oscilators will be whatever
+    */
     void setOscTuning (processorId oscNum, int newMidiNote)
     {
-        if (oscNum != osc1Index /*&& oscNum != osc2Index*/)
-            return;
-
-        processorChain.get<osc1Index>().setFrequency ((float) MidiMessage::getMidiNoteInHertz (newMidiNote));
+        switch (oscNum)
+        {
+            case sBMP4Voice::osc1Index:
+                osc1NoteOffset = middleCMidiNote - (float) newMidiNote;
+                updateOscFrequencies();
+                break;
+            //case sBMP4Voice::osc2Index:
+            //    osc2NoteOffset = middleCMidiNote - newMidiNote;
+            //    updateOscFrequencies();
+            //    break;
+            default:
+                jassertfalse;
+                break;
+        }
     }
 
     virtual void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
     {
         midiNote = midiNoteNumber;
-        freqHz = getFreqAfterApplyingPitchWheel (currentPitchWheelPosition);
+        pitchWheelPosition = currentPitchWheelPosition;
+        //osc1FreqHz = getFreqDeltaFromPitchWheel (currentPitchWheelPosition);
+
 
         //@TODO these need to be modified when we change the sliders
         //adsr.setParameters (sound->params);
         adsr.noteOn();
 
-        processorChain.get<osc1Index>().setFrequency (freqHz, true);
-        processorChain.get<osc1Index>().setLevel (velocity);
+        updateOscFrequencies();
 
-        //processorChain.get<osc2Index>().setFrequency (freqHz * 1.01f, true);
+        processorChain.get<osc1Index>().setLevel (velocity);
         //processorChain.get<osc2Index>().setLevel (velocity);
     }
 
 
     void pitchWheelMoved (int newPitchWheelValue) override
     {
-        auto newFreq = freqHz = getFreqAfterApplyingPitchWheel (newPitchWheelValue);
+        pitchWheelPosition = newPitchWheelValue;
+        updateOscFrequencies();
 
-        processorChain.get<osc1Index>().setFrequency (newFreq);
+        //auto newFreq = osc1FreqHz = getFreqDeltaFromPitchWheel (newPitchWheelValue);
+
+        //processorChain.get<osc1Index>().setFrequency (newFreq);
         //processorChain.get<osc2Index>().setFrequency (newFreq * 1.01f);
     }
 
@@ -211,7 +234,7 @@ public:
                 lfoUpdateCounter = lfoUpdateRate;
                 auto lfoOut = lfo.processSample (0.0f);
                 auto curoffFreqHz = jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);
-                processorChain.get<filterIndex>().setCutoffFrequencyHz (curoffFreqHz);
+                //processorChain.get<filterIndex>().setCutoffFrequencyHz (curoffFreqHz);
             }
         }
 
@@ -226,12 +249,16 @@ private:
     dsp::AudioBlock<float> tempBlock;
     dsp::ProcessorChain<GainedOscillator<float>, /*GainedOscillator<float>, */dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
 
-    ADSR adsr;
+    juce::ADSR adsr;
 
     static constexpr size_t lfoUpdateRate = 100;
     size_t lfoUpdateCounter = lfoUpdateRate;
     dsp::Oscillator<float> lfo;
 
-    float freqHz = 0.f;
     int midiNote = 0;
+    int pitchWheelPosition = 0;
+
+    //float osc1FreqHz = 0.f;
+    float osc1NoteOffset = 0.f;
+    float osc2NoteOffset = 0.f;
 };

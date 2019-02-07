@@ -468,6 +468,12 @@
 #ifndef  JucePlugin_IAAName
  #define JucePlugin_IAAName                "BMP4: sBMP4"
 #endif
+#ifndef  JucePlugin_VSTNumMidiInputs
+ #define JucePlugin_VSTNumMidiInputs       16
+#endif
+#ifndef  JucePlugin_VSTNumMidiOutputs
+ #define JucePlugin_VSTNumMidiOutputs      16
+#endif
 
 //==============================================================================
 #ifndef    JUCE_STANDALONE_APPLICATION

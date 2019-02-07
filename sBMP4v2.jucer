@@ -3,7 +3,7 @@
 <JUCERPROJECT name="sBMP4" companyName="BMP4" version="0.0.1" defines="PIP_JUCE_EXAMPLES_DIRECTORY=QzpcVXNlcnNcSGFha2VcRG9jdW1lbnRzXGdpdFxhdWRpb3dvcmtzXFNvdW5kc1VuaXRlQXBwXHN1Ym1vZHVsZXNcSlVDRVxleGFtcGxlcw=="
               projectType="audioplug" pluginManufacturer="BMP4" pluginAUIsSandboxSafe="1"
               pluginFormats="buildAU,buildStandalone,buildVST,buildVST3" id="Pybx3b"
-              jucerVersion="5.4.1" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
+              jucerVersion="5.4.2" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               cppLanguageStandard="17" pluginManufacturerCode="BMP4" pluginCode="sBMP">
   <MAINGROUP id="xcjoOm" name="sBMP4">
     <GROUP id="{9E790ABE-F484-67A0-AF6A-838FDD75B724}" name="Source">

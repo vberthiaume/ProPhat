@@ -39,6 +39,22 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     state.addParameterListener (oscWavetableID, this);
     state.addParameterListener (osc1FreqID, this);
 #endif
+
+
+    //for (int i = 0; i < 127; ++i)
+    //    DBG (String (MidiMessage::getMidiNoteInHertz (i)) + "\t" + String (Helpers::getFloatMidiNoteInHertz (i)));
+
+    //for (float i = 0.f; i < 127; i += .3f)
+    //    DBG (String (MidiMessage::getMidiNoteInHertz ((int) i)) + "\t" + String (Helpers::getFloatMidiNoteInHertz (i)));
+
+    /*for (double i = .0; i < 127; i += .3)
+        DBG (String (i) + "\t" + String (MidiMessage::getMidiNoteInHertz ((int) i)) + "\t" + String (Helpers::getFloatMidiNoteInHertz (i)));
+
+    auto i = 126.0;
+    DBG (String (i) + "\t" + String (MidiMessage::getMidiNoteInHertz ((int) i)) + "\t" + String (Helpers::getFloatMidiNoteInHertz (i)));
+
+    i = 125.99999999;
+    DBG (String (i) + "\t" + String (MidiMessage::getMidiNoteInHertz ((int) i)) + "\t" + String (Helpers::getFloatMidiNoteInHertz (i)));*/
 }
 
 sBMP4AudioProcessor::~sBMP4AudioProcessor()

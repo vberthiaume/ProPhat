@@ -39,15 +39,8 @@ public:
     void setOscTuning (sBMP4Voice::processorId oscNum, int newMidiNote)
     {
         for (auto voice : voices)
-            if (voice->isKeyDown())
-            {
-                dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (sBMP4Voice::processorId::osc1Index, newMidiNote);
-                //dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (sBMP4Voice::processorId::osc2Index, newValue);
-            }
-
-        //for (int i = 0; i < voices.size(); ++i)
-        //    if (voices[i]->isKeyDown())
-        //        dynamic_cast<sBMP4Voice*> (voices[i])->setOscTuning (oscNum, newValue);
+            //if (voice->isKeyDown())
+                dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (oscNum, newMidiNote);
     }
 
 private:

@@ -24,7 +24,8 @@ static const NormalisableRange<int> midiNoteRange = {12, 120};   //actual midi n
 enum Constants
 {
     numVoices = 16,
-    defaultOscMidiNote = 48, //C2 on rev2
+    defaultOscMidiNote = 48,    //C2 on rev2
+    middleCMidiNote = 60,       //C3 on rev2
 
     oscShapeRadioGroupId
 };
@@ -136,6 +137,16 @@ struct Helpers
     static float getRangedParamValue (AudioProcessorValueTreeState& state, StringRef id, NormalisableRange<float> range)
     {
         return range.convertFrom0to1 (state.getParameter (id)->getValue());
+    }
+
+    static double getDoubleMidiNoteInHertz (const double noteNumber, const double frequencyOfA = 440.0) noexcept
+    {
+        return frequencyOfA * std::pow (2.0, (noteNumber - 69.0) / 12.0);
+    }
+
+    static float getFloatMidiNoteInHertz (const float noteNumber, const float frequencyOfA = 440.0) noexcept
+    {
+        return frequencyOfA * (float) std::pow (2.0, (noteNumber - 69.0) / 12.0);
     }
 };
 
