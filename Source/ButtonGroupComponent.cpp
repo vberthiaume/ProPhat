@@ -10,8 +10,9 @@
 
 #include "ButtonGroupComponent.h"
 
-ButtonGroupComponent::ButtonGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames) :
-    mainButton (mainButtonName, DrawableButton::ImageAboveTextLabel)
+ButtonGroupComponent::ButtonGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty) :
+    mainButton (mainButtonName, DrawableButton::ImageAboveTextLabel),
+    allowEmptySelection (allowEmpty)
 {
     mainButton.addListener (this);
 
@@ -29,6 +30,8 @@ ButtonGroupComponent::ButtonGroupComponent (StringRef mainButtonName, Array<Stri
         selectionButtons.add (button);
         addAndMakeVisible (button);
     }
+
+    selectNextToggleButton();
 }
 
 void ButtonGroupComponent::resized()
@@ -64,9 +67,18 @@ void ButtonGroupComponent::selectNextToggleButton()
     }
 
     if (selected == -1)
+    {
         selectionButtons[0]->setToggleState (true, sendNotification);
+    }
     else if (selected == selectionButtons.size() - 1)
-        selectionButtons[selected]->setToggleState (false, sendNotification);
+    {
+        if (false)
+            selectionButtons[selected]->setToggleState (false, sendNotification);
+        else
+            selectionButtons[0]->setToggleState (true, sendNotification);
+    }
     else
+    {
         selectionButtons[++i]->setToggleState (true, sendNotification);
+    }
 }

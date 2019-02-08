@@ -34,7 +34,7 @@ class ButtonGroupComponent : public Component, public Button::Listener
 {
 public:
 
-    ButtonGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames);
+    ButtonGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false);
 
     void buttonClicked (Button* button) override;
 
@@ -47,6 +47,8 @@ public:
 
 private:
     void selectNextToggleButton();
+
+    bool allowEmptySelection = false;
 
     sBMP4LookAndFeel lf;
 
