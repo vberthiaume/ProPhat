@@ -46,17 +46,7 @@ public:
     void valueTreeChildOrderChanged (juce::ValueTree &/*parentTreeWhoseChildrenHaveMoved*/, int /*oldIndex*/, int /*newIndex*/) override {}
     void valueTreeParentChanged (juce::ValueTree &/*treeWhoseParentHasChanged*/) override {}
 #else
-    void parameterChanged (const String& parameterID, float newValue) override
-    {
-        if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID)
-        {
-            synth.setOscTuning (sBMP4Voice::processorId::osc1Index, (int) newValue);
-        }
-        //else if (parameterID == sBMP4AudioProcessorIDs::)
-        //{
-
-        //}
-    }
+    void parameterChanged (const String& parameterID, float newValue) override;
 #endif
 
     void reset() override;

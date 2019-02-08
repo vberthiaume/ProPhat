@@ -93,7 +93,7 @@ public:
     enum processorId
     {
         osc1Index,
-        //osc2Index,
+        osc2Index,
         filterIndex,
         masterGainIndex
     };
@@ -118,7 +118,7 @@ public:
 
         adsr.setSampleRate (spec.sampleRate);
         ADSR::Parameters params;
-        params.attack = 5.f;
+        params.attack = 1.f;
         adsr.setParameters (params);
 
         lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
@@ -128,16 +128,11 @@ public:
     {
         auto pitchWheelDeltaNote = jmap ((float) pitchWheelPosition, 0.f, 16383.f, -2.f, 2.f);
 
-        //auto osc1Freq = Helpers::getFloatMidiNoteInHertz (midiNote - osc1NoteOffset + pitchWheelDeltaNote);
         auto osc1Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc1NoteOffset + pitchWheelDeltaNote);
-
-
-        //auto osc1Freq = MidiMessage::getMidiNoteInHertz (midiNote - osc1NoteOffset + pitchWheelDeltaNote);
-
         processorChain.get<osc1Index>().setFrequency ((float) osc1Freq, true);
 
-        //auto osc2Freq = (float) MidiMessage::getMidiNoteInHertz (midiNote - (int) osc2NoteOffset) + getFreqDeltaFromPitchWheel();
-        //processorChain.get<osc2Index>().setFrequency (osc2Freq);
+        auto osc2Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc2NoteOffset + pitchWheelDeltaNote);
+        processorChain.get<osc2Index>().setFrequency ((float) osc2Freq, true);
     }
 
     /**
@@ -152,10 +147,10 @@ public:
                 osc1NoteOffset = middleCMidiNote - (float) newMidiNote;
                 updateOscFrequencies();
                 break;
-            //case sBMP4Voice::osc2Index:
-            //    osc2NoteOffset = middleCMidiNote - newMidiNote;
-            //    updateOscFrequencies();
-            //    break;
+            case sBMP4Voice::osc2Index:
+                osc2NoteOffset = middleCMidiNote - (float) newMidiNote;
+                updateOscFrequencies();
+                break;
             default:
                 jassertfalse;
                 break;
@@ -166,8 +161,6 @@ public:
     {
         midiNote = midiNoteNumber;
         pitchWheelPosition = currentPitchWheelPosition;
-        //osc1FreqHz = getFreqDeltaFromPitchWheel (currentPitchWheelPosition);
-
 
         //@TODO these need to be modified when we change the sliders
         //adsr.setParameters (sound->params);
@@ -176,7 +169,7 @@ public:
         updateOscFrequencies();
 
         processorChain.get<osc1Index>().setLevel (velocity);
-        //processorChain.get<osc2Index>().setLevel (velocity);
+        processorChain.get<osc2Index>().setLevel (velocity);
     }
 
 
@@ -184,11 +177,6 @@ public:
     {
         pitchWheelPosition = newPitchWheelValue;
         updateOscFrequencies();
-
-        //auto newFreq = osc1FreqHz = getFreqDeltaFromPitchWheel (newPitchWheelValue);
-
-        //processorChain.get<osc1Index>().setFrequency (newFreq);
-        //processorChain.get<osc2Index>().setFrequency (newFreq * 1.01f);
     }
 
     void stopNote (float /*velocity*/, bool allowTailOff) override
@@ -248,7 +236,7 @@ public:
 private:
     HeapBlock<char> heapBlock;
     dsp::AudioBlock<float> tempBlock;
-    dsp::ProcessorChain<GainedOscillator<float>, /*GainedOscillator<float>, */dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
+    dsp::ProcessorChain<GainedOscillator<float>, GainedOscillator<float>, dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
 
     juce::ADSR adsr;
 
