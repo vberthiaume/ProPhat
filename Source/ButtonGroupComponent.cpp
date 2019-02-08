@@ -122,8 +122,6 @@ void ButtonOscGroupComponent::selectNextToggleButton()
 }
 #endif
 
-
-
 void ButtonLfoGroupComponent::selectNextToggleButton()
 {
     auto selected = LfoShape::none;

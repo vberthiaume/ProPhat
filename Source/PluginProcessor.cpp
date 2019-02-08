@@ -112,10 +112,7 @@ void sBMP4AudioProcessor::parameterChanged (const String& parameterID, float new
     else if (parameterID == sBMP4AudioProcessorIDs::lfoShapeID)
     {
         auto lfoShape = LfoShape ((int) newValue + 1);
-        int i = 0;
     }
-
-
 }
 
 //============================================================================= =

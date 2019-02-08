@@ -28,29 +28,76 @@ public:
 
     GainedOscillator()
     {
-        auto& osc = processorChain.template get<oscIndex>();
-
-        //@TODO call this with different waveforms when the osc shape is changed?
-        //also, if I wanted, I can NOT use wavetables by not supplying a second parameter here
-#if 1
-        osc.initialise ([](Type x)
-        {
-            //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-            return jmap (x, Type (-MathConstants<double>::pi), Type (MathConstants<double>::pi), Type (-1), Type (1));
-        }, 2);
-#else
-        osc.initialise ([](Type x)
-        {
-            //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-            return sin (x);
-        }, 128);
-#endif
+        setOscShape (OscShape::saw);
     }
 
     void setFrequency (Type newValue, bool force = false)
     {
         auto& osc = processorChain.template get<oscIndex>();
         osc.setFrequency (newValue, force);
+    }
+
+    void setOscShape (OscShape newShape)
+    {
+        auto& osc = processorChain.template get<oscIndex>();
+
+        switch (newShape)
+        {
+            case OscShape::saw:
+                osc.initialise ([](Type x)
+                {
+                    //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
+                    return jmap (x, Type (-MathConstants<double>::pi), Type (MathConstants<double>::pi), Type (-1), Type (1));
+                }, 2);
+                break;
+
+            case OscShape::sawTri:
+
+                osc.initialise ([](Type x)
+                {
+                    Type y = jmap (x, Type (-MathConstants<double>::pi), Type (MathConstants<double>::pi), Type (-1), Type (1)) / 2;
+
+                    if (x < 0)
+                        return y += jmap (x, Type (-MathConstants<double>::pi), Type (0), Type (-1), Type (1)) / 2;
+                    else
+                        return y += jmap (x, Type (0), Type (MathConstants<double>::pi), Type (1), Type (-1)) / 2;
+
+                }, 128);
+
+                break;
+
+            case OscShape::triangle:
+                osc.initialise ([](Type x)
+                {
+                    //sine wave
+                    //return sin (x);
+
+                    if (x < 0)
+                        return jmap (x, Type (-MathConstants<double>::pi), Type (0), Type (-1), Type (1));
+                    else
+                        return jmap (x, Type (0), Type (MathConstants<double>::pi), Type (1), Type (-1));
+
+                }, 128);
+                break;
+
+            case OscShape::pulse:
+                osc.initialise ([](Type x)
+                {
+                    if (x < 0)
+                        return Type (-1);
+                    else
+                        return Type (1);
+                }, 128);
+
+                break;
+
+            case OscShape::none:
+            case OscShape::total:
+                jassertfalse;
+                break;
+            default:
+                break;
+        }
     }
 
     void setLevel (Type newValue)
@@ -157,31 +204,12 @@ public:
         }
     }
 
-    void setOscShape (processorId /*oscNum*/, OscShape newShape)
+    void setOscShape (processorId oscNum, OscShape newShape)
     {
-        switch (newShape)
-        {
-            case OscShape::saw:
-                DBG ("saw");
-                break;
-            case OscShape::sawTri:
-                DBG ("sawTri");
-                break;
-            case OscShape::triangle:
-                DBG ("triangle");
-                break;
-            case OscShape::pulse:
-                DBG ("pulse");
-                break;
-            case OscShape::total:
-                DBG ("total");
-                break;
-            case OscShape::none:
-                DBG ("none");
-                break;
-            default:
-                break;
-        }
+        if (oscNum == osc1Index)
+            processorChain.get<osc1Index>().setOscShape (newShape);
+        else if (oscNum == osc2Index)
+            processorChain.get<osc2Index>().setOscShape (newShape);
     }
 
     virtual void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
@@ -195,7 +223,7 @@ public:
 
         updateOscFrequencies();
 
-        processorChain.get<osc1Index>().setLevel (velocity);
+        processorChain.get<osc1Index>().setLevel (0.f/*velocity*/);
         processorChain.get<osc2Index>().setLevel (velocity);
     }
 
