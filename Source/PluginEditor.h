@@ -15,8 +15,6 @@ public:
         tolerance (snapTolerance)
     {
         setLookAndFeel (&lf);
-        /*auto params = getRotaryParameters();
-        const auto toAngle = params.startAngleRadians + getValue() * (params.endAngleRadians- params.startAngleRadians);*/
     }
 
     ~SnappingSlider()
@@ -83,22 +81,15 @@ private:
     Image backgroundTexture;
 
     //OSCILLATORS
-    ToggleButton oscWavetableButton;
-    AudioProcessorValueTreeState::ButtonAttachment oscWaveTableButtonAttachment;
-    ButtonGroupComponent oscShapeButtons;
-
-    sBMP4Label oscFreqSliderLabel;
-    SnappingSlider oscFreqSlider;
-    AudioProcessorValueTreeState::SliderAttachment oscFreqAttachment;
+    ButtonGroupComponent osc1ShapeButtons, osc2ShapeButtons;
+    sBMP4Label osc1FreqSliderLabel, osc2FreqSliderLabel;
+    SnappingSlider osc1FreqSlider, osc2FreqSlider;
+    AudioProcessorValueTreeState::SliderAttachment osc1FreqAttachment, osc2FreqAttachment;
 
     //FILTER
-    sBMP4Label filterCutoffLabel;
-    SnappingSlider filterCutoffSlider;
-    AudioProcessorValueTreeState::SliderAttachment filterCutoffAttachment;
-
-    sBMP4Label filterResonanceLabel;
-    SnappingSlider filterResonanceSlider;
-    AudioProcessorValueTreeState::SliderAttachment filterResonanceAttachment;
+    sBMP4Label filterCutoffLabel, filterResonanceLabel;
+    SnappingSlider filterCutoffSlider, filterResonanceSlider;
+    AudioProcessorValueTreeState::SliderAttachment filterCutoffAttachment, filterResonanceAttachment;
 
     //AMPLIFIER
     sBMP4Label ampAttackLabel;
@@ -123,6 +114,10 @@ private:
     sBMP4Label lfoFreqLabel;
     SnappingSlider lfoFreqSlider;
     AudioProcessorValueTreeState::SliderAttachment lfoFreqAttachment;
+
+    sBMP4Label lfoAmountLabel;
+    SnappingSlider lfoAmountSlider;
+    AudioProcessorValueTreeState::SliderAttachment lfoAmountAttachment;
 
     //EFFECT
     sBMP4Label effectParam1Label;

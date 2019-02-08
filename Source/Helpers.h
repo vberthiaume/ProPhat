@@ -32,9 +32,10 @@ enum Constants
 
 namespace sBMP4AudioProcessorIDs
 {
-    const String oscWavetableID = "oscWavetableID";
-    const String oscShapeID = "oscShapeID";
-    const String osc1FreqID = "osc1FreqID";
+    const String osc1ShapeID    = "osc1ShapeID";
+    const String osc1FreqID     = "osc1FreqID";
+    const String osc2ShapeID    = "osc2ShapeID";
+    const String osc2FreqID     = "osc21FreqID";
 
     const String filterCutoffID = "filterCutoffID";
     const String filterResonanceID = "filterResonanceID";
@@ -46,6 +47,7 @@ namespace sBMP4AudioProcessorIDs
 
     const String lfoShapeID = "lfoShapeID";
     const String lfoFreqID = "lfoFreqID";
+    const String lfoAmountID = "lfoAmountID";
 
     const String effectID = "effectID";
     const String effectParam1ID = "effectParam1ID";
@@ -55,9 +57,10 @@ namespace sBMP4AudioProcessorIDs
 namespace sBMP4AudioProcessorNames
 {
     const String oscGroupDesc = "OSCILLATORS";
-    const String oscWavetableButtonDesc = "WAVETABLE";
-    const String oscShapeDesc = "SHAPE";
-    const String oscFreqSliderDesc = "OSC 1 FREQ";
+    const String osc1ShapeDesc = "SHAPE";
+    const String osc2ShapeDesc = "SHAPE";
+    const String osc1FreqSliderDesc = "OSC 1 FREQ";
+    const String osc2FreqSliderDesc = "OSC 2 FREQ";
 
     const String filterGroupDesc = "LOW-PASS FILTER";
     const String filterCutoffSliderDesc = "CUTOFF";
@@ -71,7 +74,8 @@ namespace sBMP4AudioProcessorNames
 
     const String lfoGroupDesc = "LFO";
     const String lfoShapeDesc = "SHAPE";
-    const String lfoSliderDesc = "FREQUENCY";
+    const String lfoFreqSliderDesc = "FREQUENCY";
+    const String lfoAmountSliderDesc = "AMOUNT";
 
     const String effectGroupDesc = "EFFECT";
     const String effectParam1Desc = "PARAM 1";
@@ -168,5 +172,5 @@ auto addChoicesToComboBox = [this](Array<ComboBox*> combos, Array<StringRef> com
     }
 };
 
-addChoicesToComboBox ({ /*&oscCombo,*/ &lfoCombo}, { /*oscShapeID, */lfoShapeID});
+addChoicesToComboBox ({ /*&oscCombo,*/ &lfoCombo}, { /*osc1ShapeID, */lfoShapeID});
 #endif

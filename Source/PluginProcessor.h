@@ -48,12 +48,7 @@ public:
 #else
     void parameterChanged (const String& parameterID, float newValue) override
     {
-        if (parameterID == sBMP4AudioProcessorIDs::oscWavetableID)
-        {
-            if (usingWavetables != (bool) newValue)
-                needToSwitchWavetableStatus = true;
-        }
-        else if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID)
+        if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID)
         {
             synth.setOscTuning (sBMP4Voice::processorId::osc1Index, (int) newValue);
         }
@@ -113,14 +108,10 @@ public:
 
 private:
 
-    void setUseWavetables (bool useThem);
-
     //==============================================================================
     double lastSampleRate = {};
 
     sBMP4Synthesiser synth;
-
-    bool usingWavetables = false, needToSwitchWavetableStatus = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessor)
 };

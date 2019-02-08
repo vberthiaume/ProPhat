@@ -134,7 +134,7 @@ public:
 
         //auto osc1Freq = MidiMessage::getMidiNoteInHertz (midiNote - osc1NoteOffset + pitchWheelDeltaNote);
 
-        processorChain.get<osc1Index>().setFrequency (osc1Freq, true);
+        processorChain.get<osc1Index>().setFrequency ((float) osc1Freq, true);
 
         //auto osc2Freq = (float) MidiMessage::getMidiNoteInHertz (midiNote - (int) osc2NoteOffset) + getFreqDeltaFromPitchWheel();
         //processorChain.get<osc2Index>().setFrequency (osc2Freq);
@@ -232,15 +232,16 @@ public:
             if (lfoUpdateCounter == 0)
             {
                 lfoUpdateCounter = lfoUpdateRate;
+                /*
                 auto lfoOut = lfo.processSample (0.0f);
                 auto curoffFreqHz = jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);
-                //processorChain.get<filterIndex>().setCutoffFrequencyHz (curoffFreqHz);
+                processorChain.get<filterIndex>().setCutoffFrequencyHz (curoffFreqHz);
+                */
             }
         }
 
         dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (tempBlock);
 
-        //@TODO this is probably not right...
         adsr.applyEnvelopeToBuffer (outputBuffer, startSample, numSamples);
     }
 
@@ -258,7 +259,6 @@ private:
     int midiNote = 0;
     int pitchWheelPosition = 0;
 
-    //float osc1FreqHz = 0.f;
     float osc1NoteOffset = 0.f;
     float osc2NoteOffset = 0.f;
 };

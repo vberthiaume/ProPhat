@@ -12,9 +12,8 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
                                      .withOutput ("Output", AudioChannelSet::stereo(), true)),
     state (*this, nullptr, "state",
     {
-        std::make_unique<AudioParameterBool> (oscWavetableID, oscWavetableButtonDesc, false, oscWavetableButtonDesc),
-        std::make_unique<AudioParameterChoice> (oscShapeID,  oscShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
-        std::make_unique<AudioParameterInt> (osc1FreqID, oscFreqSliderDesc, midiNoteRange.getRange().getStart(),
+        std::make_unique<AudioParameterChoice> (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
+        std::make_unique<AudioParameterInt> (osc1FreqID, osc1FreqSliderDesc, midiNoteRange.getRange().getStart(),
                                                                             midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
 
         std::make_unique<AudioParameterFloat> (filterCutoffID, filterCutoffSliderDesc, hzRange, 1000.0f),
@@ -24,7 +23,7 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
         std::make_unique<AudioParameterFloat> (ampSustainID, ampSustainSliderDesc, sliderRange, 0.0f),
         std::make_unique<AudioParameterFloat> (ampReleaseID, ampReleaseSliderDesc, sliderRange, 0.0f),
         
-        std::make_unique<AudioParameterFloat> (lfoFreqID, lfoSliderDesc, lfoRange, 0.0f),
+        std::make_unique<AudioParameterFloat> (lfoFreqID, lfoFreqSliderDesc, lfoRange, 0.0f),
 
         std::make_unique<AudioParameterFloat> (effectParam1ID, effectParam1Desc, sliderRange, 0.0f)
     })
@@ -36,41 +35,22 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 #if STANDARD_LISTENER
     state.state.addListener (this);
 #else
-    state.addParameterListener (oscWavetableID, this);
     state.addParameterListener (osc1FreqID, this);
 #endif
 
-
-    //for (int i = 0; i < 127; ++i)
-    //    DBG (String (MidiMessage::getMidiNoteInHertz (i)) + "\t" + String (Helpers::getFloatMidiNoteInHertz (i)));
-
-    //for (float i = 0.f; i < 127; i += .3f)
-    //    DBG (String (MidiMessage::getMidiNoteInHertz ((int) i)) + "\t" + String (Helpers::getFloatMidiNoteInHertz (i)));
-
-    /*for (double i = .0; i < 127; i += .3)
-        DBG (String (i) + "\t" + String (MidiMessage::getMidiNoteInHertz ((int) i)) + "\t" + String (Helpers::getFloatMidiNoteInHertz (i)));
-
-    auto i = 126.0;
-    DBG (String (i) + "\t" + String (MidiMessage::getMidiNoteInHertz ((int) i)) + "\t" + String (Helpers::getFloatMidiNoteInHertz (i)));
-
-    i = 125.99999999;
-    DBG (String (i) + "\t" + String (MidiMessage::getMidiNoteInHertz ((int) i)) + "\t" + String (Helpers::getFloatMidiNoteInHertz (i)));*/
+    //@TODO Helpers::getFloatMidiNoteInHertz does NOT approximate well MidiMessage::getMidiNoteInHertz for higher numbers
+    //for (double i = .0; i < 127; i += .3)
+    //    DBG (String (i) + "\t" + String (MidiMessage::getMidiNoteInHertz ((int) i)) + "\t" + String (Helpers::getFloatMidiNoteInHertz (i)));
 }
 
 sBMP4AudioProcessor::~sBMP4AudioProcessor()
 {
 }
 
-void sBMP4AudioProcessor::setUseWavetables (bool /*useThem*/)
-{
-
-}
-
 //==============================================================================
 int sBMP4AudioProcessor::getNumPrograms()
 {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    return 1;
 }
 
 int sBMP4AudioProcessor::getCurrentProgram()
@@ -101,8 +81,6 @@ void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     lastSampleRate = sampleRate;
 
     synth.prepare ({sampleRate, (uint32) samplesPerBlock, 2});
-
-    setUseWavetables (usingWavetables);
 }
 
 void sBMP4AudioProcessor::releaseResources()
@@ -142,12 +120,6 @@ void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiM
 #endif
     //we're not dealing with any inputs here, so clear the buffer
     buffer.clear();
-
-    if (needToSwitchWavetableStatus)
-    {
-        setUseWavetables (! usingWavetables);
-        needToSwitchWavetableStatus = false;
-    }
 
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 

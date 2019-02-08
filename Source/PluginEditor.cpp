@@ -30,9 +30,10 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 
     //OSCILLATORS
     oscGroup ({}, oscGroupDesc),
-    oscWaveTableButtonAttachment (p.state, oscWavetableID, oscWavetableButton),
-    oscShapeButtons (oscShapeDesc, {oscShape0, oscShape1, oscShape2, oscShape3}),
-    oscFreqAttachment (p.state, osc1FreqID, oscFreqSlider),
+    osc1FreqAttachment (p.state, osc1FreqID, osc1FreqSlider),
+    osc2FreqAttachment (p.state, osc2FreqID, osc2FreqSlider),
+    osc1ShapeButtons (osc1ShapeDesc, {oscShape0, oscShape1, oscShape2, oscShape3}),
+    osc2ShapeButtons (osc2ShapeDesc, {oscShape0, oscShape1, oscShape2, oscShape3}),
 
     //FILTERS
     filterGroup ({}, filterGroupDesc),
@@ -50,6 +51,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     lfoGroup ({}, lfoGroupDesc),
     lfoShapeButtons (lfoShapeDesc, {lfoShape0, lfoShape1, lfoShape2, lfoShape3, lfoShape4}),
     lfoFreqAttachment (p.state, lfoFreqID, lfoFreqSlider),
+    lfoAmountAttachment (p.state, lfoAmountID, lfoAmountSlider),
 
     //EFFECT
     effectGroup ({}, effectGroupDesc),
@@ -70,14 +72,6 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     setResizable (true, true);
 
     backgroundTexture = Helpers::getImage (BinaryData::blackMetal_jpg, BinaryData::blackMetal_jpgSize);
-
-    //set up buttons
-    auto addButton = [this](Button& button, StringRef text)
-    {
-        button.setButtonText (text);
-        addAndMakeVisible (button);
-    };
-    addButton (oscWavetableButton, oscWavetableButtonDesc);
 
     //set up everything else
     auto addGroup = [this](GroupComponent& group, Array<Label*> labels, Array<StringRef> labelTexts, Array<Component*> components)
@@ -102,7 +96,9 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
         }
     };
 
-    addGroup (oscGroup, {nullptr, &oscFreqSliderLabel}, {String(), oscFreqSliderDesc}, {&oscShapeButtons, &oscFreqSlider});
+    addGroup (oscGroup, {&osc1FreqSliderLabel, nullptr, &osc2FreqSliderLabel, nullptr},
+                        {osc1FreqSliderDesc, String(), osc2FreqSliderDesc, String()},
+                        {&osc1FreqSlider, &osc1ShapeButtons, &osc2FreqSlider, &osc2ShapeButtons});
 
     addGroup (filterGroup, {&filterCutoffLabel, &filterResonanceLabel},
                            {filterCutoffSliderDesc, filterResonanceSliderDesc},
@@ -112,7 +108,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
                         {ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc},
                         {&ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider});
 
-    addGroup (lfoGroup, {nullptr, &lfoFreqLabel}, {String(), lfoSliderDesc}, {&lfoShapeButtons, &lfoFreqSlider});
+    addGroup (lfoGroup, {nullptr, &lfoFreqLabel}, {String(), lfoFreqSliderDesc}, {&lfoShapeButtons, &lfoFreqSlider});
 
     addGroup (effectGroup, {&effectParam1Label, &effectParam2Label}, {effectParam1Desc, effectParam2Desc}, {&effectParam1Slider, &effectParam2Slider});
 }
@@ -160,7 +156,7 @@ void sBMP4AudioProcessorEditor::resized()
         }
     };
 
-    setupGroup (oscGroup, topSection.removeFromLeft (topSection.getWidth() / 2), {&oscFreqSlider, &oscShapeButtons, &oscWavetableButton}, 2, 2);
+    setupGroup (oscGroup, topSection.removeFromLeft (topSection.getWidth() / 2), {&osc1FreqSlider, &osc1ShapeButtons, &osc2FreqSlider, &osc2ShapeButtons}, 2, 2);
     setupGroup (filterGroup, topSection, {&filterCutoffSlider, &filterResonanceSlider}, 2, 2);
     setupGroup (ampGroup, bottomSection.removeFromLeft (bottomSection.getWidth() / 2), {&ampAttackSlider,&ampDecaySlider, &ampSustainSlider, &ampReleaseSlider}, 2, 2);
     setupGroup (lfoGroup, bottomSection, {&lfoShapeButtons, &lfoFreqSlider}, 2, 2);
