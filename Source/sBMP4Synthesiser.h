@@ -43,6 +43,12 @@ public:
                 dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (oscNum, newMidiNote);
     }
 
+    void setOscShape (sBMP4Voice::processorId oscNum, oscShape newShape)
+    {
+        for (auto voice : voices)
+            dynamic_cast<sBMP4Voice*> (voice)->setOscShape (oscNum, newShape);
+    }
+
 private:
 #if 1
     void renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples) override

@@ -12,11 +12,13 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
                                      .withOutput ("Output", AudioChannelSet::stereo(), true)),
     state (*this, nullptr, "state",
     {
-        std::make_unique<AudioParameterChoice> (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
         std::make_unique<AudioParameterInt>    (osc1FreqID, osc1FreqSliderDesc, midiNoteRange.getRange().getStart(),
                                                                                 midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
         std::make_unique<AudioParameterInt>    (osc2FreqID, osc2FreqSliderDesc, midiNoteRange.getRange().getStart(),
                                                                                 midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
+
+        std::make_unique<AudioParameterChoice> (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
+        std::make_unique<AudioParameterChoice> (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
 
         std::make_unique<AudioParameterFloat> (filterCutoffID, filterCutoffSliderDesc, hzRange, 1000.0f),
         
@@ -39,6 +41,9 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 #else
     state.addParameterListener (osc1FreqID, this);
     state.addParameterListener (osc2FreqID, this);
+
+    state.addParameterListener (osc1ShapeID, this);
+    state.addParameterListener (osc2ShapeID, this);
 #endif
 
     //@TODO Helpers::getFloatMidiNoteInHertz does NOT approximate well MidiMessage::getMidiNoteInHertz for higher numbers
@@ -81,9 +86,21 @@ bool sBMP4AudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 void sBMP4AudioProcessor::parameterChanged (const String& parameterID, float newValue)
 {
     if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID)
+    {
         synth.setOscTuning (sBMP4Voice::processorId::osc1Index, (int) newValue);
+    }
     else if (parameterID == sBMP4AudioProcessorIDs::osc2FreqID)
+    {
         synth.setOscTuning (sBMP4Voice::processorId::osc2Index, (int) newValue);
+    }
+    else if (parameterID == sBMP4AudioProcessorIDs::osc1ShapeID)
+    {
+        synth.setOscShape (sBMP4Voice::processorId::osc2Index, oscShape ((int) newValue));
+    }
+    else if (parameterID == sBMP4AudioProcessorIDs::osc2ShapeID)
+    {
+        synth.setOscShape (sBMP4Voice::processorId::osc2Index, oscShape ((int) newValue));
+    }
 }
 
 //============================================================================= =

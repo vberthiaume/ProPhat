@@ -81,10 +81,12 @@ private:
     Image backgroundTexture;
 
     //OSCILLATORS
-    ButtonGroupComponent osc1ShapeButtons, osc2ShapeButtons;
     sBMP4Label osc1FreqSliderLabel, osc2FreqSliderLabel;
     SnappingSlider osc1FreqSlider, osc2FreqSlider;
     AudioProcessorValueTreeState::SliderAttachment osc1FreqAttachment, osc2FreqAttachment;
+
+    ButtonGroupComponent osc1ShapeButtons, osc2ShapeButtons;
+    AudioProcessorValueTreeState::ComboBoxAttachment osc1ShapeAttachment, osc2ShapeAttachment;
 
     //FILTER
     sBMP4Label filterCutoffLabel, filterResonanceLabel;

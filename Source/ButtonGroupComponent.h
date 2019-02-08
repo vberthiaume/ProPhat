@@ -30,7 +30,7 @@ public:
     }
 };
 
-class ButtonGroupComponent : public Component, public Button::Listener
+class ButtonGroupComponent : public ComboBox, public Button::Listener
 {
 public:
 
@@ -38,10 +38,7 @@ public:
 
     void buttonClicked (Button* button) override;
 
-    //void paint (Graphics& g) override
-    //{
-    //    g.fillAll (Colours::red);
-    //}
+    void paint (Graphics& /*g*/) override {}
 
     void resized() override;
 
@@ -54,4 +51,7 @@ private:
 
     FilledDrawableButton mainButton;
     OwnedArray<ToggleButton> selectionButtons;
+
+    // Inherited via Button
+    //virtual void paintButton (Graphics &/*g*/, bool /*shouldDrawButtonAsHighlighted*/, bool /*shouldDrawButtonAsDown*/) override {};
 };

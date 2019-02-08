@@ -157,6 +157,25 @@ public:
         }
     }
 
+    void setOscShape (processorId /*oscNum*/, oscShape newShape)
+    {
+        switch (newShape)
+        {
+            case oscShape::saw:
+                break;
+            case oscShape::sawTri:
+                break;
+            case oscShape::triangle:
+                break;
+            case oscShape::pulse:
+                break;
+            case oscShape::total:
+                break;
+            default:
+                break;
+        }
+    }
+
     virtual void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
     {
         midiNote = midiNoteNumber;

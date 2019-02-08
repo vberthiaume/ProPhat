@@ -11,6 +11,7 @@
 #include "ButtonGroupComponent.h"
 
 ButtonGroupComponent::ButtonGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty) :
+    //Button (mainButtonName),
     mainButton (mainButtonName, DrawableButton::ImageAboveTextLabel),
     allowEmptySelection (allowEmpty)
 {
@@ -51,6 +52,8 @@ void ButtonGroupComponent::buttonClicked (Button* button)
 {
     if (button == &mainButton)
         selectNextToggleButton();
+
+    //triggerClick();
 }
 
 void ButtonGroupComponent::selectNextToggleButton()
@@ -68,17 +71,24 @@ void ButtonGroupComponent::selectNextToggleButton()
 
     if (selected == -1)
     {
-        selectionButtons[0]->setToggleState (true, sendNotification);
+        selected = 0;
+        selectionButtons[selected]->setToggleState (true, sendNotification);
     }
     else if (selected == selectionButtons.size() - 1)
     {
+        selected = 0;
+
         if (allowEmptySelection)
             selectionButtons[selected]->setToggleState (false, sendNotification);
         else
-            selectionButtons[0]->setToggleState (true, sendNotification);
+            selectionButtons[selected]->setToggleState (true, sendNotification);
     }
     else
     {
-        selectionButtons[++i]->setToggleState (true, sendNotification);
+        selected = ++i;
+        selectionButtons[selected]->setToggleState (true, sendNotification);
     }
+
+    /*setSelectedItemIndex (selected, false);*/
+    setSelectedId (selected);
 }
