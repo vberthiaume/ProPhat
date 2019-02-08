@@ -72,7 +72,7 @@ void ButtonGroupComponent::selectNextToggleButton()
     }
     else if (selected == selectionButtons.size() - 1)
     {
-        if (false)
+        if (allowEmptySelection)
             selectionButtons[selected]->setToggleState (false, sendNotification);
         else
             selectionButtons[0]->setToggleState (true, sendNotification);

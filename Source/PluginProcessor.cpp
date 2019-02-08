@@ -51,28 +51,6 @@ sBMP4AudioProcessor::~sBMP4AudioProcessor()
 }
 
 //==============================================================================
-int sBMP4AudioProcessor::getNumPrograms()
-{
-    return 1;
-}
-
-int sBMP4AudioProcessor::getCurrentProgram()
-{
-    return 0;
-}
-
-void sBMP4AudioProcessor::setCurrentProgram (int /*index*/)
-{
-}
-
-const String sBMP4AudioProcessor::getProgramName (int /*index*/)
-{
-    return {};
-}
-
-void sBMP4AudioProcessor::changeProgramName (int /*index*/, const String& /*newName*/)
-{
-}
 
 void sBMP4AudioProcessor::reset()
 {

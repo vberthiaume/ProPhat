@@ -80,11 +80,11 @@ public:
     double getTailLengthSeconds() const override { return 0.0; }
 
     //==============================================================================
-    int getNumPrograms() override;
-    int getCurrentProgram() override;
-    void setCurrentProgram (int index) override;
-    const String getProgramName (int index) override;
-    void changeProgramName (int index, const String& newName) override;
+    int getNumPrograms() override { return 1; }
+    int getCurrentProgram() override { return 0; }
+    void setCurrentProgram (int /*index*/) override { }
+    const String getProgramName (int /*index*/) override { return {}; }
+    void changeProgramName (int /*index*/, const String& /*newName*/) override { }
 
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;

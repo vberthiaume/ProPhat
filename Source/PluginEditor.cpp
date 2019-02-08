@@ -33,7 +33,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     osc1FreqAttachment (p.state, osc1FreqID, osc1FreqSlider),
     osc2FreqAttachment (p.state, osc2FreqID, osc2FreqSlider),
     osc1ShapeButtons (osc1ShapeDesc, {oscShape0, oscShape1, oscShape2, oscShape3}, true),
-    osc2ShapeButtons (osc2ShapeDesc, {oscShape0, oscShape1, oscShape2, oscShape3}),
+    osc2ShapeButtons (osc2ShapeDesc, {oscShape0, oscShape1, oscShape2, oscShape3}, true),
 
     //FILTERS
     filterGroup ({}, filterGroupDesc),
