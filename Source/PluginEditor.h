@@ -92,41 +92,21 @@ private:
     AudioProcessorValueTreeState::SliderAttachment filterCutoffAttachment, filterResonanceAttachment;
 
     //AMPLIFIER
-    sBMP4Label ampAttackLabel;
-    SnappingSlider ampAttackSlider;
-    AudioProcessorValueTreeState::SliderAttachment ampAttackAttachment;
-
-    sBMP4Label ampDecayLabel;
-    SnappingSlider ampDecaySlider;
-    AudioProcessorValueTreeState::SliderAttachment ampDecayAttachment;
-
-    sBMP4Label ampSustainLabel;
-    SnappingSlider ampSustainSlider;
-    AudioProcessorValueTreeState::SliderAttachment ampSustainAttachment;
-
-    sBMP4Label ampReleaseLabel;
-    SnappingSlider ampReleaseSlider;
-    AudioProcessorValueTreeState::SliderAttachment ampReleaseAttachment;
+    sBMP4Label ampAttackLabel, ampDecayLabel, ampSustainLabel, ampReleaseLabel;
+    SnappingSlider ampAttackSlider, ampDecaySlider, ampSustainSlider, ampReleaseSlider;
+    AudioProcessorValueTreeState::SliderAttachment ampAttackAttachment, ampDecayAttachment, ampSustainAttachment, ampReleaseAttachment;
 
     //LFO
     ButtonGroupComponent lfoShapeButtons;
     
-    sBMP4Label lfoFreqLabel;
-    SnappingSlider lfoFreqSlider;
-    AudioProcessorValueTreeState::SliderAttachment lfoFreqAttachment;
-
-    sBMP4Label lfoAmountLabel;
-    SnappingSlider lfoAmountSlider;
-    AudioProcessorValueTreeState::SliderAttachment lfoAmountAttachment;
+    sBMP4Label lfoFreqLabel, lfoAmountLabel;
+    SnappingSlider lfoFreqSlider, lfoAmountSlider;
+    AudioProcessorValueTreeState::SliderAttachment lfoFreqAttachment, lfoAmountAttachment;
 
     //EFFECT
-    sBMP4Label effectParam1Label;
-    SnappingSlider effectParam1Slider;
-    AudioProcessorValueTreeState::SliderAttachment effectParam1Attachment;
-
-    sBMP4Label effectParam2Label;
-    SnappingSlider effectParam2Slider;
-    AudioProcessorValueTreeState::SliderAttachment effectParam2Attachment;
+    sBMP4Label effectParam1Label, effectParam2Label;
+    SnappingSlider effectParam1Slider, effectParam2Slider;
+    AudioProcessorValueTreeState::SliderAttachment effectParam1Attachment, effectParam2Attachment;
 
 #if CPU_USAGE
     Label cpuUsageLabel;

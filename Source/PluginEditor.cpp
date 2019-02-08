@@ -108,7 +108,9 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
                         {ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc},
                         {&ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider});
 
-    addGroup (lfoGroup, {nullptr, &lfoFreqLabel}, {String(), lfoFreqSliderDesc}, {&lfoShapeButtons, &lfoFreqSlider});
+    addGroup (lfoGroup, {nullptr, &lfoFreqLabel, &lfoAmountLabel},
+                        {String(), lfoFreqSliderDesc, lfoAmountSliderDesc},
+                        {&lfoShapeButtons, &lfoFreqSlider, &lfoAmountSlider});
 
     addGroup (effectGroup, {&effectParam1Label, &effectParam2Label}, {effectParam1Desc, effectParam2Desc}, {&effectParam1Slider, &effectParam2Slider});
 }
@@ -151,7 +153,12 @@ void sBMP4AudioProcessorEditor::resized()
                 auto bounds = lineBounds.removeFromLeft (ogWidth / numColumns);
 
                 if (curComponentIndex < components.size())
-                    components[curComponentIndex++]->setBounds (bounds);
+                {
+                    if (components[curComponentIndex] != nullptr)
+                        components[curComponentIndex]->setBounds (bounds);
+
+                    ++curComponentIndex;
+                }
             }
         }
     };
@@ -159,7 +166,7 @@ void sBMP4AudioProcessorEditor::resized()
     setupGroup (oscGroup, topSection.removeFromLeft (topSection.getWidth() / 2), {&osc1FreqSlider, &osc1ShapeButtons, &osc2FreqSlider, &osc2ShapeButtons}, 2, 2);
     setupGroup (filterGroup, topSection, {&filterCutoffSlider, &filterResonanceSlider}, 2, 2);
     setupGroup (ampGroup, bottomSection.removeFromLeft (bottomSection.getWidth() / 2), {&ampAttackSlider,&ampDecaySlider, &ampSustainSlider, &ampReleaseSlider}, 2, 2);
-    setupGroup (lfoGroup, bottomSection, {&lfoShapeButtons, &lfoFreqSlider}, 2, 2);
+    setupGroup (lfoGroup, bottomSection, {&lfoShapeButtons, &lfoFreqSlider, nullptr, &lfoAmountSlider}, 2, 2);
     //setupGroup (effectGroup, topSection, {&effectParam1Slider, &effectParam2Slider}, 1, 2);
 
 #if CPU_USAGE
