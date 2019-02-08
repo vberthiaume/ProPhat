@@ -157,19 +157,27 @@ public:
         }
     }
 
-    void setOscShape (processorId /*oscNum*/, oscShape newShape)
+    void setOscShape (processorId /*oscNum*/, OscShape newShape)
     {
         switch (newShape)
         {
-            case oscShape::saw:
+            case OscShape::saw:
+                DBG ("saw");
                 break;
-            case oscShape::sawTri:
+            case OscShape::sawTri:
+                DBG ("sawTri");
                 break;
-            case oscShape::triangle:
+            case OscShape::triangle:
+                DBG ("triangle");
                 break;
-            case oscShape::pulse:
+            case OscShape::pulse:
+                DBG ("pulse");
                 break;
-            case oscShape::total:
+            case OscShape::total:
+                DBG ("total");
+                break;
+            case OscShape::none:
+                DBG ("none");
                 break;
             default:
                 break;

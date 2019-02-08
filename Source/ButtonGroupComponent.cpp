@@ -11,7 +11,6 @@
 #include "ButtonGroupComponent.h"
 
 ButtonGroupComponent::ButtonGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty) :
-    //Button (mainButtonName),
     mainButton (mainButtonName, DrawableButton::ImageAboveTextLabel),
     allowEmptySelection (allowEmpty)
 {
@@ -31,8 +30,6 @@ ButtonGroupComponent::ButtonGroupComponent (StringRef mainButtonName, Array<Stri
         selectionButtons.add (button);
         addAndMakeVisible (button);
     }
-
-    selectNextToggleButton();
 }
 
 void ButtonGroupComponent::resized()
@@ -52,43 +49,98 @@ void ButtonGroupComponent::buttonClicked (Button* button)
 {
     if (button == &mainButton)
         selectNextToggleButton();
-
-    //triggerClick();
 }
 
-void ButtonGroupComponent::selectNextToggleButton()
+//@TODO at the end of this cycle, we should get to a 0 option which deactivates the oscillator
+#if 0
+void ButtonOscGroupComponent::selectNextToggleButton()
 {
-    auto selected = -1;
-    auto i = 0;
-    for (; i < selectionButtons.size(); ++i)
+    auto prevSelected = OscShape::none;
+    for (auto i = 0; i < selectionButtons.size(); ++i)
     {
         if (selectionButtons[i]->getToggleState())
         {
-            selected = i;
+            prevSelected = OscShape (i + 1);
             break;
         }
     }
 
-    if (selected == -1)
-    {
-        selected = 0;
-        selectionButtons[selected]->setToggleState (true, sendNotification);
-    }
-    else if (selected == selectionButtons.size() - 1)
-    {
-        selected = 0;
+    /** 
+        selectionButtons range is 0 (saw) to 3 (pulse)
+        prevSelected range = 0 (none), 1 (saw) to 4 (pulse)
+        curSelected range = 0 (none), 1 (saw) to 4 (pulse)
+    */
 
+    auto curSelected = OscShape::saw;
+    if (prevSelected == OscShape::none)
+    {
+        //nothing was selected, select saw
+        selectionButtons[0]->setToggleState (true, sendNotification);
+    }
+    else if (prevSelected == OscShape ((int) OscShape::total - 1))
+    {
+        //last shape was selected, select nothing if allowed or saw otherwise
         if (allowEmptySelection)
-            selectionButtons[selected]->setToggleState (false, sendNotification);
+        {
+            selectionButtons[(int) prevSelected - 1]->setToggleState (false, sendNotification);
+            curSelected = OscShape::none;
+        }
         else
-            selectionButtons[selected]->setToggleState (true, sendNotification);
+        {
+            selectionButtons[0]->setToggleState (true, sendNotification);
+        }        
     }
     else
     {
-        selected = ++i;
-        selectionButtons[selected]->setToggleState (true, sendNotification);
+        //selection is a shape that's not the first nor the last, just increase
+        curSelected = OscShape ((int) prevSelected + 1);
+        selectionButtons[(int) curSelected - 1]->setToggleState (true, sendNotification);
     }
 
-    /*setSelectedItemIndex (selected, false);*/
-    setSelectedId (selected);
+    setSelectedId ((int) curSelected);
+}
+#else
+void ButtonOscGroupComponent::selectNextToggleButton()
+{
+    auto selected = OscShape::none;
+    for (auto i = 0; i < selectionButtons.size(); ++i)
+    {
+        if (selectionButtons[i]->getToggleState())
+        {
+            selected = OscShape (i + 1);
+            break;
+        }
+    }
+
+    if (selected == OscShape::none || selected == OscShape::pulse)
+        selected = OscShape::saw;
+    else
+        selected = OscShape ((int) selected + 1);
+
+    selectionButtons[(int) selected - 1]->setToggleState (true, sendNotification);
+    setSelectedId ((int) selected);
+}
+#endif
+
+
+
+void ButtonLfoGroupComponent::selectNextToggleButton()
+{
+    auto selected = LfoShape::none;
+    for (auto i = 0; i < selectionButtons.size(); ++i)
+    {
+        if (selectionButtons[i]->getToggleState())
+        {
+            selected = LfoShape (i + 1);
+            break;
+        }
+    }
+    
+    if (selected == LfoShape::none || selected == LfoShape::random)
+        selected = LfoShape::triangle;
+    else
+        selected = LfoShape ((int) selected + 1);
+
+    selectionButtons[(int) selected - 1]->setToggleState (true, sendNotification);
+    setSelectedId ((int) selected);
 }

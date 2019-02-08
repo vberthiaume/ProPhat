@@ -17,8 +17,13 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
         std::make_unique<AudioParameterInt>    (osc2FreqID, osc2FreqSliderDesc, midiNoteRange.getRange().getStart(),
                                                                                 midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
 
+#if 0
+        std::make_unique<AudioParameterChoice> (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, 1),
+        std::make_unique<AudioParameterChoice> (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, 1),
+#else
         std::make_unique<AudioParameterChoice> (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
         std::make_unique<AudioParameterChoice> (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
+#endif
 
         std::make_unique<AudioParameterFloat> (filterCutoffID, filterCutoffSliderDesc, hzRange, 1000.0f),
         
@@ -28,6 +33,7 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
         std::make_unique<AudioParameterFloat> (ampReleaseID, ampReleaseSliderDesc, sliderRange, 0.0f),
         
         std::make_unique<AudioParameterFloat> (lfoFreqID, lfoFreqSliderDesc, lfoRange, 0.0f),
+        std::make_unique<AudioParameterChoice> (lfoShapeID,  lfoShapeDesc,  StringArray {lfoShape0, lfoShape1, lfoShape2, lfoShape3, lfoShape4}, 0),
 
         std::make_unique<AudioParameterFloat> (effectParam1ID, effectParam1Desc, sliderRange, 0.0f)
     })
@@ -44,6 +50,8 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 
     state.addParameterListener (osc1ShapeID, this);
     state.addParameterListener (osc2ShapeID, this);
+
+    state.addParameterListener (lfoShapeID, this);
 #endif
 
     //@TODO Helpers::getFloatMidiNoteInHertz does NOT approximate well MidiMessage::getMidiNoteInHertz for higher numbers
@@ -95,12 +103,19 @@ void sBMP4AudioProcessor::parameterChanged (const String& parameterID, float new
     }
     else if (parameterID == sBMP4AudioProcessorIDs::osc1ShapeID)
     {
-        synth.setOscShape (sBMP4Voice::processorId::osc2Index, oscShape ((int) newValue));
+        synth.setOscShape (sBMP4Voice::processorId::osc2Index, OscShape ((int) newValue + 1));
     }
     else if (parameterID == sBMP4AudioProcessorIDs::osc2ShapeID)
     {
-        synth.setOscShape (sBMP4Voice::processorId::osc2Index, oscShape ((int) newValue));
+        synth.setOscShape (sBMP4Voice::processorId::osc2Index, OscShape ((int) newValue + 1));
     }
+    else if (parameterID == sBMP4AudioProcessorIDs::lfoShapeID)
+    {
+        auto lfoShape = LfoShape ((int) newValue + 1);
+        int i = 0;
+    }
+
+
 }
 
 //============================================================================= =

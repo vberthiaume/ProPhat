@@ -43,7 +43,7 @@ public:
                 dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (oscNum, newMidiNote);
     }
 
-    void setOscShape (sBMP4Voice::processorId oscNum, oscShape newShape)
+    void setOscShape (sBMP4Voice::processorId oscNum, OscShape newShape)
     {
         for (auto voice : voices)
             dynamic_cast<sBMP4Voice*> (voice)->setOscShape (oscNum, newShape);

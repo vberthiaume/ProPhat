@@ -42,8 +42,8 @@ public:
 
     void resized() override;
 
-private:
-    void selectNextToggleButton();
+protected:
+    virtual void selectNextToggleButton() = 0;
 
     bool allowEmptySelection = false;
 
@@ -51,7 +51,40 @@ private:
 
     FilledDrawableButton mainButton;
     OwnedArray<ToggleButton> selectionButtons;
+};
 
-    // Inherited via Button
-    //virtual void paintButton (Graphics &/*g*/, bool /*shouldDrawButtonAsHighlighted*/, bool /*shouldDrawButtonAsDown*/) override {};
+class ButtonOscGroupComponent : public ButtonGroupComponent
+{
+public:
+    ButtonOscGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false) :
+        ButtonGroupComponent (mainButtonName, selectionButtonNames, allowEmpty)
+    {
+        addItem (sBMP4AudioProcessorChoices::oscShape0, (int) OscShape::saw);
+        addItem (sBMP4AudioProcessorChoices::oscShape1, (int) OscShape::sawTri);
+        addItem (sBMP4AudioProcessorChoices::oscShape2, (int) OscShape::triangle);
+        addItem (sBMP4AudioProcessorChoices::oscShape3, (int) OscShape::pulse);
+
+        selectNextToggleButton();
+    }
+
+protected:
+    virtual void selectNextToggleButton() override;
+};
+
+class ButtonLfoGroupComponent : public ButtonGroupComponent
+{
+public:
+    ButtonLfoGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false) :
+        ButtonGroupComponent (mainButtonName, selectionButtonNames, allowEmpty)
+    {
+        addItem (sBMP4AudioProcessorChoices::lfoShape0, (int) LfoShape::triangle);
+        addItem (sBMP4AudioProcessorChoices::lfoShape1, (int) LfoShape::saw);
+        addItem (sBMP4AudioProcessorChoices::lfoShape2, (int) LfoShape::revSaw);
+        addItem (sBMP4AudioProcessorChoices::lfoShape3, (int) LfoShape::square);
+        addItem (sBMP4AudioProcessorChoices::lfoShape3, (int) LfoShape::random);
+
+        selectNextToggleButton();
+    }
+protected:
+    virtual void selectNextToggleButton() override;
 };

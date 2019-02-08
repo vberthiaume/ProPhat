@@ -85,7 +85,7 @@ private:
     SnappingSlider osc1FreqSlider, osc2FreqSlider;
     AudioProcessorValueTreeState::SliderAttachment osc1FreqAttachment, osc2FreqAttachment;
 
-    ButtonGroupComponent osc1ShapeButtons, osc2ShapeButtons;
+    ButtonOscGroupComponent osc1ShapeButtons, osc2ShapeButtons;
     AudioProcessorValueTreeState::ComboBoxAttachment osc1ShapeAttachment, osc2ShapeAttachment;
 
     //FILTER
@@ -99,11 +99,12 @@ private:
     AudioProcessorValueTreeState::SliderAttachment ampAttackAttachment, ampDecayAttachment, ampSustainAttachment, ampReleaseAttachment;
 
     //LFO
-    ButtonGroupComponent lfoShapeButtons;
+    ButtonLfoGroupComponent lfoShapeButtons;
     
     sBMP4Label lfoFreqLabel, lfoAmountLabel;
     SnappingSlider lfoFreqSlider, lfoAmountSlider;
     AudioProcessorValueTreeState::SliderAttachment lfoFreqAttachment, lfoAmountAttachment;
+    AudioProcessorValueTreeState::ComboBoxAttachment lfoShapeAttachment;
 
     //EFFECT
     sBMP4Label effectParam1Label, effectParam2Label;

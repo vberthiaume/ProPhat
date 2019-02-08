@@ -82,18 +82,9 @@ namespace sBMP4AudioProcessorNames
     const String effectParam2Desc = "PARAM 2";
 }
 
-enum class lfoShape
+enum class OscShape
 {
-    triangle,
-    saw,
-    revSaw,
-    Square,
-    Random,
-    total
-};
-
-enum class oscShape
-{
+    none = 0,
     saw,
     sawTri,
     triangle,
@@ -101,12 +92,31 @@ enum class oscShape
     total
 };
 
+enum class LfoShape
+{
+    none = 0,
+    triangle,
+    saw,
+    revSaw,
+    square,
+    random,
+    total
+};
+
 namespace sBMP4AudioProcessorChoices
 {
+#if 0
+    const String oscShape0 = "None";
+    const String oscShape1 = "Sawtooth";
+    const String oscShape2 = "Saw + Tri";
+    const String oscShape3 = "Triangle";
+    const String oscShape4 = "Pulse";
+#else
     const String oscShape0 = "Sawtooth";
     const String oscShape1 = "Saw + Tri";
     const String oscShape2 = "Triangle";
     const String oscShape3 = "Pulse";
+#endif
 
     const String lfoShape0 = "Triangle";
     const String lfoShape1 = "Sawtooth";

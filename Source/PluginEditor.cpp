@@ -32,9 +32,13 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     oscGroup ({}, oscGroupDesc),
     osc1FreqAttachment (p.state, osc1FreqID, osc1FreqSlider),
     osc2FreqAttachment (p.state, osc2FreqID, osc2FreqSlider),
-
+#if 0
+    osc1ShapeButtons (osc1ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
+    osc2ShapeButtons (osc2ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
+#else
     osc1ShapeButtons (osc1ShapeDesc, {oscShape0, oscShape1, oscShape2, oscShape3}, true),
     osc2ShapeButtons (osc2ShapeDesc, {oscShape0, oscShape1, oscShape2, oscShape3}, true),
+#endif
     osc1ShapeAttachment (p.state, osc1ShapeID, osc1ShapeButtons),
     osc2ShapeAttachment (p.state, osc2ShapeID, osc2ShapeButtons),
 
@@ -55,6 +59,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     lfoShapeButtons (lfoShapeDesc, {lfoShape0, lfoShape1, lfoShape2, lfoShape3, lfoShape4}),
     lfoFreqAttachment (p.state, lfoFreqID, lfoFreqSlider),
     lfoAmountAttachment (p.state, lfoAmountID, lfoAmountSlider),
+    lfoShapeAttachment (p.state, lfoShapeID, lfoShapeButtons),
 
     //EFFECT
     effectGroup ({}, effectGroupDesc),
