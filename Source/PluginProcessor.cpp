@@ -32,8 +32,9 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
         std::make_unique<AudioParameterFloat> (ampSustainID, ampSustainSliderDesc, sliderRange, 0.0f),
         std::make_unique<AudioParameterFloat> (ampReleaseID, ampReleaseSliderDesc, sliderRange, 0.0f),
         
-        std::make_unique<AudioParameterFloat> (lfoFreqID, lfoFreqSliderDesc, lfoRange, 0.0f),
-        std::make_unique<AudioParameterChoice> (lfoShapeID,  lfoShapeDesc,  StringArray {lfoShape0, lfoShape1, lfoShape2, lfoShape3, lfoShape4}, 0),
+        std::make_unique<AudioParameterFloat> (lfoFreqID,   lfoFreqSliderDesc, lfoRange, 3.f),
+        std::make_unique<AudioParameterChoice> (lfoShapeID, lfoShapeDesc,  StringArray {lfoShape0, lfoShape1, lfoShape2, lfoShape3, lfoShape4}, 0),
+        std::make_unique<AudioParameterFloat> (lfoAmountID, lfoAmountSliderDesc, sliderRange, 1.0f),
 
         std::make_unique<AudioParameterFloat> (effectParam1ID, effectParam1Desc, sliderRange, 0.0f)
     })
@@ -52,6 +53,8 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     state.addParameterListener (osc2ShapeID, this);
 
     state.addParameterListener (lfoShapeID, this);
+    state.addParameterListener (lfoFreqID, this);
+    state.addParameterListener (lfoAmountID, this);
 #endif
 
     //@TODO Helpers::getFloatMidiNoteInHertz does NOT approximate well MidiMessage::getMidiNoteInHertz for higher numbers
@@ -111,7 +114,15 @@ void sBMP4AudioProcessor::parameterChanged (const String& parameterID, float new
     }
     else if (parameterID == sBMP4AudioProcessorIDs::lfoShapeID)
     {
-        synth.setLfoShape(LfoShape ((int) newValue + 1));
+        synth.setLfoShape (LfoShape ((int) newValue + 1));
+    }
+    else if (parameterID == sBMP4AudioProcessorIDs::lfoFreqID)
+    {
+        synth.setLfoFreq (newValue);
+    }
+    else if (parameterID == sBMP4AudioProcessorIDs::lfoAmountID)
+    {
+        synth.setLfoAmount (newValue);
     }
 }
 

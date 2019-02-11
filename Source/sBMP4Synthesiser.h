@@ -55,6 +55,18 @@ public:
             dynamic_cast<sBMP4Voice*> (voice)->setLfoShape (newShape);
     }
 
+    void setLfoFreq (float newFreq)
+    {
+        for (auto voice : voices)
+            dynamic_cast<sBMP4Voice*> (voice)->setLfoFreq (newFreq);
+    }
+
+    void setLfoAmount (float newAmount)
+    {
+        for (auto voice : voices)
+            dynamic_cast<sBMP4Voice*> (voice)->setLfoAmount (newAmount);
+    }
+
 private:
 #if 1
     void renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples) override

@@ -257,7 +257,16 @@ public:
                 jassertfalse;
                 break;
         }
+    }
 
+    void setLfoFreq (float newFreq)
+    {
+        lfo.setFrequency (newFreq);
+    }
+
+    void setLfoAmount (float newAmount)
+    {
+        lfoVelocity = newAmount;
     }
 
     virtual void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
@@ -324,7 +333,8 @@ public:
             {
                 lfoUpdateCounter = lfoUpdateRate;
 
-                auto lfoOut = lfo.processSample (0.0f);
+                auto lfoOut = lfo.processSample (0.0f) * lfoVelocity;
+
                 auto curoffFreqHz = jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);
                 processorChain.get<filterIndex>().setCutoffFrequencyHz (curoffFreqHz);
             }
@@ -345,6 +355,7 @@ private:
     static constexpr size_t lfoUpdateRate = 100;
     size_t lfoUpdateCounter = lfoUpdateRate;
     dsp::Oscillator<float> lfo;
+    float lfoVelocity = 1.0;
 
     int midiNote = 0;
     int pitchWheelPosition = 0;
