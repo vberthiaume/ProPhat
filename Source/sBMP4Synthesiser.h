@@ -49,6 +49,12 @@ public:
             dynamic_cast<sBMP4Voice*> (voice)->setOscShape (oscNum, newShape);
     }
 
+    void setLfoShape (LfoShape newShape)
+    {
+        for (auto voice : voices)
+            dynamic_cast<sBMP4Voice*> (voice)->setLfoShape (newShape);
+    }
+
 private:
 #if 1
     void renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples) override

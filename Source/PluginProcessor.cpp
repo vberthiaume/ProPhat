@@ -111,7 +111,7 @@ void sBMP4AudioProcessor::parameterChanged (const String& parameterID, float new
     }
     else if (parameterID == sBMP4AudioProcessorIDs::lfoShapeID)
     {
-        auto lfoShape = LfoShape ((int) newValue + 1);
+        synth.setLfoShape(LfoShape ((int) newValue + 1));
     }
 }
 

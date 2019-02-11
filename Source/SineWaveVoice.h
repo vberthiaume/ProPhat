@@ -69,9 +69,6 @@ public:
             case OscShape::triangle:
                 osc.initialise ([](Type x)
                 {
-                    //sine wave
-                    //return sin (x);
-
                     if (x < 0)
                         return jmap (x, Type (-MathConstants<double>::pi), Type (0), Type (-1), Type (1));
                     else
@@ -88,7 +85,6 @@ public:
                     else
                         return Type (1);
                 }, 128);
-
                 break;
 
             case OscShape::none:
@@ -154,7 +150,7 @@ public:
         filter.setCutoffFrequencyHz (1000.0f);
         filter.setResonance (0.7f);
 
-        lfo.initialise ([](float x) { return x; /*std::sin(x);*/ }, 128);
+        setLfoShape (LfoShape::triangle);
         lfo.setFrequency (3.0f);
     }
 
@@ -212,6 +208,58 @@ public:
             processorChain.get<osc2Index>().setOscShape (newShape);
     }
 
+    void setLfoShape (LfoShape shape)
+    {
+        switch (shape)
+        {
+            case LfoShape::triangle:
+                lfo.initialise ([](float x) { return std::sin (x); }, 128);
+                break;
+
+            case LfoShape::saw:
+                lfo.initialise ([](float x)
+                {
+                    //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
+                    return (float) jmap (x, -MathConstants<float>::pi, MathConstants<float>::pi, -1.f, 1.f);
+                }, 2);
+                break;
+
+            case LfoShape::revSaw:
+                lfo.initialise ([](float x)
+                {
+                    return (float) jmap (x, -MathConstants<float>::pi, MathConstants<float>::pi, 1.f, -1.f);
+                }, 2);
+                break;
+
+            case LfoShape::square:
+                lfo.initialise ([](float x)
+                {
+                    if (x < 0.f)
+                        return -1.f;
+                    else
+                        return 1.f;
+                }, 128);
+                break;
+
+            case LfoShape::random:
+                lfo.initialise ([](float x)
+                {
+                    if (x < 0.f)
+                        return -1.f;
+                    else
+                        return 1.f;
+                }, 128);
+                break;
+
+            case LfoShape::none:
+            case LfoShape::total:
+            default:
+                jassertfalse;
+                break;
+        }
+
+    }
+
     virtual void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
     {
         midiNote = midiNoteNumber;
@@ -223,7 +271,7 @@ public:
 
         updateOscFrequencies();
 
-        processorChain.get<osc1Index>().setLevel (0.f/*velocity*/);
+        processorChain.get<osc1Index>().setLevel (velocity);
         processorChain.get<osc2Index>().setLevel (velocity);
     }
 
@@ -275,11 +323,10 @@ public:
             if (lfoUpdateCounter == 0)
             {
                 lfoUpdateCounter = lfoUpdateRate;
-                /*
+
                 auto lfoOut = lfo.processSample (0.0f);
                 auto curoffFreqHz = jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);
                 processorChain.get<filterIndex>().setCutoffFrequencyHz (curoffFreqHz);
-                */
             }
         }
 
