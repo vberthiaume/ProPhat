@@ -67,6 +67,32 @@ public:
         selectNextToggleButton();
     }
 
+    void setShape (OscShape shape)
+    {
+        switch (shape)
+        {
+            case OscShape::saw:
+            case OscShape::sawTri:
+            case OscShape::triangle:
+            case OscShape::pulse:
+                selectionButtons[(int) shape - 1]->setToggleState (true, sendNotification);
+                setSelectedId ((int) shape);
+                break;
+
+            case OscShape::none:
+                for (auto button : selectionButtons)
+                    button->setToggleState (false, sendNotification);
+
+                setSelectedId ((int) shape);
+                break;
+            case OscShape::total:
+                jassertfalse;
+                break;
+            default:
+                break;
+        }
+    }
+
 protected:
     virtual void selectNextToggleButton() override;
 };
@@ -85,6 +111,35 @@ public:
 
         selectNextToggleButton();
     }
+
+    void setShape (LfoShape shape)
+    {
+        switch (shape)
+        {
+            case LfoShape::triangle:
+            case LfoShape::saw:
+            case LfoShape::revSaw:
+            case LfoShape::square:
+            case LfoShape::random:
+                selectionButtons[(int) shape - 1]->setToggleState (true, sendNotification);
+                setSelectedId ((int) shape);
+                break;
+
+            case LfoShape::none:
+                for (auto button : selectionButtons)
+                    button->setToggleState (false, sendNotification);
+
+                setSelectedId ((int) shape);
+                break;
+            case LfoShape::total:
+                jassertfalse;
+                break;
+            default:
+                break;
+        }
+
+    }
+
 protected:
     virtual void selectNextToggleButton() override;
 };

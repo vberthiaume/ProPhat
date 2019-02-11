@@ -121,6 +121,11 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
                         {&lfoShapeButtons, &lfoFreqSlider, &lfoAmountSlider});
 
     addGroup (effectGroup, {&effectParam1Label, &effectParam2Label}, {effectParam1Desc, effectParam2Desc}, {&effectParam1Slider, &effectParam2Slider});
+
+
+    osc1ShapeButtons.setShape (OscShape ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID) + 1));
+    osc2ShapeButtons.setShape (OscShape ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID) + 1));
+    lfoShapeButtons.setShape  (LfoShape ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID)  + 1));
 }
 
 //==============================================================================

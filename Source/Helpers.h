@@ -148,9 +148,10 @@ struct Helpers
         return Drawable::createFromImageData (imageData, dataSize);
     }
 
-    static float getRangedParamValue (AudioProcessorValueTreeState& state, StringRef id, NormalisableRange<float> range)
+    static float getRangedParamValue (AudioProcessorValueTreeState& state, StringRef id)
     {
-        return range.convertFrom0to1 (state.getParameter (id)->getValue());
+        auto param = state.getParameter (id);
+        return param->convertFrom0to1 (param->getValue());
     }
 
     static double getDoubleMidiNoteInHertz (const double noteNumber, const double frequencyOfA = 440.0) noexcept
