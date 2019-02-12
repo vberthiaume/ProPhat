@@ -160,7 +160,6 @@ public:
         processorChain.prepare (spec);
 
         adsr.setSampleRate (spec.sampleRate);
-        //params.attack = 1.f;
         adsr.setParameters (params);
 
         lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
@@ -291,7 +290,6 @@ public:
         midiNote = midiNoteNumber;
         pitchWheelPosition = currentPitchWheelPosition;
 
-        //@TODO these need to be modified when we change the sliders
         adsr.setParameters (params);
         adsr.noteOn();
 
@@ -300,7 +298,6 @@ public:
         processorChain.get<osc1Index>().setLevel (velocity);
         processorChain.get<osc2Index>().setLevel (velocity);
     }
-
 
     void pitchWheelMoved (int newPitchWheelValue) override
     {

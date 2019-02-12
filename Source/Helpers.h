@@ -36,7 +36,7 @@ namespace sBMP4AudioProcessorIDs
     const String osc1ShapeID    = "osc1ShapeID";
     const String osc1FreqID     = "osc1FreqID";
     const String osc2ShapeID    = "osc2ShapeID";
-    const String osc2FreqID     = "osc21FreqID";
+    const String osc2FreqID     = "osc2FreqID";
 
     const String filterCutoffID = "filterCutoffID";
     const String filterResonanceID = "filterResonanceID";
