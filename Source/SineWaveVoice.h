@@ -160,11 +160,12 @@ public:
         processorChain.prepare (spec);
 
         adsr.setSampleRate (spec.sampleRate);
-        ADSR::Parameters params;
-        params.attack = 1.f;
+        //params.attack = 1.f;
         adsr.setParameters (params);
 
         lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
+
+        isPrepared = true;
     }
 
     void updateOscFrequencies()
@@ -206,6 +207,22 @@ public:
             processorChain.get<osc1Index>().setOscShape (newShape);
         else if (oscNum == osc2Index)
             processorChain.get<osc2Index>().setOscShape (newShape);
+    }
+
+    void setAmpParam (StringRef parameterID, float newValue)
+    {
+        jassert (isPrepared);
+
+        if (parameterID == sBMP4AudioProcessorIDs::ampAttackID)
+            params.attack = newValue;
+        else if (parameterID == sBMP4AudioProcessorIDs::ampDecayID)
+            params.decay = newValue;
+        else if (parameterID == sBMP4AudioProcessorIDs::ampSustainID)
+            params.sustain = newValue;
+        else if (parameterID == sBMP4AudioProcessorIDs::ampReleaseID)
+            params.release = newValue;
+
+        adsr.setParameters (params);
     }
 
     void setLfoShape (LfoShape shape)
@@ -275,7 +292,7 @@ public:
         pitchWheelPosition = currentPitchWheelPosition;
 
         //@TODO these need to be modified when we change the sliders
-        //adsr.setParameters (sound->params);
+        adsr.setParameters (params);
         adsr.noteOn();
 
         updateOscFrequencies();
@@ -346,11 +363,14 @@ public:
     }
 
 private:
+    bool isPrepared = false;
+
     HeapBlock<char> heapBlock;
     dsp::AudioBlock<float> tempBlock;
     dsp::ProcessorChain<GainedOscillator<float>, GainedOscillator<float>, dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
 
     juce::ADSR adsr;
+    ADSR::Parameters params;
 
     static constexpr size_t lfoUpdateRate = 100;
     size_t lfoUpdateCounter = lfoUpdateRate;

@@ -137,7 +137,6 @@ public:
             default:
                 break;
         }
-
     }
 
 protected:

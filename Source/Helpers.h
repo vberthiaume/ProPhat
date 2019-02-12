@@ -14,6 +14,7 @@
 
 static const NormalisableRange<float> dBRange = {-12.f, 12.f};
 static const NormalisableRange<float> sliderRange = {0.f, 1.f};
+static const NormalisableRange<float> ampRange = {0.f, 25.f};
 static const NormalisableRange<float> hzRange = {0.1f, 18000.f};
 static const NormalisableRange<float> lfoRange = {0.1f, 30.f};
 

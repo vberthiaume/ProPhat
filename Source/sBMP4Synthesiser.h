@@ -13,7 +13,7 @@
 #include "SineWaveVoice.h"
 #include "Helpers.h"
 
-class sBMP4Synthesiser : public Synthesiser
+class sBMP4Synthesiser : public Synthesiser, public AudioProcessorValueTreeState::Listener
 {
 public:
     sBMP4Synthesiser()
@@ -34,6 +34,39 @@ public:
             dynamic_cast<sBMP4Voice*> (v)->prepare (spec);
 
         fxChain.prepare (spec);
+    }
+
+    void parameterChanged (const String& parameterID, float newValue) override
+    {
+        if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID)
+            setOscTuning (sBMP4Voice::processorId::osc1Index, (int) newValue);
+        else if (parameterID == sBMP4AudioProcessorIDs::osc2FreqID)
+            setOscTuning (sBMP4Voice::processorId::osc2Index, (int) newValue);
+
+        else if (parameterID == sBMP4AudioProcessorIDs::osc1ShapeID)
+            setOscShape (sBMP4Voice::processorId::osc2Index, OscShape ((int) newValue + 1));
+        else if (parameterID == sBMP4AudioProcessorIDs::osc2ShapeID)
+            setOscShape (sBMP4Voice::processorId::osc2Index, OscShape ((int) newValue + 1));
+
+        else if (parameterID == sBMP4AudioProcessorIDs::ampAttackID
+                || parameterID == sBMP4AudioProcessorIDs::ampDecayID
+                || parameterID == sBMP4AudioProcessorIDs::ampSustainID
+                || parameterID == sBMP4AudioProcessorIDs::ampReleaseID)
+            setAmpParam (parameterID, newValue);
+
+        else if (parameterID == sBMP4AudioProcessorIDs::lfoShapeID)
+            setLfoShape (LfoShape ((int) newValue + 1));
+        else if (parameterID == sBMP4AudioProcessorIDs::lfoFreqID)
+            setLfoFreq (newValue);
+        else if (parameterID == sBMP4AudioProcessorIDs::lfoAmountID)
+            setLfoAmount (newValue);
+    }
+
+    void setAmpParam (StringRef parameterID, float newValue)
+    {
+        for (auto voice : voices)
+            //if (voice->isKeyDown())
+            dynamic_cast<sBMP4Voice*> (voice)->setAmpParam (parameterID, newValue);
     }
 
     void setOscTuning (sBMP4Voice::processorId oscNum, int newMidiNote)

@@ -9,17 +9,13 @@
     #define CPU_USAGE 0
 #endif
 
-#ifndef STANDARD_LISTENER
-    #define STANDARD_LISTENER 0
-#endif
-
 //==============================================================================
 
 class sBMP4AudioProcessor : public AudioProcessor
 #if STANDARD_LISTENER
     , public ValueTree::Listener
 #else
-    , public AudioProcessorValueTreeState::Listener
+    /*, public AudioProcessorValueTreeState::Listener*/
 #endif
 {
 public:
@@ -46,7 +42,7 @@ public:
     void valueTreeChildOrderChanged (juce::ValueTree &/*parentTreeWhoseChildrenHaveMoved*/, int /*oldIndex*/, int /*newIndex*/) override {}
     void valueTreeParentChanged (juce::ValueTree &/*treeWhoseParentHasChanged*/) override {}
 #else
-    void parameterChanged (const String& parameterID, float newValue) override;
+    //void parameterChanged (const String& parameterID, float newValue) override;
 #endif
 
     void reset() override;

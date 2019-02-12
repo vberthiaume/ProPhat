@@ -12,31 +12,31 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
                                      .withOutput ("Output", AudioChannelSet::stereo(), true)),
     state (*this, nullptr, "state",
     {
-        std::make_unique<AudioParameterInt>    (osc1FreqID, osc1FreqSliderDesc, midiNoteRange.getRange().getStart(),
-                                                                                midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
-        std::make_unique<AudioParameterInt>    (osc2FreqID, osc2FreqSliderDesc, midiNoteRange.getRange().getStart(),
-                                                                                midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
+        std::make_unique<AudioParameterInt>     (osc1FreqID, osc1FreqSliderDesc, midiNoteRange.getRange().getStart(),
+                                                                                 midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
+        std::make_unique<AudioParameterInt>     (osc2FreqID, osc2FreqSliderDesc, midiNoteRange.getRange().getStart(),
+                                                                                 midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
 
 #if 0
-        std::make_unique<AudioParameterChoice> (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, 1),
-        std::make_unique<AudioParameterChoice> (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, 1),
+        std::make_unique<AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, 1),
+        std::make_unique<AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, 1),
 #else
-        std::make_unique<AudioParameterChoice> (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
-        std::make_unique<AudioParameterChoice> (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
+        std::make_unique<AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
+        std::make_unique<AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
 #endif
 
-        std::make_unique<AudioParameterFloat> (filterCutoffID, filterCutoffSliderDesc, hzRange, 1000.0f),
+        std::make_unique<AudioParameterFloat>   (filterCutoffID, filterCutoffSliderDesc, hzRange, 1000.0f),
         
-        std::make_unique<AudioParameterFloat> (ampAttackID, ampAttackSliderDesc, sliderRange, 0.0f),
-        std::make_unique<AudioParameterFloat> (ampDecayID, ampDecaySliderDesc, sliderRange, 0.0f),
-        std::make_unique<AudioParameterFloat> (ampSustainID, ampSustainSliderDesc, sliderRange, 0.0f),
-        std::make_unique<AudioParameterFloat> (ampReleaseID, ampReleaseSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat>   (ampAttackID, ampAttackSliderDesc, ampRange, 0.0f),
+        std::make_unique<AudioParameterFloat>   (ampDecayID, ampDecaySliderDesc, ampRange, 0.0f),
+        std::make_unique<AudioParameterFloat>   (ampSustainID, ampSustainSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat>   (ampReleaseID, ampReleaseSliderDesc, ampRange, 0.0f),
         
-        std::make_unique<AudioParameterFloat> (lfoFreqID,   lfoFreqSliderDesc, lfoRange, 3.f),
-        std::make_unique<AudioParameterChoice> (lfoShapeID, lfoShapeDesc,  StringArray {lfoShape0, lfoShape1, lfoShape2, lfoShape3, lfoShape4}, 0),
-        std::make_unique<AudioParameterFloat> (lfoAmountID, lfoAmountSliderDesc, sliderRange, 1.0f),
+        std::make_unique<AudioParameterFloat>   (lfoFreqID,   lfoFreqSliderDesc, lfoRange, 3.f),
+        std::make_unique<AudioParameterChoice>  (lfoShapeID, lfoShapeDesc,  StringArray {lfoShape0, lfoShape1, lfoShape2, lfoShape3, lfoShape4}, 0),
+        std::make_unique<AudioParameterFloat>   (lfoAmountID, lfoAmountSliderDesc, sliderRange, 1.0f),
 
-        std::make_unique<AudioParameterFloat> (effectParam1ID, effectParam1Desc, sliderRange, 0.0f)
+        std::make_unique<AudioParameterFloat>   (effectParam1ID, effectParam1Desc, sliderRange, 0.0f)
     })
 
 #if CPU_USAGE
@@ -46,15 +46,20 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 #if STANDARD_LISTENER
     state.state.addListener (this);
 #else
-    state.addParameterListener (osc1FreqID, this);
-    state.addParameterListener (osc2FreqID, this);
+    state.addParameterListener (osc1FreqID, &synth);
+    state.addParameterListener (osc2FreqID, &synth);
 
-    state.addParameterListener (osc1ShapeID, this);
-    state.addParameterListener (osc2ShapeID, this);
+    state.addParameterListener (osc1ShapeID, &synth);
+    state.addParameterListener (osc2ShapeID, &synth);
 
-    state.addParameterListener (lfoShapeID, this);
-    state.addParameterListener (lfoFreqID, this);
-    state.addParameterListener (lfoAmountID, this);
+    state.addParameterListener (ampAttackID, &synth);
+    state.addParameterListener (ampDecayID, &synth);
+    state.addParameterListener (ampSustainID, &synth);
+    state.addParameterListener (ampReleaseID, &synth);
+
+    state.addParameterListener (lfoShapeID, &synth);
+    state.addParameterListener (lfoFreqID, &synth);
+    state.addParameterListener (lfoAmountID, &synth);
 #endif
 
     //@TODO Helpers::getFloatMidiNoteInHertz does NOT approximate well MidiMessage::getMidiNoteInHertz for higher numbers
@@ -93,38 +98,6 @@ bool sBMP4AudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
         || layouts.getMainOutputChannelSet() == AudioChannelSet::stereo();
 }
 #endif
-
-void sBMP4AudioProcessor::parameterChanged (const String& parameterID, float newValue)
-{
-    if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID)
-    {
-        synth.setOscTuning (sBMP4Voice::processorId::osc1Index, (int) newValue);
-    }
-    else if (parameterID == sBMP4AudioProcessorIDs::osc2FreqID)
-    {
-        synth.setOscTuning (sBMP4Voice::processorId::osc2Index, (int) newValue);
-    }
-    else if (parameterID == sBMP4AudioProcessorIDs::osc1ShapeID)
-    {
-        synth.setOscShape (sBMP4Voice::processorId::osc2Index, OscShape ((int) newValue + 1));
-    }
-    else if (parameterID == sBMP4AudioProcessorIDs::osc2ShapeID)
-    {
-        synth.setOscShape (sBMP4Voice::processorId::osc2Index, OscShape ((int) newValue + 1));
-    }
-    else if (parameterID == sBMP4AudioProcessorIDs::lfoShapeID)
-    {
-        synth.setLfoShape (LfoShape ((int) newValue + 1));
-    }
-    else if (parameterID == sBMP4AudioProcessorIDs::lfoFreqID)
-    {
-        synth.setLfoFreq (newValue);
-    }
-    else if (parameterID == sBMP4AudioProcessorIDs::lfoAmountID)
-    {
-        synth.setLfoAmount (newValue);
-    }
-}
 
 //============================================================================= =
 void sBMP4AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
