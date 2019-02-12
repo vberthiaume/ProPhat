@@ -22,10 +22,11 @@ public:
         setLookAndFeel (nullptr);
     }
 
-    double snapValue (double attemptedValue, DragMode) override
-    {
-        return std::abs (snapVal - attemptedValue) < tolerance ? snapVal : attemptedValue;
-    }
+    //@TODO reactivate this when needed, it's causing issues
+    //double snapValue (double attemptedValue, DragMode) override
+    //{
+    //    return std::abs (snapVal - attemptedValue) < tolerance ? snapVal : attemptedValue;
+    //}
 
 private:
     sBMP4LookAndFeel lf;
