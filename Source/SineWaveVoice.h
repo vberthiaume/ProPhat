@@ -285,6 +285,16 @@ public:
         lfoVelocity = newAmount;
     }
 
+    void setFilterCutoff (float newAmount)
+    {
+        processorChain.get<filterIndex>().setCutoffFrequencyHz (newAmount);
+    }
+
+    void setFilterResonance (float newAmount)
+    {
+        processorChain.get<filterIndex>().setResonance (newAmount);
+    }
+
     virtual void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
     {
         midiNote = midiNoteNumber;
@@ -349,8 +359,8 @@ public:
 
                 auto lfoOut = lfo.processSample (0.0f) * lfoVelocity;
 
-                auto curoffFreqHz = jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);
-                processorChain.get<filterIndex>().setCutoffFrequencyHz (curoffFreqHz);
+                //auto curoffFreqHz = jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);
+                //processorChain.get<filterIndex>().setCutoffFrequencyHz (curoffFreqHz);
             }
         }
 

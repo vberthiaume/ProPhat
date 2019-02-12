@@ -60,6 +60,12 @@ public:
             setLfoFreq (newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::lfoAmountID)
             setLfoAmount (newValue);
+
+        else if (parameterID == sBMP4AudioProcessorIDs::filterCutoffID)
+            setFilterCutoff (newValue);
+        else if (parameterID == sBMP4AudioProcessorIDs::filterResonanceID)
+            setFilterResonance (newValue);
+
     }
 
     void setAmpParam (StringRef parameterID, float newValue)
@@ -98,6 +104,18 @@ public:
     {
         for (auto voice : voices)
             dynamic_cast<sBMP4Voice*> (voice)->setLfoAmount (newAmount);
+    }
+
+    void setFilterCutoff (float newAmount)
+    {
+        for (auto voice : voices)
+            dynamic_cast<sBMP4Voice*> (voice)->setFilterCutoff (newAmount);
+    }
+
+    void setFilterResonance (float newAmount)
+    {
+        for (auto voice : voices)
+            dynamic_cast<sBMP4Voice*> (voice)->setFilterResonance (newAmount);
     }
 
 private:

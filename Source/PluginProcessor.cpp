@@ -26,6 +26,7 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 #endif
 
         std::make_unique<AudioParameterFloat>   (filterCutoffID, filterCutoffSliderDesc, hzRange, 1000.0f),
+        std::make_unique<AudioParameterFloat>   (filterResonanceID, filterResonanceSliderDesc, sliderRange, .5f),
         
         std::make_unique<AudioParameterFloat>   (ampAttackID, ampAttackSliderDesc, ampRange, 0.0f),
         std::make_unique<AudioParameterFloat>   (ampDecayID, ampDecaySliderDesc, ampRange, 0.0f),
@@ -60,6 +61,9 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     state.addParameterListener (lfoShapeID, &synth);
     state.addParameterListener (lfoFreqID, &synth);
     state.addParameterListener (lfoAmountID, &synth);
+
+    state.addParameterListener (filterCutoffID, &synth);
+    state.addParameterListener (filterResonanceID, &synth);
 #endif
 
     //@TODO Helpers::getFloatMidiNoteInHertz does NOT approximate well MidiMessage::getMidiNoteInHertz for higher numbers
