@@ -40,19 +40,19 @@ namespace sBMP4AudioProcessorIDs
     const String osc2ShapeID    = "osc2ShapeID";
     const String osc2FreqID     = "osc2FreqID";
 
-    const String filterCutoffID = "filterCutoffID";
-    const String filterResonanceID = "filterResonanceID";
+    const String filterCutoffID     = "filterCutoffID";
+    const String filterResonanceID  = "filterResonanceID";
 
-    const String ampAttackID = "ampAttackID";
-    const String ampDecayID = "ampDecayID";
-    const String ampSustainID = "ampSustainID";
-    const String ampReleaseID = "ampReleaseID";
+    const String ampAttackID    = "ampAttackID";
+    const String ampDecayID     = "ampDecayID";
+    const String ampSustainID   = "ampSustainID";
+    const String ampReleaseID   = "ampReleaseID";
 
-    const String lfoShapeID = "lfoShapeID";
-    const String lfoFreqID = "lfoFreqID";
-    const String lfoAmountID = "lfoAmountID";
+    const String lfoShapeID     = "lfoShapeID";
+    const String lfoFreqID      = "lfoFreqID";
+    const String lfoAmountID    = "lfoAmountID";
 
-    const String effectID = "effectID";
+    const String effectID       = "effectID";
     const String effectParam1ID = "effectParam1ID";
     const String effectParam2ID = "effectParam2ID";
 }

@@ -319,7 +319,7 @@ public:
 
         updateOscFrequencies();
 
-        processorChain.get<osc1Index>().setLevel (0.f /*velocity*/);
+        processorChain.get<osc1Index>().setLevel (velocity);
         processorChain.get<osc2Index>().setLevel (velocity);
     }
 
