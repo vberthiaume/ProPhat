@@ -17,6 +17,8 @@ static const NormalisableRange<float> sliderRange = {0.f, 1.f};
 static const NormalisableRange<float> ampRange = {0.f, 25.f};
 static const NormalisableRange<float> hzRange = {0.1f, 18000.f};
 static const NormalisableRange<float> lfoRange = {0.1f, 30.f};
+static const NormalisableRange<float> lfoNoteRange = {0.f, 16.f};
+
 
 //Sets the base frequency of Oscillator 1 or 2 over a 9-octave
 //range from 16 Hz to 8KHz (when used with the Transpose buttons). Adjustment is in semitones.

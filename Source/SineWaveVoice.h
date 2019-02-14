@@ -33,6 +33,8 @@ public:
 
     void setFrequency (Type newValue, bool force = false)
     {
+        jassert (newValue > 0);
+
         auto& osc = processorChain.template get<oscIndex>();
         osc.setFrequency (newValue, force);
     }
@@ -176,10 +178,10 @@ public:
     {
         auto pitchWheelDeltaNote = jmap ((float) pitchWheelPosition, 0.f, 16383.f, -2.f, 2.f);
 
-        osc1Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc1NoteOffset + pitchWheelDeltaNote);
+        auto osc1Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc1NoteOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote);
         processorChain.get<osc1Index>().setFrequency ((float) osc1Freq, true);
 
-        osc2Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc2NoteOffset + pitchWheelDeltaNote);
+        auto osc2Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc2NoteOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote);
         processorChain.get<osc2Index>().setFrequency ((float) osc2Freq, true);
     }
 
@@ -254,7 +256,7 @@ public:
                 lfo.initialise ([](float x)
                 {
                     if (x < 0.f)
-                        return -1.f;
+                        return 0.f;
                     else
                         return 1.f;
                 });
@@ -317,7 +319,7 @@ public:
 
         updateOscFrequencies();
 
-        processorChain.get<osc1Index>().setLevel (velocity);
+        processorChain.get<osc1Index>().setLevel (0.f /*velocity*/);
         processorChain.get<osc2Index>().setLevel (velocity);
     }
 
@@ -352,16 +354,20 @@ public:
     {
         auto lfoOut = lfo.processSample (0.0f) * lfoVelocity;
 
-        LfoDest dest = LfoDest::filterCurOff;
+        //@TODO when I implement setLfoDestination, I need to make sure we reset the lfoOsc1NoteOffset variables (and others) everytime the destination is changed
+        LfoDest dest = LfoDest::osc2Freq;
         switch (dest)
         {
             case LfoDest::osc1Freq:
-            {
-                //@TODO this range should be dependent on current frequency, also it doesn't work at all
-                auto curoffFreqHz = jmap (lfoOut, -1.0f, 1.0f, 0.0f, 2000.0f);
-                processorChain.get<osc1Index>().setFrequency (osc1Freq + curoffFreqHz);
-            }
+                lfoOsc1NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);
+                updateOscFrequencies();
             break;
+
+            case LfoDest::osc2Freq:
+                lfoOsc2NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);
+                updateOscFrequencies();
+            break;
+
             case LfoDest::filterCurOff:
             {
                 auto curoffFreqHz = jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);
@@ -398,7 +404,6 @@ public:
             if (lfoUpdateCounter == 0)
             {
                 lfoUpdateCounter = lfoUpdateRate;
-
                 processLfo();
             }
         }
@@ -420,10 +425,15 @@ private:
 
     float curFilterCutoff = 0.f;
 
+    //lfo stuff
     static constexpr size_t lfoUpdateRate = 100;
     size_t lfoUpdateCounter = lfoUpdateRate;
     dsp::Oscillator<float> lfo;
     float lfoVelocity = 1.0;
+    float lfoOsc1NoteOffset = 0.f;
+    float lfoOsc2NoteOffset = 0.f;
+
+    //for the random lfo
     Random rng;
     float randomValue = 0.f;
     bool valueWasBig = false;
@@ -433,6 +443,4 @@ private:
 
     float osc1NoteOffset = 0.f;
     float osc2NoteOffset = 0.f;
-    double osc1Freq = 0.;
-    double osc2Freq = 0.;
 };
