@@ -19,7 +19,7 @@ sBMP4LookAndFeel::sBMP4LookAndFeel()
     untickedButtonImage = Helpers::getImage (BinaryData::blackLight_png, BinaryData::blackLight_pngSize);
 
 #if USE_SVG
-    rotarySliderDrawableImage = Helpers::getDrawable (BinaryData::sBMP4Knob_svg, BinaryData::sBMP4Knob_svgSize);
+    rotarySliderDrawableImage = Helpers::getDrawable (BinaryData::sBMP4KnobUniform_svg, BinaryData::sBMP4KnobUniform_svgSize);
 #else
     //LOADING SVG USING DRAWABLES
     rotarySliderImage = Helpers::getImage (BinaryData::metalKnobFitted_png, BinaryData::metalKnobFitted_pngSize);
@@ -46,7 +46,7 @@ void sBMP4LookAndFeel::drawTickBox (Graphics& g, Component& /*component*/,
 void sBMP4LookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
                                          const float rotaryStartAngle, const float rotaryEndAngle, Slider& /*slider*/)
 {
-    const auto gap = 6;
+    const auto gap = 10;
     x += gap;
     y += gap;
     width -= gap * 2;

@@ -31,6 +31,8 @@
     </GROUP>
     <GROUP id="{EDC12C90-B6F9-4BAF-F5B3-C6F128665043}" name="Assets">
       <FILE id="yvkBvu" name="blackLight.svg" compile="0" resource="1" file="Assets/blackLight.svg"/>
+      <FILE id="sW45zg" name="sBMP4KnobUniform.svg" compile="0" resource="1"
+            file="Assets/sBMP4KnobUniform.svg"/>
       <FILE id="JW4ixJ" name="blackLight.png" compile="0" resource="1" file="Assets/blackLight.png"/>
       <FILE id="ZTMqhl" name="redLight.png" compile="0" resource="1" file="Assets/redLight.png"/>
       <FILE id="Twq3rs" name="redLight.svg" compile="0" resource="1" file="Assets/redLight.svg"/>
