@@ -12,7 +12,7 @@ namespace BinaryData
     const int            blackLight_svgSize = 4690;
 
     extern const char*   sBMP4KnobUniform_svg;
-    const int            sBMP4KnobUniform_svgSize = 2876;
+    const int            sBMP4KnobUniform_svgSize = 3531;
 
     extern const char*   blackLight_png;
     const int            blackLight_pngSize = 43010;
