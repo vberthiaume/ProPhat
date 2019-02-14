@@ -176,10 +176,10 @@ public:
     {
         auto pitchWheelDeltaNote = jmap ((float) pitchWheelPosition, 0.f, 16383.f, -2.f, 2.f);
 
-        auto osc1Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc1NoteOffset + pitchWheelDeltaNote);
+        osc1Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc1NoteOffset + pitchWheelDeltaNote);
         processorChain.get<osc1Index>().setFrequency ((float) osc1Freq, true);
 
-        auto osc2Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc2NoteOffset + pitchWheelDeltaNote);
+        osc2Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc2NoteOffset + pitchWheelDeltaNote);
         processorChain.get<osc2Index>().setFrequency ((float) osc2Freq, true);
     }
 
@@ -257,17 +257,25 @@ public:
                         return -1.f;
                     else
                         return 1.f;
-                }, 128);
+                });
                 break;
 
             case LfoShape::random:
-                lfo.initialise ([](float x)
+                lfo.initialise ([this](float x)
                 {
-                    if (x < 0.f)
-                        return -1.f;
-                    else
-                        return 1.f;
-                }, 128);
+                    if (x <= 0.f && valueWasBig)
+                    {
+                        randomValue = rng.nextFloat() * 2 - 1;
+                        valueWasBig = false;
+                    }
+                    else if (x > 0.f && ! valueWasBig)
+                    {
+                        randomValue = rng.nextFloat() * 2 - 1;
+                        valueWasBig = true;
+                    }
+
+                    return randomValue;
+                });
                 break;
 
             case LfoShape::none:
@@ -288,9 +296,10 @@ public:
         lfoVelocity = newAmount;
     }
 
-    void setFilterCutoff (float newAmount)
+    void setFilterCutoff (float newValue)
     {
-        processorChain.get<filterIndex>().setCutoffFrequencyHz (newAmount);
+        curFilterCutoff = newValue;
+        processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
     }
 
     void setFilterResonance (float newAmount)
@@ -339,6 +348,36 @@ public:
 
     void controllerMoved (int, int) override {}
 
+    void processLfo()
+    {
+        auto lfoOut = lfo.processSample (0.0f) * lfoVelocity;
+
+        LfoDest dest = LfoDest::filterCurOff;
+        switch (dest)
+        {
+            case LfoDest::osc1Freq:
+            {
+                //@TODO this range should be dependent on current frequency, also it doesn't work at all
+                auto curoffFreqHz = jmap (lfoOut, -1.0f, 1.0f, 0.0f, 2000.0f);
+                processorChain.get<osc1Index>().setFrequency (osc1Freq + curoffFreqHz);
+            }
+            break;
+            case LfoDest::filterCurOff:
+            {
+                auto curoffFreqHz = jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);
+                processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff + curoffFreqHz);
+            }
+            break;
+
+            case LfoDest::filterResonance:
+                processorChain.get<filterIndex>().setResonance (lfoOut);
+                break;
+
+            default:
+                break;
+        }
+    }
+
     void renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override
     {
         auto output = tempBlock.getSubBlock (0, (size_t) numSamples);
@@ -360,10 +399,7 @@ public:
             {
                 lfoUpdateCounter = lfoUpdateRate;
 
-                auto lfoOut = lfo.processSample (0.0f) * lfoVelocity;
-
-                //auto curoffFreqHz = jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);
-                //processorChain.get<filterIndex>().setCutoffFrequencyHz (curoffFreqHz);
+                processLfo();
             }
         }
 
@@ -382,14 +418,21 @@ private:
     juce::ADSR adsr;
     ADSR::Parameters params;
 
+    float curFilterCutoff = 0.f;
+
     static constexpr size_t lfoUpdateRate = 100;
     size_t lfoUpdateCounter = lfoUpdateRate;
     dsp::Oscillator<float> lfo;
     float lfoVelocity = 1.0;
+    Random rng;
+    float randomValue = 0.f;
+    bool valueWasBig = false;
 
     int midiNote = 0;
     int pitchWheelPosition = 0;
 
     float osc1NoteOffset = 0.f;
     float osc2NoteOffset = 0.f;
+    double osc1Freq = 0.;
+    double osc2Freq = 0.;
 };

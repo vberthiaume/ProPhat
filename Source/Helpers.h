@@ -104,6 +104,14 @@ enum class LfoShape
     total
 };
 
+enum class LfoDest
+{
+    osc1Freq,
+    osc2Freq,
+    filterCurOff,
+    filterResonance
+};
+
 namespace sBMP4AudioProcessorChoices
 {
 #if 0
