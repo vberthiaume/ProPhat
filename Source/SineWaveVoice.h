@@ -167,6 +167,11 @@ public:
         isPrepared = true;
     }
 
+    bool isActive()
+    {
+        return isKeyDown() || adsr.isActive();
+    }
+
     void updateOscFrequencies()
     {
         auto pitchWheelDeltaNote = jmap ((float) pitchWheelPosition, 0.f, 16383.f, -2.f, 2.f);
@@ -210,8 +215,6 @@ public:
 
     void setAmpParam (StringRef parameterID, float newValue)
     {
-        jassert (isPrepared);
-
         if (parameterID == sBMP4AudioProcessorIDs::ampAttackID)
             params.attack = newValue;
         else if (parameterID == sBMP4AudioProcessorIDs::ampDecayID)

@@ -122,18 +122,11 @@ private:
 #if 1
     void renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples) override
     {
-        //for (auto* voice : voices)
-        //    //@TODO for some FUCKED UP reason, this renderVoices renders all the time if I don't check this. It should NOT render when there's no note off
-        //    if (voice->isKeyDown())
-        //        voice->renderNextBlock (outputAudio, startSample, numSamples);
-
-        for (int i = 0; i < voices.size(); ++i)
-            if (voices[i]->isKeyDown())
-            {
-                //DBG (i);
-                voices[i]->renderNextBlock (outputAudio, startSample, numSamples);
-
-            }
+        for (auto* voice : voices)
+            if (auto sbmp4Voice = dynamic_cast<sBMP4Voice*> (voice))
+                //if (sbmp4Voice->isActive())
+                if (sbmp4Voice->isKeyDown())
+                    sbmp4Voice->renderNextBlock (outputAudio, startSample, numSamples);
 
         auto block = dsp::AudioBlock<float> (outputAudio);
         auto blockToUse = block.getSubBlock ((size_t) startSample, (size_t) numSamples);

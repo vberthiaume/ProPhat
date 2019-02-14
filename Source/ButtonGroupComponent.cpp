@@ -15,9 +15,13 @@ ButtonGroupComponent::ButtonGroupComponent (StringRef mainButtonName, Array<Stri
     allowEmptySelection (allowEmpty)
 {
     mainButton.addListener (this);
-
+#if 0
     ScopedPointer<Drawable> nonSelectedDrawable = Helpers::getDrawable (BinaryData::blackTexture_jpg, BinaryData::blackTexture_jpgSize);
     ScopedPointer<Drawable> selectedDrawable = Helpers::getDrawable (BinaryData::redTexture_png, BinaryData::redTexture_pngSize);
+#else
+    ScopedPointer<Drawable> nonSelectedDrawable = Helpers::getDrawable (BinaryData::blackLight_svg, BinaryData::blackLight_svgSize);
+    ScopedPointer<Drawable> selectedDrawable = Helpers::getDrawable (BinaryData::redLight_svg, BinaryData::redLight_svgSize);
+#endif
     mainButton.setImages (nonSelectedDrawable, nonSelectedDrawable, selectedDrawable);
 
     addAndMakeVisible (mainButton);

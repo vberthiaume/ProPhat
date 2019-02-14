@@ -12,11 +12,14 @@
 
 sBMP4LookAndFeel::sBMP4LookAndFeel()
 {
-    tickedButtonImage = Helpers::getImage (BinaryData::redTexture_png, BinaryData::redTexture_pngSize);
-    untickedButtonImage = Helpers::getImage (BinaryData::blackTexture_jpg, BinaryData::blackTexture_jpgSize);
+    /*tickedButtonImage = Helpers::getImage (BinaryData::redTexture_png, BinaryData::redTexture_pngSize);
+    untickedButtonImage = Helpers::getImage (BinaryData::blackTexture_jpg, BinaryData::blackTexture_jpgSize);*/
+
+    tickedButtonImage = Helpers::getImage (BinaryData::redLight_png, BinaryData::redLight_pngSize);
+    untickedButtonImage = Helpers::getImage (BinaryData::blackLight_png, BinaryData::blackLight_pngSize);
 
 #if USE_SVG
-    rotarySliderDrawableImage = Helpers::getDrawable (BinaryData::sBMP4Knob_svg, BinaryData::sBMP4Knob_svgSize); 
+    rotarySliderDrawableImage = Helpers::getDrawable (BinaryData::sBMP4Knob_svg, BinaryData::sBMP4Knob_svgSize);
 #else
     //LOADING SVG USING DRAWABLES
     rotarySliderImage = Helpers::getImage (BinaryData::metalKnobFitted_png, BinaryData::metalKnobFitted_pngSize);

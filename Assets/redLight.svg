@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg862"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="redLight2.svg">
+  <defs
+     id="defs856">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1525">
+      <stop
+         style="stop-color:#010101;stop-opacity:1"
+         offset="0"
+         id="stop1521" />
+      <stop
+         id="stop1537"
+         offset="0.27196214"
+         style="stop-color:#f1f1f1;stop-opacity:1" />
+      <stop
+         style="stop-color:#828282;stop-opacity:1"
+         offset="0.39833978"
+         id="stop1539" />
+      <stop
+         id="stop1541"
+         offset="0.49403885"
+         style="stop-color:#878787;stop-opacity:1" />
+      <stop
+         style="stop-color:#232323;stop-opacity:1"
+         offset="0.68038559"
+         id="stop1543" />
+      <stop
+         style="stop-color:#fbfbfb;stop-opacity:1"
+         offset="1"
+         id="stop1523" />
+    </linearGradient>
+    <filter
+       inkscape:label="brushed metal"
+       inkscape:menu="Image Effects"
+       inkscape:menu-tooltip="Adds a small scale graininess"
+       style="color-interpolation-filters:sRGB;"
+       id="filter1419">
+      <feTurbulence
+         type="fractalNoise"
+         numOctaves="3"
+         baseFrequency="0.0040000000000000001 0.997"
+         seed="0"
+         result="result0"
+         id="feTurbulence1409" />
+      <feColorMatrix
+         result="result4"
+         values="0"
+         type="saturate"
+         id="feColorMatrix1411" />
+      <feComposite
+         in="SourceGraphic"
+         in2="result4"
+         operator="arithmetic"
+         k1="0.23000000000000001"
+         k2="0.68999999999999995"
+         k3="0.11"
+         result="result2"
+         id="feComposite1413" />
+      <feBlend
+         result="result5"
+         mode="normal"
+         in="result2"
+         in2="SourceGraphic"
+         id="feBlend1415" />
+      <feComposite
+         in="result5"
+         in2="SourceGraphic"
+         operator="in"
+         result="result3"
+         id="feComposite1417" />
+    </filter>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1525"
+       id="linearGradient1527"
+       x1="3.9592528"
+       y1="70.859535"
+       x2="142.11903"
+       y2="20.699408"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-2.6115625e-6,-8.7963867e-6)" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.49497475"
+     inkscape:cx="232.31633"
+     inkscape:cy="1056.1463"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata859">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="opacity:0.997;fill:#ff0c00;fill-opacity:1;stroke-width:0.26499999;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter1419);stroke:none"
+       id="rect1407"
+       width="138.33928"
+       height="80.886909"
+       x="3.7797618"
+       y="5.2023811" />
+    <rect
+       y="5.2023849"
+       x="3.7797606"
+       height="80.886909"
+       width="138.33928"
+       id="rect1519"
+       style="opacity:0.112;fill:url(#linearGradient1527);fill-opacity:1;stroke:#a4a4a4;stroke-width:0.26499999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  </g>
+</svg>
