@@ -214,18 +214,14 @@ void sBMP4Voice::stopNote (float /*velocity*/, bool allowTailOff)
 
 void sBMP4Voice::updateAdsr()
 {
-    const auto thresholdSeconds = .01f;
-    //const auto stepSeconds = .1f;
+    const auto threshold = .01f;
 
-    const auto threshold01 = .001f;
-    //const auto stepSeconds = .01f;
-
-    auto updateParam = [thresholdSeconds, threshold01] (float& curParam, float& nextParam )
+    auto updateParam = [threshold] (float& curParam, float& nextParam )
     {
-        if (curParam > nextParam + thresholdSeconds)
-            curParam -= thresholdSeconds;
-        else if (curParam < nextParam - thresholdSeconds)
-            curParam += thresholdSeconds;
+        if (curParam > nextParam + threshold)
+            curParam -= threshold;
+        else if (curParam < nextParam - threshold)
+            curParam += threshold;
         else
             curParam = nextParam;
     };
