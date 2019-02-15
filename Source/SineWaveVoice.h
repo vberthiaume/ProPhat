@@ -180,11 +180,15 @@ public:
 
     bool canPlaySound (SynthesiserSound* sound) override { return dynamic_cast<SineWaveSound*> (sound) != nullptr; }
 
-    void processLfo();
+    void updateLfo();
+
+    void updateAdsr();
 
     void renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
 
     void controllerMoved (int /*controllerNumber*/, int /*newValue*/) {}
+
+    void updateNextParams();
 
 private:
     bool isPrepared = false;
@@ -193,8 +197,10 @@ private:
     dsp::AudioBlock<float> tempBlock;
     dsp::ProcessorChain<GainedOscillator<float>, GainedOscillator<float>, dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
 
-    juce::ADSR adsr;
-    ADSR::Parameters params;
+    ADSR adsr;
+    ADSR::Parameters curParams;
+    float nextAttack = 0.f, nextDecay = 0.f, nextSustain = 1.f, nextRelease = 0.f;
+    bool adsrWasActive = false;
 
     float curFilterCutoff = 0.f;
 

@@ -23,13 +23,22 @@ sBMP4Voice::sBMP4Voice()
     lfo.setFrequency (3.0f);
 }
 
+void sBMP4Voice::updateNextParams()
+{
+    nextAttack  = curParams.attack;
+    nextDecay   = curParams.decay;
+    nextSustain = curParams.sustain;
+    nextRelease = curParams.release;
+}
+
 void sBMP4Voice::prepare (const dsp::ProcessSpec& spec)
 {
     tempBlock = dsp::AudioBlock<float> (heapBlock, spec.numChannels, spec.maximumBlockSize);
     processorChain.prepare (spec);
 
     adsr.setSampleRate (spec.sampleRate);
-    adsr.setParameters (params);
+    //updateNextParams();
+    adsr.setParameters (curParams);
 
     lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
 
@@ -47,10 +56,6 @@ void sBMP4Voice::updateOscFrequencies()
     processorChain.get<osc2Index>().setFrequency ((float) osc2Freq, true);
 }
 
-/**
-    So here, we have to transform newMidiNote into a delta.
-    The frequency to use for oscilators will be whatever
-*/
 void sBMP4Voice::setOscTuning (processorId oscNum, int newMidiNote)
 {
     switch (oscNum)
@@ -79,16 +84,36 @@ void sBMP4Voice::setOscShape (processorId oscNum, OscShape newShape)
 
 void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
 {
-    if (parameterID == sBMP4AudioProcessorIDs::ampAttackID)
-        params.attack = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::ampDecayID)
-        params.decay = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::ampSustainID)
-        params.sustain = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::ampReleaseID)
-        params.release = newValue;
+    //if (parameterID == sBMP4AudioProcessorIDs::ampAttackID)
+    //    curParams.attack = newValue;
+    //else if (parameterID == sBMP4AudioProcessorIDs::ampDecayID)
+    //    curParams.decay = newValue;
+    //else if (parameterID == sBMP4AudioProcessorIDs::ampSustainID)
+    //    curParams.sustain = newValue;
+    //else if (parameterID == sBMP4AudioProcessorIDs::ampReleaseID)
+    //    curParams.release = newValue;
+    //adsr.setParameters (curParams);
 
-    adsr.setParameters (params);
+    
+
+    if (parameterID == sBMP4AudioProcessorIDs::ampAttackID)
+        nextAttack = newValue;
+    else if (parameterID == sBMP4AudioProcessorIDs::ampDecayID)
+        nextDecay = newValue;
+    else if (parameterID == sBMP4AudioProcessorIDs::ampSustainID)
+        nextSustain = newValue;
+    else if (parameterID == sBMP4AudioProcessorIDs::ampReleaseID)
+        nextRelease = newValue;
+
+    if (! adsr.isActive())
+    {
+        curParams.attack = nextAttack;
+        curParams.decay = nextDecay;
+        curParams.sustain = nextSustain;
+        curParams.release = nextRelease;
+
+        adsr.setParameters (curParams);
+    }
 }
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
@@ -156,7 +181,9 @@ void sBMP4Voice::startNote (int midiNoteNumber, float velocity, SynthesiserSound
     midiNote = midiNoteNumber;
     pitchWheelPosition = currentPitchWheelPosition;
 
-    adsr.setParameters (params);
+    adsrWasActive = true;
+    updateNextParams();
+    adsr.setParameters (curParams);
     adsr.noteOn();
 
     updateOscFrequencies();
@@ -179,13 +206,39 @@ void sBMP4Voice::stopNote (float /*velocity*/, bool allowTailOff)
     }
     else
     {
-        //@TODO this should actually stop the voice, but it doesn't
         clearCurrentNote();
         adsr.reset();
+        updateNextParams();
     }
 }
 
-void sBMP4Voice::processLfo()
+void sBMP4Voice::updateAdsr()
+{
+    const auto thresholdSeconds = .01f;
+    //const auto stepSeconds = .1f;
+
+    const auto threshold01 = .001f;
+    //const auto stepSeconds = .01f;
+
+    auto updateParam = [thresholdSeconds, threshold01] (float& curParam, float& nextParam )
+    {
+        if (curParam > nextParam + thresholdSeconds)
+            curParam -= thresholdSeconds;
+        else if (curParam < nextParam - thresholdSeconds)
+            curParam += thresholdSeconds;
+        else
+            curParam = nextParam;
+    };
+
+    updateParam (curParams.attack, nextAttack);
+    updateParam (curParams.decay, nextDecay);
+    updateParam (curParams.sustain, nextSustain);
+    updateParam (curParams.release, nextRelease);
+
+    adsr.setParameters (curParams);
+}
+
+void sBMP4Voice::updateLfo()
 {
     //@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
     auto lfoOut = lfo.processSample (0.0f) * lfoAmount;
@@ -222,8 +275,16 @@ void sBMP4Voice::processLfo()
 
 void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
-    if (! isKeyDown() && !adsr.isActive())
+    if (!isKeyDown() && !adsr.isActive())
+    {
+        if (adsrWasActive)
+        {
+            updateNextParams();
+            adsrWasActive = false;
+        }
+
         return;
+    }
 
     auto output = tempBlock.getSubBlock (0, (size_t) numSamples);
     output.clear();
@@ -242,7 +303,8 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
         if (lfoUpdateCounter == 0)
         {
             lfoUpdateCounter = lfoUpdateRate;
-            processLfo();
+            updateLfo();
+            updateAdsr();
         }
     }
 

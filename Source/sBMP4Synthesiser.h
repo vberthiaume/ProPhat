@@ -65,21 +65,18 @@ public:
             setFilterCutoff (newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::filterResonanceID)
             setFilterResonance (newValue);
-
     }
 
     void setAmpParam (StringRef parameterID, float newValue)
     {
         for (auto voice : voices)
-            //if (voice->isKeyDown())
             dynamic_cast<sBMP4Voice*> (voice)->setAmpParam (parameterID, newValue);
     }
 
     void setOscTuning (sBMP4Voice::processorId oscNum, int newMidiNote)
     {
         for (auto voice : voices)
-            //if (voice->isKeyDown())
-                dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (oscNum, newMidiNote);
+            dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (oscNum, newMidiNote);
     }
 
     void setOscShape (sBMP4Voice::processorId oscNum, OscShape newShape)
