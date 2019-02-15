@@ -219,6 +219,6 @@ private:
     int midiNote = 0;
     int pitchWheelPosition = 0;
 
-    float osc1NoteOffset = 0.f;
-    float osc2NoteOffset = 0.f;
+    float osc1NoteOffset = (float) middleCMidiNote - defaultOscMidiNote;
+    float osc2NoteOffset = (float) middleCMidiNote - defaultOscMidiNote;
 };

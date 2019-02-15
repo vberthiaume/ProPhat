@@ -167,7 +167,6 @@ void sBMP4Voice::startNote (int midiNoteNumber, float velocity, SynthesiserSound
 void sBMP4Voice::pitchWheelMoved (int newPitchWheelValue)
 {
     pitchWheelPosition = newPitchWheelValue;
-    DBG (pitchWheelPosition);
     updateOscFrequencies();
 }
 

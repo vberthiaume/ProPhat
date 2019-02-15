@@ -27,7 +27,7 @@ static const NormalisableRange<int> midiNoteRange = {12, 120};   //actual midi n
 enum Constants
 {
     numVoices = 16,
-    defaultOscMidiNote = 48,    //C2 on rev2
+    defaultOscMidiNote = 36,    //C2 on rev2
     middleCMidiNote = 60,       //C3 on rev2
 
     oscShapeRadioGroupId
