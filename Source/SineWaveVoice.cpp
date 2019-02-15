@@ -91,26 +91,27 @@ void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
     adsr.setParameters (params);
 }
 
+//@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
 void sBMP4Voice::setLfoShape (LfoShape shape)
 {
     switch (shape)
     {
         case LfoShape::triangle:
-            lfo.initialise ([](float x) { return std::sin (x); }, 128);
+            lfo.initialise ([](float x) { return (std::sin (x) + 1) / 2; }, 128);
             break;
 
         case LfoShape::saw:
             lfo.initialise ([](float x)
             {
                 //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-                return (float) jmap (x, -MathConstants<float>::pi, MathConstants<float>::pi, -1.f, 1.f);
+                return (float) jmap (x, -MathConstants<float>::pi, MathConstants<float>::pi, 0.f, 1.f);
             }, 2);
             break;
 
         case LfoShape::revSaw:
             lfo.initialise ([](float x)
             {
-                return (float) jmap (x, -MathConstants<float>::pi, MathConstants<float>::pi, 1.f, -1.f);
+                return (float) jmap (x, -MathConstants<float>::pi, MathConstants<float>::pi, 1.f, 0.f);
             }, 2);
             break;
 
@@ -129,12 +130,12 @@ void sBMP4Voice::setLfoShape (LfoShape shape)
             {
                 if (x <= 0.f && valueWasBig)
                 {
-                    randomValue = rng.nextFloat() * 2 - 1;
+                    randomValue = rng.nextFloat()/* * 2 - 1*/;
                     valueWasBig = false;
                 }
                 else if (x > 0.f && ! valueWasBig)
                 {
-                    randomValue = rng.nextFloat() * 2 - 1;
+                    randomValue = rng.nextFloat()/* * 2 - 1*/;
                     valueWasBig = true;
                 }
 
@@ -183,31 +184,29 @@ void sBMP4Voice::stopNote (float /*velocity*/, bool allowTailOff)
         adsr.reset();
     }
 }
-//NOW HERE
-//    processSample can either return something in the range[-1, 0] or [0, 1], and I have to deal with it somehow.
-//    the issue is that with square, we only want to go from 0 to 1, and for random we can go below.
 
 void sBMP4Voice::processLfo()
 {
-    auto lfoOut = lfo.processSample (0.0f) * lfoVelocity;
+    //@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
+    auto lfoOut = lfo.processSample (0.0f) * lfoAmount;
 
-    //@TODO when I implement setLfoDestination, I need to make sure we reset the lfoOsc1NoteOffset variables (and others) everytime the destination is changed
+    //@TODO when we implement setLfoDestination, we need to make sure we reset the lfoOsc1NoteOffset variables (and others) everytime the destination is changed
     LfoDest dest = LfoDest::filterCurOff;
     switch (dest)
     {
         case LfoDest::osc1Freq:
-            lfoOsc1NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut / 2.f + .5f);
+            lfoOsc1NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);
             updateOscFrequencies();
             break;
 
         case LfoDest::osc2Freq:
-            lfoOsc2NoteOffset = lfoNoteRange.convertFrom0to1 ((lfoOut + 1) / 2);
+            lfoOsc2NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);
             updateOscFrequencies();
             break;
 
         case LfoDest::filterCurOff:
         {
-            auto curoffFreqHz = jmap (lfoOut, -1.0f, 1.0f, 100.0f, 2000.0f);
+            auto curoffFreqHz = jmap (lfoOut, 0.0f, 1.0f, 100.0f, 2000.0f);
             processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff + curoffFreqHz);
         }
         break;

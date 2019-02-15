@@ -164,7 +164,7 @@ public:
 
     void setLfoFreq (float newFreq) { lfo.setFrequency (newFreq); }
 
-    void setLfoAmount (float newAmount) { lfoVelocity = newAmount; }
+    void setLfoAmount (float newAmount) { lfoAmount = newAmount; }
 
     void setFilterCutoff (float newValue)
     {
@@ -207,7 +207,7 @@ private:
     static constexpr size_t lfoUpdateRate = 100;
     size_t lfoUpdateCounter = lfoUpdateRate;
     dsp::Oscillator<float> lfo;
-    float lfoVelocity = 1.0;
+    float lfoAmount = 0.f;
     float lfoOsc1NoteOffset = 0.f;
     float lfoOsc2NoteOffset = 0.f;
 
