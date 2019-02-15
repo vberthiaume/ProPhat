@@ -12,6 +12,14 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+#ifndef CPU_USAGE
+    #define CPU_USAGE 0
+#endif
+
+#ifndef RAMP_ADSR
+    #define RAMP_ADSR 0
+#endif
+
 static const NormalisableRange<float> dBRange = {-12.f, 12.f};
 static const NormalisableRange<float> sliderRange = {0.f, 1.f};
 static const NormalisableRange<float> ampRange = {0.0000001f, 25.f};

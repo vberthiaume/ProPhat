@@ -84,17 +84,9 @@ void sBMP4Voice::setOscShape (processorId oscNum, OscShape newShape)
 
 void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
 {
-    //if (parameterID == sBMP4AudioProcessorIDs::ampAttackID)
-    //    curParams.attack = newValue;
-    //else if (parameterID == sBMP4AudioProcessorIDs::ampDecayID)
-    //    curParams.decay = newValue;
-    //else if (parameterID == sBMP4AudioProcessorIDs::ampSustainID)
-    //    curParams.sustain = newValue;
-    //else if (parameterID == sBMP4AudioProcessorIDs::ampReleaseID)
-    //    curParams.release = newValue;
-    //adsr.setParameters (curParams);
-
     jassert (newValue > 0);
+
+#if RAMP_ADSR
 
     if (parameterID == sBMP4AudioProcessorIDs::ampAttackID)
         nextAttack = newValue;
@@ -113,7 +105,21 @@ void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
         curParams.release = nextRelease;
 
         adsr.setParameters (curParams);
-    }
+}
+#else
+
+    if (parameterID == sBMP4AudioProcessorIDs::ampAttackID)
+        curParams.attack = newValue;
+    else if (parameterID == sBMP4AudioProcessorIDs::ampDecayID)
+        curParams.decay = newValue;
+    else if (parameterID == sBMP4AudioProcessorIDs::ampSustainID)
+        curParams.sustain = newValue;
+    else if (parameterID == sBMP4AudioProcessorIDs::ampReleaseID)
+        curParams.release = newValue;
+
+    adsr.setParameters (curParams);
+
+#endif
 }
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
@@ -273,12 +279,13 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
 {
     if (!isKeyDown() && !adsr.isActive())
     {
+#if RAMP_ADSR
         if (adsrWasActive)
         {
             updateNextParams();
             adsrWasActive = false;
         }
-
+#endif
         return;
     }
 
@@ -300,7 +307,9 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
         {
             lfoUpdateCounter = lfoUpdateRate;
             updateLfo();
+#if RAMP_ADSR
             updateAdsr();
+#endif
         }
     }
 

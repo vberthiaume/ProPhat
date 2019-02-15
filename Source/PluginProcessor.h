@@ -5,10 +5,6 @@
 #include "sBMP4Synthesiser.h"
 #include "Helpers.h"
 
-#ifndef CPU_USAGE
-    #define CPU_USAGE 0
-#endif
-
 //==============================================================================
 
 class sBMP4AudioProcessor : public AudioProcessor
