@@ -119,26 +119,23 @@ public:
     }
 
 private:
-#if 1
+
+    enum
+    {
+        reverbIndex
+    };
+
     void renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples) override
     {
         for (auto* voice : voices)
             if (auto sbmp4Voice = dynamic_cast<sBMP4Voice*> (voice))
-                //if (sbmp4Voice->isActive())
-                if (sbmp4Voice->isKeyDown())
-                    sbmp4Voice->renderNextBlock (outputAudio, startSample, numSamples);
+                sbmp4Voice->renderNextBlock (outputAudio, startSample, numSamples);
 
         auto block = dsp::AudioBlock<float> (outputAudio);
         auto blockToUse = block.getSubBlock ((size_t) startSample, (size_t) numSamples);
         auto contextToUse = dsp::ProcessContextReplacing<float> (blockToUse);
         fxChain.process (contextToUse);
     }
-#endif
-
-    enum
-    {
-        reverbIndex
-    };
 
     dsp::ProcessorChain<dsp::Reverb> fxChain;
 };

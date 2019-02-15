@@ -222,12 +222,14 @@ void sBMP4Voice::processLfo()
 
 void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
+    if (! isKeyDown() && !adsr.isActive())
+        return;
+
     auto output = tempBlock.getSubBlock (0, (size_t) numSamples);
     output.clear();
 
     for (size_t pos = 0; pos < numSamples;)
     {
-
         auto max = jmin (static_cast<size_t> (numSamples - pos), lfoUpdateCounter);
         auto block = output.getSubBlock (pos, max);
 

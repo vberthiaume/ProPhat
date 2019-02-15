@@ -52,15 +52,11 @@ void ButtonGroupComponent::buttonClicked (Button* button)
         return;
 
     if (button == &mainButton)
-    {
         selectNextToggleButton();
-    }
     else
-    {
         for (int i = 0; i < selectionButtons.size(); ++i)
             if (selectionButtons[i] == button)
                 selectToggleButton (i);
-    }
 }
 
 //=========================================================================
@@ -73,7 +69,6 @@ ButtonOscGroupComponent::ButtonOscGroupComponent (StringRef mainButtonName, Arra
     addItem (sBMP4AudioProcessorChoices::oscShape2, (int) OscShape::triangle);
     addItem (sBMP4AudioProcessorChoices::oscShape3, (int) OscShape::pulse);
 
-    //selectNextToggleButton();
     setShape (OscShape::saw);
 }
 
@@ -136,7 +131,6 @@ ButtonLfoGroupComponent::ButtonLfoGroupComponent (StringRef mainButtonName, Arra
     addItem (sBMP4AudioProcessorChoices::lfoShape3, (int) LfoShape::square);
     addItem (sBMP4AudioProcessorChoices::lfoShape3, (int) LfoShape::random);
 
-    //selectNextToggleButton();
     setShape (LfoShape::triangle);
 }
 

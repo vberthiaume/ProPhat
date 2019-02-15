@@ -147,11 +147,6 @@ public:
 
     void prepare (const dsp::ProcessSpec& spec);
 
-    bool isActive()
-    {
-        return isKeyDown() || adsr.isActive();
-    }
-
     void updateOscFrequencies();
 
     void setOscTuning (processorId oscNum, int newMidiNote);
