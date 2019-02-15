@@ -14,7 +14,7 @@
 
 static const NormalisableRange<float> dBRange = {-12.f, 12.f};
 static const NormalisableRange<float> sliderRange = {0.f, 1.f};
-static const NormalisableRange<float> ampRange = {0.f, 25.f};
+static const NormalisableRange<float> ampRange = {0.0000001f, 25.f};
 static const NormalisableRange<float> hzRange = {0.1f, 18000.f};
 static const NormalisableRange<float> lfoRange = {0.1f, 30.f};
 static const NormalisableRange<float> lfoNoteRange = {0.f, 16.f};
@@ -27,7 +27,8 @@ static const NormalisableRange<int> midiNoteRange = {12, 120};   //actual midi n
 enum Constants
 {
     numVoices = 16,
-    defaultOscMidiNote = 36,    //C2 on rev2
+    //defaultOscMidiNote = 36,    //C2 on rev2
+    defaultOscMidiNote = 48,    //C2 on rev2
     middleCMidiNote = 60,       //C3 on rev2
 
     oscShapeRadioGroupId

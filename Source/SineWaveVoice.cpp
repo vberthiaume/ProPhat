@@ -94,7 +94,7 @@ void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
     //    curParams.release = newValue;
     //adsr.setParameters (curParams);
 
-    
+    jassert (newValue > 0);
 
     if (parameterID == sBMP4AudioProcessorIDs::ampAttackID)
         nextAttack = newValue;
@@ -214,7 +214,7 @@ void sBMP4Voice::stopNote (float /*velocity*/, bool allowTailOff)
 
 void sBMP4Voice::updateAdsr()
 {
-    const auto threshold = .01f;
+    const auto threshold = .03f;
 
     auto updateParam = [threshold] (float& curParam, float& nextParam )
     {
