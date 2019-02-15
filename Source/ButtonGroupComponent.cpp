@@ -48,11 +48,10 @@ void ButtonGroupComponent::resized()
 
 void ButtonGroupComponent::buttonClicked (Button* button)
 {
-    if (! button->getToggleState())
-        return;
-
     if (button == &mainButton)
         selectNextToggleButton();
+    else if (! button->getToggleState())
+        return;
     else
         for (int i = 0; i < selectionButtons.size(); ++i)
             if (selectionButtons[i] == button)
