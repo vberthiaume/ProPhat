@@ -15,13 +15,9 @@ ButtonGroupComponent::ButtonGroupComponent (StringRef mainButtonName, Array<Stri
     allowEmptySelection (allowEmpty)
 {
     mainButton.addListener (this);
-#if 0
-    ScopedPointer<Drawable> nonSelectedDrawable = Helpers::getDrawable (BinaryData::blackTexture_jpg, BinaryData::blackTexture_jpgSize);
-    ScopedPointer<Drawable> selectedDrawable = Helpers::getDrawable (BinaryData::redTexture_png, BinaryData::redTexture_pngSize);
-#else
+
     ScopedPointer<Drawable> nonSelectedDrawable = Helpers::getDrawable (BinaryData::blackLight_svg, BinaryData::blackLight_svgSize);
     ScopedPointer<Drawable> selectedDrawable = Helpers::getDrawable (BinaryData::redLight_svg, BinaryData::redLight_svgSize);
-#endif
     mainButton.setImages (nonSelectedDrawable, nonSelectedDrawable, selectedDrawable);
 
     addAndMakeVisible (mainButton);
@@ -31,6 +27,7 @@ ButtonGroupComponent::ButtonGroupComponent (StringRef mainButtonName, Array<Stri
         auto button = new ToggleButton (names);
         button->setRadioGroupId (oscShapeRadioGroupId);
         button->setLookAndFeel (&lf);
+        button->addListener (this);
         selectionButtons.add (button);
         addAndMakeVisible (button);
     }
@@ -51,59 +48,62 @@ void ButtonGroupComponent::resized()
 
 void ButtonGroupComponent::buttonClicked (Button* button)
 {
+    if (! button->getToggleState())
+        return;
+
     if (button == &mainButton)
+    {
         selectNextToggleButton();
-}
-
-//@TODO at the end of this cycle, we should get to a 0 option which deactivates the oscillator
-#if 0
-void ButtonOscGroupComponent::selectNextToggleButton()
-{
-    auto prevSelected = OscShape::none;
-    for (auto i = 0; i < selectionButtons.size(); ++i)
-    {
-        if (selectionButtons[i]->getToggleState())
-        {
-            prevSelected = OscShape (i + 1);
-            break;
-        }
-    }
-
-    /** 
-        selectionButtons range is 0 (saw) to 3 (pulse)
-        prevSelected range = 0 (none), 1 (saw) to 4 (pulse)
-        curSelected range = 0 (none), 1 (saw) to 4 (pulse)
-    */
-
-    auto curSelected = OscShape::saw;
-    if (prevSelected == OscShape::none)
-    {
-        //nothing was selected, select saw
-        selectionButtons[0]->setToggleState (true, sendNotification);
-    }
-    else if (prevSelected == OscShape ((int) OscShape::total - 1))
-    {
-        //last shape was selected, select nothing if allowed or saw otherwise
-        if (allowEmptySelection)
-        {
-            selectionButtons[(int) prevSelected - 1]->setToggleState (false, sendNotification);
-            curSelected = OscShape::none;
-        }
-        else
-        {
-            selectionButtons[0]->setToggleState (true, sendNotification);
-        }        
     }
     else
     {
-        //selection is a shape that's not the first nor the last, just increase
-        curSelected = OscShape ((int) prevSelected + 1);
-        selectionButtons[(int) curSelected - 1]->setToggleState (true, sendNotification);
+        for (int i = 0; i < selectionButtons.size(); ++i)
+            if (selectionButtons[i] == button)
+                selectToggleButton (i);
     }
-
-    setSelectedId ((int) curSelected);
 }
-#else
+
+//=========================================================================
+
+ButtonOscGroupComponent::ButtonOscGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty) :
+    ButtonGroupComponent (mainButtonName, selectionButtonNames, allowEmpty)
+{
+    addItem (sBMP4AudioProcessorChoices::oscShape0, (int) OscShape::saw);
+    addItem (sBMP4AudioProcessorChoices::oscShape1, (int) OscShape::sawTri);
+    addItem (sBMP4AudioProcessorChoices::oscShape2, (int) OscShape::triangle);
+    addItem (sBMP4AudioProcessorChoices::oscShape3, (int) OscShape::pulse);
+
+    //selectNextToggleButton();
+    setShape (OscShape::saw);
+}
+
+void ButtonOscGroupComponent::selectToggleButton (int buttonIndex)
+{
+    setShape (OscShape (buttonIndex + 1));
+}
+
+void ButtonOscGroupComponent::setShape (OscShape shape)
+{
+    //select the right button and shape
+    switch (shape)
+    {
+        case OscShape::saw:
+        case OscShape::sawTri:
+        case OscShape::triangle:
+        case OscShape::pulse:
+            selectionButtons[(int) shape - 1]->setToggleState (true, dontSendNotification);
+            setSelectedId ((int) shape);
+            break;
+
+        case OscShape::none:
+        case OscShape::total:
+        default:
+            jassertfalse;
+            break;
+    }
+}
+
+//@TODO at the end of this cycle, we should get to a 0 option which deactivates the oscillator
 void ButtonOscGroupComponent::selectNextToggleButton()
 {
     auto selected = OscShape::none;
@@ -121,10 +121,50 @@ void ButtonOscGroupComponent::selectNextToggleButton()
     else
         selected = OscShape ((int) selected + 1);
 
-    selectionButtons[(int) selected - 1]->setToggleState (true, sendNotification);
+    selectionButtons[(int) selected - 1]->setToggleState (true, dontSendNotification);
     setSelectedId ((int) selected);
 }
-#endif
+
+//=========================================================================
+
+ButtonLfoGroupComponent::ButtonLfoGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty) :
+    ButtonGroupComponent (mainButtonName, selectionButtonNames, allowEmpty)
+{
+    addItem (sBMP4AudioProcessorChoices::lfoShape0, (int) LfoShape::triangle);
+    addItem (sBMP4AudioProcessorChoices::lfoShape1, (int) LfoShape::saw);
+    addItem (sBMP4AudioProcessorChoices::lfoShape2, (int) LfoShape::revSaw);
+    addItem (sBMP4AudioProcessorChoices::lfoShape3, (int) LfoShape::square);
+    addItem (sBMP4AudioProcessorChoices::lfoShape3, (int) LfoShape::random);
+
+    //selectNextToggleButton();
+    setShape (LfoShape::triangle);
+}
+
+void ButtonLfoGroupComponent::selectToggleButton (int buttonIndex)
+{
+    setShape (LfoShape (buttonIndex + 1));
+}
+
+void ButtonLfoGroupComponent::setShape (LfoShape shape)
+{
+    switch (shape)
+    {
+        case LfoShape::triangle:
+        case LfoShape::saw:
+        case LfoShape::revSaw:
+        case LfoShape::square:
+        case LfoShape::random:
+            selectionButtons[(int) shape - 1]->setToggleState (true, dontSendNotification);
+            setSelectedId ((int) shape);
+            break;
+
+        case LfoShape::none:
+        case LfoShape::total:
+        default:
+            jassertfalse;
+            break;
+    }
+}
 
 void ButtonLfoGroupComponent::selectNextToggleButton()
 {
@@ -137,12 +177,12 @@ void ButtonLfoGroupComponent::selectNextToggleButton()
             break;
         }
     }
-    
+
     if (selected == LfoShape::none || selected == LfoShape::random)
         selected = LfoShape::triangle;
     else
         selected = LfoShape ((int) selected + 1);
 
-    selectionButtons[(int) selected - 1]->setToggleState (true, sendNotification);
+    selectionButtons[(int) selected - 1]->setToggleState (true, dontSendNotification);
     setSelectedId ((int) selected);
 }

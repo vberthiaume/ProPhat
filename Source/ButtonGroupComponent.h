@@ -44,6 +44,7 @@ public:
 
 protected:
     virtual void selectNextToggleButton() = 0;
+    virtual void selectToggleButton (int buttonIndex) = 0;
 
     bool allowEmptySelection = false;
 
@@ -56,89 +57,22 @@ protected:
 class ButtonOscGroupComponent : public ButtonGroupComponent
 {
 public:
-    ButtonOscGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false) :
-        ButtonGroupComponent (mainButtonName, selectionButtonNames, allowEmpty)
-    {
-        addItem (sBMP4AudioProcessorChoices::oscShape0, (int) OscShape::saw);
-        addItem (sBMP4AudioProcessorChoices::oscShape1, (int) OscShape::sawTri);
-        addItem (sBMP4AudioProcessorChoices::oscShape2, (int) OscShape::triangle);
-        addItem (sBMP4AudioProcessorChoices::oscShape3, (int) OscShape::pulse);
+    ButtonOscGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false);
 
-        selectNextToggleButton();
-    }
-
-    void setShape (OscShape shape)
-    {
-        switch (shape)
-        {
-            case OscShape::saw:
-            case OscShape::sawTri:
-            case OscShape::triangle:
-            case OscShape::pulse:
-                selectionButtons[(int) shape - 1]->setToggleState (true, sendNotification);
-                setSelectedId ((int) shape);
-                break;
-
-            case OscShape::none:
-                for (auto button : selectionButtons)
-                    button->setToggleState (false, sendNotification);
-
-                setSelectedId ((int) shape);
-                break;
-            case OscShape::total:
-                jassertfalse;
-                break;
-            default:
-                break;
-        }
-    }
+    void setShape (OscShape shape);
 
 protected:
     virtual void selectNextToggleButton() override;
+    virtual void selectToggleButton (int buttonIndex) override;
 };
 
 class ButtonLfoGroupComponent : public ButtonGroupComponent
 {
 public:
-    ButtonLfoGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false) :
-        ButtonGroupComponent (mainButtonName, selectionButtonNames, allowEmpty)
-    {
-        addItem (sBMP4AudioProcessorChoices::lfoShape0, (int) LfoShape::triangle);
-        addItem (sBMP4AudioProcessorChoices::lfoShape1, (int) LfoShape::saw);
-        addItem (sBMP4AudioProcessorChoices::lfoShape2, (int) LfoShape::revSaw);
-        addItem (sBMP4AudioProcessorChoices::lfoShape3, (int) LfoShape::square);
-        addItem (sBMP4AudioProcessorChoices::lfoShape3, (int) LfoShape::random);
-
-        selectNextToggleButton();
-    }
-
-    void setShape (LfoShape shape)
-    {
-        switch (shape)
-        {
-            case LfoShape::triangle:
-            case LfoShape::saw:
-            case LfoShape::revSaw:
-            case LfoShape::square:
-            case LfoShape::random:
-                selectionButtons[(int) shape - 1]->setToggleState (true, sendNotification);
-                setSelectedId ((int) shape);
-                break;
-
-            case LfoShape::none:
-                for (auto button : selectionButtons)
-                    button->setToggleState (false, sendNotification);
-
-                setSelectedId ((int) shape);
-                break;
-            case LfoShape::total:
-                jassertfalse;
-                break;
-            default:
-                break;
-        }
-    }
+    ButtonLfoGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false);
+    void setShape (LfoShape shape);
 
 protected:
     virtual void selectNextToggleButton() override;
+    virtual void selectToggleButton (int buttonIndex) override;
 };
