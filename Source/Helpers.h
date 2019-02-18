@@ -152,7 +152,6 @@ namespace sBMP4AudioProcessorChoices
     const String lfoDest1 = "Osc2 Freq";
     const String lfoDest2 = "Cutoff";
     const String lfoDest3 = "Resonance";
-    
 
     const String effectChoices0 = "Reverb";
     const String effectChoices1 = "None";

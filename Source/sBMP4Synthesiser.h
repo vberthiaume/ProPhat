@@ -56,6 +56,8 @@ public:
 
         else if (parameterID == sBMP4AudioProcessorIDs::lfoShapeID)
             setLfoShape (LfoShape ((int) newValue + 1));
+        else if (parameterID == sBMP4AudioProcessorIDs::lfoDestID)
+            setLfoDest (LfoDest ((int) newValue + 1));
         else if (parameterID == sBMP4AudioProcessorIDs::lfoFreqID)
             setLfoFreq (newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::lfoAmountID)
@@ -67,6 +69,8 @@ public:
             setFilterResonance (newValue);
     }
 
+
+    //@TODO these should use lambdas or function pointers
     void setAmpParam (StringRef parameterID, float newValue)
     {
         for (auto voice : voices)
@@ -89,6 +93,12 @@ public:
     {
         for (auto voice : voices)
             dynamic_cast<sBMP4Voice*> (voice)->setLfoShape (newShape);
+    }
+
+    void setLfoDest (LfoDest newDest)
+    {
+        for (auto voice : voices)
+            dynamic_cast<sBMP4Voice*> (voice)->setLfoDest (newDest);
     }
 
     void setLfoFreq (float newFreq)

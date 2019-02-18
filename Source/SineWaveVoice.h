@@ -157,6 +157,8 @@ public:
 
     void setLfoShape (LfoShape shape);
 
+    void setLfoDest (LfoDest dest);
+
     void setLfoFreq (float newFreq) { lfo.setFrequency (newFreq); }
 
     void setLfoAmount (float newAmount) { lfoAmount = newAmount; }
@@ -169,7 +171,8 @@ public:
 
     void setFilterResonance (float newAmount)
     {
-        processorChain.get<filterIndex>().setResonance (newAmount);
+        curFilterResonance = newAmount;
+        processorChain.get<filterIndex>().setResonance (curFilterResonance);
     }
 
     void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition);
@@ -203,12 +206,14 @@ private:
     bool adsrWasActive = false;
 
     float curFilterCutoff = 0.f;
+    float curFilterResonance = 0.f;
 
     //lfo stuff
     static constexpr size_t lfoUpdateRate = 100;
     size_t lfoUpdateCounter = lfoUpdateRate;
     dsp::Oscillator<float> lfo;
     float lfoAmount = 0.f;
+    LfoDest lfoDest = LfoDest::filterCurOff;
     float lfoOsc1NoteOffset = 0.f;
     float lfoOsc2NoteOffset = 0.f;
 

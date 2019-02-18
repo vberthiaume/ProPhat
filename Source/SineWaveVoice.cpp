@@ -240,14 +240,24 @@ void sBMP4Voice::updateAdsr()
     adsr.setParameters (curParams);
 }
 
+void sBMP4Voice::setLfoDest (LfoDest dest)
+{
+    //reset everything
+    lfoOsc1NoteOffset = 0.f;
+    lfoOsc2NoteOffset = 0.f;
+    processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
+    processorChain.get<filterIndex>().setResonance (curFilterResonance);
+
+    //change the destination
+    lfoDest = dest;
+}
+
 void sBMP4Voice::updateLfo()
 {
     //@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
     auto lfoOut = lfo.processSample (0.0f) * lfoAmount;
 
-    //@TODO when we implement setLfoDestination, we need to make sure we reset the lfoOsc1NoteOffset variables (and others) everytime the destination is changed
-    LfoDest dest = LfoDest::osc1Freq;
-    switch (dest)
+    switch (lfoDest)
     {
         case LfoDest::osc1Freq:
             lfoOsc1NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);
