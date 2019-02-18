@@ -56,10 +56,12 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 
     //LFO
     lfoGroup ({}, lfoGroupDesc),
-    lfoShapeButtons (lfoShapeDesc, {lfoShape0, lfoShape1, lfoShape2, lfoShape3, lfoShape4}),
+    lfoShapeButtons (lfoShapeDesc, {lfoShape0, lfoShape1, /*lfoShape2, */lfoShape3, lfoShape4}),
+    lfoDestButtons (lfoDestDesc, {lfoDest0, lfoDest1, lfoDest2, lfoDest3}),
     lfoFreqAttachment (p.state, lfoFreqID, lfoFreqSlider),
     lfoAmountAttachment (p.state, lfoAmountID, lfoAmountSlider),
     lfoShapeAttachment (p.state, lfoShapeID, lfoShapeButtons),
+    lfoDestAttachment (p.state, lfoDestID, lfoDestButtons),
 
     //EFFECT
     effectGroup ({}, effectGroupDesc),
@@ -116,9 +118,9 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
                         {ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc},
                         {&ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider});
 
-    addGroup (lfoGroup, {nullptr, &lfoFreqLabel, &lfoAmountLabel},
-                        {String(), lfoFreqSliderDesc, lfoAmountSliderDesc},
-                        {&lfoShapeButtons, &lfoFreqSlider, &lfoAmountSlider});
+    addGroup (lfoGroup, {nullptr, &lfoFreqLabel, nullptr, &lfoAmountLabel},
+                        {String(), lfoFreqSliderDesc, String(), lfoAmountSliderDesc},
+                        {&lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider});
 
     addGroup (effectGroup, {&effectParam1Label, &effectParam2Label}, {effectParam1Desc, effectParam2Desc}, {&effectParam1Slider, &effectParam2Slider});
 
@@ -126,6 +128,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     osc1ShapeButtons.setShape (OscShape ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID) + 1));
     osc2ShapeButtons.setShape (OscShape ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID) + 1));
     lfoShapeButtons.setShape  (LfoShape ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID)  + 1));
+    lfoDestButtons.setShape   (LfoDest  ((int) Helpers::getRangedParamValue (processor.state, lfoDestID) + 1));
 }
 
 //==============================================================================
@@ -179,7 +182,7 @@ void sBMP4AudioProcessorEditor::resized()
     setupGroup (oscGroup, topSection.removeFromLeft (topSection.getWidth() / 2), {&osc1FreqSlider, &osc1ShapeButtons, &osc2FreqSlider, &osc2ShapeButtons}, 2, 2);
     setupGroup (filterGroup, topSection, {&filterCutoffSlider, &filterResonanceSlider}, 2, 2);
     setupGroup (ampGroup, bottomSection.removeFromLeft (bottomSection.getWidth() / 2), {&ampAttackSlider,&ampDecaySlider, &ampSustainSlider, &ampReleaseSlider}, 2, 2);
-    setupGroup (lfoGroup, bottomSection, {&lfoShapeButtons, &lfoFreqSlider, nullptr, &lfoAmountSlider}, 2, 2);
+    setupGroup (lfoGroup, bottomSection, {&lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider}, 2, 2);
     //setupGroup (effectGroup, topSection, {&effectParam1Slider, &effectParam2Slider}, 1, 2);
 
 #if CPU_USAGE

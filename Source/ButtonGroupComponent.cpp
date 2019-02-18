@@ -126,9 +126,9 @@ ButtonLfoGroupComponent::ButtonLfoGroupComponent (StringRef mainButtonName, Arra
 {
     addItem (sBMP4AudioProcessorChoices::lfoShape0, (int) LfoShape::triangle);
     addItem (sBMP4AudioProcessorChoices::lfoShape1, (int) LfoShape::saw);
-    addItem (sBMP4AudioProcessorChoices::lfoShape2, (int) LfoShape::revSaw);
+    //addItem (sBMP4AudioProcessorChoices::lfoShape2, (int) LfoShape::revSaw);
     addItem (sBMP4AudioProcessorChoices::lfoShape3, (int) LfoShape::square);
-    addItem (sBMP4AudioProcessorChoices::lfoShape3, (int) LfoShape::random);
+    addItem (sBMP4AudioProcessorChoices::lfoShape4, (int) LfoShape::random);
 
     setShape (LfoShape::triangle);
 }
@@ -144,7 +144,7 @@ void ButtonLfoGroupComponent::setShape (LfoShape shape)
     {
         case LfoShape::triangle:
         case LfoShape::saw:
-        case LfoShape::revSaw:
+        //case LfoShape::revSaw:
         case LfoShape::square:
         case LfoShape::random:
             selectionButtons[(int) shape - 1]->setToggleState (true, dontSendNotification);
@@ -175,6 +175,65 @@ void ButtonLfoGroupComponent::selectNextToggleButton()
         selected = LfoShape::triangle;
     else
         selected = LfoShape ((int) selected + 1);
+
+    selectionButtons[(int) selected - 1]->setToggleState (true, dontSendNotification);
+    setSelectedId ((int) selected);
+}
+
+//=========================================================================
+
+ButtonLfoDestGroupComponent::ButtonLfoDestGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty) :
+    ButtonGroupComponent (mainButtonName, selectionButtonNames, allowEmpty)
+{
+    addItem (sBMP4AudioProcessorChoices::lfoDest0, (int) LfoDest::osc1Freq);
+    addItem (sBMP4AudioProcessorChoices::lfoDest1, (int) LfoDest::osc2Freq);
+    addItem (sBMP4AudioProcessorChoices::lfoDest2, (int) LfoDest::filterCurOff);
+    addItem (sBMP4AudioProcessorChoices::lfoDest3, (int) LfoDest::filterResonance);
+
+    setShape (LfoDest::filterCurOff);
+}
+
+void ButtonLfoDestGroupComponent::selectToggleButton (int buttonIndex)
+{
+    setShape (LfoDest (buttonIndex + 1));
+}
+
+void ButtonLfoDestGroupComponent::setShape (LfoDest shape)
+{
+    switch (shape)
+    {
+        case LfoDest::osc1Freq:
+        case LfoDest::osc2Freq:
+        case LfoDest::filterCurOff:
+        case LfoDest::filterResonance:
+            selectionButtons[(int) shape - 1]->setToggleState (true, dontSendNotification);
+            setSelectedId ((int) shape);
+            break;
+
+        case LfoDest::none:
+        case LfoDest::total:
+        default:
+            jassertfalse;
+            break;
+    }
+}
+
+void ButtonLfoDestGroupComponent::selectNextToggleButton()
+{
+    auto selected = LfoDest::none;
+    for (auto i = 0; i < selectionButtons.size(); ++i)
+    {
+        if (selectionButtons[i]->getToggleState())
+        {
+            selected = LfoDest (i + 1);
+            break;
+        }
+    }
+
+    if (selected == LfoDest::none || selected == LfoDest::filterResonance)
+        selected = LfoDest::osc1Freq;
+    else
+        selected = LfoDest ((int) selected + 1);
 
     selectionButtons[(int) selected - 1]->setToggleState (true, dontSendNotification);
     setSelectedId ((int) selected);

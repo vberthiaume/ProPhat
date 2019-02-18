@@ -54,11 +54,11 @@ protected:
     OwnedArray<ToggleButton> selectionButtons;
 };
 
+//these should be different versions of a templated class
 class ButtonOscGroupComponent : public ButtonGroupComponent
 {
 public:
     ButtonOscGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false);
-
     void setShape (OscShape shape);
 
 protected:
@@ -71,6 +71,17 @@ class ButtonLfoGroupComponent : public ButtonGroupComponent
 public:
     ButtonLfoGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false);
     void setShape (LfoShape shape);
+
+protected:
+    virtual void selectNextToggleButton() override;
+    virtual void selectToggleButton (int buttonIndex) override;
+};
+
+class ButtonLfoDestGroupComponent : public ButtonGroupComponent
+{
+public:
+    ButtonLfoDestGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false);
+    void setShape (LfoDest dest);
 
 protected:
     virtual void selectNextToggleButton() override;

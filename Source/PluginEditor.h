@@ -101,11 +101,12 @@ private:
 
     //LFO
     ButtonLfoGroupComponent lfoShapeButtons;
+    ButtonLfoDestGroupComponent lfoDestButtons;
     
     sBMP4Label lfoFreqLabel, lfoAmountLabel;
     SnappingSlider lfoFreqSlider, lfoAmountSlider;
     AudioProcessorValueTreeState::SliderAttachment lfoFreqAttachment, lfoAmountAttachment;
-    AudioProcessorValueTreeState::ComboBoxAttachment lfoShapeAttachment;
+    AudioProcessorValueTreeState::ComboBoxAttachment lfoShapeAttachment, lfoDestAttachment;
 
     //EFFECT
     sBMP4Label effectParam1Label, effectParam2Label;

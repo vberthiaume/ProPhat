@@ -58,6 +58,7 @@ namespace sBMP4AudioProcessorIDs
     const String ampReleaseID   = "ampReleaseID";
 
     const String lfoShapeID     = "lfoShapeID";
+    const String lfoDestID      = "lfoDestID";
     const String lfoFreqID      = "lfoFreqID";
     const String lfoAmountID    = "lfoAmountID";
 
@@ -86,6 +87,7 @@ namespace sBMP4AudioProcessorNames
 
     const String lfoGroupDesc = "LFO";
     const String lfoShapeDesc = "SHAPE";
+    const String lfoDestDesc = "DEST";
     const String lfoFreqSliderDesc = "FREQUENCY";
     const String lfoAmountSliderDesc = "AMOUNT";
 
@@ -109,7 +111,7 @@ enum class LfoShape
     none = 0,
     triangle,
     saw,
-    revSaw,
+    //revSaw,
     square,
     random,
     total
@@ -117,10 +119,12 @@ enum class LfoShape
 
 enum class LfoDest
 {
+    none = 0,
     osc1Freq,
     osc2Freq,
     filterCurOff,
-    filterResonance
+    filterResonance,
+    total
 };
 
 namespace sBMP4AudioProcessorChoices
@@ -140,9 +144,15 @@ namespace sBMP4AudioProcessorChoices
 
     const String lfoShape0 = "Triangle";
     const String lfoShape1 = "Sawtooth";
-    const String lfoShape2 = "Rev Saw";
+    //const String lfoShape2 = "Rev Saw";
     const String lfoShape3 = "Square";
     const String lfoShape4 = "Random";
+
+    const String lfoDest0 = "Osc1 Freq";
+    const String lfoDest1 = "Osc2 Freq";
+    const String lfoDest2 = "Cutoff";
+    const String lfoDest3 = "Resonance";
+    
 
     const String effectChoices0 = "Reverb";
     const String effectChoices1 = "None";
@@ -171,7 +181,7 @@ struct Helpers
     static float getRangedParamValue (AudioProcessorValueTreeState& state, StringRef id)
     {
         auto param = state.getParameter (id);
-        return param->convertFrom0to1 (param->getValue());
+        return param == nullptr ? 0.f : param->convertFrom0to1 (param->getValue());
     }
 
     static double getDoubleMidiNoteInHertz (const double noteNumber, const double frequencyOfA = 440.0) noexcept

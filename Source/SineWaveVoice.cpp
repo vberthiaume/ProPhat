@@ -139,12 +139,12 @@ void sBMP4Voice::setLfoShape (LfoShape shape)
             }, 2);
             break;
 
-        case LfoShape::revSaw:
-            lfo.initialise ([](float x)
-            {
-                return (float) jmap (x, -MathConstants<float>::pi, MathConstants<float>::pi, 1.f, 0.f);
-            }, 2);
-            break;
+        //case LfoShape::revSaw:
+        //    lfo.initialise ([](float x)
+        //    {
+        //        return (float) jmap (x, -MathConstants<float>::pi, MathConstants<float>::pi, 1.f, 0.f);
+        //    }, 2);
+        //    break;
 
         case LfoShape::square:
             lfo.initialise ([](float x)
@@ -246,7 +246,7 @@ void sBMP4Voice::updateLfo()
     auto lfoOut = lfo.processSample (0.0f) * lfoAmount;
 
     //@TODO when we implement setLfoDestination, we need to make sure we reset the lfoOsc1NoteOffset variables (and others) everytime the destination is changed
-    LfoDest dest = LfoDest::filterCurOff;
+    LfoDest dest = LfoDest::osc1Freq;
     switch (dest)
     {
         case LfoDest::osc1Freq:

@@ -34,7 +34,7 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
         std::make_unique<AudioParameterFloat>   (ampReleaseID, ampReleaseSliderDesc, ampRange, 0.25f),
         
         std::make_unique<AudioParameterFloat>   (lfoFreqID,   lfoFreqSliderDesc, lfoRange, 3.f),
-        std::make_unique<AudioParameterChoice>  (lfoShapeID, lfoShapeDesc,  StringArray {lfoShape0, lfoShape1, lfoShape2, lfoShape3, lfoShape4}, 0),
+        std::make_unique<AudioParameterChoice>  (lfoShapeID, lfoShapeDesc,  StringArray {lfoShape0, lfoShape1, /*lfoShape2, */lfoShape3, lfoShape4}, 0),
         std::make_unique<AudioParameterFloat>   (lfoAmountID, lfoAmountSliderDesc, sliderRange, 0.0f),
 
         std::make_unique<AudioParameterFloat>   (effectParam1ID, effectParam1Desc, sliderRange, 0.0f)
