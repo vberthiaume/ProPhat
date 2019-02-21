@@ -12,12 +12,13 @@
 
 sBMP4Voice::sBMP4Voice()
 {
-    auto& masterGain = processorChain.get<masterGainIndex>();
-    masterGain.setGainLinear (0.6f);
+    processorChain.get<masterGainIndex>().setGainLinear (0.6f);
+    processorChain.get<filterIndex>().setCutoffFrequencyHz (1000.0f);
+    processorChain.get<filterIndex>().setResonance (0.7f);
 
-    auto& filter = processorChain.get<filterIndex>();
-    filter.setCutoffFrequencyHz (1000.0f);
-    filter.setResonance (0.7f);
+    processorChain2.get<masterGainIndex>().setGainLinear (0.6f);
+    processorChain2.get<filterIndex>().setCutoffFrequencyHz (1000.0f);
+    processorChain2.get<filterIndex>().setResonance (0.7f);
 
     setLfoShape (LfoShape::triangle);
     lfo.setFrequency (3.0f);
@@ -38,6 +39,9 @@ void sBMP4Voice::prepare (const dsp::ProcessSpec& spec)
     tempBlock = dsp::AudioBlock<float> (heapBlock, spec.numChannels, spec.maximumBlockSize);
     processorChain.prepare (spec);
 
+    tempBlock2 = dsp::AudioBlock<float> (heapBlock2, spec.numChannels, spec.maximumBlockSize);
+    processorChain2.prepare (spec);
+
     adsr.setSampleRate (spec.sampleRate);
 #if RAMP_ADSR
     updateNextParams();
@@ -57,33 +61,7 @@ void sBMP4Voice::updateOscFrequencies()
     processorChain.get<osc1Index>().setFrequency ((float) osc1Freq, true);
 
     auto osc2Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc2NoteOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote);
-    processorChain.get<osc2Index>().setFrequency ((float) osc2Freq, true);
-}
-
-void sBMP4Voice::setOscTuning (processorId oscNum, int newMidiNote)
-{
-    switch (oscNum)
-    {
-        case sBMP4Voice::osc1Index:
-            osc1NoteOffset = middleCMidiNote - (float) newMidiNote;
-            updateOscFrequencies();
-            break;
-        case sBMP4Voice::osc2Index:
-            osc2NoteOffset = middleCMidiNote - (float) newMidiNote;
-            updateOscFrequencies();
-            break;
-        default:
-            jassertfalse;
-            break;
-    }
-}
-
-void sBMP4Voice::setOscShape (processorId oscNum, OscShape newShape)
-{
-    if (oscNum == osc1Index)
-        processorChain.get<osc1Index>().setOscShape (newShape);
-    else if (oscNum == osc2Index)
-        processorChain.get<osc2Index>().setOscShape (newShape);
+    processorChain2.get<osc1Index>().setFrequency ((float) osc2Freq, true);
 }
 
 void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
@@ -194,6 +172,9 @@ void sBMP4Voice::setLfoDest (LfoDest dest)
     processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
     processorChain.get<filterIndex>().setResonance (curFilterResonance);
 
+    processorChain2.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
+    processorChain2.get<filterIndex>().setResonance (curFilterResonance);
+
     //change the destination
     lfoDest = dest;
 }
@@ -216,7 +197,7 @@ void sBMP4Voice::startNote (int midiNoteNumber, float velocity, SynthesiserSound
     processorChain.get<osc1Index>().setLevel (velocity / (numVoices / 2));
     //processorChain.get<osc1Index>().setLevel (0.f);
 
-    processorChain.get<osc2Index>().setLevel (velocity / (numVoices / 2));
+    processorChain2.get<osc1Index>().setLevel (velocity / (numVoices / 2));
     //processorChain.get<osc2Index>().setLevel (0.f);
 
     //processorChain.setBypassed<osc2Index> (true);
@@ -292,11 +273,13 @@ void sBMP4Voice::updateLfo()
         {
             auto curoffFreqHz = jmap (lfoOut, 0.0f, 1.0f, 100.0f, 2000.0f);
             processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff + curoffFreqHz);
+            processorChain2.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff + curoffFreqHz);
         }
         break;
 
         case LfoDest::filterResonance:
             processorChain.get<filterIndex>().setResonance (lfoOut);
+            processorChain2.get<filterIndex>().setResonance (lfoOut);
             break;
 
         default:
@@ -328,6 +311,7 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
 
         dsp::ProcessContextReplacing<float> context (block);
         processorChain.process (context);
+        processorChain2.process (context);
 
         pos += max;
         lfoUpdateCounter -= max;

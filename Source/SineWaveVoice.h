@@ -139,7 +139,6 @@ public:
     enum processorId
     {
         osc1Index,
-        osc2Index,
         filterIndex,
         masterGainIndex
     };
@@ -150,30 +149,47 @@ public:
 
     void updateOscFrequencies();
 
-    void setOscTuning (processorId oscNum, int newMidiNote);
+    void setOsc1Tuning (int newMidiNote)
+    {
+        osc1NoteOffset = middleCMidiNote - (float) newMidiNote;
+        updateOscFrequencies();
+    }
 
-    void setOscShape (processorId oscNum, OscShape newShape);
+    void setOsc2Tuning (int newMidiNote)
+    {
+        osc2NoteOffset = middleCMidiNote - (float) newMidiNote;
+        updateOscFrequencies();
+    }
+
+    void setOsc1Shape (OscShape newShape)
+    {
+        processorChain.get<osc1Index>().setOscShape (newShape);
+    }
+
+    void setOsc2Shape (OscShape newShape)
+    {
+        processorChain2.get<osc1Index>().setOscShape (newShape);
+    }
 
     void setAmpParam (StringRef parameterID, float newValue);
 
     void setLfoShape (LfoShape shape);
-
     void setLfoDest (LfoDest dest);
-
     void setLfoFreq (float newFreq) { lfo.setFrequency (newFreq); }
-
     void setLfoAmount (float newAmount) { lfoAmount = newAmount; }
 
     void setFilterCutoff (float newValue)
     {
         curFilterCutoff = newValue;
         processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
+        processorChain2.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
     }
 
     void setFilterResonance (float newAmount)
     {
         curFilterResonance = newAmount;
         processorChain.get<filterIndex>().setResonance (curFilterResonance);
+        processorChain2.get<filterIndex>().setResonance (curFilterResonance);
     }
 
     void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition);
@@ -201,7 +217,11 @@ private:
 
     HeapBlock<char> heapBlock;
     dsp::AudioBlock<float> tempBlock;
-    dsp::ProcessorChain<GainedOscillator<float>, GainedOscillator<float>, dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
+    dsp::ProcessorChain<GainedOscillator<float>, dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
+
+    HeapBlock<char> heapBlock2;
+    dsp::AudioBlock<float> tempBlock2;
+    dsp::ProcessorChain<GainedOscillator<float>, dsp::LadderFilter<float>, dsp::Gain<float>> processorChain2;
 
     ADSR adsr;
     ADSR::Parameters curParams;

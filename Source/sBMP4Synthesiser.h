@@ -39,89 +39,44 @@ public:
     void parameterChanged (const String& parameterID, float newValue) override
     {
         if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID)
-            setOscTuning (sBMP4Voice::processorId::osc1Index, (int) newValue);
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc1Tuning (newValue); }, newValue);
+
         else if (parameterID == sBMP4AudioProcessorIDs::osc2FreqID)
-            setOscTuning (sBMP4Voice::processorId::osc2Index, (int) newValue);
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc2Tuning (newValue); }, newValue);
 
         else if (parameterID == sBMP4AudioProcessorIDs::osc1ShapeID)
-            setOscShape (sBMP4Voice::processorId::osc2Index, OscShape ((int) newValue + 1));
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc1Shape (OscShape ((int) newValue + 1)); }, newValue);
+
         else if (parameterID == sBMP4AudioProcessorIDs::osc2ShapeID)
-            setOscShape (sBMP4Voice::processorId::osc2Index, OscShape ((int) newValue + 1));
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc2Shape (OscShape ((int) newValue + 1)); }, newValue);
 
         else if (parameterID == sBMP4AudioProcessorIDs::ampAttackID
                 || parameterID == sBMP4AudioProcessorIDs::ampDecayID
                 || parameterID == sBMP4AudioProcessorIDs::ampSustainID
                 || parameterID == sBMP4AudioProcessorIDs::ampReleaseID)
-            setAmpParam (parameterID, newValue);
+            for (auto voice : voices)
+                dynamic_cast<sBMP4Voice*> (voice)->setAmpParam (parameterID, newValue);
 
         else if (parameterID == sBMP4AudioProcessorIDs::lfoShapeID)
-            setLfoShape (LfoShape ((int) newValue + 1));
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoShape (LfoShape ((int) newValue + 1)); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::lfoDestID)
-            setLfoDest (LfoDest ((int) newValue + 1));
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoDest (LfoDest ((int) newValue + 1)); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::lfoFreqID)
-            setLfoFreq (newValue);
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoFreq (newValue); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::lfoAmountID)
-            setLfoAmount (newValue);
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoAmount (newValue); }, newValue);
 
         else if (parameterID == sBMP4AudioProcessorIDs::filterCutoffID)
-            setFilterCutoff (newValue);
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setFilterCutoff (newValue); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::filterResonanceID)
-            setFilterResonance (newValue);
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setFilterResonance (newValue); }, newValue);
     }
 
-    //@TODO these should use lambdas or function pointers
-    void setAmpParam (StringRef parameterID, float newValue)
+    using VoiceOperation = std::function<void (sBMP4Voice*, float)>;
+    void applyToAllVoices (VoiceOperation operation, float newValue)
     {
         for (auto voice : voices)
-            dynamic_cast<sBMP4Voice*> (voice)->setAmpParam (parameterID, newValue);
-    }
-
-    void setOscTuning (sBMP4Voice::processorId oscNum, int newMidiNote)
-    {
-        for (auto voice : voices)
-            dynamic_cast<sBMP4Voice*> (voice)->setOscTuning (oscNum, newMidiNote);
-    }
-
-    void setOscShape (sBMP4Voice::processorId oscNum, OscShape newShape)
-    {
-        for (auto voice : voices)
-            dynamic_cast<sBMP4Voice*> (voice)->setOscShape (oscNum, newShape);
-    }
-
-    void setLfoShape (LfoShape newShape)
-    {
-        for (auto voice : voices)
-            dynamic_cast<sBMP4Voice*> (voice)->setLfoShape (newShape);
-    }
-
-    void setLfoDest (LfoDest newDest)
-    {
-        for (auto voice : voices)
-            dynamic_cast<sBMP4Voice*> (voice)->setLfoDest (newDest);
-    }
-
-    void setLfoFreq (float newFreq)
-    {
-        for (auto voice : voices)
-            dynamic_cast<sBMP4Voice*> (voice)->setLfoFreq (newFreq);
-    }
-
-    void setLfoAmount (float newAmount)
-    {
-        for (auto voice : voices)
-            dynamic_cast<sBMP4Voice*> (voice)->setLfoAmount (newAmount);
-    }
-
-    void setFilterCutoff (float newAmount)
-    {
-        for (auto voice : voices)
-            dynamic_cast<sBMP4Voice*> (voice)->setFilterCutoff (newAmount);
-    }
-
-    void setFilterResonance (float newAmount)
-    {
-        for (auto voice : voices)
-            dynamic_cast<sBMP4Voice*> (voice)->setFilterResonance (newAmount);
+            operation (dynamic_cast<sBMP4Voice*> (voice), newValue);
     }
 
 private:
