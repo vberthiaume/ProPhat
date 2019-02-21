@@ -22,6 +22,7 @@
 
 static const NormalisableRange<float> dBRange = {-12.f, 12.f};
 static const NormalisableRange<float> sliderRange = {0.f, 1.f};
+static const NormalisableRange<float> sustainRange = {0.0000001f, 1.f};
 static const NormalisableRange<float> ampRange = {0.0000001f, 25.f};
 static const NormalisableRange<float> hzRange = {0.1f, 18000.f};
 static const NormalisableRange<float> lfoRange = {0.1f, 10.f};
@@ -83,8 +84,7 @@ namespace Constants
         oscShapeRadioGroupId = 1,
 
         numVoices = 16,
-        //defaultOscMidiNote = 36,    //C2 on rev2
-        defaultOscMidiNote = 48,    //C2 on rev2
+        defaultOscMidiNote = 48,    //C2 on rev2, used to be 36 for some reason
         middleCMidiNote = 60,       //C3 on rev2
 
         defaultOscShape = (int) OscShape::saw - 1,

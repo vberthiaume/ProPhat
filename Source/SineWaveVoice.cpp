@@ -13,7 +13,7 @@
 sBMP4Voice::sBMP4Voice()
 {
     auto& masterGain = processorChain.get<masterGainIndex>();
-    masterGain.setGainLinear (0.7f);
+    masterGain.setGainLinear (0.6f);
 
     auto& filter = processorChain.get<filterIndex>();
     filter.setCutoffFrequencyHz (1000.0f);
@@ -23,6 +23,7 @@ sBMP4Voice::sBMP4Voice()
     lfo.setFrequency (3.0f);
 }
 
+#if RAMP_ADSR
 void sBMP4Voice::updateNextParams()
 {
     nextAttack  = curParams.attack;
@@ -30,6 +31,7 @@ void sBMP4Voice::updateNextParams()
     nextSustain = curParams.sustain;
     nextRelease = curParams.release;
 }
+#endif
 
 void sBMP4Voice::prepare (const dsp::ProcessSpec& spec)
 {
@@ -37,7 +39,9 @@ void sBMP4Voice::prepare (const dsp::ProcessSpec& spec)
     processorChain.prepare (spec);
 
     adsr.setSampleRate (spec.sampleRate);
-    //updateNextParams();
+#if RAMP_ADSR
+    updateNextParams();
+#endif
     adsr.setParameters (curParams);
 
     lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
@@ -200,17 +204,24 @@ void sBMP4Voice::startNote (int midiNoteNumber, float velocity, SynthesiserSound
     pitchWheelPosition = currentPitchWheelPosition;
 
     adsrWasActive = true;
+#if RAMP_ADSR
     updateNextParams();
+#endif
     adsr.setParameters (curParams);
     adsr.noteOn();
 
     updateOscFrequencies();
 
-    processorChain.get<osc1Index>().setLevel (velocity / 4);
+    //@TODO the velocity here should probably be dependent on the number of voices... or add compression or something?
+    processorChain.get<osc1Index>().setLevel (velocity / (numVoices / 2));
     //processorChain.get<osc1Index>().setLevel (0.f);
 
-    processorChain.get<osc2Index>().setLevel (velocity / 4);
+    processorChain.get<osc2Index>().setLevel (velocity / (numVoices / 2));
     //processorChain.get<osc2Index>().setLevel (0.f);
+
+    processorChain.setBypassed<osc2Index> (true);
+
+    //processorChain.get<masterGainIndex>().setGainLinear (velocity / 4);
 }
 
 void sBMP4Voice::pitchWheelMoved (int newPitchWheelValue)
@@ -229,10 +240,13 @@ void sBMP4Voice::stopNote (float /*velocity*/, bool allowTailOff)
     {
         clearCurrentNote();
         adsr.reset();
+#if RAMP_ADSR
         updateNextParams();
+#endif
     }
 }
 
+#if RAMP_ADSR
 void sBMP4Voice::updateAdsr()
 {
     const auto threshold = .03f;
@@ -247,6 +261,7 @@ void sBMP4Voice::updateAdsr()
             curParam = nextParam;
     };
 
+
     updateParam (curParams.attack, nextAttack);
     updateParam (curParams.decay, nextDecay);
     updateParam (curParams.sustain, nextSustain);
@@ -254,6 +269,7 @@ void sBMP4Voice::updateAdsr()
 
     adsr.setParameters (curParams);
 }
+#endif
 
 void sBMP4Voice::updateLfo()
 {

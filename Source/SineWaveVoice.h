@@ -192,7 +192,9 @@ public:
 
     void controllerMoved (int /*controllerNumber*/, int /*newValue*/) {}
 
+#if RAMP_ADSR
     void updateNextParams();
+#endif
 
 private:
     bool isPrepared = false;
@@ -203,10 +205,12 @@ private:
 
     ADSR adsr;
     ADSR::Parameters curParams;
+#if RAMP_ADSR
     float nextAttack = defaultAmpA;
     float nextDecay = defaultAmpD;
     float nextSustain = defaultAmpS;
     float nextRelease = defaultAmpR;
+#endif
     bool adsrWasActive = false;
 
     float curFilterCutoff = defaultFilterCutoff;
