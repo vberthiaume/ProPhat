@@ -182,6 +182,18 @@ void sBMP4Voice::setLfoShape (LfoShape shape)
     }
 }
 
+void sBMP4Voice::setLfoDest (LfoDest dest)
+{
+    //reset everything
+    lfoOsc1NoteOffset = 0.f;
+    lfoOsc2NoteOffset = 0.f;
+    processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
+    processorChain.get<filterIndex>().setResonance (curFilterResonance);
+
+    //change the destination
+    lfoDest = dest;
+}
+
 void sBMP4Voice::startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
 {
     midiNote = midiNoteNumber;
@@ -195,7 +207,10 @@ void sBMP4Voice::startNote (int midiNoteNumber, float velocity, SynthesiserSound
     updateOscFrequencies();
 
     processorChain.get<osc1Index>().setLevel (velocity);
+    //processorChain.get<osc1Index>().setLevel (0.f);
+
     processorChain.get<osc2Index>().setLevel (velocity);
+    //processorChain.get<osc2Index>().setLevel (0.f);
 }
 
 void sBMP4Voice::pitchWheelMoved (int newPitchWheelValue)
@@ -238,18 +253,6 @@ void sBMP4Voice::updateAdsr()
     updateParam (curParams.release, nextRelease);
 
     adsr.setParameters (curParams);
-}
-
-void sBMP4Voice::setLfoDest (LfoDest dest)
-{
-    //reset everything
-    lfoOsc1NoteOffset = 0.f;
-    lfoOsc2NoteOffset = 0.f;
-    processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
-    processorChain.get<filterIndex>().setResonance (curFilterResonance);
-
-    //change the destination
-    lfoDest = dest;
 }
 
 void sBMP4Voice::updateLfo()

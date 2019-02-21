@@ -5,6 +5,7 @@
 using namespace sBMP4AudioProcessorIDs;
 using namespace sBMP4AudioProcessorNames;
 using namespace sBMP4AudioProcessorChoices;
+using namespace Constants;
 
 //==============================================================================
 sBMP4AudioProcessor::sBMP4AudioProcessor() :
@@ -18,27 +19,27 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
                                                                                  midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
 
 #if 0
-        std::make_unique<AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, 1),
-        std::make_unique<AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, 1),
+        std::make_unique<AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
+        std::make_unique<AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
 #else
-        std::make_unique<AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
-        std::make_unique<AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, 0),
+        std::make_unique<AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, defaultOscShape),
+        std::make_unique<AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, defaultOscShape),
 #endif
 
-        std::make_unique<AudioParameterFloat>   (filterCutoffID, filterCutoffSliderDesc, hzRange, 1000.0f),
-        std::make_unique<AudioParameterFloat>   (filterResonanceID, filterResonanceSliderDesc, sliderRange, .5f),
+        std::make_unique<AudioParameterFloat>   (filterCutoffID, filterCutoffSliderDesc, hzRange, defaultFilterCutoff),
+        std::make_unique<AudioParameterFloat>   (filterResonanceID, filterResonanceSliderDesc, sliderRange, defaultFilterResonance),
         
-        std::make_unique<AudioParameterFloat>   (ampAttackID, ampAttackSliderDesc, ampRange, 0.1f),
-        std::make_unique<AudioParameterFloat>   (ampDecayID, ampDecaySliderDesc, ampRange, 0.1f),
-        std::make_unique<AudioParameterFloat>   (ampSustainID, ampSustainSliderDesc, sliderRange, 1.0f),
-        std::make_unique<AudioParameterFloat>   (ampReleaseID, ampReleaseSliderDesc, ampRange, 0.25f),
+        std::make_unique<AudioParameterFloat>   (ampAttackID, ampAttackSliderDesc, ampRange, defaultAmpA),
+        std::make_unique<AudioParameterFloat>   (ampDecayID, ampDecaySliderDesc, ampRange, defaultAmpD),
+        std::make_unique<AudioParameterFloat>   (ampSustainID, ampSustainSliderDesc, ampRange, defaultAmpS),
+        std::make_unique<AudioParameterFloat>   (ampReleaseID, ampReleaseSliderDesc, ampRange, defaultAmpR),
         
-        std::make_unique<AudioParameterFloat>   (lfoFreqID,   lfoFreqSliderDesc, lfoRange, 3.f),
-        std::make_unique<AudioParameterChoice>  (lfoShapeID, lfoShapeDesc,  StringArray {lfoShape0, lfoShape1, /*lfoShape2, */lfoShape3, lfoShape4}, 0),
-        std::make_unique<AudioParameterChoice>  (lfoDestID, lfoDestDesc,  StringArray {lfoDest0, lfoDest1, lfoDest2, lfoDest3}, 0),
-        std::make_unique<AudioParameterFloat>   (lfoAmountID, lfoAmountSliderDesc, sliderRange, 0.0f),
+        std::make_unique<AudioParameterFloat>   (lfoFreqID,   lfoFreqSliderDesc, lfoRange, defaultLfoFreq),
+        std::make_unique<AudioParameterChoice>  (lfoShapeID, lfoShapeDesc,  StringArray {lfoShape0, lfoShape1, /*lfoShape2,*/ lfoShape3, lfoShape4}, defaultLfoShape),
+        std::make_unique<AudioParameterChoice>  (lfoDestID, lfoDestDesc,  StringArray {lfoDest0, lfoDest1, lfoDest2, lfoDest3}, defaultLfoDest),
+        std::make_unique<AudioParameterFloat>   (lfoAmountID, lfoAmountSliderDesc, sliderRange, defaultLfoAmount),
 
-        std::make_unique<AudioParameterFloat>   (effectParam1ID, effectParam1Desc, sliderRange, 0.0f)
+        std::make_unique<AudioParameterFloat>   (effectParam1ID, effectParam1Desc, sliderRange, defaultEffectParam1)
     })
 
 #if CPU_USAGE
@@ -148,6 +149,8 @@ void sBMP4AudioProcessor::getStateInformation (MemoryBlock& destData)
 void sBMP4AudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     std::unique_ptr<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+
+    DBG (ValueTree::fromXml (*xmlState).toXmlString());
 
     if (xmlState.get() != nullptr)
         state.replaceState (ValueTree::fromXml (*xmlState));

@@ -30,7 +30,7 @@ public:
     }
 };
 
-class ButtonGroupComponent : public ComboBox, public Button::Listener
+class ButtonGroupComponent : public ComboBox, public ComboBox::Listener, public Button::Listener
 {
 public:
 
@@ -52,9 +52,11 @@ protected:
 
     FilledDrawableButton mainButton;
     OwnedArray<ToggleButton> selectionButtons;
+
+    // Inherited via Listener
+    virtual void comboBoxChanged (ComboBox * comboBoxThatHasChanged) override;
 };
 
-//these should be different versions of a templated class
 class ButtonOscGroupComponent : public ButtonGroupComponent
 {
 public:

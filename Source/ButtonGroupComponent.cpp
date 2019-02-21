@@ -25,12 +25,14 @@ ButtonGroupComponent::ButtonGroupComponent (StringRef mainButtonName, Array<Stri
     for (auto names : selectionButtonNames)
     {
         auto button = new ToggleButton (names);
-        button->setRadioGroupId (oscShapeRadioGroupId);
+        button->setRadioGroupId (Constants::oscShapeRadioGroupId);
         button->setLookAndFeel (&lf);
         button->addListener (this);
         selectionButtons.add (button);
         addAndMakeVisible (button);
     }
+
+    addListener (this);
 }
 
 void ButtonGroupComponent::resized()
@@ -44,6 +46,15 @@ void ButtonGroupComponent::resized()
 
     for (auto button : selectionButtons)
         button->setBounds (bounds.removeFromTop (ogHeight / selectionButtons.size()));
+}
+
+void ButtonGroupComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+{
+    if (comboBoxThatHasChanged != this)
+        return;
+
+    if (auto selectedId = getSelectedId(); selectedId > 0)
+        selectionButtons[selectedId - 1]->setToggleState (true, dontSendNotification);
 }
 
 void ButtonGroupComponent::buttonClicked (Button* button)
@@ -85,7 +96,6 @@ void ButtonOscGroupComponent::setShape (OscShape shape)
         case OscShape::sawTri:
         case OscShape::triangle:
         case OscShape::pulse:
-            selectionButtons[(int) shape - 1]->setToggleState (true, dontSendNotification);
             setSelectedId ((int) shape);
             break;
 
@@ -115,7 +125,6 @@ void ButtonOscGroupComponent::selectNextToggleButton()
     else
         selected = OscShape ((int) selected + 1);
 
-    selectionButtons[(int) selected - 1]->setToggleState (true, dontSendNotification);
     setSelectedId ((int) selected);
 }
 
@@ -147,7 +156,6 @@ void ButtonLfoGroupComponent::setShape (LfoShape shape)
         //case LfoShape::revSaw:
         case LfoShape::square:
         case LfoShape::random:
-            selectionButtons[(int) shape - 1]->setToggleState (true, dontSendNotification);
             setSelectedId ((int) shape);
             break;
 
@@ -176,7 +184,6 @@ void ButtonLfoGroupComponent::selectNextToggleButton()
     else
         selected = LfoShape ((int) selected + 1);
 
-    selectionButtons[(int) selected - 1]->setToggleState (true, dontSendNotification);
     setSelectedId ((int) selected);
 }
 
@@ -206,7 +213,6 @@ void ButtonLfoDestGroupComponent::setShape (LfoDest shape)
         case LfoDest::osc2Freq:
         case LfoDest::filterCurOff:
         case LfoDest::filterResonance:
-            selectionButtons[(int) shape - 1]->setToggleState (true, dontSendNotification);
             setSelectedId ((int) shape);
             break;
 
@@ -235,6 +241,5 @@ void ButtonLfoDestGroupComponent::selectNextToggleButton()
     else
         selected = LfoDest ((int) selected + 1);
 
-    selectionButtons[(int) selected - 1]->setToggleState (true, dontSendNotification);
     setSelectedId ((int) selected);
 }

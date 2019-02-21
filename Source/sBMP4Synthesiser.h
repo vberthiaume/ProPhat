@@ -69,7 +69,6 @@ public:
             setFilterResonance (newValue);
     }
 
-
     //@TODO these should use lambdas or function pointers
     void setAmpParam (StringRef parameterID, float newValue)
     {

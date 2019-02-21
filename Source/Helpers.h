@@ -24,7 +24,7 @@ static const NormalisableRange<float> dBRange = {-12.f, 12.f};
 static const NormalisableRange<float> sliderRange = {0.f, 1.f};
 static const NormalisableRange<float> ampRange = {0.0000001f, 25.f};
 static const NormalisableRange<float> hzRange = {0.1f, 18000.f};
-static const NormalisableRange<float> lfoRange = {0.1f, 30.f};
+static const NormalisableRange<float> lfoRange = {0.1f, 10.f};
 static const NormalisableRange<float> lfoNoteRange = {0.f, 16.f};
 
 
@@ -32,15 +32,66 @@ static const NormalisableRange<float> lfoNoteRange = {0.f, 16.f};
 //range from 16 Hz to 8KHz (when used with the Transpose buttons). Adjustment is in semitones.
 static const NormalisableRange<int> midiNoteRange = {12, 120};   //actual midi note range is (0,127), but rev2, at least for oscilators is C0(0) to C10(120)
 
-enum Constants
+enum class OscShape
 {
-    numVoices = 16,
-    //defaultOscMidiNote = 36,    //C2 on rev2
-    defaultOscMidiNote = 48,    //C2 on rev2
-    middleCMidiNote = 60,       //C3 on rev2
-
-    oscShapeRadioGroupId
+    none = 0,
+    saw,
+    sawTri,
+    triangle,
+    pulse,
+    total
 };
+
+enum class LfoShape
+{
+    none = 0,
+    triangle,
+    saw,
+    //revSaw,
+    square,
+    random,
+    total
+};
+
+enum class LfoDest
+{
+    none = 0,
+    osc1Freq,
+    osc2Freq,
+    filterCurOff,
+    filterResonance,
+    total
+};
+
+namespace Constants
+{
+    static const float defaultFilterCutoff = 1000.f;
+    static const float defaultFilterResonance = .5f;
+
+    static const float defaultAmpA = .1f;
+    static const float defaultAmpD = .1f;
+    static const float defaultAmpS = 1.f;
+    static const float defaultAmpR = .25f;
+
+    static const float defaultLfoFreq = 3.f;
+    static const float defaultLfoAmount = 0.f;
+
+    static const float defaultEffectParam1 = 0.f;
+
+    enum
+    {
+        oscShapeRadioGroupId = 1,
+
+        numVoices = 16,
+        //defaultOscMidiNote = 36,    //C2 on rev2
+        defaultOscMidiNote = 48,    //C2 on rev2
+        middleCMidiNote = 60,       //C3 on rev2
+
+        defaultOscShape = (int) OscShape::saw - 1,
+        defaultLfoShape = (int) LfoShape::triangle - 1,
+        defaultLfoDest = (int) LfoDest::filterCurOff - 1
+    };
+}
 
 namespace sBMP4AudioProcessorIDs
 {
@@ -95,37 +146,6 @@ namespace sBMP4AudioProcessorNames
     const String effectParam1Desc = "PARAM 1";
     const String effectParam2Desc = "PARAM 2";
 }
-
-enum class OscShape
-{
-    none = 0,
-    saw,
-    sawTri,
-    triangle,
-    pulse,
-    total
-};
-
-enum class LfoShape
-{
-    none = 0,
-    triangle,
-    saw,
-    //revSaw,
-    square,
-    random,
-    total
-};
-
-enum class LfoDest
-{
-    none = 0,
-    osc1Freq,
-    osc2Freq,
-    filterCurOff,
-    filterResonance,
-    total
-};
 
 namespace sBMP4AudioProcessorChoices
 {

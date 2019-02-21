@@ -131,6 +131,7 @@ private:
 };
 
 //==============================================================================
+using namespace Constants;
 class sBMP4Voice : public SynthesiserVoice
 {
 public:
@@ -202,18 +203,21 @@ private:
 
     ADSR adsr;
     ADSR::Parameters curParams;
-    float nextAttack = 0.f, nextDecay = 0.f, nextSustain = 1.f, nextRelease = 0.f;
+    float nextAttack = defaultAmpA;
+    float nextDecay = defaultAmpD;
+    float nextSustain = defaultAmpS;
+    float nextRelease = defaultAmpR;
     bool adsrWasActive = false;
 
-    float curFilterCutoff = 0.f;
-    float curFilterResonance = 0.f;
+    float curFilterCutoff = defaultFilterCutoff;
+    float curFilterResonance = defaultFilterResonance;
 
     //lfo stuff
     static constexpr size_t lfoUpdateRate = 100;
     size_t lfoUpdateCounter = lfoUpdateRate;
     dsp::Oscillator<float> lfo;
-    float lfoAmount = 0.f;
-    LfoDest lfoDest = LfoDest::filterCurOff;
+    float lfoAmount = defaultLfoAmount;
+    LfoDest lfoDest = (LfoDest) defaultLfoDest;
     float lfoOsc1NoteOffset = 0.f;
     float lfoOsc2NoteOffset = 0.f;
 
@@ -222,8 +226,8 @@ private:
     float randomValue = 0.f;
     bool valueWasBig = false;
 
-    int midiNote = 0;
-    int pitchWheelPosition = 0;
+    int midiNote = -1;
+    int pitchWheelPosition = -1;
 
     float osc1NoteOffset = (float) middleCMidiNote - defaultOscMidiNote;
     float osc2NoteOffset = (float) middleCMidiNote - defaultOscMidiNote;
