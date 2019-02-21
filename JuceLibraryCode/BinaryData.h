@@ -9,10 +9,10 @@
 namespace BinaryData
 {
     extern const char*   blackLight_svg;
-    const int            blackLight_svgSize = 4690;
+    const int            blackLight_svgSize = 4846;
 
     extern const char*   sBMP4KnobUniform_svg;
-    const int            sBMP4KnobUniform_svgSize = 3531;
+    const int            sBMP4KnobUniform_svgSize = 3638;
 
     extern const char*   blackLight_png;
     const int            blackLight_pngSize = 43010;
@@ -21,10 +21,10 @@ namespace BinaryData
     const int            redLight_pngSize = 50181;
 
     extern const char*   redLight_svg;
-    const int            redLight_svgSize = 4473;
+    const int            redLight_svgSize = 4623;
 
     extern const char*   sBMP4Knob_svg;
-    const int            sBMP4Knob_svgSize = 3349;
+    const int            sBMP4Knob_svgSize = 3463;
 
     extern const char*   blackTexture_jpg;
     const int            blackTexture_jpgSize = 75789;

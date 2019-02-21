@@ -219,7 +219,7 @@ void sBMP4Voice::startNote (int midiNoteNumber, float velocity, SynthesiserSound
     processorChain.get<osc2Index>().setLevel (velocity / (numVoices / 2));
     //processorChain.get<osc2Index>().setLevel (0.f);
 
-    processorChain.setBypassed<osc2Index> (true);
+    //processorChain.setBypassed<osc2Index> (true);
 
     //processorChain.get<masterGainIndex>().setGainLinear (velocity / 4);
 }
