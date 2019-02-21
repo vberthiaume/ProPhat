@@ -16,10 +16,6 @@ sBMP4Voice::sBMP4Voice()
     processorChain.get<filterIndex>().setCutoffFrequencyHz (1000.0f);
     processorChain.get<filterIndex>().setResonance (0.7f);
 
-    processorChain2.get<masterGainIndex>().setGainLinear (0.6f);
-    processorChain2.get<filterIndex>().setCutoffFrequencyHz (1000.0f);
-    processorChain2.get<filterIndex>().setResonance (0.7f);
-
     setLfoShape (LfoShape::triangle);
     lfo.setFrequency (3.0f);
 }
@@ -36,10 +32,12 @@ void sBMP4Voice::updateNextParams()
 
 void sBMP4Voice::prepare (const dsp::ProcessSpec& spec)
 {
-    tempBlock = dsp::AudioBlock<float> (heapBlock, spec.numChannels, spec.maximumBlockSize);
+    osc1Block = dsp::AudioBlock<float> (heapBlock1, spec.numChannels, spec.maximumBlockSize);
+    osc2Block = dsp::AudioBlock<float> (heapBlock2, spec.numChannels, spec.maximumBlockSize);
 
+    osc1.prepare (spec);
+    osc2.prepare (spec);
     processorChain.prepare (spec);
-    processorChain2.prepare (spec);
 
     adsr.setSampleRate (spec.sampleRate);
 #if RAMP_ADSR
@@ -57,10 +55,10 @@ void sBMP4Voice::updateOscFrequencies()
     auto pitchWheelDeltaNote = jmap ((float) pitchWheelPosition, 0.f, 16383.f, -2.f, 2.f);
 
     auto osc1Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc1NoteOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote);
-    processorChain.get<osc1Index>().setFrequency ((float) osc1Freq, true);
+    osc1.setFrequency ((float) osc1Freq, true);
 
     auto osc2Freq = Helpers::getDoubleMidiNoteInHertz (midiNote - osc2NoteOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote);
-    processorChain2.get<osc1Index>().setFrequency ((float) osc2Freq, true);
+    osc2.setFrequency ((float) osc2Freq, true);
 }
 
 void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
@@ -171,9 +169,6 @@ void sBMP4Voice::setLfoDest (LfoDest dest)
     processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
     processorChain.get<filterIndex>().setResonance (curFilterResonance);
 
-    processorChain2.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
-    processorChain2.get<filterIndex>().setResonance (curFilterResonance);
-
     //change the destination
     lfoDest = dest;
 }
@@ -193,15 +188,8 @@ void sBMP4Voice::startNote (int midiNoteNumber, float velocity, SynthesiserSound
     updateOscFrequencies();
 
     //@TODO the velocity here should probably be dependent on the number of voices... or add compression or something?
-    processorChain.get<osc1Index>().setLevel (velocity / (numVoices / 2));
-    //processorChain.get<osc1Index>().setLevel (0.f);
-
-    processorChain2.get<osc1Index>().setLevel (velocity / (numVoices / 2));
-    //processorChain.get<osc2Index>().setLevel (0.f);
-
-    //processorChain.setBypassed<osc2Index> (true);
-
-    //processorChain.get<masterGainIndex>().setGainLinear (velocity / 4);
+    osc1.setLevel (velocity / (numVoices / 2));
+    osc2.setLevel (velocity / (numVoices / 2));
 }
 
 void sBMP4Voice::pitchWheelMoved (int newPitchWheelValue)
@@ -272,13 +260,11 @@ void sBMP4Voice::updateLfo()
         {
             auto curoffFreqHz = jmap (lfoOut, 0.0f, 1.0f, 100.0f, 2000.0f);
             processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff + curoffFreqHz);
-            processorChain2.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff + curoffFreqHz);
         }
         break;
 
         case LfoDest::filterResonance:
             processorChain.get<filterIndex>().setResonance (lfoOut);
-            processorChain2.get<filterIndex>().setResonance (lfoOut);
             break;
 
         default:
@@ -300,17 +286,30 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
         return;
     }
 
-    auto output = tempBlock.getSubBlock (0, (size_t) numSamples);
-    output.clear();
+    auto osc1Output = osc1Block.getSubBlock (0, (size_t) numSamples);
+    osc1Output.clear();
+
+    auto osc2Output = osc2Block.getSubBlock (0, (size_t) numSamples);
+    osc2Output.clear();
 
     for (size_t pos = 0; pos < numSamples;)
     {
         auto max = jmin (static_cast<size_t> (numSamples - pos), lfoUpdateCounter);
-        auto block = output.getSubBlock (pos, max);
 
-        dsp::ProcessContextReplacing<float> context (block);
-        processorChain.process (context);
-        processorChain2.process (context);
+        //process osc1
+        auto osc1Block = osc1Output.getSubBlock (pos, max);
+        dsp::ProcessContextReplacing<float> osc1Context (osc1Block);
+        osc1.process (osc1Context);
+
+        //process osc2
+        auto osc2Block = osc2Output.getSubBlock (pos, max);
+        dsp::ProcessContextReplacing<float> osc2Context (osc2Block);
+        osc2.process (osc2Context);
+
+        //process the sum of osc1 and osc2
+        osc2Block.add (osc1Block);
+        dsp::ProcessContextReplacing<float> summedContext (osc2Block);
+        processorChain.process (summedContext);
 
         pos += max;
         lfoUpdateCounter -= max;
@@ -325,7 +324,7 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
         }
     }
 
-    dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (tempBlock);
+    dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (osc2Block);
 
     adsr.applyEnvelopeToBuffer (outputBuffer, startSample, numSamples);
 }

@@ -138,7 +138,6 @@ public:
 
     enum processorId
     {
-        osc1Index,
         filterIndex,
         masterGainIndex
     };
@@ -163,12 +162,12 @@ public:
 
     void setOsc1Shape (OscShape newShape)
     {
-        processorChain.get<osc1Index>().setOscShape (newShape);
+        osc1.setOscShape (newShape);
     }
 
     void setOsc2Shape (OscShape newShape)
     {
-        processorChain2.get<osc1Index>().setOscShape (newShape);
+        osc2.setOscShape (newShape);
     }
 
     void setAmpParam (StringRef parameterID, float newValue);
@@ -182,14 +181,12 @@ public:
     {
         curFilterCutoff = newValue;
         processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
-        processorChain2.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
     }
 
     void setFilterResonance (float newAmount)
     {
         curFilterResonance = newAmount;
         processorChain.get<filterIndex>().setResonance (curFilterResonance);
-        processorChain2.get<filterIndex>().setResonance (curFilterResonance);
     }
 
     void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition);
@@ -215,11 +212,11 @@ public:
 private:
     bool isPrepared = false;
 
-    HeapBlock<char> heapBlock;
-    dsp::AudioBlock<float> tempBlock;
-    dsp::ProcessorChain<GainedOscillator<float>, dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
+    HeapBlock<char> heapBlock1, heapBlock2;
+    dsp::AudioBlock<float> osc1Block, osc2Block;
+    GainedOscillator<float> osc1, osc2;
 
-    dsp::ProcessorChain<GainedOscillator<float>, dsp::LadderFilter<float>, dsp::Gain<float>> processorChain2;
+    dsp::ProcessorChain<dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
 
     ADSR adsr;
     ADSR::Parameters curParams;
