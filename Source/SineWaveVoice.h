@@ -219,8 +219,6 @@ private:
     dsp::AudioBlock<float> tempBlock;
     dsp::ProcessorChain<GainedOscillator<float>, dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
 
-    HeapBlock<char> heapBlock2;
-    dsp::AudioBlock<float> tempBlock2;
     dsp::ProcessorChain<GainedOscillator<float>, dsp::LadderFilter<float>, dsp::Gain<float>> processorChain2;
 
     ADSR adsr;

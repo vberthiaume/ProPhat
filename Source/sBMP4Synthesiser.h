@@ -39,10 +39,10 @@ public:
     void parameterChanged (const String& parameterID, float newValue) override
     {
         if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID)
-            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc1Tuning (newValue); }, newValue);
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc1Tuning ((int) newValue); }, newValue);
 
         else if (parameterID == sBMP4AudioProcessorIDs::osc2FreqID)
-            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc2Tuning (newValue); }, newValue);
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc2Tuning ((int) newValue); }, newValue);
 
         else if (parameterID == sBMP4AudioProcessorIDs::osc1ShapeID)
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc1Shape (OscShape ((int) newValue + 1)); }, newValue);

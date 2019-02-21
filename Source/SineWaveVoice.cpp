@@ -37,9 +37,8 @@ void sBMP4Voice::updateNextParams()
 void sBMP4Voice::prepare (const dsp::ProcessSpec& spec)
 {
     tempBlock = dsp::AudioBlock<float> (heapBlock, spec.numChannels, spec.maximumBlockSize);
-    processorChain.prepare (spec);
 
-    tempBlock2 = dsp::AudioBlock<float> (heapBlock2, spec.numChannels, spec.maximumBlockSize);
+    processorChain.prepare (spec);
     processorChain2.prepare (spec);
 
     adsr.setSampleRate (spec.sampleRate);
