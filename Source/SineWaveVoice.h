@@ -11,6 +11,7 @@
 #pragma once
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Helpers.h"
+#include <mutex>
 
 struct SineWaveSound : public SynthesiserSound
 {
@@ -46,15 +47,19 @@ public:
         switch (newShape)
         {
             case OscShape::saw:
+            {
+                std::lock_guard<std::mutex> lock (processMutex);
                 osc.initialise ([](Type x)
                 {
                     //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
                     return jmap (x, Type (-MathConstants<double>::pi), Type (MathConstants<double>::pi), Type (-1), Type (1));
                 }, 2);
+            }
                 break;
 
             case OscShape::sawTri:
-
+            {
+                std::lock_guard<std::mutex> lock (processMutex);
                 osc.initialise ([](Type x)
                 {
                     Type y = jmap (x, Type (-MathConstants<double>::pi), Type (MathConstants<double>::pi), Type (-1), Type (1)) / 2;
@@ -65,10 +70,12 @@ public:
                         return y += jmap (x, Type (0), Type (MathConstants<double>::pi), Type (1), Type (-1)) / 2;
 
                 }, 128);
-
+            }
                 break;
 
             case OscShape::triangle:
+            {
+                std::lock_guard<std::mutex> lock (processMutex);
                 osc.initialise ([](Type x)
                 {
                     if (x < 0)
@@ -77,9 +84,12 @@ public:
                         return jmap (x, Type (0), Type (MathConstants<double>::pi), Type (1), Type (-1));
 
                 }, 128);
+            }
                 break;
 
             case OscShape::pulse:
+            {
+                std::lock_guard<std::mutex> lock (processMutex);
                 osc.initialise ([](Type x)
                 {
                     if (x < 0)
@@ -87,6 +97,7 @@ public:
                     else
                         return Type (1);
                 }, 128);
+            }
                 break;
 
             case OscShape::none:
@@ -112,6 +123,8 @@ public:
     template <typename ProcessContext>
     void process (const ProcessContext& context) noexcept
     {
+        std::lock_guard<std::mutex> lock (processMutex);
+
         processorChain.process (context);
     }
 
@@ -126,6 +139,8 @@ private:
         oscIndex,
         gainIndex
     };
+
+    std::mutex processMutex;
 
     dsp::ProcessorChain<dsp::Oscillator<Type>, dsp::Gain<Type>> processorChain;
 };
@@ -235,6 +250,7 @@ private:
     static constexpr size_t lfoUpdateRate = 100;
     size_t lfoUpdateCounter = lfoUpdateRate;
     dsp::Oscillator<float> lfo;
+    std::mutex lfoMutex;
     float lfoAmount = defaultLfoAmount;
     LfoDest lfoDest = (LfoDest) defaultLfoDest;
     float lfoOsc1NoteOffset = 0.f;

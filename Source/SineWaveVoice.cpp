@@ -107,25 +107,36 @@ void sBMP4Voice::setLfoShape (LfoShape shape)
     switch (shape)
     {
         case LfoShape::triangle:
+        {
+            std::lock_guard<std::mutex> lock (lfoMutex);
             lfo.initialise ([](float x) { return (std::sin (x) + 1) / 2; }, 128);
+        }
             break;
 
         case LfoShape::saw:
+        {
+            std::lock_guard<std::mutex> lock (lfoMutex);
             lfo.initialise ([](float x)
             {
                 //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
                 return (float) jmap (x, -MathConstants<float>::pi, MathConstants<float>::pi, 0.f, 1.f);
             }, 2);
+        }
             break;
 
         //case LfoShape::revSaw:
+        //{
+        //    std::lock_guard<std::mutex> lock (lfoMutex);
         //    lfo.initialise ([](float x)
         //    {
         //        return (float) jmap (x, -MathConstants<float>::pi, MathConstants<float>::pi, 1.f, 0.f);
         //    }, 2);
+        //}
         //    break;
 
         case LfoShape::square:
+        {
+            std::lock_guard<std::mutex> lock (lfoMutex);
             lfo.initialise ([](float x)
             {
                 if (x < 0.f)
@@ -133,9 +144,12 @@ void sBMP4Voice::setLfoShape (LfoShape shape)
                 else
                     return 1.f;
             });
+        }
             break;
 
         case LfoShape::random:
+        {
+            std::lock_guard<std::mutex> lock (lfoMutex);
             lfo.initialise ([this](float x)
             {
                 if (x <= 0.f && valueWasBig)
@@ -151,6 +165,7 @@ void sBMP4Voice::setLfoShape (LfoShape shape)
 
                 return randomValue;
             });
+        }
             break;
 
         case LfoShape::none:
@@ -242,8 +257,14 @@ void sBMP4Voice::updateAdsr()
 void sBMP4Voice::updateLfo()
 {
     //@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
-    auto lfoOut = lfo.processSample (0.0f) * lfoAmount;
 
+    float lfoOut;
+    {
+        std::lock_guard<std::mutex> lock (lfoMutex);
+        lfoOut = lfo.processSample (0.0f) * lfoAmount;
+    }
+
+    //@TODO get this switch out of here, this is awful for performances
     switch (lfoDest)
     {
         case LfoDest::osc1Freq:
@@ -297,18 +318,18 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
         auto max = jmin (static_cast<size_t> (numSamples - pos), lfoUpdateCounter);
 
         //process osc1
-        auto osc1Block = osc1Output.getSubBlock (pos, max);
-        dsp::ProcessContextReplacing<float> osc1Context (osc1Block);
+        auto block1 = osc1Output.getSubBlock (pos, max);
+        dsp::ProcessContextReplacing<float> osc1Context (block1);
         osc1.process (osc1Context);
 
         //process osc2
-        auto osc2Block = osc2Output.getSubBlock (pos, max);
-        dsp::ProcessContextReplacing<float> osc2Context (osc2Block);
+        auto block2 = osc2Output.getSubBlock (pos, max);
+        dsp::ProcessContextReplacing<float> osc2Context (block2);
         osc2.process (osc2Context);
 
         //process the sum of osc1 and osc2
-        osc2Block.add (osc1Block);
-        dsp::ProcessContextReplacing<float> summedContext (osc2Block);
+        block2.add (block1);
+        dsp::ProcessContextReplacing<float> summedContext (block2);
         processorChain.process (summedContext);
 
         pos += max;
