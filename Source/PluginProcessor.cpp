@@ -41,7 +41,6 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     , perfCounter ("ProcessBlock")
 #endif
 {
-
     state.addParameterListener (osc1FreqID, &synth);
     state.addParameterListener (osc2FreqID, &synth);
 
@@ -60,10 +59,6 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 
     state.addParameterListener (filterCutoffID, &synth);
     state.addParameterListener (filterResonanceID, &synth);
-
-    //@TODO Helpers::getFloatMidiNoteInHertz does NOT approximate well MidiMessage::getMidiNoteInHertz for higher numbers
-    //for (double i = .0; i < 127; i += .3)
-    //    DBG (String (i) + "\t" + String (MidiMessage::getMidiNoteInHertz ((int) i)) + "\t" + String (Helpers::getFloatMidiNoteInHertz (i)));
 }
 
 sBMP4AudioProcessor::~sBMP4AudioProcessor()
