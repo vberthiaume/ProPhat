@@ -285,8 +285,8 @@ private:
     float randomValue = 0.f;
     bool valueWasBig = false;
 
-    int midiNote = -1;
-    int pitchWheelPosition = -1;
+    int midiNote = 0;
+    int pitchWheelPosition = 0;
 
     float osc1NoteOffset = (float) middleCMidiNote - defaultOscMidiNote;
     float osc2NoteOffset = (float) middleCMidiNote - defaultOscMidiNote;

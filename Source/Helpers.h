@@ -28,7 +28,6 @@ static const NormalisableRange<float> hzRange = {0.1f, 18000.f};
 static const NormalisableRange<float> lfoRange = {0.1f, 10.f};
 static const NormalisableRange<float> lfoNoteRange = {0.f, 16.f};
 
-
 //Sets the base frequency of Oscillator 1 or 2 over a 9-octave
 //range from 16 Hz to 8KHz (when used with the Transpose buttons). Adjustment is in semitones.
 static const NormalisableRange<int> midiNoteRange = {12, 120};   //actual midi note range is (0,127), but rev2, at least for oscilators is C0(0) to C10(120)
@@ -36,9 +35,7 @@ static const NormalisableRange<float> pitchWheelNoteRange = {-7.f, 7.f};
 
 struct Selection
 {
-    Selection() {};
-    Selection (Selection&) = default;
-    Selection (Selection&&) = default;
+    Selection() = default;
     Selection (int selection) : curSelection (selection) {}
 
     int curSelection;
