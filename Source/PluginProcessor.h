@@ -8,38 +8,12 @@
 //==============================================================================
 
 class sBMP4AudioProcessor : public AudioProcessor
-#if STANDARD_LISTENER
-    , public ValueTree::Listener
-#else
-    /*, public AudioProcessorValueTreeState::Listener*/
-#endif
 {
 public:
 
     //==============================================================================
     sBMP4AudioProcessor();
     ~sBMP4AudioProcessor();
-
-#if STANDARD_LISTENER
-    void valueTreePropertyChanged (juce::ValueTree &v, const juce::Identifier &/*id*/) override
-    {
-        if (v.getParent() != state.state)
-            return;
-
-        auto paramName = v.getProperty ("id").toString();
-        auto paramValue = v.getProperty ("value").toString();
-        auto paramValue2 = (float) state.getParameterAsValue (paramName).getValue();
-
-        DBG (paramName + "now has the value: " + paramValue + ", which is the same as this: " + String (paramValue2));
-    }
-
-    void valueTreeChildAdded (juce::ValueTree &/*parentTree*/, juce::ValueTree &/*childWhichHasBeenAdded*/) override {}
-    void valueTreeChildRemoved (juce::ValueTree &/*parentTree*/, juce::ValueTree &/*childWhichHasBeenRemoved*/, int /*indexFromWhichChildWasRemoved*/) override {}
-    void valueTreeChildOrderChanged (juce::ValueTree &/*parentTreeWhoseChildrenHaveMoved*/, int /*oldIndex*/, int /*newIndex*/) override {}
-    void valueTreeParentChanged (juce::ValueTree &/*treeWhoseParentHasChanged*/) override {}
-#else
-    //void parameterChanged (const String& parameterID, float newValue) override;
-#endif
 
     void reset() override;
 

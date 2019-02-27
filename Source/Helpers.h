@@ -118,7 +118,7 @@ namespace Constants
         defaultOscMidiNote = 48,    //C2 on rev2, used to be 36 for some reason
         middleCMidiNote = 60,       //C3 on rev2
 
-        defaultOscShape = (int) OscShape::saw,
+        defaultOscShape = (int) OscShape::saw + 1,
         defaultLfoShape = (int) LfoShape::triangle,
         defaultLfoDest = (int) LfoDest::filterCurOff
     };

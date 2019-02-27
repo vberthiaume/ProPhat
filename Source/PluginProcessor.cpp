@@ -41,9 +41,7 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     , perfCounter ("ProcessBlock")
 #endif
 {
-#if STANDARD_LISTENER
-    state.state.addListener (this);
-#else
+
     state.addParameterListener (osc1FreqID, &synth);
     state.addParameterListener (osc2FreqID, &synth);
 
@@ -62,7 +60,6 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 
     state.addParameterListener (filterCutoffID, &synth);
     state.addParameterListener (filterResonanceID, &synth);
-#endif
 
     //@TODO Helpers::getFloatMidiNoteInHertz does NOT approximate well MidiMessage::getMidiNoteInHertz for higher numbers
     //for (double i = .0; i < 127; i += .3)
@@ -144,8 +141,6 @@ void sBMP4AudioProcessor::getStateInformation (MemoryBlock& destData)
 void sBMP4AudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     std::unique_ptr<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
-
-    DBG (ValueTree::fromXml (*xmlState).toXmlString());
 
     if (xmlState.get() != nullptr)
         state.replaceState (ValueTree::fromXml (*xmlState));
