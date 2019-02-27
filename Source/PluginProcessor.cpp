@@ -18,13 +18,8 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
         std::make_unique<AudioParameterInt>     (osc2FreqID, osc2FreqSliderDesc, midiNoteRange.getRange().getStart(),
                                                                                  midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
 
-#if 0
         std::make_unique<AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
         std::make_unique<AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
-#else
-        std::make_unique<AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, defaultOscShape),
-        std::make_unique<AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3}, defaultOscShape),
-#endif
 
         std::make_unique<AudioParameterFloat>   (filterCutoffID, filterCutoffSliderDesc, hzRange, defaultFilterCutoff),
         std::make_unique<AudioParameterFloat>   (filterResonanceID, filterResonanceSliderDesc, sliderRange, defaultFilterResonance),

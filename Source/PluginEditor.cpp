@@ -32,15 +32,8 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     oscGroup ({}, oscGroupDesc),
     osc1FreqAttachment (p.state, osc1FreqID, osc1FreqSlider),
     osc2FreqAttachment (p.state, osc2FreqID, osc2FreqSlider),
-#if 0
-    osc1ShapeButtons (osc1ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
-    osc2ShapeButtons (osc2ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
-#else
-    osc1ShapeButtons (osc1ShapeDesc, {oscShape0, oscShape1, oscShape2, oscShape3}, true),
-    osc2ShapeButtons (osc2ShapeDesc, {oscShape0, oscShape1, oscShape2, oscShape3}, true),
-#endif
-    osc1ShapeAttachment (p.state, osc1ShapeID, osc1ShapeButtons),
-    osc2ShapeAttachment (p.state, osc2ShapeID, osc2ShapeButtons),
+    osc1ShapeButtons (p.state, osc1ShapeID, std::make_unique<OscShape> (OscShape()), osc1ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
+    osc2ShapeButtons (p.state, osc2ShapeID, std::make_unique<OscShape> (OscShape()), osc2ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
 
     //FILTERS
     filterGroup ({}, filterGroupDesc),
@@ -56,12 +49,10 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 
     //LFO
     lfoGroup ({}, lfoGroupDesc),
-    lfoShapeButtons (lfoShapeDesc, {lfoShape0, lfoShape1, /*lfoShape2, */lfoShape3, lfoShape4}),
-    lfoDestButtons (lfoDestDesc, {lfoDest0, lfoDest1, lfoDest2, lfoDest3}),
+    lfoShapeButtons (p.state, lfoShapeID, std::make_unique<LfoShape> (LfoShape()), lfoShapeDesc, {lfoShape0, lfoShape1, /*lfoShape2, */lfoShape3, lfoShape4}),
+    lfoDestButtons (p.state, lfoDestID, std::make_unique<LfoDest> (LfoDest()), lfoDestDesc, {lfoDest0, lfoDest1, lfoDest2, lfoDest3}),
     lfoFreqAttachment (p.state, lfoFreqID, lfoFreqSlider),
     lfoAmountAttachment (p.state, lfoAmountID, lfoAmountSlider),
-    lfoShapeAttachment (p.state, lfoShapeID, lfoShapeButtons),
-    lfoDestAttachment (p.state, lfoDestID, lfoDestButtons),
 
     //EFFECT
     effectGroup ({}, effectGroupDesc),
@@ -124,11 +115,10 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 
     addGroup (effectGroup, {&effectParam1Label, &effectParam2Label}, {effectParam1Desc, effectParam2Desc}, {&effectParam1Slider, &effectParam2Slider});
 
-
-    osc1ShapeButtons.setShape (OscShape ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID) + 1));
-    osc2ShapeButtons.setShape (OscShape ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID) + 1));
-    lfoShapeButtons.setShape  (LfoShape ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID)  + 1));
-    lfoDestButtons.setShape   (LfoDest  ((int) Helpers::getRangedParamValue (processor.state, lfoDestID) + 1));
+    osc1ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID));
+    osc2ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID));
+    lfoShapeButtons.setSelectedButton  ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID));
+    lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID));
 }
 
 //==============================================================================

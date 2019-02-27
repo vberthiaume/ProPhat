@@ -30,6 +30,7 @@ public:
     GainedOscillator()
     {
         setOscShape (OscShape::saw);
+        setLevel (defaultOscLevel);
     }
 
     void setFrequency (Type newValue, bool force = false)
@@ -40,12 +41,19 @@ public:
         osc.setFrequency (newValue, force);
     }
 
-    void setOscShape (OscShape newShape)
+    void setOscShape (int newShape)
     {
         auto& osc = processorChain.template get<oscIndex>();
 
+        bool wasActive = isActive;
+        isActive = true;
+
         switch (newShape)
         {
+            case OscShape::none:
+                isActive = false;
+                break;
+
             case OscShape::saw:
             {
                 std::lock_guard<std::mutex> lock (processMutex);
@@ -100,17 +108,29 @@ public:
             }
                 break;
 
-            case OscShape::none:
             case OscShape::total:
                 jassertfalse;
                 break;
             default:
                 break;
         }
+
+        if (wasActive != isActive)
+        {
+            if (isActive)
+                setLevel (lastActiveLevel);
+            else
+                setLevel (0);
+        }
     }
 
     void setLevel (Type newValue)
     {
+        if (!isActive)
+            newValue = 0;
+        else
+            lastActiveLevel = newValue;
+
         auto& gain = processorChain.template get<gainIndex>();
         gain.setGainLinear (newValue);
     }
@@ -141,6 +161,10 @@ private:
     };
 
     std::mutex processMutex;
+
+    bool isActive = true;
+
+    Type lastActiveLevel{};
 
     dsp::ProcessorChain<dsp::Oscillator<Type>, dsp::Gain<Type>> processorChain;
 };
@@ -175,20 +199,20 @@ public:
         updateOscFrequencies();
     }
 
-    void setOsc1Shape (OscShape newShape)
+    void setOsc1Shape (int newShape)
     {
         osc1.setOscShape (newShape);
     }
 
-    void setOsc2Shape (OscShape newShape)
+    void setOsc2Shape (int newShape)
     {
         osc2.setOscShape (newShape);
     }
 
     void setAmpParam (StringRef parameterID, float newValue);
 
-    void setLfoShape (LfoShape shape);
-    void setLfoDest (LfoDest dest);
+    void setLfoShape (int shape);
+    void setLfoDest (int dest);
     void setLfoFreq (float newFreq) { lfo.setFrequency (newFreq); }
     void setLfoAmount (float newAmount) { lfoAmount = newAmount; }
 
@@ -252,7 +276,7 @@ private:
     dsp::Oscillator<float> lfo;
     std::mutex lfoMutex;
     float lfoAmount = defaultLfoAmount;
-    LfoDest lfoDest = (LfoDest) defaultLfoDest;
+    LfoDest lfoDest;
     float lfoOsc1NoteOffset = 0.f;
     float lfoOsc2NoteOffset = 0.f;
 

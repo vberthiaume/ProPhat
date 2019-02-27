@@ -12,12 +12,14 @@
 
 sBMP4Voice::sBMP4Voice()
 {
-    processorChain.get<masterGainIndex>().setGainLinear (0.6f);
-    processorChain.get<filterIndex>().setCutoffFrequencyHz (1000.0f);
-    processorChain.get<filterIndex>().setResonance (0.7f);
+    processorChain.get<masterGainIndex>().setGainLinear (defaultOscLevel);
+    processorChain.get<filterIndex>().setCutoffFrequencyHz (defaultFilterCutoff);
+    processorChain.get<filterIndex>().setResonance (defaultFilterResonance);
+
+    lfoDest.curSelection = (int) defaultLfoDest;
 
     setLfoShape (LfoShape::triangle);
-    lfo.setFrequency (3.0f);
+    lfo.setFrequency (defaultLfoFreq);
 }
 
 #if RAMP_ADSR
@@ -84,7 +86,7 @@ void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
         curParams.release = nextRelease;
 
         adsr.setParameters (curParams);
-}
+    }
 #else
 
     if (parameterID == sBMP4AudioProcessorIDs::ampAttackID)
@@ -102,7 +104,7 @@ void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
 }
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
-void sBMP4Voice::setLfoShape (LfoShape shape)
+void sBMP4Voice::setLfoShape (int shape)
 {
     switch (shape)
     {
@@ -168,7 +170,6 @@ void sBMP4Voice::setLfoShape (LfoShape shape)
         }
             break;
 
-        case LfoShape::none:
         case LfoShape::total:
         default:
             jassertfalse;
@@ -176,8 +177,9 @@ void sBMP4Voice::setLfoShape (LfoShape shape)
     }
 }
 
-void sBMP4Voice::setLfoDest (LfoDest dest)
+void sBMP4Voice::setLfoDest (int dest)
 {
+
     //reset everything
     lfoOsc1NoteOffset = 0.f;
     lfoOsc2NoteOffset = 0.f;
@@ -185,7 +187,7 @@ void sBMP4Voice::setLfoDest (LfoDest dest)
     processorChain.get<filterIndex>().setResonance (curFilterResonance);
 
     //change the destination
-    lfoDest = dest;
+    lfoDest.curSelection = dest;
 }
 
 void sBMP4Voice::startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
@@ -265,7 +267,7 @@ void sBMP4Voice::updateLfo()
     }
 
     //@TODO get this switch out of here, this is awful for performances
-    switch (lfoDest)
+    switch (lfoDest.curSelection)
     {
         case LfoDest::osc1Freq:
             lfoOsc1NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);

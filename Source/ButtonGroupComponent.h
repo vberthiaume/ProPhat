@@ -12,6 +12,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Helpers.h"
 #include "sBMP4LookAndFeel.h"
+#include <memory>
 
 class FilledDrawableButton : public DrawableButton
 {
@@ -30,21 +31,30 @@ public:
     }
 };
 
-class ButtonGroupComponent : public ComboBox, public ComboBox::Listener, public Button::Listener
+class ButtonGroupComponent : public Component, public Button::Listener, public AudioProcessorValueTreeState::Listener
 {
 public:
 
-    ButtonGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false);
+    ButtonGroupComponent (AudioProcessorValueTreeState& state, const String& parameterID, std::unique_ptr<Selection> theSelection,
+                          StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false);
 
     void buttonClicked (Button* button) override;
 
     void paint (Graphics& /*g*/) override {}
 
+    void setSelection (int selectionIndex);
+
+    void setSelectedButton (int selectedButtonId);
+
     void resized() override;
 
+    void parameterChanged (const String& parameterID, float newValue) override;
+
 protected:
-    virtual void selectNextToggleButton() = 0;
-    virtual void selectToggleButton (int buttonIndex) = 0;
+    void selectNext();
+
+    AudioProcessorValueTreeState& state;
+    String parameterID;
 
     bool allowEmptySelection = false;
 
@@ -53,39 +63,5 @@ protected:
     FilledDrawableButton mainButton;
     OwnedArray<ToggleButton> selectionButtons;
 
-    // Inherited via Listener
-    virtual void comboBoxChanged (ComboBox * comboBoxThatHasChanged) override;
-};
-
-class ButtonOscGroupComponent : public ButtonGroupComponent
-{
-public:
-    ButtonOscGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false);
-    void setShape (OscShape shape);
-
-protected:
-    virtual void selectNextToggleButton() override;
-    virtual void selectToggleButton (int buttonIndex) override;
-};
-
-class ButtonLfoGroupComponent : public ButtonGroupComponent
-{
-public:
-    ButtonLfoGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false);
-    void setShape (LfoShape shape);
-
-protected:
-    virtual void selectNextToggleButton() override;
-    virtual void selectToggleButton (int buttonIndex) override;
-};
-
-class ButtonLfoDestGroupComponent : public ButtonGroupComponent
-{
-public:
-    ButtonLfoDestGroupComponent (StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false);
-    void setShape (LfoDest dest);
-
-protected:
-    virtual void selectNextToggleButton() override;
-    virtual void selectToggleButton (int buttonIndex) override;
+    std::unique_ptr<Selection> selection;
 };

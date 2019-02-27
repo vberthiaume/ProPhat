@@ -33,39 +33,70 @@ static const NormalisableRange<float> lfoNoteRange = {0.f, 16.f};
 //range from 16 Hz to 8KHz (when used with the Transpose buttons). Adjustment is in semitones.
 static const NormalisableRange<int> midiNoteRange = {12, 120};   //actual midi note range is (0,127), but rev2, at least for oscilators is C0(0) to C10(120)
 
-enum class OscShape
+struct Selection
 {
-    none = 0,
-    saw,
-    sawTri,
-    triangle,
-    pulse,
-    total
+    Selection() {};
+    Selection (Selection&) = default;
+    Selection (Selection&&) = default;
+    Selection (int selection) : curSelection (selection) {}
+
+    int curSelection;
+
+    virtual int getLastSelectionIndex() = 0;
+    virtual bool isNullSelectionAllowed() = 0;
 };
 
-enum class LfoShape
+struct OscShape : public Selection
 {
-    none = 0,
-    triangle,
-    saw,
-    //revSaw,
-    square,
-    random,
-    total
+    enum
+    {
+        none = 0,
+        saw,
+        sawTri,
+        triangle,
+        pulse,
+        total
+    };
+
+    int getLastSelectionIndex() override { return total - 1; }
+    bool isNullSelectionAllowed() override { return true; }
 };
 
-enum class LfoDest
+struct LfoShape : public Selection
 {
-    none = 0,
-    osc1Freq,
-    osc2Freq,
-    filterCurOff,
-    filterResonance,
-    total
+    enum
+    {
+        triangle = 0,
+        saw,
+        //revSaw,
+        square,
+        random,
+        total
+    };
+
+    int getLastSelectionIndex() override { return total - 1; }
+    bool isNullSelectionAllowed() override { return false; }
+};
+
+struct LfoDest : public Selection
+{
+    enum
+    {
+        osc1Freq = 0,
+        osc2Freq,
+        filterCurOff,
+        filterResonance,
+        total
+    };
+
+    int getLastSelectionIndex() override { return total - 1; }
+    bool isNullSelectionAllowed() override { return false; }
 };
 
 namespace Constants
 {
+    static const float defaultOscLevel = .4f;
+
     static const float defaultFilterCutoff = 1000.f;
     static const float defaultFilterResonance = .5f;
 
@@ -87,9 +118,9 @@ namespace Constants
         defaultOscMidiNote = 48,    //C2 on rev2, used to be 36 for some reason
         middleCMidiNote = 60,       //C3 on rev2
 
-        defaultOscShape = (int) OscShape::saw - 1,
-        defaultLfoShape = (int) LfoShape::triangle - 1,
-        defaultLfoDest = (int) LfoDest::filterCurOff - 1
+        defaultOscShape = (int) OscShape::saw,
+        defaultLfoShape = (int) LfoShape::triangle,
+        defaultLfoDest = (int) LfoDest::filterCurOff
     };
 }
 
@@ -149,18 +180,11 @@ namespace sBMP4AudioProcessorNames
 
 namespace sBMP4AudioProcessorChoices
 {
-#if 0
     const String oscShape0 = "None";
     const String oscShape1 = "Sawtooth";
     const String oscShape2 = "Saw + Tri";
     const String oscShape3 = "Triangle";
     const String oscShape4 = "Pulse";
-#else
-    const String oscShape0 = "Sawtooth";
-    const String oscShape1 = "Saw + Tri";
-    const String oscShape2 = "Triangle";
-    const String oscShape3 = "Pulse";
-#endif
 
     const String lfoShape0 = "Triangle";
     const String lfoShape1 = "Sawtooth";

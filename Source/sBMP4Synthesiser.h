@@ -45,10 +45,10 @@ public:
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc2Tuning ((int) newValue); }, newValue);
 
         else if (parameterID == sBMP4AudioProcessorIDs::osc1ShapeID)
-            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc1Shape (OscShape ((int) newValue + 1)); }, newValue);
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc1Shape ((int) newValue); }, newValue);
 
         else if (parameterID == sBMP4AudioProcessorIDs::osc2ShapeID)
-            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc2Shape (OscShape ((int) newValue + 1)); }, newValue);
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc2Shape ((int) newValue); }, newValue);
 
         else if (parameterID == sBMP4AudioProcessorIDs::ampAttackID
                 || parameterID == sBMP4AudioProcessorIDs::ampDecayID
@@ -58,9 +58,9 @@ public:
                 dynamic_cast<sBMP4Voice*> (voice)->setAmpParam (parameterID, newValue);
 
         else if (parameterID == sBMP4AudioProcessorIDs::lfoShapeID)
-            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoShape (LfoShape ((int) newValue + 1)); }, newValue);
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoShape ((int) newValue); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::lfoDestID)
-            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoDest (LfoDest ((int) newValue + 1)); }, newValue);
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoDest ((int) newValue); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::lfoFreqID)
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoFreq (newValue); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::lfoAmountID)
