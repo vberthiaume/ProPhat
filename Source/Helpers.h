@@ -20,19 +20,6 @@
     #define RAMP_ADSR 0
 #endif
 
-static const NormalisableRange<float> dBRange = {-12.f, 12.f};
-static const NormalisableRange<float> sliderRange = {0.f, 1.f};
-static const NormalisableRange<float> sustainRange = {0.0000001f, 1.f};
-static const NormalisableRange<float> ampRange = {0.0000001f, 25.f};
-static const NormalisableRange<float> hzRange = {0.1f, 18000.f};
-static const NormalisableRange<float> lfoRange = {0.1f, 10.f};
-static const NormalisableRange<float> lfoNoteRange = {0.f, 16.f};
-
-//Sets the base frequency of Oscillator 1 or 2 over a 9-octave
-//range from 16 Hz to 8KHz (when used with the Transpose buttons). Adjustment is in semitones.
-static const NormalisableRange<int> midiNoteRange = {12, 120};   //actual midi note range is (0,127), but rev2, at least for oscilators is C0(0) to C10(120)
-static const NormalisableRange<float> pitchWheelNoteRange = {-7.f, 7.f};
-
 struct Selection
 {
     Selection() = default;
@@ -93,20 +80,36 @@ struct LfoDest : public Selection
 
 namespace Constants
 {
-    static const float defaultOscLevel = .4f;
+    static const auto defaultOscLevel = .4f;
 
-    static const float defaultFilterCutoff = 1000.f;
-    static const float defaultFilterResonance = .5f;
+    static const auto defaultFilterCutoff = 1000.f;
+    static const auto defaultFilterResonance = .5f;
 
-    static const float defaultAmpA = .1f;
-    static const float defaultAmpD = .1f;
-    static const float defaultAmpS = 1.f;
-    static const float defaultAmpR = .25f;
+    static const auto defaultAmpA = .1f;
+    static const auto defaultAmpD = .1f;
+    static const auto defaultAmpS = 1.f;
+    static const auto defaultAmpR = .25f;
+    static const auto sustainSkewFactor = .5f;
+    static const auto ampSkewFactor = .1f;
 
     static const float defaultLfoFreq = 3.f;
     static const float defaultLfoAmount = 0.f;
 
     static const float defaultEffectParam1 = 0.f;
+
+    static const NormalisableRange<float> dBRange = {-12.f, 12.f};
+    static const NormalisableRange<float> sliderRange = {0.f, 1.f};
+    static const NormalisableRange<float> sustainRange = {std::numeric_limits<float>::epsilon(), 1.f, 0.f, sustainSkewFactor};
+    static const NormalisableRange<float> ampRange = {std::numeric_limits<float>::epsilon(), 25.f, 0.f, ampSkewFactor};
+
+    static const NormalisableRange<float> hzRange = {0.1f, 18000.f};
+    static const NormalisableRange<float> lfoRange = {0.1f, 10.f};
+    static const NormalisableRange<float> lfoNoteRange = {0.f, 16.f};
+
+    //Sets the base frequency of Oscillator 1 or 2 over a 9-octave
+    //range from 16 Hz to 8KHz (when used with the Transpose buttons). Adjustment is in semitones.
+    static const NormalisableRange<int> midiNoteRange = {12, 120};   //actual midi note range is (0,127), but rev2, at least for oscilators is C0(0) to C10(120)
+    static const NormalisableRange<float> pitchWheelNoteRange = {-7.f, 7.f};
 
     enum
     {

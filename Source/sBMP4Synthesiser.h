@@ -92,10 +92,10 @@ private:
             if (auto sbmp4Voice = dynamic_cast<sBMP4Voice*> (voice))
                 sbmp4Voice->renderNextBlock (outputAudio, startSample, numSamples);
 
-        auto block = dsp::AudioBlock<float> (outputAudio);
-        auto blockToUse = block.getSubBlock ((size_t) startSample, (size_t) numSamples);
-        auto contextToUse = dsp::ProcessContextReplacing<float> (blockToUse);
-        fxChain.process (contextToUse);
+        //auto block = dsp::AudioBlock<float> (outputAudio);
+        //auto blockToUse = block.getSubBlock ((size_t) startSample, (size_t) numSamples);
+        //auto contextToUse = dsp::ProcessContextReplacing<float> (blockToUse);
+        //fxChain.process (contextToUse);
     }
 
     dsp::ProcessorChain<dsp::Reverb> fxChain;

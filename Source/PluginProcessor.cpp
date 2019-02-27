@@ -1,6 +1,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <limits>
 
 using namespace sBMP4AudioProcessorIDs;
 using namespace sBMP4AudioProcessorNames;

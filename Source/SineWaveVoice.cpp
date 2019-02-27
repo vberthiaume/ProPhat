@@ -65,7 +65,11 @@ void sBMP4Voice::updateOscFrequencies()
 
 void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
 {
-    jassert (newValue > 0);
+    if (newValue <= 0)
+    {
+        jassertfalse;
+        newValue = std::numeric_limits<float>::epsilon();
+    }
 
 #if RAMP_ADSR
 
