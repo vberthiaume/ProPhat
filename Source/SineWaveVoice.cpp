@@ -10,7 +10,8 @@
 
 #include "SineWaveVoice.h"
 
-sBMP4Voice::sBMP4Voice()
+sBMP4Voice::sBMP4Voice (int vId) :
+voiceId (vId)
 {
     processorChain.get<masterGainIndex>().setGainLinear (defaultOscLevel);
     processorChain.get<filterIndex>().setCutoffFrequencyHz (defaultFilterCutoff);
@@ -48,12 +49,15 @@ void sBMP4Voice::prepare (const dsp::ProcessSpec& spec)
     adsr.setParameters (curParams);
 
     lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
-
-    isPrepared = true;
 }
 
 void sBMP4Voice::updateOscFrequencies()
 {
+    auto midiNote = getCurrentlyPlayingNote();
+
+    if (midiNote < 0)
+        return;
+
     auto pitchWheelDeltaNote = pitchWheelNoteRange.convertFrom0to1 (pitchWheelPosition / 16383.f);
 
     auto osc1Freq = Helpers::getFloatMidiNoteInHertz (midiNote - osc1NoteOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote);
@@ -194,23 +198,14 @@ void sBMP4Voice::setLfoDest (int dest)
     lfoDest.curSelection = dest;
 }
 
-void sBMP4Voice::startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
+void sBMP4Voice::startNote (int /*midiNoteNumber*/, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
 {
-    midiNote = midiNoteNumber;
     pitchWheelPosition = currentPitchWheelPosition;
-
-    adsrWasActive = true;
-#if RAMP_ADSR
-    updateNextParams();
-#endif
-    adsr.setParameters (curParams);
     adsr.noteOn();
-
     updateOscFrequencies();
 
-    //@TODO the velocity here should probably be dependent on the number of voices... or add compression or something?
-    osc1.setLevel (velocity / (numVoices / 2));
-    osc2.setLevel (velocity / (numVoices / 2));
+    osc1.setLevel (velocity);
+    osc2.setLevel (velocity);
 }
 
 void sBMP4Voice::pitchWheelMoved (int newPitchWheelValue)
@@ -223,47 +218,23 @@ void sBMP4Voice::stopNote (float /*velocity*/, bool allowTailOff)
 {
     if (allowTailOff)
     {
+        if (stopNoteRequested)
+            return;
+
         adsr.noteOff();
+        stopNoteRequested = true;
     }
     else
     {
         clearCurrentNote();
         adsr.reset();
-#if RAMP_ADSR
-        updateNextParams();
-#endif
+        stopNoteRequested = false;
     }
 }
 
-#if RAMP_ADSR
-void sBMP4Voice::updateAdsr()
-{
-    const auto threshold = .03f;
-
-    auto updateParam = [threshold] (float& curParam, float& nextParam )
-    {
-        if (curParam > nextParam + threshold)
-            curParam -= threshold;
-        else if (curParam < nextParam - threshold)
-            curParam += threshold;
-        else
-            curParam = nextParam;
-    };
-
-
-    updateParam (curParams.attack, nextAttack);
-    updateParam (curParams.decay, nextDecay);
-    updateParam (curParams.sustain, nextSustain);
-    updateParam (curParams.release, nextRelease);
-
-    adsr.setParameters (curParams);
-}
-#endif
-
+    //@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
 void sBMP4Voice::updateLfo()
 {
-    //@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
-
     float lfoOut;
     {
         std::lock_guard<std::mutex> lock (lfoMutex);
@@ -301,17 +272,8 @@ void sBMP4Voice::updateLfo()
 
 void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
-    if (!isKeyDown() && !adsr.isActive())
-    {
-#if RAMP_ADSR
-        if (adsrWasActive)
-        {
-            updateNextParams();
-            adsrWasActive = false;
-        }
-#endif
+    if (! isVoiceActive())
         return;
-    }
 
     auto osc1Output = osc1Block.getSubBlock (0, (size_t) numSamples);
     osc1Output.clear();
@@ -338,6 +300,8 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
         dsp::ProcessContextReplacing<float> summedContext (block2);
         processorChain.process (summedContext);
 
+        processEnvelope (block2);
+
         pos += max;
         lfoUpdateCounter -= max;
 
@@ -345,13 +309,25 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
         {
             lfoUpdateCounter = lfoUpdateRate;
             updateLfo();
-#if RAMP_ADSR
-            updateAdsr();
-#endif
         }
     }
 
     dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (osc2Block);
 
-    adsr.applyEnvelopeToBuffer (outputBuffer, startSample, numSamples);
+    if (stopNoteRequested && !adsr.isActive())
+        stopNote (0.f, false);
+}
+
+void sBMP4Voice::processEnvelope (dsp::AudioBlock<float> block)
+{
+    auto samples = block.getNumSamples();
+    auto numChannels = block.getNumChannels();
+
+    for (auto start = 0; start < samples; ++start)
+    {
+        auto env = adsr.getNextSample();
+
+        for (int i = 0; i < numChannels; ++i)
+            block.getChannelPointer (i)[start] *= env;
+    }
 }

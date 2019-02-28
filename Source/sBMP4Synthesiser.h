@@ -19,7 +19,7 @@ public:
     sBMP4Synthesiser()
     {
         for (auto i = 0; i < numVoices; ++i)
-            addVoice (new sBMP4Voice());
+            addVoice (new sBMP4Voice (i));
 
         setNoteStealingEnabled (true);
 

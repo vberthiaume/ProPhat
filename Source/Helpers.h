@@ -16,10 +16,6 @@
     #define CPU_USAGE 0
 #endif
 
-#ifndef RAMP_ADSR
-    #define RAMP_ADSR 0
-#endif
-
 struct Selection
 {
     Selection() = default;
@@ -115,7 +111,7 @@ namespace Constants
     {
         oscShapeRadioGroupId = 1,
 
-        numVoices = 16,
+        numVoices = 2,
         defaultOscMidiNote = 48,    //C2 on rev2, used to be 36 for some reason
         middleCMidiNote = 60,       //C3 on rev2
 

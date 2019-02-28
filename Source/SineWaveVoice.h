@@ -181,7 +181,7 @@ public:
         masterGainIndex
     };
 
-    sBMP4Voice();
+    sBMP4Voice (int voiceId);
 
     void prepare (const dsp::ProcessSpec& spec);
 
@@ -236,10 +236,6 @@ public:
 
     bool canPlaySound (SynthesiserSound* sound) override { return dynamic_cast<SineWaveSound*> (sound) != nullptr; }
 
-    void updateLfo();
-
-    void updateAdsr();
-
     void renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
 
     void controllerMoved (int /*controllerNumber*/, int /*newValue*/) {}
@@ -249,7 +245,11 @@ public:
 #endif
 
 private:
-    bool isPrepared = false;
+
+    void updateLfo();
+    void processEnvelope (dsp::AudioBlock<float> block2);
+
+    int voiceId;
 
     HeapBlock<char> heapBlock1, heapBlock2;
     dsp::AudioBlock<float> osc1Block, osc2Block;
@@ -265,7 +265,7 @@ private:
     float nextSustain = defaultAmpS;
     float nextRelease = defaultAmpR;
 #endif
-    bool adsrWasActive = false;
+    bool stopNoteRequested = false;
 
     float curFilterCutoff = defaultFilterCutoff;
     float curFilterResonance = defaultFilterResonance;
@@ -285,7 +285,6 @@ private:
     float randomValue = 0.f;
     bool valueWasBig = false;
 
-    int midiNote = 0;
     int pitchWheelPosition = 0;
 
     float osc1NoteOffset = (float) middleCMidiNote - defaultOscMidiNote;
