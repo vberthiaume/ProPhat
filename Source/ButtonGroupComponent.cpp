@@ -81,15 +81,16 @@ void ButtonGroupComponent::setSelection (int selectionIndex)
 
 void ButtonGroupComponent::setSelectedButton (int selectedButtonId)
 {
-    auto index = selectedButtonId - (selection->isNullSelectionAllowed() ? 1 : 0);
+    if (selection->isNullSelectionAllowed() && --selectedButtonId < 0)
+        return; //valid null selection, so simply return
 
-    if (index < 0 || index > selection->getLastSelectionIndex())
+    if (selectedButtonId < 0 || selectedButtonId > selection->getLastSelectionIndex())
     {
         jassertfalse;
-        index = 0;
+        selectedButtonId = 0;
     }
 
-    selectionButtons[index]->setToggleState (true, dontSendNotification);
+    selectionButtons[selectedButtonId]->setToggleState (true, dontSendNotification);
 }
 
 void ButtonGroupComponent::selectNext()

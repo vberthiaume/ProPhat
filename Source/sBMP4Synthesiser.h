@@ -89,8 +89,7 @@ private:
     void renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples) override
     {
         for (auto* voice : voices)
-            if (auto sbmp4Voice = dynamic_cast<sBMP4Voice*> (voice))
-                sbmp4Voice->renderNextBlock (outputAudio, startSample, numSamples);
+            voice->renderNextBlock (outputAudio, startSample, numSamples);
 
         //auto block = dsp::AudioBlock<float> (outputAudio);
         //auto blockToUse = block.getSubBlock ((size_t) startSample, (size_t) numSamples);
