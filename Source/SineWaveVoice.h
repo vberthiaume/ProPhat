@@ -12,6 +12,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Helpers.h"
 #include <mutex>
+#include "ButtonGroupComponent.h"
 
 struct SineWaveSound : public SynthesiserSound
 {
@@ -41,88 +42,7 @@ public:
         osc.setFrequency (newValue, force);
     }
 
-    void setOscShape (int newShape)
-    {
-        auto& osc = processorChain.template get<oscIndex>();
-
-        bool wasActive = isActive;
-        isActive = true;
-
-        switch (newShape)
-        {
-            case OscShape::none:
-                isActive = false;
-                break;
-
-            case OscShape::saw:
-            {
-                std::lock_guard<std::mutex> lock (processMutex);
-                osc.initialise ([](Type x)
-                {
-                    //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-                    return jmap (x, Type (-MathConstants<double>::pi), Type (MathConstants<double>::pi), Type (-1), Type (1));
-                }, 2);
-            }
-                break;
-
-            case OscShape::sawTri:
-            {
-                std::lock_guard<std::mutex> lock (processMutex);
-                osc.initialise ([](Type x)
-                {
-                    Type y = jmap (x, Type (-MathConstants<double>::pi), Type (MathConstants<double>::pi), Type (-1), Type (1)) / 2;
-
-                    if (x < 0)
-                        return y += jmap (x, Type (-MathConstants<double>::pi), Type (0), Type (-1), Type (1)) / 2;
-                    else
-                        return y += jmap (x, Type (0), Type (MathConstants<double>::pi), Type (1), Type (-1)) / 2;
-
-                }, 128);
-            }
-                break;
-
-            case OscShape::triangle:
-            {
-                std::lock_guard<std::mutex> lock (processMutex);
-                osc.initialise ([](Type x)
-                {
-                    if (x < 0)
-                        return jmap (x, Type (-MathConstants<double>::pi), Type (0), Type (-1), Type (1));
-                    else
-                        return jmap (x, Type (0), Type (MathConstants<double>::pi), Type (1), Type (-1));
-
-                }, 128);
-            }
-                break;
-
-            case OscShape::pulse:
-            {
-                std::lock_guard<std::mutex> lock (processMutex);
-                osc.initialise ([](Type x)
-                {
-                    if (x < 0)
-                        return Type (-1);
-                    else
-                        return Type (1);
-                }, 128);
-            }
-                break;
-
-            case OscShape::total:
-                jassertfalse;
-                break;
-            default:
-                break;
-        }
-
-        if (wasActive != isActive)
-        {
-            if (isActive)
-                setLevel (lastActiveLevel);
-            else
-                setLevel (0);
-        }
-    }
+    void setOscShape (int newShape);
 
     void setLevel (Type newValue)
     {

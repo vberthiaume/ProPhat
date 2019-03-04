@@ -16,64 +16,6 @@
     #define CPU_USAGE 0
 #endif
 
-struct Selection
-{
-    Selection() = default;
-    Selection (int selection) : curSelection (selection) {}
-
-    int curSelection;
-
-    virtual int getLastSelectionIndex() = 0;
-    virtual bool isNullSelectionAllowed() = 0;
-};
-
-struct OscShape : public Selection
-{
-    enum
-    {
-        none = 0,
-        saw,
-        sawTri,
-        triangle,
-        pulse,
-        total
-    };
-
-    int getLastSelectionIndex() override { return total - 1; }
-    bool isNullSelectionAllowed() override { return true; }
-};
-
-struct LfoShape : public Selection
-{
-    enum
-    {
-        triangle = 0,
-        saw,
-        //revSaw,
-        square,
-        random,
-        total
-    };
-
-    int getLastSelectionIndex() override { return total - 1; }
-    bool isNullSelectionAllowed() override { return false; }
-};
-
-struct LfoDest : public Selection
-{
-    enum
-    {
-        osc1Freq = 0,
-        osc2Freq,
-        filterCurOff,
-        filterResonance,
-        total
-    };
-
-    int getLastSelectionIndex() override { return total - 1; }
-    bool isNullSelectionAllowed() override { return false; }
-};
-
 namespace Constants
 {
     static const auto defaultOscLevel = .4f;
@@ -111,13 +53,9 @@ namespace Constants
     {
         oscShapeRadioGroupId = 1,
 
-        numVoices = 2,
+        numVoices = 16,
         defaultOscMidiNote = 48,    //C2 on rev2, used to be 36 for some reason
         middleCMidiNote = 60,       //C3 on rev2
-
-        defaultOscShape = (int) OscShape::saw + 1,
-        defaultLfoShape = (int) LfoShape::triangle,
-        defaultLfoDest = (int) LfoDest::filterCurOff
     };
 }
 

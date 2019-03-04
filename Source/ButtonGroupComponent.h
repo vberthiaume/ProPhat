@@ -14,6 +14,71 @@
 #include "sBMP4LookAndFeel.h"
 #include <memory>
 
+struct Selection
+{
+    Selection() = default;
+    Selection (int selection) : curSelection (selection) {}
+
+    int curSelection;
+
+    virtual int getLastSelectionIndex() = 0;
+    virtual bool isNullSelectionAllowed() = 0;
+};
+
+struct OscShape : public Selection
+{
+    enum
+    {
+        none = 0,
+        saw,
+        sawTri,
+        triangle,
+        pulse,
+        total
+    };
+
+    int getLastSelectionIndex() override { return total - 1; }
+    bool isNullSelectionAllowed() override { return true; }
+};
+
+struct LfoShape : public Selection
+{
+    enum
+    {
+        triangle = 0,
+        saw,
+        //revSaw,
+        square,
+        random,
+        total
+    };
+
+    int getLastSelectionIndex() override { return total - 1; }
+    bool isNullSelectionAllowed() override { return false; }
+};
+
+struct LfoDest : public Selection
+{
+    enum
+    {
+        osc1Freq = 0,
+        osc2Freq,
+        filterCurOff,
+        filterResonance,
+        total
+    };
+
+    int getLastSelectionIndex() override { return total - 1; }
+    bool isNullSelectionAllowed() override { return false; }
+};
+
+enum defaults
+{
+    defaultOscShape = (int) OscShape::saw + 1,
+    defaultLfoShape = (int) LfoShape::triangle,
+    defaultLfoDest = (int) LfoDest::filterCurOff
+};
+
 class FilledDrawableButton : public DrawableButton
 {
 public:
