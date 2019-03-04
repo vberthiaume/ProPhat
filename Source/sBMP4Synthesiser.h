@@ -38,17 +38,24 @@ public:
 
     void parameterChanged (const String& parameterID, float newValue) override
     {
+        //@TODO implement osc1TuningID, osc2TuningID, oscSubID, oscMixID
+
         if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID)
-            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc1Tuning ((int) newValue); }, newValue);
-
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscFreq (sBMP4Voice::osc1Index, (int) newValue); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::osc2FreqID)
-            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc2Tuning ((int) newValue); }, newValue);
-
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscFreq (sBMP4Voice::osc2Index, (int) newValue); }, newValue);
+        else if (parameterID == sBMP4AudioProcessorIDs::osc1TuningID)
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscTuning (sBMP4Voice::osc1Index, newValue); }, newValue);
+        else if (parameterID == sBMP4AudioProcessorIDs::osc2TuningID)
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscTuning (sBMP4Voice::osc2Index, newValue); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::osc1ShapeID)
-            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc1Shape ((int) newValue); }, newValue);
-
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscShape (sBMP4Voice::osc1Index, (int) newValue); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::osc2ShapeID)
-            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOsc2Shape ((int) newValue); }, newValue);
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscShape (sBMP4Voice::osc2Index, (int) newValue); }, newValue);
+        else if (parameterID == sBMP4AudioProcessorIDs::oscSubID)
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscSub (newValue); }, newValue);
+        else if (parameterID == sBMP4AudioProcessorIDs::oscMixID)
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscMix (newValue); }, newValue);
 
         else if (parameterID == sBMP4AudioProcessorIDs::ampAttackID
                 || parameterID == sBMP4AudioProcessorIDs::ampDecayID
@@ -70,6 +77,8 @@ public:
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setFilterCutoff (newValue); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::filterResonanceID)
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setFilterResonance (newValue); }, newValue);
+        else
+            jassertfalse;
     }
 
     using VoiceOperation = std::function<void (sBMP4Voice*, float)>;

@@ -37,6 +37,7 @@ namespace Constants
 
     static const NormalisableRange<float> dBRange = {-12.f, 12.f};
     static const NormalisableRange<float> sliderRange = {0.f, 1.f};
+    static const NormalisableRange<float> centeredSliderRange = {-0.5f, .5f};
     static const NormalisableRange<float> sustainRange = {std::numeric_limits<float>::epsilon(), 1.f, 0.f, sustainSkewFactor};
     static const NormalisableRange<float> ampRange = {std::numeric_limits<float>::epsilon(), 25.f, 0.f, ampSkewFactor};
 
@@ -53,6 +54,10 @@ namespace Constants
     {
         oscShapeRadioGroupId = 1,
 
+        defaultSubOsc = 0,
+        defaultOscMix = 0,
+        defaultOscTuning = 0,
+
         numVoices = 16,
         defaultOscMidiNote = 48,    //C2 on rev2, used to be 36 for some reason
         middleCMidiNote = 60,       //C3 on rev2
@@ -61,22 +66,28 @@ namespace Constants
 
 namespace sBMP4AudioProcessorIDs
 {
-    const String osc1ShapeID    = "osc1ShapeID";
-    const String osc1FreqID     = "osc1FreqID";
-    const String osc2ShapeID    = "osc2ShapeID";
-    const String osc2FreqID     = "osc2FreqID";
+    const String osc1ShapeID = "osc1ShapeID";
+    const String osc1FreqID = "osc1FreqID";
+    const String osc1TuningID = "osc1TuningID";
 
-    const String filterCutoffID     = "filterCutoffID";
-    const String filterResonanceID  = "filterResonanceID";
+    const String osc2ShapeID = "osc2ShapeID";
+    const String osc2FreqID = "osc2FreqID";
+    const String osc2TuningID = "osc2TuningID";
 
-    const String ampAttackID    = "ampAttackID";
-    const String ampDecayID     = "ampDecayID";
-    const String ampSustainID   = "ampSustainID";
-    const String ampReleaseID   = "ampReleaseID";
+    const String oscSubID = "oscSubID";
+    const String oscMixID = "oscMixID";
 
-    const String lfoShapeID     = "lfoShapeID";
-    const String lfoDestID      = "lfoDestID";
-    const String lfoFreqID      = "lfoFreqID";
+    const String filterCutoffID = "filterCutoffID";
+    const String filterResonanceID = "filterResonanceID";
+
+    const String ampAttackID = "ampAttackID";
+    const String ampDecayID = "ampDecayID";
+    const String ampSustainID = "ampSustainID";
+    const String ampReleaseID = "ampReleaseID";
+
+    const String lfoShapeID = "lfoShapeID";
+    const String lfoDestID = "lfoDestID";
+    const String lfoFreqID = "lfoFreqID";
     const String lfoAmountID    = "lfoAmountID";
 
     const String effectID       = "effectID";
@@ -89,8 +100,13 @@ namespace sBMP4AudioProcessorNames
     const String oscGroupDesc = "OSCILLATORS";
     const String osc1ShapeDesc = "SHAPE";
     const String osc2ShapeDesc = "SHAPE";
-    const String osc1FreqSliderDesc = "OSC 1 FREQ";
-    const String osc2FreqSliderDesc = "OSC 2 FREQ";
+    const String osc1FreqDesc = "OSC 1 FREQ";
+    const String osc2FreqDesc = "OSC 2 FREQ";
+    const String osc1TuningDesc = "FINE TUNE";
+    const String osc2TuningDesc = "FINE TUNE";
+
+    const String oscSubOctDesc = "SUB OCTAVE";
+    const String oscMixDesc = "OSC MIX";
 
     const String filterGroupDesc = "LOW-PASS FILTER";
     const String filterCutoffSliderDesc = "CUTOFF";
@@ -170,6 +186,12 @@ struct Helpers
     static float getFloatMidiNoteInHertz (const float noteNumber, const float frequencyOfA = 440.0) noexcept
     {
         return frequencyOfA * (float) std::pow (2.0, (noteNumber - 69.0) / 12.0);
+    }
+
+    template <typename Type>
+    static bool valueContainedInRange (Type value, NormalisableRange<Type> range)
+    {
+        return value >= range.start && value <= range.end;
     }
 };
 

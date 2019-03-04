@@ -103,6 +103,8 @@ voiceId (vId)
     processorChain.get<filterIndex>().setCutoffFrequencyHz (defaultFilterCutoff);
     processorChain.get<filterIndex>().setResonance (defaultFilterResonance);
 
+    sub.setOscShape (OscShape::pulse);
+
     lfoDest.curSelection = (int) defaultLfoDest;
 
     setLfoShape (LfoShape::triangle);
@@ -124,6 +126,7 @@ void sBMP4Voice::prepare (const dsp::ProcessSpec& spec)
     osc1Block = dsp::AudioBlock<float> (heapBlock1, spec.numChannels, spec.maximumBlockSize);
     osc2Block = dsp::AudioBlock<float> (heapBlock2, spec.numChannels, spec.maximumBlockSize);
 
+    sub.prepare (spec);
     osc1.prepare (spec);
     osc2.prepare (spec);
     processorChain.prepare (spec);
@@ -146,10 +149,11 @@ void sBMP4Voice::updateOscFrequencies()
 
     auto pitchWheelDeltaNote = pitchWheelNoteRange.convertFrom0to1 (pitchWheelPosition / 16383.f);
 
-    auto osc1Freq = Helpers::getFloatMidiNoteInHertz (midiNote - osc1NoteOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote);
-    osc1.setFrequency ((float) osc1Freq, true);
+    auto osc1FloatNote = midiNote - osc1NoteOffset + osc1TuningOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote;
+    sub.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote - 12), true);
+    osc1.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote), true);
 
-    auto osc2Freq = Helpers::getFloatMidiNoteInHertz (midiNote - osc2NoteOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote);
+    auto osc2Freq = Helpers::getFloatMidiNoteInHertz (midiNote - osc2NoteOffset + osc2TuningOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote);
     osc2.setFrequency ((float) osc2Freq, true);
 }
 
@@ -290,8 +294,9 @@ void sBMP4Voice::startNote (int /*midiNoteNumber*/, float velocity, SynthesiserS
     adsr.noteOn();
     updateOscFrequencies();
 
-    osc1.setLevel (velocity);
-    osc2.setLevel (velocity);
+    curVelocity = velocity;
+
+    updateOscLevels();
 }
 
 void sBMP4Voice::pitchWheelMoved (int newPitchWheelValue)
@@ -374,6 +379,7 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
         //process osc1
         auto block1 = osc1Output.getSubBlock (pos, max);
         dsp::ProcessContextReplacing<float> osc1Context (block1);
+        sub.process (osc1Context);
         osc1.process (osc1Context);
 
         //process osc2
@@ -399,9 +405,6 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
     }
 
     dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (osc2Block);
-
-    if (stopNoteRequested && !adsr.isActive())
-        stopNote (0.f, false);
 }
 
 void sBMP4Voice::processEnvelope (dsp::AudioBlock<float> block)
@@ -416,4 +419,7 @@ void sBMP4Voice::processEnvelope (dsp::AudioBlock<float> block)
         for (int i = 0; i < numChannels; ++i)
             block.getChannelPointer (i)[start] *= env;
     }
+
+    if (stopNoteRequested && !adsr.isActive())
+        stopNote (0.f, false);
 }

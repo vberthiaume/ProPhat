@@ -11,11 +11,10 @@ enum sizes
     panelGap = 10,
 
     lineCount = 4,
-    //this is only used for the total height calculation... needs to be recalculated
     lineH = 75,
 
-    columnCount = 4,
-    columnW = 130,
+    columnCount = 6,
+    columnW = 110,
 
     height =    2 * overallGap + 4 * panelGap + lineCount   * lineH,
     width =     2 * overallGap + 4 * panelGap + columnCount * columnW,
@@ -31,9 +30,15 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     //OSCILLATORS
     oscGroup ({}, oscGroupDesc),
     osc1FreqAttachment (p.state, osc1FreqID, osc1FreqSlider),
-    osc2FreqAttachment (p.state, osc2FreqID, osc2FreqSlider),
+    osc1TuningAttachment (p.state, osc1TuningID, osc1TuningSlider),
     osc1ShapeButtons (p.state, osc1ShapeID, std::make_unique<OscShape> (OscShape()), osc1ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
+
+    osc2FreqAttachment (p.state, osc2FreqID, osc2FreqSlider),
+    osc2TuningAttachment (p.state, osc2TuningID, osc2TuningSlider),
     osc2ShapeButtons (p.state, osc2ShapeID, std::make_unique<OscShape> (OscShape()), osc2ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
+
+    oscSubAttachment (p.state, oscSubID, oscSubSlider),
+    oscMixAttachment (p.state, oscMixID, oscMixSlider),
 
     //FILTERS
     filterGroup ({}, filterGroupDesc),
@@ -97,9 +102,9 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
         }
     };
 
-    addGroup (oscGroup, {&osc1FreqSliderLabel, nullptr, &osc2FreqSliderLabel, nullptr},
-                        {osc1FreqSliderDesc, String(), osc2FreqSliderDesc, String()},
-                        {&osc1FreqSlider, &osc1ShapeButtons, &osc2FreqSlider, &osc2ShapeButtons});
+    addGroup (oscGroup, {&osc1FreqSliderLabel,  &osc1TuningSliderLabel, nullptr,            &oscSubSliderLabel, &osc2FreqSliderLabel,   &osc2TuningSliderLabel, nullptr,            &oscMixSliderLabel},
+                        {osc1FreqDesc,          osc1TuningDesc,         String(),           oscSubOctDesc,      osc2FreqDesc,           osc2TuningDesc,         String(),           oscMixDesc},
+                        {&osc1FreqSlider,       &osc1TuningSlider,      &osc1ShapeButtons,  &oscSubSlider,      &osc2FreqSlider,        &osc2TuningSlider,      &osc2ShapeButtons,  &oscMixSlider});
 
     addGroup (filterGroup, {&filterCutoffLabel, &filterResonanceLabel},
                            {filterCutoffSliderDesc, filterResonanceSliderDesc},
@@ -142,21 +147,15 @@ void sBMP4AudioProcessorEditor::resized()
         //setup group
         group.setBounds (groupBounds);
         groupBounds.reduce (panelGap, panelGap);
-        auto ogHeight = groupBounds.getHeight();
-        auto ogWidth = groupBounds.getWidth();
-
-        //DBG (groupBounds.getHeight());
 
         auto curComponentIndex = 0;
         for (int i = 0; i < numLines; ++i)
         {
-            auto lineBounds = groupBounds.removeFromTop (ogHeight / numLines);
-            //lineBounds.removeFromTop (otherLineGapWtf);
-            //DBG (lineBounds.getHeight());
+           auto lineBounds = groupBounds.removeFromTop (lineH);
 
             for (int j = 0; j < numColumns; ++j)
             {
-                auto bounds = lineBounds.removeFromLeft (ogWidth / numColumns);
+                auto bounds = lineBounds.removeFromLeft (columnW);
 
                 if (curComponentIndex < components.size())
                 {
@@ -169,9 +168,11 @@ void sBMP4AudioProcessorEditor::resized()
         }
     };
 
-    setupGroup (oscGroup, topSection.removeFromLeft (topSection.getWidth() / 2), {&osc1FreqSlider, &osc1ShapeButtons, &osc2FreqSlider, &osc2ShapeButtons}, 2, 2);
+    setupGroup (oscGroup, topSection.removeFromLeft (4 * columnW + 2 * panelGap), {&osc1FreqSlider, &osc1TuningSlider, &osc1ShapeButtons, &oscSubSlider,
+                                                                                  &osc2FreqSlider, &osc2TuningSlider, &osc2ShapeButtons, &oscMixSlider}, 2, 4);
+    setupGroup (ampGroup, bottomSection.removeFromLeft (4 * columnW + 2 * panelGap), {&ampAttackSlider,&ampDecaySlider, &ampSustainSlider, &ampReleaseSlider}, 2, 4);
+
     setupGroup (filterGroup, topSection, {&filterCutoffSlider, &filterResonanceSlider}, 2, 2);
-    setupGroup (ampGroup, bottomSection.removeFromLeft (bottomSection.getWidth() / 2), {&ampAttackSlider,&ampDecaySlider, &ampSustainSlider, &ampReleaseSlider}, 2, 2);
     setupGroup (lfoGroup, bottomSection, {&lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider}, 2, 2);
     //setupGroup (effectGroup, topSection, {&effectParam1Slider, &effectParam2Slider}, 1, 2);
 

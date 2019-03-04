@@ -14,22 +14,28 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
                                      .withOutput ("Output", AudioChannelSet::stereo(), true)),
     state (*this, nullptr, "state",
     {
-        std::make_unique<AudioParameterInt>     (osc1FreqID, osc1FreqSliderDesc, midiNoteRange.getRange().getStart(),
-                                                                                 midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
-        std::make_unique<AudioParameterInt>     (osc2FreqID, osc2FreqSliderDesc, midiNoteRange.getRange().getStart(),
-                                                                                 midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
+        std::make_unique<AudioParameterInt>     (osc1FreqID, osc1FreqDesc, midiNoteRange.getRange().getStart(),
+                                                                           midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
+        std::make_unique<AudioParameterInt>     (osc2FreqID, osc2FreqDesc, midiNoteRange.getRange().getStart(),
+                                                                           midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
+
+        std::make_unique<AudioParameterFloat>   (osc1TuningID, osc1TuningDesc, centeredSliderRange, (float) defaultOscTuning),
+        std::make_unique<AudioParameterFloat>   (osc2TuningID, osc2TuningDesc, centeredSliderRange, (float) defaultOscTuning),
+
+        std::make_unique<AudioParameterFloat>   (oscSubID, oscSubOctDesc, sliderRange, (float) defaultSubOsc),
+        std::make_unique<AudioParameterFloat>   (oscMixID, oscMixDesc, sliderRange, (float) defaultOscMix),
 
         std::make_unique<AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
         std::make_unique<AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
 
         std::make_unique<AudioParameterFloat>   (filterCutoffID, filterCutoffSliderDesc, hzRange, defaultFilterCutoff),
         std::make_unique<AudioParameterFloat>   (filterResonanceID, filterResonanceSliderDesc, sliderRange, defaultFilterResonance),
-        
+
         std::make_unique<AudioParameterFloat>   (ampAttackID, ampAttackSliderDesc, ampRange, defaultAmpA),
         std::make_unique<AudioParameterFloat>   (ampDecayID, ampDecaySliderDesc, ampRange, defaultAmpD),
         std::make_unique<AudioParameterFloat>   (ampSustainID, ampSustainSliderDesc, sustainRange, defaultAmpS),
         std::make_unique<AudioParameterFloat>   (ampReleaseID, ampReleaseSliderDesc, ampRange, defaultAmpR),
-        
+
         std::make_unique<AudioParameterFloat>   (lfoFreqID,   lfoFreqSliderDesc, lfoRange, defaultLfoFreq),
         std::make_unique<AudioParameterChoice>  (lfoShapeID, lfoShapeDesc,  StringArray {lfoShape0, lfoShape1, /*lfoShape2,*/ lfoShape3, lfoShape4}, defaultLfoShape),
         std::make_unique<AudioParameterChoice>  (lfoDestID, lfoDestDesc,  StringArray {lfoDest0, lfoDest1, lfoDest2, lfoDest3}, defaultLfoDest),
@@ -45,8 +51,14 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     state.addParameterListener (osc1FreqID, &synth);
     state.addParameterListener (osc2FreqID, &synth);
 
+    state.addParameterListener (osc1TuningID, &synth);
+    state.addParameterListener (osc2TuningID, &synth);
+
     state.addParameterListener (osc1ShapeID, &synth);
     state.addParameterListener (osc2ShapeID, &synth);
+
+    state.addParameterListener (oscSubID, &synth);
+    state.addParameterListener (oscMixID, &synth);
 
     state.addParameterListener (ampAttackID, &synth);
     state.addParameterListener (ampDecayID, &synth);

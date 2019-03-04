@@ -55,6 +55,11 @@ public:
         gain.setGainLinear (newValue);
     }
 
+    Type getLevel()
+    {
+        return lastActiveLevel;
+    }
+
     void reset() noexcept
     {
         processorChain.reset();
@@ -97,8 +102,11 @@ public:
 
     enum processorId
     {
-        filterIndex,
-        masterGainIndex
+        filterIndex = 0,
+        masterGainIndex,
+
+        osc1Index = 0,
+        osc2Index,
     };
 
     sBMP4Voice (int voiceId);
@@ -107,26 +115,80 @@ public:
 
     void updateOscFrequencies();
 
-    void setOsc1Tuning (int newMidiNote)
+    void setOscFreq (processorId oscNum, int newMidiNote)
     {
-        osc1NoteOffset = middleCMidiNote - (float) newMidiNote;
+        jassert (Helpers::valueContainedInRange (newMidiNote, midiNoteRange));
+
+        switch (oscNum)
+        {
+            case sBMP4Voice::osc1Index:
+                osc1NoteOffset = middleCMidiNote - (float) newMidiNote;
+                break;
+            case sBMP4Voice::osc2Index:
+                osc2NoteOffset = middleCMidiNote - (float) newMidiNote;
+                break;
+            default:
+                jassertfalse;
+                break;
+        }
+
         updateOscFrequencies();
     }
 
-    void setOsc2Tuning (int newMidiNote)
+    void setOscShape (processorId oscNum, int newShape)
     {
-        osc2NoteOffset = middleCMidiNote - (float) newMidiNote;
-        updateOscFrequencies();
+        switch (oscNum)
+        {
+            case sBMP4Voice::osc1Index:
+                osc1.setOscShape (newShape);
+                break;
+            case sBMP4Voice::osc2Index:
+                osc2.setOscShape (newShape);
+                break;
+            default:
+                jassertfalse;
+                break;
+        }
     }
 
-    void setOsc1Shape (int newShape)
+    void setOscTuning (processorId oscNum, float newTuning)
     {
-        osc1.setOscShape (newShape);
+        jassert (Helpers::valueContainedInRange (newTuning, centeredSliderRange));
+
+        switch (oscNum)
+        {
+            case sBMP4Voice::osc1Index:
+                osc1TuningOffset = newTuning;
+                break;
+            case sBMP4Voice::osc2Index:
+                osc2TuningOffset = newTuning;
+                break;
+            default:
+                jassertfalse;
+                break;
+        }
     }
 
-    void setOsc2Shape (int newShape)
+    void setOscSub (float newSub)
     {
-        osc2.setOscShape (newShape);
+        jassert (Helpers::valueContainedInRange (newSub, sliderRange));
+        curSubLevel = newSub;
+        updateOscLevels();
+    }
+
+    void setOscMix (float newMix)
+    {
+        jassert (Helpers::valueContainedInRange (newMix, sliderRange));
+
+        oscMix = newMix;
+        updateOscLevels();
+    }
+
+    void updateOscLevels()
+    {
+        sub.setLevel (curVelocity * curSubLevel);
+        osc1.setLevel (curVelocity * (1 - oscMix));
+        osc2.setLevel (curVelocity * oscMix);
     }
 
     void setAmpParam (StringRef parameterID, float newValue);
@@ -173,7 +235,7 @@ private:
 
     HeapBlock<char> heapBlock1, heapBlock2;
     dsp::AudioBlock<float> osc1Block, osc2Block;
-    GainedOscillator<float> osc1, osc2;
+    GainedOscillator<float> sub, osc1, osc2;
 
     dsp::ProcessorChain<dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
 
@@ -209,4 +271,11 @@ private:
 
     float osc1NoteOffset = (float) middleCMidiNote - defaultOscMidiNote;
     float osc2NoteOffset = (float) middleCMidiNote - defaultOscMidiNote;
+
+    float osc1TuningOffset = 0.f;
+    float osc2TuningOffset = 0.f;
+
+    float curVelocity = 0.f;
+    float curSubLevel = 0.f;
+    float oscMix = 0.f;
 };
