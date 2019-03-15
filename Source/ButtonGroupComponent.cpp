@@ -14,8 +14,8 @@ ButtonGroupComponent::ButtonGroupComponent (AudioProcessorValueTreeState& proces
                                             StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty) :
     state (processorState),
     parameterID (theParameterID),
-    selection (std::move (theSelection)),
     mainButton (mainButtonName, DrawableButton::ImageAboveTextLabel),
+    selection (std::move (theSelection)),
     allowEmptySelection (allowEmpty)
 {
     mainButton.addListener (this);

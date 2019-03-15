@@ -32,7 +32,7 @@ public:
     GainedOscillator()
     {
         setOscShape (OscShape::saw);
-        setLevel (defaultOscLevel);
+        setLevel (Constants::defaultOscLevel);
     }
 
     void setFrequency (Type newValue, bool force = false)
@@ -211,7 +211,7 @@ public:
         processorChain.get<filterIndex>().setResonance (curFilterResonance);
     }
 
-    void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition);
+    void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition) override;
 
     void pitchWheelMoved (int newPitchWheelValue) override;
 
@@ -221,7 +221,7 @@ public:
 
     void renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
 
-    void controllerMoved (int /*controllerNumber*/, int /*newValue*/) {}
+    void controllerMoved (int /*controllerNumber*/, int /*newValue*/)  override {}
 
     int getVoiceId() { return voiceId; }
 

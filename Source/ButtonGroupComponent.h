@@ -18,6 +18,7 @@ struct Selection
 {
     Selection() = default;
     Selection (int selection) : curSelection (selection) {}
+    virtual ~Selection() = default;
 
     int curSelection;
 
@@ -120,13 +121,10 @@ protected:
 
     AudioProcessorValueTreeState& state;
     String parameterID;
-
-    bool allowEmptySelection = false;
-
     sBMP4LookAndFeel lf;
 
     FilledDrawableButton mainButton;
     OwnedArray<ToggleButton> selectionButtons;
-
     std::unique_ptr<Selection> selection;
+    bool allowEmptySelection = false;
 };
