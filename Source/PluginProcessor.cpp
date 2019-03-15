@@ -28,13 +28,13 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
         std::make_unique<AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
         std::make_unique<AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
 
-        std::make_unique<AudioParameterFloat>   (filterCutoffID, filterCutoffSliderDesc, hzRange, defaultFilterCutoff),
+        std::make_unique<AudioParameterFloat>   (filterCutoffID, filterCutoffSliderDesc, cutOffRange, defaultFilterCutoff),
         std::make_unique<AudioParameterFloat>   (filterResonanceID, filterResonanceSliderDesc, sliderRange, defaultFilterResonance),
 
-        std::make_unique<AudioParameterFloat>   (ampAttackID, ampAttackSliderDesc, ampRange, defaultAmpA),
-        std::make_unique<AudioParameterFloat>   (ampDecayID, ampDecaySliderDesc, ampRange, defaultAmpD),
+        std::make_unique<AudioParameterFloat>   (ampAttackID, ampAttackSliderDesc, attackRange, defaultAmpA),
+        std::make_unique<AudioParameterFloat>   (ampDecayID, ampDecaySliderDesc, decayRange, defaultAmpD),
         std::make_unique<AudioParameterFloat>   (ampSustainID, ampSustainSliderDesc, sustainRange, defaultAmpS),
-        std::make_unique<AudioParameterFloat>   (ampReleaseID, ampReleaseSliderDesc, ampRange, defaultAmpR),
+        std::make_unique<AudioParameterFloat>   (ampReleaseID, ampReleaseSliderDesc, releaseRange, defaultAmpR),
 
         std::make_unique<AudioParameterFloat>   (lfoFreqID,   lfoFreqSliderDesc, lfoRange, defaultLfoFreq),
         std::make_unique<AudioParameterChoice>  (lfoShapeID, lfoShapeDesc,  StringArray {lfoShape0, lfoShape1, /*lfoShape2,*/ lfoShape3, lfoShape4}, defaultLfoShape),

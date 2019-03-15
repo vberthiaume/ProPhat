@@ -12,11 +12,12 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Helpers.h"
 #include <mutex>
+#include <set>
 #include "ButtonGroupComponent.h"
 
-struct SineWaveSound : public SynthesiserSound
+struct sBMP4Sound : public SynthesiserSound
 {
-    SineWaveSound() {}
+    sBMP4Sound() {}
 
     bool appliesToNote    (int) override { return true; }
     bool appliesToChannel (int) override { return true; }
@@ -109,7 +110,7 @@ public:
         osc2Index,
     };
 
-    sBMP4Voice (int voiceId);
+    sBMP4Voice (int voiceId, std::set<int>* activeVoiceSet);
 
     void prepare (const dsp::ProcessSpec& spec);
 
@@ -216,38 +217,39 @@ public:
 
     void stopNote (float /*velocity*/, bool allowTailOff) override;
 
-    bool canPlaySound (SynthesiserSound* sound) override { return dynamic_cast<SineWaveSound*> (sound) != nullptr; }
+    bool canPlaySound (SynthesiserSound* sound) override { return dynamic_cast<sBMP4Sound*> (sound) != nullptr; }
 
     void renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
 
     void controllerMoved (int /*controllerNumber*/, int /*newValue*/) {}
 
-#if RAMP_ADSR
-    void updateNextParams();
-#endif
+    int getVoiceId() { return voiceId; }
 
 private:
+    int voiceId;
 
     void updateLfo();
-    void processEnvelope (dsp::AudioBlock<float> block2);
-
-    int voiceId;
+    void processEnvelope (dsp::AudioBlock<float>& block);
+    void processRampUp (dsp::AudioBlock<float>& block, int curBlockSize);
+    void processKillOverlap (dsp::AudioBlock<float>& block, int curBlockSize);
+    void applyKillRamp (AudioBuffer<float>& outputBuffer, int startSample, int numSamples);
+    void assertForDiscontinuities (AudioBuffer<float>& outputBuffer, int startSample, int numSamples, String dbgPrefix);
 
     HeapBlock<char> heapBlock1, heapBlock2;
     dsp::AudioBlock<float> osc1Block, osc2Block;
     GainedOscillator<float> sub, osc1, osc2;
 
+    std::unique_ptr<AudioBuffer<float>> overlap;
+    int overlapIndex = -1;
+    //@TODO replace this currentlyKillingVoice bool with a check in the bitfield that voicesBeingKilled will become
+    bool currentlyKillingVoice = false;
+    std::set<int>* voicesBeingKilled;
+
     dsp::ProcessorChain<dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
 
     ADSR adsr;
     ADSR::Parameters curParams;
-#if RAMP_ADSR
-    float nextAttack = defaultAmpA;
-    float nextDecay = defaultAmpD;
-    float nextSustain = defaultAmpS;
-    float nextRelease = defaultAmpR;
-#endif
-    bool stopNoteRequested = false;
+    bool currentlyReleasingNote = false, justDoneReleaseEnvelope = false;
 
     float curFilterCutoff = defaultFilterCutoff;
     float curFilterResonance = defaultFilterResonance;
@@ -278,4 +280,7 @@ private:
     float curVelocity = 0.f;
     float curSubLevel = 0.f;
     float oscMix = 0.f;
+
+    bool rampingUp = false;
+    int rampUpSamplesLeft = 0;
 };

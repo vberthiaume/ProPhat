@@ -19,15 +19,18 @@ public:
     sBMP4Synthesiser()
     {
         for (auto i = 0; i < numVoices; ++i)
-            addVoice (new sBMP4Voice (i));
+            addVoice (new sBMP4Voice (i, &voicesBeingKilled));
 
-        setNoteStealingEnabled (true);
-
-        addSound (new SineWaveSound());
+        addSound (new sBMP4Sound());
     }
 
     void prepare (const dsp::ProcessSpec& spec) noexcept
     {
+        if (Helpers::areSameSpecs (curSpecs, spec))
+            return;
+
+        curSpecs = spec;
+
         setCurrentPlaybackSampleRate (spec.sampleRate);
 
         for (auto* v : voices)
@@ -38,8 +41,6 @@ public:
 
     void parameterChanged (const String& parameterID, float newValue) override
     {
-        //@TODO implement osc1TuningID, osc2TuningID, oscSubID, oscMixID
-
         if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID)
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscFreq (sBMP4Voice::osc1Index, (int) newValue); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::osc2FreqID)
@@ -88,6 +89,20 @@ public:
             operation (dynamic_cast<sBMP4Voice*> (voice), newValue);
     }
 
+    void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override
+    {
+        {
+            const ScopedLock sl (lock);
+
+            //don't start new voices in current buffer call if we have filled all voices already.
+            //voicesBeingKilled should be reset after each renderNextBlock call
+            if (voicesBeingKilled.size() >= numVoices)
+                return;
+        }
+
+        Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
+    }
+
 private:
 
     enum
@@ -95,16 +110,10 @@ private:
         reverbIndex
     };
 
-    void renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples) override
-    {
-        for (auto* voice : voices)
-            voice->renderNextBlock (outputAudio, startSample, numSamples);
-
-        //auto block = dsp::AudioBlock<float> (outputAudio);
-        //auto blockToUse = block.getSubBlock ((size_t) startSample, (size_t) numSamples);
-        //auto contextToUse = dsp::ProcessContextReplacing<float> (blockToUse);
-        //fxChain.process (contextToUse);
-    }
+    //@TODO: make this into a bit mask thing?
+    std::set<int> voicesBeingKilled{};
 
     dsp::ProcessorChain<dsp::Reverb> fxChain;
+
+    dsp::ProcessSpec curSpecs{};
 };

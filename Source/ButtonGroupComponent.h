@@ -74,7 +74,7 @@ struct LfoDest : public Selection
 
 enum defaults
 {
-    defaultOscShape = (int) OscShape::saw + 1,
+    defaultOscShape = (int) OscShape::saw,
     defaultLfoShape = (int) LfoShape::triangle,
     defaultLfoDest = (int) LfoDest::filterCurOff
 };
