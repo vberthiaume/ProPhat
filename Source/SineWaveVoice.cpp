@@ -114,8 +114,12 @@ voicesBeingKilled (activeVoiceSet)
 
 void sBMP4Voice::prepare (const dsp::ProcessSpec& spec)
 {
-    osc1Block = dsp::AudioBlock<float> (heapBlock1, spec.numChannels, spec.maximumBlockSize);
-    osc2Block = dsp::AudioBlock<float> (heapBlock2, spec.numChannels, spec.maximumBlockSize);
+    //seems like auval doesn't initalize spec properly and we need to
+    PluginHostType host;
+    const auto auvalMultiplier = host.getHostPath().contains ("auval") ? 5 : 1;
+
+    osc1Block = dsp::AudioBlock<float> (heapBlock1, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
+    osc2Block = dsp::AudioBlock<float> (heapBlock2, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
 
     overlap = std::make_unique<AudioSampleBuffer> (AudioSampleBuffer (spec.numChannels, killRampSamples));
     overlap->clear();
@@ -128,7 +132,7 @@ void sBMP4Voice::prepare (const dsp::ProcessSpec& spec)
     adsr.setSampleRate (spec.sampleRate);
     adsr.setParameters (curParams);
 
-    lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
+    lfo.prepare ({spec.sampleRate / lfoUpdateRate, auvalMultiplier * spec.maximumBlockSize, spec.numChannels});
 }
 
 void sBMP4Voice::updateOscFrequencies()
