@@ -1,3 +1,21 @@
+/*
+  ==============================================================================
+
+   Copyright (c) 2019 - Vincent Berthiaume
+
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
+
+   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
+
+  ==============================================================================
+*/
+
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
@@ -13,7 +31,7 @@ enum sizes
     lineCount = 4,
     lineH = 75,
 
-    columnCount = 6,
+    columnCount = 8,
     columnW = 110,
 
     height =    2 * overallGap + 4 * panelGap + lineCount   * lineH,
@@ -44,6 +62,10 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     filterGroup ({}, filterGroupDesc),
     filterCutoffAttachment (p.state, filterCutoffID, filterCutoffSlider),
     filterResonanceAttachment (p.state, filterResonanceID, filterResonanceSlider),
+    filterEnvAttackAttachment (p.state, filterEnvAttackID, filterEnvAttackSlider),
+    filterEnvDecayAttachment (p.state, filterEnvDecayID, filterEnvDecaySlider),
+    filterEnvSustainAttachment (p.state, filterEnvSustainID, filterEnvSustainSlider),
+    filterEnvReleaseAttachment (p.state, filterEnvReleaseID, filterEnvReleaseSlider),
 
     //AMPLIFIER
     ampGroup ({}, ampGroupDesc),
@@ -106,9 +128,9 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
                         {osc1FreqDesc,          osc1TuningDesc,         String(),           oscSubOctDesc,      osc2FreqDesc,           osc2TuningDesc,         String(),           oscMixDesc},
                         {&osc1FreqSlider,       &osc1TuningSlider,      &osc1ShapeButtons,  &oscSubSlider,      &osc2FreqSlider,        &osc2TuningSlider,      &osc2ShapeButtons,  &oscMixSlider});
 
-    addGroup (filterGroup, {&filterCutoffLabel, &filterResonanceLabel},
-                           {filterCutoffSliderDesc, filterResonanceSliderDesc},
-                           {&filterCutoffSlider, &filterResonanceSlider});
+    addGroup (filterGroup, {&filterCutoffLabel, &filterResonanceLabel, &filterEnvAttackLabel, &filterEnvDecayLabel, &filterEnvSustainLabel, &filterEnvReleaseLabel},
+                           {filterCutoffSliderDesc, filterResonanceSliderDesc, ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc},
+                           {&filterCutoffSlider, &filterResonanceSlider, &filterEnvAttackSlider, &filterEnvDecaySlider, &filterEnvSustainSlider, &filterEnvReleaseSlider});
 
     addGroup (ampGroup, {&ampAttackLabel, &ampDecayLabel, &ampSustainLabel, &ampReleaseLabel},
                         {ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc},
@@ -151,7 +173,7 @@ void sBMP4AudioProcessorEditor::resized()
         auto curComponentIndex = 0;
         for (int i = 0; i < numLines; ++i)
         {
-           auto lineBounds = groupBounds.removeFromTop (lineH);
+            auto lineBounds = groupBounds.removeFromTop (lineH);
 
             for (int j = 0; j < numColumns; ++j)
             {
@@ -168,13 +190,15 @@ void sBMP4AudioProcessorEditor::resized()
         }
     };
 
+    //top section
     setupGroup (oscGroup, topSection.removeFromLeft (4 * columnW + 2 * panelGap), {&osc1FreqSlider, &osc1TuningSlider, &osc1ShapeButtons, &oscSubSlider,
-                                                                                  &osc2FreqSlider, &osc2TuningSlider, &osc2ShapeButtons, &oscMixSlider}, 2, 4);
-    setupGroup (ampGroup, bottomSection.removeFromLeft (4 * columnW + 2 * panelGap), {&ampAttackSlider,&ampDecaySlider, &ampSustainSlider, &ampReleaseSlider}, 2, 4);
+                                                                                   &osc2FreqSlider, &osc2TuningSlider, &osc2ShapeButtons, &oscMixSlider}, 2, 4);
+    setupGroup (filterGroup, topSection, {&filterCutoffSlider, &filterResonanceSlider, nullptr, nullptr, &filterEnvAttackSlider,&filterEnvDecaySlider, &filterEnvSustainSlider, &filterEnvReleaseSlider}, 2, 4);
 
-    setupGroup (filterGroup, topSection, {&filterCutoffSlider, &filterResonanceSlider}, 2, 2);
-    setupGroup (lfoGroup, bottomSection, {&lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider}, 2, 2);
-    //setupGroup (effectGroup, topSection, {&effectParam1Slider, &effectParam2Slider}, 1, 2);
+    //bottom section
+    setupGroup (lfoGroup, bottomSection.removeFromLeft (2 * columnW + panelGap), {&lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider}, 2, 2);
+    setupGroup (effectGroup, bottomSection.removeFromLeft (2 * columnW + panelGap), {&effectParam1Slider, &effectParam2Slider}, 2, 2);
+    setupGroup (ampGroup, bottomSection, {&ampAttackSlider,&ampDecaySlider, &ampSustainSlider, &ampReleaseSlider}, 2, 4);
 
 #if CPU_USAGE
     auto cpuSectionH = 100;

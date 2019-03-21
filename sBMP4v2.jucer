@@ -4,7 +4,7 @@
               projectType="audioplug" pluginManufacturer="BMP4" pluginAUIsSandboxSafe="1"
               pluginFormats="buildAU,buildStandalone,buildVST,buildVST3" id="Pybx3b"
               jucerVersion="5.4.3" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
-              cppLanguageStandard="17" pluginManufacturerCode="BMP4" pluginCode="sBMP"
+              cppLanguageStandard="17" pluginManufacturerCode="BMP4" pluginCode="Sbmp"
               pluginName="sBMP4" pluginDesc="Subtractive synth based on the Prophet REV2"
               bundleIdentifier="com.BMP4.sBMP4">
   <MAINGROUP id="xcjoOm" name="sBMP4">

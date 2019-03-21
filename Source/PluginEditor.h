@@ -1,3 +1,21 @@
+/*
+  ==============================================================================
+
+   Copyright (c) 2019 - Vincent Berthiaume
+
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
+
+   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
+
+  ==============================================================================
+*/
+
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -15,7 +33,7 @@ public:
         tolerance (snapTolerance)
     {
         setLookAndFeel (&lf);
-        //setPopupDisplayEnabled (true, false, nullptr);
+        setPopupDisplayEnabled (true, false, nullptr);
     }
 
     ~SnappingSlider()
@@ -92,9 +110,11 @@ private:
     ButtonGroupComponent osc1ShapeButtons, osc2ShapeButtons;
 
     //FILTER
-    sBMP4Label filterCutoffLabel, filterResonanceLabel;
+    sBMP4Label filterCutoffLabel, filterResonanceLabel, filterEnvAttackLabel, filterEnvDecayLabel, filterEnvSustainLabel, filterEnvReleaseLabel;
     SnappingSlider filterCutoffSlider, filterResonanceSlider;
     AudioProcessorValueTreeState::SliderAttachment filterCutoffAttachment, filterResonanceAttachment;
+    SnappingSlider filterEnvAttackSlider, filterEnvDecaySlider, filterEnvSustainSlider, filterEnvReleaseSlider;
+    AudioProcessorValueTreeState::SliderAttachment filterEnvAttackAttachment, filterEnvDecayAttachment, filterEnvSustainAttachment, filterEnvReleaseAttachment;
 
     //AMPLIFIER
     sBMP4Label ampAttackLabel, ampDecayLabel, ampSustainLabel, ampReleaseLabel;

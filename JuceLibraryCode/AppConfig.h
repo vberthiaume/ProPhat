@@ -358,7 +358,7 @@
  #define JucePlugin_Name                   "sBMP4"
 #endif
 #ifndef  JucePlugin_Desc
- #define JucePlugin_Desc                   "sBMP4"
+ #define JucePlugin_Desc                   "Subtractive synth based on the Prophet REV2"
 #endif
 #ifndef  JucePlugin_Manufacturer
  #define JucePlugin_Manufacturer           "BMP4"
@@ -373,7 +373,7 @@
  #define JucePlugin_ManufacturerCode       0x424d5034 // 'BMP4'
 #endif
 #ifndef  JucePlugin_PluginCode
- #define JucePlugin_PluginCode             0x73424d50 // 'sBMP'
+ #define JucePlugin_PluginCode             0x53626d70 // 'Sbmp'
 #endif
 #ifndef  JucePlugin_IsSynth
  #define JucePlugin_IsSynth                1

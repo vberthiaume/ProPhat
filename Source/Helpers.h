@@ -1,9 +1,17 @@
 /*
   ==============================================================================
 
-    Helpers.h
-    Created: 21 Jan 2019 11:52:58am
-    Author:  Haake
+   Copyright (c) 2019 - Vincent Berthiaume
+
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
+
+   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -51,14 +59,17 @@ namespace Constants
     static const float defaultLfoAmount = 0.f;
 
     static const float defaultEffectParam1 = 0.f;
+    static const float defaultEffectParam2 = 0.f;
 
     static const NormalisableRange<float> dBRange = {-12.f, 12.f};
     static const NormalisableRange<float> sliderRange = {0.f, 1.f};
     static const NormalisableRange<float> centeredSliderRange = {-0.5f, .5f};
 
     //envelope stuff
+    static const auto minA = .001f;
     static const auto minAmp = .01f;
-    static const auto defaultAmpA = minAmp;
+
+    static const auto defaultAmpA = minA;
     static const auto defaultAmpD = minAmp;
     static const auto defaultAmpS = 1.f;
     static const auto defaultAmpR = .25f;
@@ -67,7 +78,7 @@ namespace Constants
     static const auto ampSkewFactor = .5f;
     static const auto cutOffSkewFactor = .5f;
 
-    static const NormalisableRange<float> attackRange   {minAmp, 25.f, 0.f, ampSkewFactor};
+    static const NormalisableRange<float> attackRange   {minA, 25.f, 0.f, ampSkewFactor};
     static const NormalisableRange<float> decayRange    {minAmp, 25.f, 0.f, ampSkewFactor};
     static const NormalisableRange<float> sustainRange  {minAmp, 1.f,  0.f, sustainSkewFactor};
     static const NormalisableRange<float> releaseRange  {minAmp, 25.f, 0.f, ampSkewFactor};
@@ -102,6 +113,11 @@ namespace sBMP4AudioProcessorIDs
     const String ampDecayID = "ampDecayID";
     const String ampSustainID = "ampSustainID";
     const String ampReleaseID = "ampReleaseID";
+
+    const String filterEnvAttackID = "filterEnvAttackID";
+    const String filterEnvDecayID = "filterEnvDecayID";
+    const String filterEnvSustainID = "filterEnvSustainID";
+    const String filterEnvReleaseID = "filterEnvReleaseID";
 
     const String lfoShapeID = "lfoShapeID";
     const String lfoDestID = "lfoDestID";
@@ -142,9 +158,15 @@ namespace sBMP4AudioProcessorNames
     const String lfoFreqSliderDesc = "FREQUENCY";
     const String lfoAmountSliderDesc = "AMOUNT";
 
+#if 0
     const String effectGroupDesc = "EFFECT";
     const String effectParam1Desc = "PARAM 1";
     const String effectParam2Desc = "PARAM 2";
+#else
+    const String effectGroupDesc = "REVERB";
+    const String effectParam1Desc = "ROOM";
+    const String effectParam2Desc = "MIX";
+#endif
 }
 
 namespace sBMP4AudioProcessorChoices
@@ -165,9 +187,6 @@ namespace sBMP4AudioProcessorChoices
     const String lfoDest1 = "Osc2 Freq";
     const String lfoDest2 = "Cutoff";
     const String lfoDest3 = "Resonance";
-
-    const String effectChoices0 = "Reverb";
-    const String effectChoices1 = "None";
 }
 
 inline bool getVarAsBool (const ValueTree& v, const Identifier& id) { return static_cast<bool> (v.getProperty (id)); }

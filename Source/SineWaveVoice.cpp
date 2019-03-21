@@ -1,9 +1,17 @@
 /*
   ==============================================================================
 
-    SineWaveVoice.cpp
-    Created: 18 Jan 2019 4:37:09pm
-    Author:  Haake
+   Copyright (c) 2019 - Vincent Berthiaume
+
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
+
+   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -129,8 +137,11 @@ void sBMP4Voice::prepare (const dsp::ProcessSpec& spec)
     osc2.prepare (spec);
     processorChain.prepare (spec);
 
-    adsr.setSampleRate (spec.sampleRate);
-    adsr.setParameters (curParams);
+    ampADSR.setSampleRate (spec.sampleRate);
+    ampADSR.setParameters (ampParams);
+
+    filterEnvADSR.setSampleRate (spec.sampleRate);
+    filterEnvADSR.setParameters (filterEnvParams);
 
     lfo.prepare ({spec.sampleRate / lfoUpdateRate, auvalMultiplier * spec.maximumBlockSize, spec.numChannels});
 }
@@ -161,15 +172,35 @@ void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
     }
 
     if (parameterID == sBMP4AudioProcessorIDs::ampAttackID)
-        curParams.attack = newValue;
+        ampParams.attack = newValue;
     else if (parameterID == sBMP4AudioProcessorIDs::ampDecayID)
-        curParams.decay = newValue;
+        ampParams.decay = newValue;
     else if (parameterID == sBMP4AudioProcessorIDs::ampSustainID)
-        curParams.sustain = newValue;
+        ampParams.sustain = newValue;
     else if (parameterID == sBMP4AudioProcessorIDs::ampReleaseID)
-        curParams.release = newValue;
+        ampParams.release = newValue;
 
-    adsr.setParameters (curParams);
+    ampADSR.setParameters (ampParams);
+}
+
+void sBMP4Voice::setFilterEnvParam (StringRef parameterID, float newValue)
+{
+    if (newValue <= 0)
+    {
+        jassertfalse;
+        newValue = std::numeric_limits<float>::epsilon();
+    }
+
+    if (parameterID == sBMP4AudioProcessorIDs::filterEnvAttackID)
+        filterEnvParams.attack = newValue;
+    else if (parameterID == sBMP4AudioProcessorIDs::filterEnvDecayID)
+        filterEnvParams.decay = newValue;
+    else if (parameterID == sBMP4AudioProcessorIDs::filterEnvSustainID)
+        filterEnvParams.sustain = newValue;
+    else if (parameterID == sBMP4AudioProcessorIDs::filterEnvReleaseID)
+        filterEnvParams.release = newValue;
+
+    filterEnvADSR.setParameters (filterEnvParams);
 }
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
@@ -254,8 +285,12 @@ void sBMP4Voice::setLfoDest (int dest)
     //reset everything
     lfoOsc1NoteOffset = 0.f;
     lfoOsc2NoteOffset = 0.f;
-    processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
-    processorChain.get<filterIndex>().setResonance (curFilterResonance);
+
+    if (lfoDest.curSelection == LfoDest::filterCutOff)
+        processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
+
+    if (lfoDest.curSelection == LfoDest::filterResonance)
+        processorChain.get<filterIndex>().setResonance (curFilterResonance);
 
     //change the destination
     lfoDest.curSelection = dest;
@@ -270,6 +305,11 @@ void sBMP4Voice::pitchWheelMoved (int newPitchWheelValue)
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
 void sBMP4Voice::updateLfo()
 {
+    //apply filter envelope
+    //@TODO make this into a slider
+    const auto envelopeAmount = 2;
+    processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff * (1 + envelopeAmount * filterEnvelope));
+
     float lfoOut;
     {
         std::lock_guard<std::mutex> lock (lfoMutex);
@@ -289,15 +329,16 @@ void sBMP4Voice::updateLfo()
             updateOscFrequencies();
             break;
 
-        case LfoDest::filterCurOff:
+        case LfoDest::filterCutOff:
         {
-            auto curoffFreqHz = jmap (lfoOut, 0.0f, 1.0f, 100.0f, 2000.0f);
-            processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff + curoffFreqHz);
+            auto lfoCutOffContributionHz = jmap (lfoOut, 0.0f, 1.0f, 10.0f, 10000.0f);
+            auto curCutOff = jmin (curFilterCutoff * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz, 18000.f);
+            processorChain.get<filterIndex>().setCutoffFrequencyHz (curCutOff);
         }
         break;
 
         case LfoDest::filterResonance:
-            processorChain.get<filterIndex>().setResonance (lfoOut);
+            processorChain.get<filterIndex>().setResonance (curFilterResonance * (1 + lfoOut));
             break;
 
         default:
@@ -311,9 +352,13 @@ void sBMP4Voice::startNote (int /*midiNoteNumber*/, float velocity, SynthesiserS
     DBG ("\tDEBUG start: " + String (voiceId));
 #endif
 
-    adsr.setParameters (curParams);
-    adsr.reset();
-    adsr.noteOn();
+    ampADSR.setParameters (ampParams);
+    ampADSR.reset();
+    ampADSR.noteOn();
+
+    filterEnvADSR.setParameters (filterEnvParams);
+    filterEnvADSR.reset();
+    filterEnvADSR.noteOn();
 
     pitchWheelPosition = currentPitchWheelPosition;
     updateOscFrequencies();
@@ -331,7 +376,8 @@ void sBMP4Voice::stopNote (float /*velocity*/, bool allowTailOff)
     if (allowTailOff)
     {
         currentlyReleasingNote = true;
-        adsr.noteOff();
+        ampADSR.noteOff();
+        filterEnvADSR.noteOff();
 
 #if DEBUG_VOICES
         DBG ("\tDEBUG tailoff voice: " + String (voiceId));
@@ -364,16 +410,16 @@ void sBMP4Voice::processEnvelope (dsp::AudioBlock<float>& block)
     auto samples = block.getNumSamples();
     auto numChannels = block.getNumChannels();
 
-    float env{};
     for (auto i = 0; i < samples; ++i)
     {
-        env = adsr.getNextSample();
+        filterEnvelope = filterEnvADSR.getNextSample();
+        auto env = ampADSR.getNextSample();
 
         for (int c = 0; c < numChannels; ++c)
             block.getChannelPointer (c)[i] *= env;
     }
 
-    if (currentlyReleasingNote && !adsr.isActive())
+    if (currentlyReleasingNote && !ampADSR.isActive())
     {
         currentlyReleasingNote = false;
         justDoneReleaseEnvelope = true;
@@ -466,9 +512,8 @@ void sBMP4Voice::assertForDiscontinuities (AudioBuffer<float>& outputBuffer, int
     {
         for (int i = startSample; i < startSample + numSamples; ++i)
         {
-            //@TODO need some kind of compression to avoid valoes about 1.f...
-            auto curSample = outputBuffer.getSample (c, i);
-            jassert (abs (curSample) < 1.5f);
+            //@TODO need some kind of compression to avoid values above 1.f...
+            jassert (abs (outputBuffer.getSample (c, i)) < 1.5f);
 
             if (c == 0)
             {

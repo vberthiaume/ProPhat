@@ -1,9 +1,17 @@
 /*
   ==============================================================================
 
-    sBMP4Synthesiser.h
-    Created: 29 Jan 2019 10:59:23am
-    Author:  Haake
+   Copyright (c) 2019 - Vincent Berthiaume
+
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
+
+   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -65,6 +73,13 @@ public:
             for (auto voice : voices)
                 dynamic_cast<sBMP4Voice*> (voice)->setAmpParam (parameterID, newValue);
 
+        else if (parameterID == sBMP4AudioProcessorIDs::filterEnvAttackID
+                || parameterID == sBMP4AudioProcessorIDs::filterEnvDecayID
+                || parameterID == sBMP4AudioProcessorIDs::filterEnvSustainID
+                || parameterID == sBMP4AudioProcessorIDs::filterEnvReleaseID)
+            for (auto voice : voices)
+                dynamic_cast<sBMP4Voice*> (voice)->setFilterEnvParam (parameterID, newValue);
+
         else if (parameterID == sBMP4AudioProcessorIDs::lfoShapeID)
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoShape ((int) newValue); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::lfoDestID)
@@ -78,6 +93,9 @@ public:
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setFilterCutoff (newValue); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::filterResonanceID)
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setFilterResonance (newValue); }, newValue);
+
+        else if (parameterID == sBMP4AudioProcessorIDs::effectParam1ID || parameterID == sBMP4AudioProcessorIDs::effectParam2ID)
+            setEffectParam (parameterID, newValue);
         else
             jassertfalse;
     }
@@ -87,6 +105,16 @@ public:
     {
         for (auto voice : voices)
             operation (dynamic_cast<sBMP4Voice*> (voice), newValue);
+    }
+
+    void setEffectParam (StringRef parameterID, float newValue)
+    {
+        if (parameterID == sBMP4AudioProcessorIDs::effectParam1ID)
+            reverbParams.roomSize = newValue;
+        else if (parameterID == sBMP4AudioProcessorIDs::effectParam2ID)
+            reverbParams.wetLevel = newValue;
+
+        fxChain.get<reverbIndex>().setParameters (reverbParams);
     }
 
     void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override
@@ -105,6 +133,17 @@ public:
 
 private:
 
+    void renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples) override
+    {
+        for (auto* voice : voices)
+            voice->renderNextBlock (outputAudio, startSample, numSamples);
+
+        auto block = dsp::AudioBlock<float> (outputAudio);
+        auto blockToUse = block.getSubBlock ((size_t) startSample, (size_t) numSamples);
+        auto contextToUse = dsp::ProcessContextReplacing<float> (blockToUse);
+        fxChain.process (contextToUse);
+    }
+
     enum
     {
         reverbIndex
@@ -114,6 +153,8 @@ private:
     std::set<int> voicesBeingKilled{};
 
     dsp::ProcessorChain<dsp::Reverb> fxChain;
+
+    dsp::Reverb::Parameters reverbParams;
 
     dsp::ProcessSpec curSpecs{};
 };

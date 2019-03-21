@@ -64,7 +64,7 @@ struct LfoDest : public Selection
     {
         osc1Freq = 0,
         osc2Freq,
-        filterCurOff,
+        filterCutOff,
         filterResonance,
         total
     };
@@ -77,7 +77,7 @@ enum defaults
 {
     defaultOscShape = (int) OscShape::saw,
     defaultLfoShape = (int) LfoShape::triangle,
-    defaultLfoDest = (int) LfoDest::filterCurOff
+    defaultLfoDest = (int) LfoDest::filterCutOff
 };
 
 class FilledDrawableButton : public DrawableButton

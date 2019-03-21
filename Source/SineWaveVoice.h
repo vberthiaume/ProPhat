@@ -1,9 +1,17 @@
 /*
   ==============================================================================
 
-    SineWaveVoice.h
-    Created: 18 Jan 2019 4:37:09pm
-    Author:  Haake
+   Copyright (c) 2019 - Vincent Berthiaume
+
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
+
+   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -168,6 +176,7 @@ public:
                 jassertfalse;
                 break;
         }
+        updateOscFrequencies();
     }
 
     void setOscSub (float newSub)
@@ -193,6 +202,7 @@ public:
     }
 
     void setAmpParam (StringRef parameterID, float newValue);
+    void setFilterEnvParam (StringRef parameterID, float newValue);
 
     void setLfoShape (int shape);
     void setLfoDest (int dest);
@@ -247,8 +257,8 @@ private:
 
     dsp::ProcessorChain<dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
 
-    ADSR adsr;
-    ADSR::Parameters curParams;
+    ADSR ampADSR, filterEnvADSR;
+    ADSR::Parameters ampParams, filterEnvParams;
     bool currentlyReleasingNote = false, justDoneReleaseEnvelope = false;
 
     float curFilterCutoff = defaultFilterCutoff;
@@ -283,4 +293,6 @@ private:
 
     bool rampingUp = false;
     int rampUpSamplesLeft = 0;
+
+    float filterEnvelope{};
 };

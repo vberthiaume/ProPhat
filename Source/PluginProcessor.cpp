@@ -1,3 +1,20 @@
+/*
+  ==============================================================================
+
+   Copyright (c) 2019 - Vincent Berthiaume
+
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
+
+   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
+
+  ==============================================================================
+*/
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
@@ -36,12 +53,18 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
         std::make_unique<AudioParameterFloat>   (ampSustainID, ampSustainSliderDesc, sustainRange, defaultAmpS),
         std::make_unique<AudioParameterFloat>   (ampReleaseID, ampReleaseSliderDesc, releaseRange, defaultAmpR),
 
+        std::make_unique<AudioParameterFloat>   (filterEnvAttackID, ampAttackSliderDesc, attackRange, defaultAmpA),
+        std::make_unique<AudioParameterFloat>   (filterEnvDecayID, ampDecaySliderDesc, decayRange, defaultAmpD),
+        std::make_unique<AudioParameterFloat>   (filterEnvSustainID, ampSustainSliderDesc, sustainRange, defaultAmpS),
+        std::make_unique<AudioParameterFloat>   (filterEnvReleaseID, ampReleaseSliderDesc, releaseRange, defaultAmpR),
+
         std::make_unique<AudioParameterFloat>   (lfoFreqID,   lfoFreqSliderDesc, lfoRange, defaultLfoFreq),
         std::make_unique<AudioParameterChoice>  (lfoShapeID, lfoShapeDesc,  StringArray {lfoShape0, lfoShape1, /*lfoShape2,*/ lfoShape3, lfoShape4}, defaultLfoShape),
         std::make_unique<AudioParameterChoice>  (lfoDestID, lfoDestDesc,  StringArray {lfoDest0, lfoDest1, lfoDest2, lfoDest3}, defaultLfoDest),
         std::make_unique<AudioParameterFloat>   (lfoAmountID, lfoAmountSliderDesc, sliderRange, defaultLfoAmount),
 
-        std::make_unique<AudioParameterFloat>   (effectParam1ID, effectParam1Desc, sliderRange, defaultEffectParam1)
+        std::make_unique<AudioParameterFloat>   (effectParam1ID, effectParam1Desc, sliderRange, defaultEffectParam1),
+        std::make_unique<AudioParameterFloat>   (effectParam2ID, effectParam2Desc, sliderRange, defaultEffectParam2)
     })
 
 #if CPU_USAGE
@@ -60,6 +83,13 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     state.addParameterListener (oscSubID, &synth);
     state.addParameterListener (oscMixID, &synth);
 
+    state.addParameterListener (filterCutoffID, &synth);
+    state.addParameterListener (filterResonanceID, &synth);
+    state.addParameterListener (filterEnvAttackID, &synth);
+    state.addParameterListener (filterEnvDecayID, &synth);
+    state.addParameterListener (filterEnvSustainID, &synth);
+    state.addParameterListener (filterEnvReleaseID, &synth);
+
     state.addParameterListener (ampAttackID, &synth);
     state.addParameterListener (ampDecayID, &synth);
     state.addParameterListener (ampSustainID, &synth);
@@ -70,8 +100,8 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     state.addParameterListener (lfoFreqID, &synth);
     state.addParameterListener (lfoAmountID, &synth);
 
-    state.addParameterListener (filterCutoffID, &synth);
-    state.addParameterListener (filterResonanceID, &synth);
+    state.addParameterListener (effectParam1ID, &synth);
+    state.addParameterListener (effectParam2ID, &synth);
 }
 
 sBMP4AudioProcessor::~sBMP4AudioProcessor()
