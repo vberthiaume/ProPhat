@@ -17,6 +17,12 @@ namespace BinaryData
     extern const char*   blackLight_png;
     const int            blackLight_pngSize = 43010;
 
+    extern const char*   blackSquare_svg;
+    const int            blackSquare_svgSize = 3390;
+
+    extern const char*   redSquare_svg;
+    const int            redSquare_svgSize = 6051;
+
     extern const char*   redLight_png;
     const int            redLight_pngSize = 50181;
 
@@ -39,7 +45,7 @@ namespace BinaryData
     const int            metalKnobFitted_pngSize = 408619;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 10;
+    const int namedResourceListSize = 12;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];

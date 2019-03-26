@@ -899,8 +899,308 @@ static const unsigned char temp_binary_data_2[] =
 
 const char* blackLight_png = (const char*) temp_binary_data_2;
 
-//================== redLight.png ==================
+//================== blackSquare.svg ==================
 static const unsigned char temp_binary_data_3[] =
+"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+"<!-- Created with Inkscape (http://www.inkscape.org/) -->\n"
+"\n"
+"<svg\n"
+"   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
+"   xmlns:cc=\"http://creativecommons.org/ns#\"\n"
+"   xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
+"   xmlns:svg=\"http://www.w3.org/2000/svg\"\n"
+"   xmlns=\"http://www.w3.org/2000/svg\"\n"
+"   xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n"
+"   xmlns:sodipodi=\"http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd\"\n"
+"   xmlns:inkscape=\"http://www.inkscape.org/namespaces/inkscape\"\n"
+"   width=\"150mm\"\n"
+"   height=\"150mm\"\n"
+"   viewBox=\"0 0 150 150\"\n"
+"   version=\"1.1\"\n"
+"   id=\"svg10228\"\n"
+"   inkscape:version=\"0.92.3 (2405546, 2018-03-11)\"\n"
+"   sodipodi:docname=\"blackSquareSimple.svg\">\n"
+"  <defs\n"
+"     id=\"defs10222\">\n"
+"    <linearGradient\n"
+"       inkscape:collect=\"always\"\n"
+"       id=\"linearGradient10060\">\n"
+"      <stop\n"
+"         style=\"stop-color:#000000;stop-opacity:1\"\n"
+"         offset=\"0\"\n"
+"         id=\"stop10056\" />\n"
+"      <stop\n"
+"         style=\"stop-color:#a2a2a2;stop-opacity:1\"\n"
+"         offset=\"1\"\n"
+"         id=\"stop10058\" />\n"
+"    </linearGradient>\n"
+"    <linearGradient\n"
+"       inkscape:collect=\"always\"\n"
+"       xlink:href=\"#linearGradient10060\"\n"
+"       id=\"linearGradient10064-9\"\n"
+"       x1=\"-92.875206\"\n"
+"       y1=\"95.916664\"\n"
+"       x2=\"-92.862289\"\n"
+"       y2=\"135.33958\"\n"
+"       gradientUnits=\"userSpaceOnUse\"\n"
+"       gradientTransform=\"matrix(3.4036377,0,0,-3.4036377,391.0916,614.20537)\" />\n"
+"    <filter\n"
+"       inkscape:collect=\"always\"\n"
+"       style=\"color-interpolation-filters:sRGB\"\n"
+"       id=\"filter10030-4\"\n"
+"       x=\"-0.024\"\n"
+"       width=\"1.048\"\n"
+"       y=\"-0.024\"\n"
+"       height=\"1.048\">\n"
+"      <feGaussianBlur\n"
+"         inkscape:collect=\"always\"\n"
+"         stdDeviation=\"0.42424989\"\n"
+"         id=\"feGaussianBlur10032-4\" />\n"
+"    </filter>\n"
+"  </defs>\n"
+"  <sodipodi:namedview\n"
+"     id=\"base\"\n"
+"     pagecolor=\"#ffffff\"\n"
+"     bordercolor=\"#666666\"\n"
+"     borderopacity=\"1.0\"\n"
+"     inkscape:pageopacity=\"0.0\"\n"
+"     inkscape:pageshadow=\"2\"\n"
+"     inkscape:zoom=\"0.49497475\"\n"
+"     inkscape:cx=\"681.23688\"\n"
+"     inkscape:cy=\"-14.514428\"\n"
+"     inkscape:document-units=\"mm\"\n"
+"     inkscape:current-layer=\"layer1\"\n"
+"     showgrid=\"false\"\n"
+"     inkscape:window-width=\"1920\"\n"
+"     inkscape:window-height=\"1017\"\n"
+"     inkscape:window-x=\"1912\"\n"
+"     inkscape:window-y=\"-8\"\n"
+"     inkscape:window-maximized=\"1\"\n"
+"     showborder=\"false\" />\n"
+"  <metadata\n"
+"     id=\"metadata10225\">\n"
+"    <rdf:RDF>\n"
+"      <cc:Work\n"
+"         rdf:about=\"\">\n"
+"        <dc:format>image/svg+xml</dc:format>\n"
+"        <dc:type\n"
+"           rdf:resource=\"http://purl.org/dc/dcmitype/StillImage\" />\n"
+"        <dc:title></dc:title>\n"
+"      </cc:Work>\n"
+"    </rdf:RDF>\n"
+"  </metadata>\n"
+"  <g\n"
+"     inkscape:label=\"Layer 1\"\n"
+"     inkscape:groupmode=\"layer\"\n"
+"     id=\"layer1\"\n"
+"     transform=\"translate(3.4865537e-6,-147)\">\n"
+"    <path\n"
+"       style=\"opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.20796558;stroke-opacity:1;filter:url(#filter10030-4)\"\n"
+"       d=\"M -71.656261,136.44375 V 94.018761 h -42.424989 v 42.424989 z\"\n"
+"       id=\"path9986-8\"\n"
+"       inkscape:connector-curvature=\"0\"\n"
+"       transform=\"matrix(3.3737139,0,0,3.3737139,388.31261,-166.75729)\" />\n"
+"    <path\n"
+"       style=\"opacity:0.981;fill:url(#linearGradient10064-9);fill-opacity:1;stroke:none;stroke-width:0.67121023;stroke-opacity:1\"\n"
+"       d=\"M 143.46348,290.46342 V 153.53654 H 6.5365702 v 136.92688 z\"\n"
+"       id=\"path10034-9\"\n"
+"       inkscape:connector-curvature=\"0\" />\n"
+"  </g>\n"
+"</svg>\n";
+
+const char* blackSquare_svg = (const char*) temp_binary_data_3;
+
+//================== redSquare.svg ==================
+static const unsigned char temp_binary_data_4[] =
+"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+"<!-- Created with Inkscape (http://www.inkscape.org/) -->\n"
+"\n"
+"<svg\n"
+"   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
+"   xmlns:cc=\"http://creativecommons.org/ns#\"\n"
+"   xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
+"   xmlns:svg=\"http://www.w3.org/2000/svg\"\n"
+"   xmlns=\"http://www.w3.org/2000/svg\"\n"
+"   xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n"
+"   xmlns:sodipodi=\"http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd\"\n"
+"   xmlns:inkscape=\"http://www.inkscape.org/namespaces/inkscape\"\n"
+"   width=\"150mm\"\n"
+"   height=\"150mm\"\n"
+"   viewBox=\"0 0 150 150\"\n"
+"   version=\"1.1\"\n"
+"   id=\"svg10228\"\n"
+"   sodipodi:docname=\"redSquare.svg\"\n"
+"   inkscape:version=\"0.92.3 (2405546, 2018-03-11)\">\n"
+"  <defs\n"
+"     id=\"defs10222\">\n"
+"    <linearGradient\n"
+"       inkscape:collect=\"always\"\n"
+"       xlink:href=\"#linearGradient10078\"\n"
+"       id=\"linearGradient10072-0\"\n"
+"       gradientUnits=\"userSpaceOnUse\"\n"
+"       gradientTransform=\"matrix(0,-2.1645434,2.1645434,0,-174.42297,20.981533)\"\n"
+"       x1=\"-119.98854\"\n"
+"       y1=\"115.23125\"\n"
+"       x2=\"-2.7594981\"\n"
+"       y2=\"115.43115\" />\n"
+"    <linearGradient\n"
+"       id=\"linearGradient10078\"\n"
+"       inkscape:collect=\"always\">\n"
+"      <stop\n"
+"         id=\"stop10074\"\n"
+"         offset=\"0\"\n"
+"         style=\"stop-color:#838383;stop-opacity:1\" />\n"
+"      <stop\n"
+"         id=\"stop10076\"\n"
+"         offset=\"1\"\n"
+"         style=\"stop-color:#ffffff;stop-opacity:0;\" />\n"
+"    </linearGradient>\n"
+"    <linearGradient\n"
+"       inkscape:collect=\"always\"\n"
+"       id=\"linearGradient10060\">\n"
+"      <stop\n"
+"         style=\"stop-color:#000000;stop-opacity:1\"\n"
+"         offset=\"0\"\n"
+"         id=\"stop10056\" />\n"
+"      <stop\n"
+"         style=\"stop-color:#333333;stop-opacity:1\"\n"
+"         offset=\"1\"\n"
+"         id=\"stop10058\" />\n"
+"    </linearGradient>\n"
+"    <linearGradient\n"
+"       inkscape:collect=\"always\"\n"
+"       xlink:href=\"#linearGradient10060\"\n"
+"       id=\"linearGradient10064-9\"\n"
+"       x1=\"-92.875206\"\n"
+"       y1=\"95.916664\"\n"
+"       x2=\"-92.862289\"\n"
+"       y2=\"135.33958\"\n"
+"       gradientUnits=\"userSpaceOnUse\"\n"
+"       gradientTransform=\"matrix(3.4036377,0,0,-3.4036377,391.0916,614.20537)\" />\n"
+"    <filter\n"
+"       inkscape:collect=\"always\"\n"
+"       style=\"color-interpolation-filters:sRGB\"\n"
+"       id=\"filter10030-4\"\n"
+"       x=\"-0.024\"\n"
+"       width=\"1.048\"\n"
+"       y=\"-0.024\"\n"
+"       height=\"1.048\">\n"
+"      <feGaussianBlur\n"
+"         inkscape:collect=\"always\"\n"
+"         stdDeviation=\"0.42424989\"\n"
+"         id=\"feGaussianBlur10032-4\" />\n"
+"    </filter>\n"
+"    <linearGradient\n"
+"       inkscape:collect=\"always\"\n"
+"       xlink:href=\"#linearGradient1525\"\n"
+"       id=\"linearGradient1527\"\n"
+"       x1=\"3.9592528\"\n"
+"       y1=\"70.859535\"\n"
+"       x2=\"142.11903\"\n"
+"       y2=\"20.699408\"\n"
+"       gradientUnits=\"userSpaceOnUse\"\n"
+"       gradientTransform=\"matrix(0.87117821,0,0,1.49831,11.138163,153.63617)\" />\n"
+"    <linearGradient\n"
+"       inkscape:collect=\"always\"\n"
+"       id=\"linearGradient1525\">\n"
+"      <stop\n"
+"         style=\"stop-color:#010101;stop-opacity:1\"\n"
+"         offset=\"0\"\n"
+"         id=\"stop1521\" />\n"
+"      <stop\n"
+"         id=\"stop1537\"\n"
+"         offset=\"0.27196214\"\n"
+"         style=\"stop-color:#f1f1f1;stop-opacity:1\" />\n"
+"      <stop\n"
+"         style=\"stop-color:#828282;stop-opacity:1\"\n"
+"         offset=\"0.39833978\"\n"
+"         id=\"stop1539\" />\n"
+"      <stop\n"
+"         id=\"stop1541\"\n"
+"         offset=\"0.49403885\"\n"
+"         style=\"stop-color:#878787;stop-opacity:1\" />\n"
+"      <stop\n"
+"         style=\"stop-color:#232323;stop-opacity:1\"\n"
+"         offset=\"0.68038559\"\n"
+"         id=\"stop1543\" />\n"
+"      <stop\n"
+"         style=\"stop-color:#fbfbfb;stop-opacity:1\"\n"
+"         offset=\"1\"\n"
+"         id=\"stop1523\" />\n"
+"    </linearGradient>\n"
+"  </defs>\n"
+"  <sodipodi:namedview\n"
+"     id=\"base\"\n"
+"     pagecolor=\"#ffffff\"\n"
+"     bordercolor=\"#666666\"\n"
+"     borderopacity=\"1.0\"\n"
+"     inkscape:pageopacity=\"0.0\"\n"
+"     inkscape:pageshadow=\"2\"\n"
+"     inkscape:zoom=\"0.35\"\n"
+"     inkscape:cx=\"-84.025549\"\n"
+"     inkscape:cy=\"244.88171\"\n"
+"     inkscape:document-units=\"mm\"\n"
+"     inkscape:current-layer=\"layer1\"\n"
+"     showgrid=\"false\"\n"
+"     inkscape:window-width=\"1920\"\n"
+"     inkscape:window-height=\"1017\"\n"
+"     inkscape:window-x=\"1912\"\n"
+"     inkscape:window-y=\"-8\"\n"
+"     inkscape:window-maximized=\"1\"\n"
+"     inkscape:snap-global=\"false\"\n"
+"     showborder=\"false\" />\n"
+"  <metadata\n"
+"     id=\"metadata10225\">\n"
+"    <rdf:RDF>\n"
+"      <cc:Work\n"
+"         rdf:about=\"\">\n"
+"        <dc:format>image/svg+xml</dc:format>\n"
+"        <dc:type\n"
+"           rdf:resource=\"http://purl.org/dc/dcmitype/StillImage\" />\n"
+"        <dc:title></dc:title>\n"
+"      </cc:Work>\n"
+"    </rdf:RDF>\n"
+"  </metadata>\n"
+"  <g\n"
+"     inkscape:label=\"Layer 1\"\n"
+"     inkscape:groupmode=\"layer\"\n"
+"     id=\"layer1\"\n"
+"     transform=\"translate(3.4865537e-6,-147)\">\n"
+"    <path\n"
+"       style=\"opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.20796558;stroke-opacity:1;filter:url(#filter10030-4)\"\n"
+"       d=\"M -71.656261,136.44375 V 94.018761 h -42.424989 v 42.424989 z\"\n"
+"       id=\"path9986-8\"\n"
+"       inkscape:connector-curvature=\"0\"\n"
+"       transform=\"matrix(3.3737139,0,0,3.3737139,388.31261,-166.75729)\" />\n"
+"    <path\n"
+"       style=\"opacity:0.981;fill:url(#linearGradient10064-9);fill-opacity:1;stroke:none;stroke-width:0.67121023;stroke-opacity:1\"\n"
+"       d=\"M 143.46348,290.46342 V 153.53654 H 6.5365702 v 136.92688 z\"\n"
+"       id=\"path10034-9\"\n"
+"       inkscape:connector-curvature=\"0\" />\n"
+"    <path\n"
+"       inkscape:connector-curvature=\"0\"\n"
+"       id=\"path10066-4\"\n"
+"       d=\"M 135.61661,161.38342 V 282.61655 H 14.383444 V 161.38342 Z\"\n"
+"       style=\"opacity:0.981;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.59428012;stroke-opacity:1\" />\n"
+"    <path\n"
+"       inkscape:connector-curvature=\"0\"\n"
+"       id=\"path10070-7\"\n"
+"       d=\"M 16.584424,163.58437 H 133.41564 v 116.8312 H 16.584424 Z\"\n"
+"       style=\"opacity:0.13900003;fill:url(#linearGradient10072-0);fill-opacity:1;stroke:none;stroke-width:0.57270199;stroke-opacity:1\" />\n"
+"    <rect\n"
+"       y=\"161.43098\"\n"
+"       x=\"14.431009\"\n"
+"       height=\"121.19366\"\n"
+"       width=\"120.51817\"\n"
+"       id=\"rect1519\"\n"
+"       style=\"opacity:0.11199999;fill:url(#linearGradient1527);fill-opacity:1;stroke:#a4a4a4;stroke-width:0.30276117;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\" />\n"
+"  </g>\n"
+"</svg>\n";
+
+const char* redSquare_svg = (const char*) temp_binary_data_4;
+
+//================== redLight.png ==================
+static const unsigned char temp_binary_data_5[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,2,115,0,0,1,111,8,6,0,0,0,33,76,77,115,0,0,0,4,115,66,73,84,8,8,8,8,124,8,100,136,0,0,0,9,112,72,89,115,0,0,14,196,0,0,14,196,1,149,43,14,27,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,119,
 119,119,46,105,110,107,115,99,97,112,101,46,111,114,103,155,238,60,26,0,0,32,0,73,68,65,84,120,156,236,189,61,178,44,57,147,37,230,200,251,190,234,153,177,22,104,70,133,92,0,55,193,13,80,162,218,34,215,193,245,80,236,45,80,167,76,174,128,26,149,182,49,
 163,66,235,170,122,55,3,20,50,35,2,112,248,241,31,0,145,153,55,58,220,172,234,221,116,119,56,16,127,192,193,113,32,130,232,146,75,46,185,228,146,75,46,185,228,146,75,46,185,228,146,75,46,185,228,146,75,46,185,228,146,75,46,185,228,146,75,46,185,228,146,
@@ -1620,10 +1920,10 @@ static const unsigned char temp_binary_data_3[] =
 76,153,50,101,202,148,41,83,166,76,153,50,101,202,148,41,83,166,76,153,50,101,202,148,41,83,166,76,153,50,101,202,148,41,83,166,76,153,50,101,202,148,41,83,166,76,153,50,101,202,148,41,83,166,76,153,50,101,202,148,41,83,166,76,153,50,101,202,148,41,83,
 166,124,145,252,127,4,160,74,129,229,121,142,139,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* redLight_png = (const char*) temp_binary_data_3;
+const char* redLight_png = (const char*) temp_binary_data_5;
 
 //================== redLight.svg ==================
-static const unsigned char temp_binary_data_4[] =
+static const unsigned char temp_binary_data_6[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n"
 "<!-- Created with Inkscape (http://www.inkscape.org/) -->\r\n"
 "\r\n"
@@ -1775,10 +2075,10 @@ static const unsigned char temp_binary_data_4[] =
 "  </g>\r\n"
 "</svg>\r\n";
 
-const char* redLight_svg = (const char*) temp_binary_data_4;
+const char* redLight_svg = (const char*) temp_binary_data_6;
 
 //================== sBMP4Knob.svg ==================
-static const unsigned char temp_binary_data_5[] =
+static const unsigned char temp_binary_data_7[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n"
 "<!-- Created with Inkscape (http://www.inkscape.org/) -->\r\n"
 "\r\n"
@@ -1894,10 +2194,10 @@ static const unsigned char temp_binary_data_5[] =
 "  </g>\r\n"
 "</svg>\r\n";
 
-const char* sBMP4Knob_svg = (const char*) temp_binary_data_5;
+const char* sBMP4Knob_svg = (const char*) temp_binary_data_7;
 
 //================== blackTexture.jpg ==================
-static const unsigned char temp_binary_data_6[] =
+static const unsigned char temp_binary_data_8[] =
 { 255,216,255,224,0,16,74,70,73,70,0,1,1,1,0,96,0,96,0,0,255,254,0,59,67,82,69,65,84,79,82,58,32,103,100,45,106,112,101,103,32,118,49,46,48,32,40,117,115,105,110,103,32,73,74,71,32,74,80,69,71,32,118,54,50,41,44,32,113,117,97,108,105,116,121,32,61,32,57,
 48,10,255,219,0,67,0,3,2,2,3,2,2,3,3,3,3,4,3,3,4,5,8,5,5,4,4,5,10,7,7,6,8,12,10,12,12,11,10,11,11,13,14,18,16,13,14,17,14,11,11,16,22,16,17,19,20,21,21,21,12,15,23,24,22,20,24,18,20,21,20,255,219,0,67,1,3,4,4,5,4,5,9,5,5,9,20,13,11,13,20,20,20,20,20,
 20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,255,192,0,17,8,1,69,2,114,3,1,17,0,2,17,1,3,17,1,255,196,0,31,0,0,1,5,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8,9,
@@ -2949,10 +3249,10 @@ static const unsigned char temp_binary_data_6[] =
 155,255,0,227,159,253,122,0,63,176,191,233,191,254,57,255,0,215,160,3,251,11,254,155,255,0,227,159,253,122,0,63,176,191,233,191,254,57,255,0,215,160,3,251,11,254,155,255,0,227,159,253,122,0,129,244,189,172,71,155,156,127,179,255,0,215,160,4,254,205,255,
 0,166,159,248,239,255,0,94,128,25,37,143,150,1,223,159,194,128,59,237,47,225,223,219,52,203,73,255,0,180,54,121,176,163,237,242,115,140,168,56,251,212,1,255,217,0,0 };
 
-const char* blackTexture_jpg = (const char*) temp_binary_data_6;
+const char* blackTexture_jpg = (const char*) temp_binary_data_8;
 
 //================== redTexture.png ==================
-static const unsigned char temp_binary_data_7[] =
+static const unsigned char temp_binary_data_9[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,1,0,0,0,1,0,8,2,0,0,0,211,16,63,49,0,0,0,9,112,72,89,115,0,0,11,19,0,0,11,19,1,0,154,156,24,0,0,0,4,103,65,77,65,0,0,177,142,124,251,81,147,0,0,0,32,99,72,82,77,0,0,122,37,0,0,128,131,0,0,249,255,0,0,
 128,233,0,0,117,48,0,0,234,96,0,0,58,152,0,0,23,111,146,95,197,70,0,2,23,82,73,68,65,84,120,218,28,82,201,110,20,49,16,173,242,218,221,179,100,72,152,132,1,69,32,37,226,132,16,112,224,43,248,47,62,133,11,255,1,92,145,16,226,64,36,16,129,204,36,202,100,
 150,222,108,151,139,234,180,228,238,146,237,174,183,21,190,7,176,10,102,25,8,224,11,12,111,86,218,24,19,41,33,98,82,42,165,100,114,70,128,172,13,51,107,206,99,134,9,48,3,92,225,240,145,98,86,86,7,49,116,41,245,74,119,153,198,0,15,238,91,85,0,47,0,14,
@@ -4901,10 +5201,10 @@ static const unsigned char temp_binary_data_7[] =
 28,28,23,65,192,199,114,178,86,91,21,27,28,139,181,101,1,23,220,74,118,242,200,206,67,156,170,4,44,213,232,29,15,7,189,247,62,119,6,250,13,198,48,207,202,202,112,243,244,188,142,207,187,237,147,102,18,215,85,249,86,7,143,251,167,237,35,183,121,25,135,
 169,87,148,201,207,244,170,166,168,155,252,8,48,0,237,177,120,177,41,130,247,0,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* redTexture_png = (const char*) temp_binary_data_7;
+const char* redTexture_png = (const char*) temp_binary_data_9;
 
 //================== blackMetal.jpg ==================
-static const unsigned char temp_binary_data_8[] =
+static const unsigned char temp_binary_data_10[] =
 { 255,216,255,224,0,16,74,70,73,70,0,1,1,0,0,1,0,1,0,0,255,254,0,59,67,82,69,65,84,79,82,58,32,103,100,45,106,112,101,103,32,118,49,46,48,32,40,117,115,105,110,103,32,73,74,71,32,74,80,69,71,32,118,54,50,41,44,32,113,117,97,108,105,116,121,32,61,32,56,
 50,10,255,219,0,67,0,6,4,4,5,4,4,6,5,5,5,6,6,6,7,9,14,9,9,8,8,9,18,13,13,10,14,21,18,22,22,21,18,20,20,23,26,33,28,23,24,31,25,20,20,29,39,29,31,34,35,37,37,37,22,28,41,44,40,36,43,33,36,37,36,255,219,0,67,1,6,6,6,9,8,9,17,9,9,17,36,24,20,24,36,36,36,
 36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,255,192,0,17,8,1,119,1,244,3,1,34,0,2,17,1,3,17,1,255,196,0,31,0,0,1,5,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,2,3,4,5,
@@ -5346,10 +5646,10 @@ static const unsigned char temp_binary_data_8[] =
 78,40,162,128,35,27,142,78,226,0,226,148,73,129,180,72,121,246,162,138,0,77,241,133,229,137,169,60,248,134,7,153,38,61,133,20,80,1,33,131,239,36,143,142,192,212,39,201,113,157,231,119,190,104,162,128,26,86,44,100,49,39,190,69,7,201,110,172,127,42,40,
 160,6,236,132,30,73,252,168,34,30,204,217,250,81,69,0,52,44,71,171,48,252,40,80,132,159,153,191,42,40,160,3,106,14,121,252,169,172,202,221,206,126,148,81,64,0,35,212,254,84,81,69,0,127,255,217,0,0 };
 
-const char* blackMetal_jpg = (const char*) temp_binary_data_8;
+const char* blackMetal_jpg = (const char*) temp_binary_data_10;
 
 //================== metalKnobFitted.png ==================
-static const unsigned char temp_binary_data_9[] =
+static const unsigned char temp_binary_data_11[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,3,206,0,0,3,206,8,6,0,0,0,222,21,65,88,0,0,36,218,122,84,88,116,82,97,119,32,112,114,111,102,105,108,101,32,116,121,112,101,32,101,120,105,102,0,0,120,218,173,155,105,150,99,57,110,133,255,115,21,94,2,
 39,112,88,14,199,115,188,131,94,190,191,75,69,142,149,213,101,251,116,102,85,70,132,66,122,122,36,128,59,128,144,59,255,250,239,235,254,139,63,45,91,113,217,106,43,189,20,207,159,220,115,143,131,111,154,255,252,249,124,13,62,191,127,223,159,117,124,250,
 122,244,151,199,221,247,95,68,30,210,119,159,159,124,57,159,175,97,240,184,253,120,65,205,95,143,207,95,31,119,117,125,190,137,237,235,66,95,191,248,118,193,164,119,142,186,149,175,155,252,186,80,138,159,199,195,215,207,174,127,189,110,228,159,150,243,
@@ -11167,7 +11467,7 @@ static const unsigned char temp_binary_data_9[] =
 153,6,170,61,213,128,94,181,6,24,7,111,53,90,140,186,36,200,241,236,254,199,172,24,19,66,8,161,56,19,66,8,33,29,34,216,226,105,81,184,53,233,102,37,187,138,88,25,22,5,24,208,123,139,65,33,38,132,16,66,113,38,132,16,66,158,111,225,214,162,225,176,145,
 110,13,243,229,100,159,111,102,207,246,245,58,159,159,145,156,39,202,47,0,70,165,9,33,132,16,59,254,14,0,204,108,237,177,40,104,183,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* metalKnobFitted_png = (const char*) temp_binary_data_9;
+const char* metalKnobFitted_png = (const char*) temp_binary_data_11;
 
 
 const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
@@ -11183,6 +11483,8 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
         case 0x4ff6c67c:  numBytes = 4846; return blackLight_svg;
         case 0x4b6e4e41:  numBytes = 3638; return sBMP4KnobUniform_svg;
         case 0x4ff6ba41:  numBytes = 43010; return blackLight_png;
+        case 0x37ee29a1:  numBytes = 3390; return blackSquare_svg;
+        case 0x5c3443b3:  numBytes = 6051; return redSquare_svg;
         case 0x385c15ef:  numBytes = 50181; return redLight_png;
         case 0x385c222a:  numBytes = 4623; return redLight_svg;
         case 0x4b2dad9d:  numBytes = 3463; return sBMP4Knob_svg;
@@ -11202,6 +11504,8 @@ const char* namedResourceList[] =
     "blackLight_svg",
     "sBMP4KnobUniform_svg",
     "blackLight_png",
+    "blackSquare_svg",
+    "redSquare_svg",
     "redLight_png",
     "redLight_svg",
     "sBMP4Knob_svg",
@@ -11216,6 +11520,8 @@ const char* originalFilenames[] =
     "blackLight.svg",
     "sBMP4KnobUniform.svg",
     "blackLight.png",
+    "blackSquare.svg",
+    "redSquare.svg",
     "redLight.png",
     "redLight.svg",
     "sBMP4Knob.svg",

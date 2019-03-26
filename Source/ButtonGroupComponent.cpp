@@ -28,8 +28,8 @@ ButtonGroupComponent::ButtonGroupComponent (AudioProcessorValueTreeState& proces
 {
     mainButton.addListener (this);
 
-    ScopedPointer<Drawable> nonSelectedDrawable = Helpers::getDrawable (BinaryData::blackLight_svg, BinaryData::blackLight_svgSize);
-    ScopedPointer<Drawable> selectedDrawable = Helpers::getDrawable (BinaryData::redLight_svg, BinaryData::redLight_svgSize);
+    ScopedPointer<Drawable> nonSelectedDrawable = Helpers::getDrawable (BinaryData::blackSquare_svg, BinaryData::blackSquare_svgSize);
+    ScopedPointer<Drawable> selectedDrawable = Helpers::getDrawable (BinaryData::redSquare_svg, BinaryData::redSquare_svgSize);
     mainButton.setImages (nonSelectedDrawable, nonSelectedDrawable, selectedDrawable);
 
     addAndMakeVisible (mainButton);

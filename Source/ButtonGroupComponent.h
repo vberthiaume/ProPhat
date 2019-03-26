@@ -93,6 +93,7 @@ public:
         auto bounds = getLocalBounds().toFloat();
         auto half = bounds.getHeight() / 4;
         auto reduced = bounds.reduced (0, half);
+        reduced.translate (0.f, -half / 2);
         return reduced;
     }
 };
