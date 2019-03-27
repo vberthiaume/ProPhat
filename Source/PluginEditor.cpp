@@ -84,7 +84,10 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     //EFFECT
     effectGroup ({}, effectGroupDesc),
     effectParam1Attachment (p.state, effectParam1ID, effectParam1Slider),
-    effectParam2Attachment (p.state, effectParam2ID, effectParam2Slider)
+    effectParam2Attachment (p.state, effectParam2ID, effectParam2Slider),
+
+    //OTHER
+    masterGainAttachment (p.state, masterGainID, masterGainSlider)
 {
 #if CPU_USAGE
     setSize (width, height + 50);
@@ -132,9 +135,9 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
                            {filterCutoffSliderDesc, filterResonanceSliderDesc, ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc},
                            {&filterCutoffSlider, &filterResonanceSlider, &filterEnvAttackSlider, &filterEnvDecaySlider, &filterEnvSustainSlider, &filterEnvReleaseSlider});
 
-    addGroup (ampGroup, {&ampAttackLabel, &ampDecayLabel, &ampSustainLabel, &ampReleaseLabel},
-                        {ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc},
-                        {&ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider});
+    addGroup (ampGroup, {&masterGainLabel, &ampAttackLabel, &ampDecayLabel, &ampSustainLabel, &ampReleaseLabel},
+                        {masterGainDesc, ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc},
+                        {&masterGainSlider, &ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider});
 
     addGroup (lfoGroup, {nullptr, &lfoFreqLabel, nullptr, &lfoAmountLabel},
                         {String(), lfoFreqSliderDesc, String(), lfoAmountSliderDesc},
@@ -198,7 +201,7 @@ void sBMP4AudioProcessorEditor::resized()
     //bottom section
     setupGroup (lfoGroup, bottomSection.removeFromLeft (2 * columnW + panelGap), {&lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider}, 2, 2);
     setupGroup (effectGroup, bottomSection.removeFromLeft (2 * columnW + panelGap), {&effectParam1Slider, &effectParam2Slider}, 2, 2);
-    setupGroup (ampGroup, bottomSection, {&ampAttackSlider,&ampDecaySlider, &ampSustainSlider, &ampReleaseSlider}, 2, 4);
+    setupGroup (ampGroup, bottomSection, {&ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider, nullptr, nullptr, nullptr, &masterGainSlider}, 2, 4);
 
 #if CPU_USAGE
     auto cpuSectionH = 100;

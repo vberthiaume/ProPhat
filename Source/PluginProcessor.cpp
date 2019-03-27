@@ -64,7 +64,9 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
         std::make_unique<AudioParameterFloat>   (lfoAmountID, lfoAmountSliderDesc, sliderRange, defaultLfoAmount),
 
         std::make_unique<AudioParameterFloat>   (effectParam1ID, effectParam1Desc, sliderRange, defaultEffectParam1),
-        std::make_unique<AudioParameterFloat>   (effectParam2ID, effectParam2Desc, sliderRange, defaultEffectParam2)
+        std::make_unique<AudioParameterFloat>   (effectParam2ID, effectParam2Desc, sliderRange, defaultEffectParam2),
+
+        std::make_unique<AudioParameterFloat>   (masterGainID, masterGainDesc, sliderRange, defaultMasterGain)
     })
 
 #if CPU_USAGE
@@ -102,6 +104,8 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 
     state.addParameterListener (effectParam1ID, &synth);
     state.addParameterListener (effectParam2ID, &synth);
+
+    state.addParameterListener (masterGainID, &synth);
 }
 
 sBMP4AudioProcessor::~sBMP4AudioProcessor()

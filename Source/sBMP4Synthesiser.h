@@ -30,6 +30,9 @@ public:
             addVoice (new sBMP4Voice (i, &voicesBeingKilled));
 
         addSound (new sBMP4Sound());
+
+        setMasterGain (defaultMasterGain);
+        fxChain.get<masterGainIndex>().setRampDurationSeconds (0.1);
     }
 
     void prepare (const dsp::ProcessSpec& spec) noexcept
@@ -96,6 +99,8 @@ public:
 
         else if (parameterID == sBMP4AudioProcessorIDs::effectParam1ID || parameterID == sBMP4AudioProcessorIDs::effectParam2ID)
             setEffectParam (parameterID, newValue);
+        else if (parameterID == sBMP4AudioProcessorIDs::masterGainID)
+            setMasterGain (newValue);
         else
             jassertfalse;
     }
@@ -115,6 +120,11 @@ public:
             reverbParams.wetLevel = newValue;
 
         fxChain.get<reverbIndex>().setParameters (reverbParams);
+    }
+
+    void setMasterGain (float gain)
+    {
+        fxChain.get<masterGainIndex>().setGainLinear (gain);
     }
 
     void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override
@@ -146,13 +156,14 @@ private:
 
     enum
     {
-        reverbIndex
+        reverbIndex,
+        masterGainIndex
     };
 
     //@TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled{};
 
-    dsp::ProcessorChain<dsp::Reverb> fxChain;
+    dsp::ProcessorChain<dsp::Reverb, dsp::Gain<float>> fxChain;
 
     dsp::Reverb::Parameters reverbParams;
 

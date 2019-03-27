@@ -51,6 +51,7 @@ namespace Constants
     };
 
     static const auto defaultOscLevel = .4f;
+    static const auto defaultMasterGain = .8f;
 
     static const auto defaultFilterCutoff = 1000.f;
     static const auto defaultFilterResonance = .5f;
@@ -127,6 +128,8 @@ namespace sBMP4AudioProcessorIDs
     const String effectID       = "effectID";
     const String effectParam1ID = "effectParam1ID";
     const String effectParam2ID = "effectParam2ID";
+
+    const String masterGainID = "masterGainID";
 }
 
 namespace sBMP4AudioProcessorNames
@@ -167,6 +170,8 @@ namespace sBMP4AudioProcessorNames
     const String effectParam1Desc = "ROOM";
     const String effectParam2Desc = "MIX";
 #endif
+
+    const String masterGainDesc = "MASTER VOLUME";
 }
 
 namespace sBMP4AudioProcessorChoices

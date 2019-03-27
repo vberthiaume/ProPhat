@@ -134,6 +134,11 @@ private:
     SnappingSlider effectParam1Slider, effectParam2Slider;
     AudioProcessorValueTreeState::SliderAttachment effectParam1Attachment, effectParam2Attachment;
 
+    //OTHER
+    sBMP4Label masterGainLabel;
+    SnappingSlider masterGainSlider;
+    AudioProcessorValueTreeState::SliderAttachment masterGainAttachment;
+
 #if CPU_USAGE
     Label cpuUsageLabel;
     Label cpuUsageText;
