@@ -101,11 +101,10 @@ private:
     Image backgroundTexture;
 
     //OSCILLATORS
-    sBMP4Label osc1FreqSliderLabel, osc1TuningSliderLabel, osc2FreqSliderLabel, osc2TuningSliderLabel, oscSubSliderLabel, oscMixSliderLabel;
-    SnappingSlider osc1FreqSlider, osc2FreqSlider, osc1TuningSlider, osc2TuningSlider, oscSubSlider, oscMixSlider;
-    AudioProcessorValueTreeState::SliderAttachment osc1FreqAttachment, osc2FreqAttachment,
-                                                   osc1TuningAttachment, osc2TuningAttachment,
-                                                   oscSubAttachment, oscMixAttachment;
+    sBMP4Label osc1FreqSliderLabel, osc1TuningSliderLabel, osc2FreqSliderLabel, osc2TuningSliderLabel, oscSubSliderLabel, oscMixSliderLabel, oscNoiseSliderLabel, oscSlopSliderLabel;
+    SnappingSlider osc1FreqSlider, osc2FreqSlider, osc1TuningSlider, osc2TuningSlider, oscSubSlider, oscMixSlider, oscNoiseSlider, oscSlopSlider;
+    AudioProcessorValueTreeState::SliderAttachment osc1FreqAttachment, osc2FreqAttachment, osc1TuningAttachment, osc2TuningAttachment,
+                                                   oscSubAttachment, oscMixAttachment, oscNoiseAttachment, oscSlopAttachment;
 
     ButtonGroupComponent osc1ShapeButtons, osc2ShapeButtons;
 

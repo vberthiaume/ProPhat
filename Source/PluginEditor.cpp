@@ -31,7 +31,7 @@ enum sizes
     lineCount = 4,
     lineH = 75,
 
-    columnCount = 8,
+    columnCount = 9,
     columnW = 110,
 
     height =    2 * overallGap + 4 * panelGap + lineCount   * lineH,
@@ -57,6 +57,8 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 
     oscSubAttachment (p.state, oscSubID, oscSubSlider),
     oscMixAttachment (p.state, oscMixID, oscMixSlider),
+    oscNoiseAttachment (p.state, oscNoiseID, oscNoiseSlider),
+    oscSlopAttachment (p.state, oscSlopID, oscSlopSlider),
 
     //FILTERS
     filterGroup ({}, filterGroupDesc),
@@ -127,9 +129,9 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
         }
     };
 
-    addGroup (oscGroup, {&osc1FreqSliderLabel,  &osc1TuningSliderLabel, nullptr,            &oscSubSliderLabel, &osc2FreqSliderLabel,   &osc2TuningSliderLabel, nullptr,            &oscMixSliderLabel},
-                        {osc1FreqDesc,          osc1TuningDesc,         String(),           oscSubOctDesc,      osc2FreqDesc,           osc2TuningDesc,         String(),           oscMixDesc},
-                        {&osc1FreqSlider,       &osc1TuningSlider,      &osc1ShapeButtons,  &oscSubSlider,      &osc2FreqSlider,        &osc2TuningSlider,      &osc2ShapeButtons,  &oscMixSlider});
+    addGroup (oscGroup, {&osc1FreqSliderLabel,  &osc1TuningSliderLabel, nullptr,            &oscSubSliderLabel, &osc2FreqSliderLabel,   &osc2TuningSliderLabel, nullptr,            &oscMixSliderLabel, &oscNoiseSliderLabel, &oscSlopSliderLabel},
+                        {osc1FreqDesc,          osc1TuningDesc,         String(),           oscSubOctDesc,      osc2FreqDesc,           osc2TuningDesc,         String(),           oscMixDesc,         oscNoiseDesc,         oscSlopDesc},
+                        {&osc1FreqSlider,       &osc1TuningSlider,      &osc1ShapeButtons,  &oscSubSlider,      &osc2FreqSlider,        &osc2TuningSlider,      &osc2ShapeButtons,  &oscMixSlider,      &oscNoiseSlider,      &oscSlopSlider});
 
     addGroup (filterGroup, {&filterCutoffLabel, &filterResonanceLabel, &filterEnvAttackLabel, &filterEnvDecayLabel, &filterEnvSustainLabel, &filterEnvReleaseLabel},
                            {filterCutoffSliderDesc, filterResonanceSliderDesc, ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc},
@@ -194,8 +196,8 @@ void sBMP4AudioProcessorEditor::resized()
     };
 
     //top section
-    setupGroup (oscGroup, topSection.removeFromLeft (4 * columnW + 2 * panelGap), {&osc1FreqSlider, &osc1TuningSlider, &osc1ShapeButtons, &oscSubSlider,
-                                                                                   &osc2FreqSlider, &osc2TuningSlider, &osc2ShapeButtons, &oscMixSlider}, 2, 4);
+    setupGroup (oscGroup, topSection.removeFromLeft (5 * columnW + 2 * panelGap), {&osc1FreqSlider, &osc1TuningSlider, &osc1ShapeButtons, &oscSubSlider, &oscNoiseSlider,
+                                                                                   &osc2FreqSlider, &osc2TuningSlider, &osc2ShapeButtons, &oscMixSlider, &oscSlopSlider}, 2, 5);
     setupGroup (filterGroup, topSection, {&filterCutoffSlider, &filterResonanceSlider, nullptr, nullptr, &filterEnvAttackSlider,&filterEnvDecaySlider, &filterEnvSustainSlider, &filterEnvReleaseSlider}, 2, 4);
 
     //bottom section

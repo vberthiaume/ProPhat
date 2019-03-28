@@ -68,6 +68,10 @@ public:
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscSub (newValue); }, newValue);
         else if (parameterID == sBMP4AudioProcessorIDs::oscMixID)
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscMix (newValue); }, newValue);
+        else if (parameterID == sBMP4AudioProcessorIDs::oscNoiseID)
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscNoise (newValue); }, newValue);
+        else if (parameterID == sBMP4AudioProcessorIDs::oscSlopID)
+            applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscSlop (newValue); }, newValue);
 
         else if (parameterID == sBMP4AudioProcessorIDs::ampAttackID
                 || parameterID == sBMP4AudioProcessorIDs::ampDecayID

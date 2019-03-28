@@ -191,6 +191,20 @@ public:
         updateOscLevels();
     }
 
+    void setOscNoise (float noiseLevel)
+    {
+        jassert (Helpers::valueContainedInRange (noiseLevel, sliderRange));
+        curNoiseLevel = noiseLevel;
+        updateOscLevels();
+    }
+
+    void setOscSlop (float slop)
+    {
+        jassert (Helpers::valueContainedInRange (slop, sliderRange));
+        curSlop = slop;
+        updateOscFrequencies();
+    }
+
     void setOscMix (float newMix)
     {
         jassert (Helpers::valueContainedInRange (newMix, sliderRange));
@@ -202,6 +216,7 @@ public:
     void updateOscLevels()
     {
         sub.setLevel (curVelocity * curSubLevel);
+        noise.setLevel (curVelocity * curNoiseLevel);
         osc1.setLevel (curVelocity * (1 - oscMix));
         osc2.setLevel (curVelocity * oscMix);
     }
@@ -295,9 +310,14 @@ private:
     float curVelocity = 0.f;
     float curSubLevel = 0.f;
     float oscMix = 0.f;
+    float curNoiseLevel = 0.f;
+    float curSlop = 0.f;
 
     bool rampingUp = false;
     int rampUpSamplesLeft = 0;
 
     float filterEnvelope{};
+
+    std::uniform_real_distribution<float> distribution;
+    std::default_random_engine generator;
 };

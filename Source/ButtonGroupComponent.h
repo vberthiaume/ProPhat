@@ -35,11 +35,11 @@ struct OscShape : public Selection
         sawTri,
         triangle,
         pulse,
-        noise,
-        total
+        totalSelectable,
+        noise // noise needs to be after totalSelectable, because it's not selectable with the regular oscillators
     };
 
-    int getLastSelectionIndex() override { return total - 1; }
+    int getLastSelectionIndex() override { return totalSelectable - 1; }
     bool isNullSelectionAllowed() override { return true; }
 };
 
@@ -52,10 +52,10 @@ struct LfoShape : public Selection
         //revSaw,
         square,
         random,
-        total
+        totalSelectable
     };
 
-    int getLastSelectionIndex() override { return total - 1; }
+    int getLastSelectionIndex() override { return totalSelectable - 1; }
     bool isNullSelectionAllowed() override { return false; }
 };
 
@@ -67,10 +67,10 @@ struct LfoDest : public Selection
         osc2Freq,
         filterCutOff,
         filterResonance,
-        total
+        totalSelectable
     };
 
-    int getLastSelectionIndex() override { return total - 1; }
+    int getLastSelectionIndex() override { return totalSelectable - 1; }
     bool isNullSelectionAllowed() override { return false; }
 };
 

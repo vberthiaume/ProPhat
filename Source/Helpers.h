@@ -40,6 +40,8 @@ namespace Constants
 
         defaultSubOsc = 0,
         defaultOscMix = 0,
+        defaultOscNoise = 0,
+        defaultOscSlop = 0,
         defaultOscTuning = 0,
 
         numVoices = 16,
@@ -106,6 +108,8 @@ namespace sBMP4AudioProcessorIDs
 
     const String oscSubID = "oscSubID";
     const String oscMixID = "oscMixID";
+    const String oscNoiseID = "oscNoiseID";
+    const String oscSlopID = "oscSlopID";
 
     const String filterCutoffID = "filterCutoffID";
     const String filterResonanceID = "filterResonanceID";
@@ -143,8 +147,9 @@ namespace sBMP4AudioProcessorNames
     const String osc2TuningDesc = "FINE TUNE";
 
     const String oscSubOctDesc = "SUB OCTAVE";
-    const String oscNoiseDesc = "NOISE";
     const String oscMixDesc = "OSC MIX";
+    const String oscNoiseDesc = "NOISE";
+    const String oscSlopDesc = "OSC SLOP";
 
     const String filterGroupDesc = "LOW-PASS FILTER";
     const String filterCutoffSliderDesc = "CUTOFF";

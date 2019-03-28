@@ -99,10 +99,8 @@ void GainedOscillator<Type>::setOscShape (int newShape)
         }
         break;
 
-        case OscShape::total:
-            jassertfalse;
-            break;
         default:
+            jassertfalse;
             break;
     }
 
@@ -118,7 +116,8 @@ void GainedOscillator<Type>::setOscShape (int newShape)
 
 sBMP4Voice::sBMP4Voice (int vId, std::set<int>* activeVoiceSet) :
 voiceId (vId),
-voicesBeingKilled (activeVoiceSet)
+voicesBeingKilled (activeVoiceSet),
+distribution (-1.f, 1.f)
 {
     processorChain.get<masterGainIndex>().setGainLinear (defaultOscLevel);
     processorChain.get<filterIndex>().setCutoffFrequencyHz (defaultFilterCutoff);
@@ -170,12 +169,15 @@ void sBMP4Voice::updateOscFrequencies()
 
     auto pitchWheelDeltaNote = pitchWheelNoteRange.convertFrom0to1 (pitchWheelPosition / 16383.f);
 
-    auto osc1FloatNote = midiNote - osc1NoteOffset + osc1TuningOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote;
+    auto osc1Slop = curSlop * distribution (generator);
+    auto osc2Slop = curSlop * distribution (generator);
+
+    auto osc1FloatNote = midiNote - osc1NoteOffset + osc1TuningOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote + osc1Slop;
     sub.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote - 12), true);
     noise.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote), true);
     osc1.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote), true);
 
-    auto osc2Freq = Helpers::getFloatMidiNoteInHertz (midiNote - osc2NoteOffset + osc2TuningOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote);
+    auto osc2Freq = Helpers::getFloatMidiNoteInHertz (midiNote - osc2NoteOffset + osc2TuningOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote + osc2Slop);
     osc2.setFrequency ((float) osc2Freq, true);
 }
 
@@ -289,7 +291,6 @@ void sBMP4Voice::setLfoShape (int shape)
         }
             break;
 
-        case LfoShape::total:
         default:
             jassertfalse;
             break;

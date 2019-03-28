@@ -41,6 +41,8 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 
         std::make_unique<AudioParameterFloat>   (oscSubID, oscSubOctDesc, sliderRange, (float) defaultSubOsc),
         std::make_unique<AudioParameterFloat>   (oscMixID, oscMixDesc, sliderRange, (float) defaultOscMix),
+        std::make_unique<AudioParameterFloat>   (oscNoiseID, oscNoiseDesc, sliderRange, (float) defaultOscNoise),
+        std::make_unique<AudioParameterFloat>   (oscSlopID, oscSlopDesc, sliderRange, (float) defaultOscSlop),
 
         std::make_unique<AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
         std::make_unique<AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
@@ -84,6 +86,8 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
 
     state.addParameterListener (oscSubID, &synth);
     state.addParameterListener (oscMixID, &synth);
+    state.addParameterListener (oscNoiseID, &synth);
+    state.addParameterListener (oscSlopID, &synth);
 
     state.addParameterListener (filterCutoffID, &synth);
     state.addParameterListener (filterResonanceID, &synth);
