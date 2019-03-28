@@ -35,6 +35,7 @@ struct OscShape : public Selection
         sawTri,
         triangle,
         pulse,
+        noise,
         total
     };
 

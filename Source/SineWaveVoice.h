@@ -250,9 +250,9 @@ private:
     void applyKillRamp (AudioBuffer<float>& outputBuffer, int startSample, int numSamples);
     void assertForDiscontinuities (AudioBuffer<float>& outputBuffer, int startSample, int numSamples, String dbgPrefix);
 
-    HeapBlock<char> heapBlock1, heapBlock2;
-    dsp::AudioBlock<float> osc1Block, osc2Block;
-    GainedOscillator<float> sub, osc1, osc2;
+    HeapBlock<char> heapBlock1, heapBlock2, heapBlockNoise;
+    dsp::AudioBlock<float> osc1Block, osc2Block, noiseBlock;
+    GainedOscillator<float> sub, osc1, osc2, noise;
 
     std::unique_ptr<AudioBuffer<float>> overlap;
     int overlapIndex = -1;

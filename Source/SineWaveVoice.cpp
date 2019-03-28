@@ -31,18 +31,7 @@ void GainedOscillator<Type>::setOscShape (int newShape)
     switch (newShape)
     {
         case OscShape::none:
-#if 0
             isActive = false;
-#else
-            {
-                std::lock_guard<std::mutex> lock (processMutex);
-
-                osc.initialise ([&](Type /*x*/)
-                {
-                    return distribution (generator);
-                });
-            }
-#endif
             break;
 
         case OscShape::saw:
@@ -99,6 +88,17 @@ void GainedOscillator<Type>::setOscShape (int newShape)
         }
         break;
 
+        case OscShape::noise:
+        {
+            std::lock_guard<std::mutex> lock (processMutex);
+
+            osc.initialise ([&](Type /*x*/)
+            {
+                return distribution (generator);
+            });
+        }
+        break;
+
         case OscShape::total:
             jassertfalse;
             break;
@@ -125,6 +125,7 @@ voicesBeingKilled (activeVoiceSet)
     processorChain.get<filterIndex>().setResonance (defaultFilterResonance);
 
     sub.setOscShape (OscShape::pulse);
+    noise.setOscShape (OscShape::noise);
 
     lfoDest.curSelection = (int) defaultLfoDest;
 
@@ -134,17 +135,19 @@ voicesBeingKilled (activeVoiceSet)
 
 void sBMP4Voice::prepare (const dsp::ProcessSpec& spec)
 {
-    //seems like auval doesn't initalize spec properly and we need to
+    //seems like auval doesn't initalize spec properly and we need to instantiate more memory than it's asking
     PluginHostType host;
     const auto auvalMultiplier = host.getHostPath().contains ("auval") ? 5 : 1;
 
     osc1Block = dsp::AudioBlock<float> (heapBlock1, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
     osc2Block = dsp::AudioBlock<float> (heapBlock2, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
+    noiseBlock = dsp::AudioBlock<float> (heapBlockNoise, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
 
     overlap = std::make_unique<AudioSampleBuffer> (AudioSampleBuffer (spec.numChannels, killRampSamples));
     overlap->clear();
 
     sub.prepare (spec);
+    noise.prepare (spec);
     osc1.prepare (spec);
     osc2.prepare (spec);
     processorChain.prepare (spec);
@@ -169,6 +172,7 @@ void sBMP4Voice::updateOscFrequencies()
 
     auto osc1FloatNote = midiNote - osc1NoteOffset + osc1TuningOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote;
     sub.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote - 12), true);
+    noise.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote), true);
     osc1.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote), true);
 
     auto osc2Freq = Helpers::getFloatMidiNoteInHertz (midiNote - osc2NoteOffset + osc2TuningOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote);
@@ -569,6 +573,9 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
     auto osc2Output = osc2Block.getSubBlock (0, (size_t) numSamples);
     osc2Output.clear();
 
+    auto noiseOutput = noiseBlock.getSubBlock (0, (size_t) numSamples);
+    noiseOutput.clear();
+
     for (size_t pos = 0; pos < numSamples;)
     {
         auto curBlockSize = jmin (static_cast<size_t> (numSamples - pos), lfoUpdateCounter);
@@ -584,19 +591,25 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
         dsp::ProcessContextReplacing<float> osc2Context (block2);
         osc2.process (osc2Context);
 
+        //process noise
+        auto blockNoise = noiseOutput.getSubBlock (pos, curBlockSize);
+        dsp::ProcessContextReplacing<float> noiseContext (blockNoise);
+        noise.process (noiseContext);
+
         //process the sum of osc1 and osc2
-        block2.add (block1);
-        dsp::ProcessContextReplacing<float> summedContext (block2);
+        blockNoise.add (block1);
+        blockNoise.add (block2);
+        dsp::ProcessContextReplacing<float> summedContext (blockNoise);
         processorChain.process (summedContext);
 
         //during this call, the voice may become inactive, but we still have to finish this loop to ensure the voice stays muted for the rest of the buffer
-        processEnvelope (block2);
+        processEnvelope (blockNoise);
 
         if (rampingUp)
-            processRampUp (block2, (int) curBlockSize);
+            processRampUp (blockNoise, (int) curBlockSize);
 
         if (overlapIndex > -1)
-            processKillOverlap (block2, (int) curBlockSize);
+            processKillOverlap (blockNoise, (int) curBlockSize);
 
         pos += curBlockSize;
         lfoUpdateCounter -= curBlockSize;
@@ -608,7 +621,7 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
         }
     }
 
-    dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (osc2Block);
+    dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (noiseBlock);
 
     if (currentlyKillingVoice)
         applyKillRamp (outputBuffer, startSample, numSamples);

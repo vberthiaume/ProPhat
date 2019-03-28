@@ -143,6 +143,7 @@ namespace sBMP4AudioProcessorNames
     const String osc2TuningDesc = "FINE TUNE";
 
     const String oscSubOctDesc = "SUB OCTAVE";
+    const String oscNoiseDesc = "NOISE";
     const String oscMixDesc = "OSC MIX";
 
     const String filterGroupDesc = "LOW-PASS FILTER";
