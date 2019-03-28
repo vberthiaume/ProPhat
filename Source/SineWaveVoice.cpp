@@ -169,15 +169,15 @@ void sBMP4Voice::updateOscFrequencies()
 
     auto pitchWheelDeltaNote = pitchWheelNoteRange.convertFrom0to1 (pitchWheelPosition / 16383.f);
 
-    auto osc1Slop = curSlop * distribution (generator);
-    auto osc2Slop = curSlop * distribution (generator);
+    auto curOsc1Slop = slopOsc1 * slopMod;
+    auto curOsc2Slop = slopOsc2 * slopMod;
 
-    auto osc1FloatNote = midiNote - osc1NoteOffset + osc1TuningOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote + osc1Slop;
+    auto osc1FloatNote = midiNote - osc1NoteOffset + osc1TuningOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote + curOsc1Slop;
     sub.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote - 12), true);
     noise.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote), true);
     osc1.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote), true);
 
-    auto osc2Freq = Helpers::getFloatMidiNoteInHertz (midiNote - osc2NoteOffset + osc2TuningOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote + osc2Slop);
+    auto osc2Freq = Helpers::getFloatMidiNoteInHertz (midiNote - osc2NoteOffset + osc2TuningOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote + curOsc2Slop);
     osc2.setFrequency ((float) osc2Freq, true);
 }
 
@@ -378,6 +378,10 @@ void sBMP4Voice::startNote (int /*midiNoteNumber*/, float velocity, SynthesiserS
     filterEnvADSR.noteOn();
 
     pitchWheelPosition = currentPitchWheelPosition;
+
+    slopOsc1 = distribution (generator);
+    slopOsc2 = distribution (generator);
+
     updateOscFrequencies();
 
     curVelocity = velocity;

@@ -64,10 +64,6 @@ namespace Constants
     static const float defaultEffectParam1 = 0.f;
     static const float defaultEffectParam2 = 0.f;
 
-    static const NormalisableRange<float> dBRange = {-12.f, 12.f};
-    static const NormalisableRange<float> sliderRange = {0.f, 1.f};
-    static const NormalisableRange<float> centeredSliderRange = {-0.5f, .5f};
-
     //envelope stuff
     static const auto minA = .001f;
     static const auto minAmp = .01f;
@@ -80,11 +76,17 @@ namespace Constants
     static const auto sustainSkewFactor = .5f;
     static const auto ampSkewFactor = .5f;
     static const auto cutOffSkewFactor = .5f;
+    static const auto slopSkewFactor = .5f;
 
     static const NormalisableRange<float> attackRange   {minA, 25.f, 0.f, ampSkewFactor};
     static const NormalisableRange<float> decayRange    {minAmp, 25.f, 0.f, ampSkewFactor};
     static const NormalisableRange<float> sustainRange  {minAmp, 1.f,  0.f, sustainSkewFactor};
     static const NormalisableRange<float> releaseRange  {minAmp, 25.f, 0.f, ampSkewFactor};
+
+    static const NormalisableRange<float> dBRange = {-12.f, 12.f};
+    static const NormalisableRange<float> sliderRange = {0.f, 1.f};
+    static const NormalisableRange<float> tuningSliderRange = {-0.5f, .5f};
+    static const NormalisableRange<float> slopSliderRange = {0.f, 1.0f, 0.f, slopSkewFactor};
 
     static const NormalisableRange<float> cutOffRange = {0.1f, 18000.f, 0.f, cutOffSkewFactor};
     static const NormalisableRange<float> lfoRange = {0.1f, 10.f};

@@ -36,13 +36,13 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
         std::make_unique<AudioParameterInt>     (osc2FreqID, osc2FreqDesc, midiNoteRange.getRange().getStart(),
                                                                            midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
 
-        std::make_unique<AudioParameterFloat>   (osc1TuningID, osc1TuningDesc, centeredSliderRange, (float) defaultOscTuning),
-        std::make_unique<AudioParameterFloat>   (osc2TuningID, osc2TuningDesc, centeredSliderRange, (float) defaultOscTuning),
+        std::make_unique<AudioParameterFloat>   (osc1TuningID, osc1TuningDesc, tuningSliderRange, (float) defaultOscTuning),
+        std::make_unique<AudioParameterFloat>   (osc2TuningID, osc2TuningDesc, tuningSliderRange, (float) defaultOscTuning),
 
         std::make_unique<AudioParameterFloat>   (oscSubID, oscSubOctDesc, sliderRange, (float) defaultSubOsc),
         std::make_unique<AudioParameterFloat>   (oscMixID, oscMixDesc, sliderRange, (float) defaultOscMix),
         std::make_unique<AudioParameterFloat>   (oscNoiseID, oscNoiseDesc, sliderRange, (float) defaultOscNoise),
-        std::make_unique<AudioParameterFloat>   (oscSlopID, oscSlopDesc, sliderRange, (float) defaultOscSlop),
+        std::make_unique<AudioParameterFloat>   (oscSlopID, oscSlopDesc, slopSliderRange, (float) defaultOscSlop),
 
         std::make_unique<AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
         std::make_unique<AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),

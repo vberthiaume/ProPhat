@@ -167,7 +167,7 @@ public:
 
     void setOscTuning (processorId oscNum, float newTuning)
     {
-        jassert (Helpers::valueContainedInRange (newTuning, centeredSliderRange));
+        jassert (Helpers::valueContainedInRange (newTuning, tuningSliderRange));
 
         switch (oscNum)
         {
@@ -200,8 +200,8 @@ public:
 
     void setOscSlop (float slop)
     {
-        jassert (Helpers::valueContainedInRange (slop, sliderRange));
-        curSlop = slop;
+        jassert (Helpers::valueContainedInRange (slop, slopSliderRange));
+        slopMod = slop;
         updateOscFrequencies();
     }
 
@@ -311,7 +311,8 @@ private:
     float curSubLevel = 0.f;
     float oscMix = 0.f;
     float curNoiseLevel = 0.f;
-    float curSlop = 0.f;
+
+    float slopOsc1 = 0.f, slopOsc2 = 0.f, slopMod = 0.f;
 
     bool rampingUp = false;
     int rampUpSamplesLeft = 0;
