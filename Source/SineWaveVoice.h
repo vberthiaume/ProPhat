@@ -22,6 +22,7 @@
 #include <mutex>
 #include <set>
 #include "ButtonGroupComponent.h"
+#include <random>
 
 struct sBMP4Sound : public SynthesiserSound
 {
@@ -37,7 +38,8 @@ class GainedOscillator
 {
 public:
 
-    GainedOscillator()
+    GainedOscillator():
+        distribution ((Type) -1, (Type) 1)
     {
         setOscShape (OscShape::saw);
         setLevel (Constants::defaultOscLevel);
@@ -101,6 +103,9 @@ private:
     Type lastActiveLevel{};
 
     dsp::ProcessorChain<dsp::Oscillator<Type>, dsp::Gain<Type>> processorChain;
+
+    std::uniform_real_distribution<Type> distribution;
+    std::default_random_engine generator;
 };
 
 //==============================================================================

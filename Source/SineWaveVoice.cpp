@@ -19,6 +19,7 @@
 #include "SineWaveVoice.h"
 #include "ButtonGroupComponent.h"
 
+
 template <typename Type>
 void GainedOscillator<Type>::setOscShape (int newShape)
 {
@@ -30,7 +31,18 @@ void GainedOscillator<Type>::setOscShape (int newShape)
     switch (newShape)
     {
         case OscShape::none:
+#if 0
             isActive = false;
+#else
+            {
+                std::lock_guard<std::mutex> lock (processMutex);
+
+                osc.initialise ([&](Type /*x*/)
+                {
+                    return distribution (generator);
+                });
+            }
+#endif
             break;
 
         case OscShape::saw:
