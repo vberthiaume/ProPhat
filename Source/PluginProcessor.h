@@ -35,10 +35,6 @@ public:
 
     void reset() override;
 
-    bool getIsButtonEnabled (StringRef id) { return state.getParameter (id)->getValue(); }
-
-    String getSelectedChoice (StringRef id) { return ((AudioParameterChoice*) state.getParameter (id))->getCurrentValueAsText(); }
-
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
