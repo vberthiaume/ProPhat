@@ -203,7 +203,7 @@ void sBMP4AudioProcessorEditor::resized()
     //bottom section
     setupGroup (lfoGroup, bottomSection.removeFromLeft (2 * columnW + panelGap), {&lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider}, 2, 2);
     setupGroup (effectGroup, bottomSection.removeFromLeft (2 * columnW + panelGap), {&effectParam1Slider, &effectParam2Slider}, 2, 2);
-    setupGroup (ampGroup, bottomSection, {&ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider, nullptr, nullptr, nullptr, &masterGainSlider}, 2, 4);
+    setupGroup (ampGroup, bottomSection, {&ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider, &masterGainSlider}, 1, 5);
 
 #if CPU_USAGE
     auto cpuSectionH = 100;
