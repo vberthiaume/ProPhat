@@ -18,10 +18,10 @@ namespace BinaryData
     const int            blackLight_pngSize = 43010;
 
     extern const char*   blackSquare_svg;
-    const int            blackSquare_svgSize = 3390;
+    const int            blackSquare_svgSize = 3496;
 
     extern const char*   redSquare_svg;
-    const int            redSquare_svgSize = 6051;
+    const int            redSquare_svgSize = 6235;
 
     extern const char*   redLight_png;
     const int            redLight_pngSize = 50181;
