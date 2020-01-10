@@ -218,7 +218,7 @@ struct Helpers
         return ImageCache::getFromMemory (imageData, dataSize);
     }
 
-    static Drawable* getDrawable (const void* imageData, const int dataSize)
+    static std::unique_ptr<Drawable> getDrawable (const void* imageData, const int dataSize)
     {
         return Drawable::createFromImageData (imageData, dataSize);
     }

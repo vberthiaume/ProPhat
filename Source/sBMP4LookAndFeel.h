@@ -43,7 +43,7 @@ private:
     Image tickedButtonImage, untickedButtonImage;
 
 #if USE_SVG
-    ScopedPointer<Drawable> rotarySliderDrawableImage;
+    std::unique_ptr<Drawable> rotarySliderDrawableImage;
 #else
     Image rotarySliderImage;
 #endif
