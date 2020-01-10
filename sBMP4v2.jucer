@@ -3,7 +3,7 @@
 <JUCERPROJECT name="sBMP4" companyName="BMP4" version="0.0.1" defines="PIP_JUCE_EXAMPLES_DIRECTORY=QzpcVXNlcnNcSGFha2VcRG9jdW1lbnRzXGdpdFxhdWRpb3dvcmtzXFNvdW5kc1VuaXRlQXBwXHN1Ym1vZHVsZXNcSlVDRVxleGFtcGxlcw=="
               projectType="audioplug" pluginManufacturer="BMP4" pluginAUIsSandboxSafe="1"
               pluginFormats="buildAU,buildStandalone,buildVST,buildVST3" id="Pybx3b"
-              jucerVersion="5.4.3" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
+              jucerVersion="5.4.5" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               cppLanguageStandard="17" pluginManufacturerCode="BMP4" pluginCode="Sbmp"
               pluginName="sBMP4" pluginDesc="Subtractive synth based on the Prophet REV2"
               bundleIdentifier="com.BMP4.sBMP4">
