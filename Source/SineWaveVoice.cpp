@@ -19,7 +19,6 @@
 #include "SineWaveVoice.h"
 #include "ButtonGroupComponent.h"
 
-
 template <typename Type>
 void GainedOscillator<Type>::setOscShape (int newShape)
 {
@@ -119,9 +118,9 @@ voiceId (vId),
 voicesBeingKilled (activeVoiceSet),
 distribution (-1.f, 1.f)
 {
-    processorChain.get<masterGainIndex>().setGainLinear (defaultOscLevel);
-    processorChain.get<filterIndex>().setCutoffFrequencyHz (defaultFilterCutoff);
-    processorChain.get<filterIndex>().setResonance (defaultFilterResonance);
+    processorChain.get<(int)processorId::masterGainIndex>().setGainLinear (defaultOscLevel);
+    processorChain.get<(int)processorId::filterIndex>().setCutoffFrequencyHz (defaultFilterCutoff);
+    processorChain.get<(int)processorId::filterIndex>().setResonance (defaultFilterResonance);
 
     sub.setOscShape (OscShape::pulse);
     noise.setOscShape (OscShape::noise);
@@ -221,7 +220,7 @@ void sBMP4Voice::setFilterEnvParam (StringRef parameterID, float newValue)
     filterEnvADSR.setParameters (filterEnvParams);
 }
 
-//@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
+//@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscilate between [-1, 1]
 void sBMP4Voice::setLfoShape (int shape)
 {
     switch (shape)
@@ -304,10 +303,10 @@ void sBMP4Voice::setLfoDest (int dest)
     lfoOsc2NoteOffset = 0.f;
 
     if (lfoDest.curSelection == LfoDest::filterCutOff)
-        processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
+        processorChain.get<(int)processorId::filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
 
     if (lfoDest.curSelection == LfoDest::filterResonance)
-        processorChain.get<filterIndex>().setResonance (curFilterResonance);
+        processorChain.get<(int)processorId::filterIndex>().setResonance (curFilterResonance);
 
     //change the destination
     lfoDest.curSelection = dest;
@@ -319,13 +318,13 @@ void sBMP4Voice::pitchWheelMoved (int newPitchWheelValue)
     updateOscFrequencies();
 }
 
-//@TODO For now, all lfos oscillate between [0, 1], even though the random one (an only that one) should oscilate between [-1, 1]
+//@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
 void sBMP4Voice::updateLfo()
 {
     //apply filter envelope
     //@TODO make this into a slider
     const auto envelopeAmount = 2;
-    processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff * (1 + envelopeAmount * filterEnvelope));
+    processorChain.get<(int)processorId::filterIndex>().setCutoffFrequencyHz (curFilterCutoff * (1 + envelopeAmount * filterEnvelope));
 
     float lfoOut;
     {
@@ -350,12 +349,12 @@ void sBMP4Voice::updateLfo()
         {
             auto lfoCutOffContributionHz = jmap (lfoOut, 0.0f, 1.0f, 10.0f, 10000.0f);
             auto curCutOff = jmin (curFilterCutoff * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz, 18000.f);
-            processorChain.get<filterIndex>().setCutoffFrequencyHz (curCutOff);
+            processorChain.get<(int)processorId::filterIndex>().setCutoffFrequencyHz (curCutOff);
         }
         break;
 
         case LfoDest::filterResonance:
-            processorChain.get<filterIndex>().setResonance (curFilterResonance * (1 + lfoOut));
+            processorChain.get<(int)processorId::filterIndex>().setResonance (curFilterResonance * (1 + lfoOut));
             break;
 
         default:
@@ -564,7 +563,6 @@ void sBMP4Voice::applyKillRamp (AudioBuffer<float>& outputBuffer, int startSampl
     assertForDiscontinuities (outputBuffer, startSample, numSamples, "\tBUILDING KILLRAMP\t");
     DBG ("\tDEBUG stop KILLRAMP");
 #endif
-
 }
 
 void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)

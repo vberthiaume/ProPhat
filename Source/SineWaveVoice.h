@@ -114,7 +114,7 @@ class sBMP4Voice : public SynthesiserVoice
 {
 public:
 
-    enum processorId
+    enum class processorId
     {
         filterIndex = 0,
         masterGainIndex,
@@ -135,10 +135,10 @@ public:
 
         switch (oscNum)
         {
-            case sBMP4Voice::osc1Index:
+            case processorId::osc1Index:
                 osc1NoteOffset = middleCMidiNote - (float) newMidiNote;
                 break;
-            case sBMP4Voice::osc2Index:
+            case processorId::osc2Index:
                 osc2NoteOffset = middleCMidiNote - (float) newMidiNote;
                 break;
             default:
@@ -153,10 +153,10 @@ public:
     {
         switch (oscNum)
         {
-            case sBMP4Voice::osc1Index:
+            case processorId::osc1Index:
                 osc1.setOscShape (newShape);
                 break;
-            case sBMP4Voice::osc2Index:
+            case processorId::osc2Index:
                 osc2.setOscShape (newShape);
                 break;
             default:
@@ -171,10 +171,10 @@ public:
 
         switch (oscNum)
         {
-            case sBMP4Voice::osc1Index:
+            case processorId::osc1Index:
                 osc1TuningOffset = newTuning;
                 break;
-            case sBMP4Voice::osc2Index:
+            case processorId::osc2Index:
                 osc2TuningOffset = newTuning;
                 break;
             default:
@@ -232,13 +232,13 @@ public:
     void setFilterCutoff (float newValue)
     {
         curFilterCutoff = newValue;
-        processorChain.get<filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
+        processorChain.get<(int) processorId::filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
     }
 
     void setFilterResonance (float newAmount)
     {
         curFilterResonance = newAmount;
-        processorChain.get<filterIndex>().setResonance (curFilterResonance);
+        processorChain.get<(int) processorId::filterIndex>().setResonance (curFilterResonance);
     }
 
     void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition) override;
