@@ -75,7 +75,6 @@
         <MODULEPATH id="juce_audio_basics" path="submodules/JUCE/modules"/>
         <MODULEPATH id="juce_audio_devices" path="submodules/JUCE/modules"/>
         <MODULEPATH id="juce_audio_formats" path="submodules/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_plugin_client" path="submodules/JUCE/modules"/>
         <MODULEPATH id="juce_audio_processors" path="submodules/JUCE/modules"/>
         <MODULEPATH id="juce_audio_utils" path="submodules/JUCE/modules"/>
         <MODULEPATH id="juce_core" path="submodules/JUCE/modules"/>
@@ -85,48 +84,28 @@
         <MODULEPATH id="juce_gui_basics" path="submodules/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="submodules/JUCE/modules"/>
         <MODULEPATH id="juce_dsp" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="submodules/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2019 targetFolder="Builds/VisualStudio2019">
-      <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" headerPath="C:\SDKs\asiosdk_2.3.3_2019-06-14\common"/>
-        <CONFIGURATION isDebug="0" name="Release" headerPath="C:\SDKs\asiosdk_2.3.3_2019-06-14\common"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_gui_extra"/>
-        <MODULEPATH id="juce_gui_basics"/>
-        <MODULEPATH id="juce_graphics"/>
-        <MODULEPATH id="juce_events"/>
-        <MODULEPATH id="juce_dsp"/>
-        <MODULEPATH id="juce_data_structures"/>
-        <MODULEPATH id="juce_core"/>
-        <MODULEPATH id="juce_audio_utils"/>
-        <MODULEPATH id="juce_audio_processors"/>
-        <MODULEPATH id="juce_audio_plugin_client"/>
-        <MODULEPATH id="juce_audio_formats"/>
-        <MODULEPATH id="juce_audio_devices"/>
-        <MODULEPATH id="juce_audio_basics"/>
-      </MODULEPATHS>
-    </VS2019>
     <VS2022 targetFolder="Builds/VisualStudio2022">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="C:\SDKs\asiosdk_2.3.3_2019-06-14\common"/>
         <CONFIGURATION isDebug="0" name="Release" headerPath="C:\SDKs\asiosdk_2.3.3_2019-06-14\common"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_audio_basics" path="C:\Users\barth\Documents\git\sBMP4v2\submodules\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_devices" path="C:\Users\barth\Documents\git\sBMP4v2\submodules\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_formats" path="C:\Users\barth\Documents\git\sBMP4v2\submodules\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_plugin_client" path="C:\Users\barth\Documents\git\sBMP4v2\submodules\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_processors" path="C:\Users\barth\Documents\git\sBMP4v2\submodules\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_utils" path="C:\Users\barth\Documents\git\sBMP4v2\submodules\JUCE\modules"/>
-        <MODULEPATH id="juce_core" path="C:\Users\barth\Documents\git\sBMP4v2\submodules\JUCE\modules"/>
-        <MODULEPATH id="juce_data_structures" path="C:\Users\barth\Documents\git\sBMP4v2\submodules\JUCE\modules"/>
-        <MODULEPATH id="juce_dsp" path="C:\Users\barth\Documents\git\sBMP4v2\submodules\JUCE\modules"/>
-        <MODULEPATH id="juce_events" path="C:\Users\barth\Documents\git\sBMP4v2\submodules\JUCE\modules"/>
-        <MODULEPATH id="juce_graphics" path="C:\Users\barth\Documents\git\sBMP4v2\submodules\JUCE\modules"/>
-        <MODULEPATH id="juce_gui_basics" path="C:\Users\barth\Documents\git\sBMP4v2\submodules\JUCE\modules"/>
-        <MODULEPATH id="juce_gui_extra" path="C:\Users\barth\Documents\git\sBMP4v2\submodules\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_basics" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="submodules/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="submodules/JUCE/modules"/>
       </MODULEPATHS>
     </VS2022>
   </EXPORTFORMATS>

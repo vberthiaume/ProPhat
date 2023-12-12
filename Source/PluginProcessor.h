@@ -51,7 +51,8 @@ public:
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
-//==============================================================================
+
+    //==============================================================================
     const String getName() const override { return JucePlugin_Name; }
 
     bool acceptsMidi() const override { return true; }
