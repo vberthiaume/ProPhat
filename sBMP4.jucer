@@ -7,6 +7,11 @@
               pluginManufacturerCode="BMP4" pluginCode="Sbmp" pluginAUMainType="'aumu'">
   <MAINGROUP id="M1KKAR" name="sBMP4v2">
     <GROUP id="{F09A54D2-9168-8E51-F638-B70D48E09C9D}" name="Source">
+      <FILE id="Tlmnnn" name="ButtonGroupComponent.cpp" compile="1" resource="0"
+            file="Source/ButtonGroupComponent.cpp"/>
+      <FILE id="BXRQon" name="ButtonGroupComponent.h" compile="0" resource="0"
+            file="Source/ButtonGroupComponent.h"/>
+      <FILE id="Hywnyk" name="Helpers.h" compile="0" resource="0" file="Source/Helpers.h"/>
       <FILE id="nZP4SQ" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="fptyKX" name="PluginProcessor.h" compile="0" resource="0"
@@ -14,6 +19,32 @@
       <FILE id="YxOzh9" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="BDSnwx" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="JJnaGc" name="sBMP4LookAndFeel.cpp" compile="1" resource="0"
+            file="Source/sBMP4LookAndFeel.cpp"/>
+      <FILE id="prLzhu" name="sBMP4LookAndFeel.h" compile="0" resource="0"
+            file="Source/sBMP4LookAndFeel.h"/>
+      <FILE id="DXkMBm" name="sBMP4Synthesiser.h" compile="0" resource="0"
+            file="Source/sBMP4Synthesiser.h"/>
+      <FILE id="ItumJq" name="SineWaveVoice.cpp" compile="1" resource="0"
+            file="Source/SineWaveVoice.cpp"/>
+      <FILE id="mmelw3" name="SineWaveVoice.h" compile="0" resource="0" file="Source/SineWaveVoice.h"/>
+    </GROUP>
+    <GROUP id="{65D18CA8-6815-B6E4-CDD2-3E7E0045CF19}" name="Assets">
+      <FILE id="wjnnKH" name="blackLight.png" compile="0" resource="1" file="Assets/blackLight.png"/>
+      <FILE id="JHkSBH" name="blackLight.svg" compile="0" resource="1" file="Assets/blackLight.svg"/>
+      <FILE id="GDRRMB" name="blackMetal.jpg" compile="0" resource="1" file="Assets/blackMetal.jpg"/>
+      <FILE id="czzc7e" name="blackSquare.svg" compile="0" resource="1" file="Assets/blackSquare.svg"/>
+      <FILE id="CAdb03" name="blackTexture.jpg" compile="0" resource="1"
+            file="Assets/blackTexture.jpg"/>
+      <FILE id="mId4mw" name="metalKnobFitted.png" compile="0" resource="1"
+            file="Assets/metalKnobFitted.png"/>
+      <FILE id="vm0Xtj" name="redLight.png" compile="0" resource="1" file="Assets/redLight.png"/>
+      <FILE id="zeiCgl" name="redLight.svg" compile="0" resource="1" file="Assets/redLight.svg"/>
+      <FILE id="cAHkOK" name="redSquare.svg" compile="0" resource="1" file="Assets/redSquare.svg"/>
+      <FILE id="X1JE3t" name="redTexture.png" compile="0" resource="1" file="Assets/redTexture.png"/>
+      <FILE id="SN3npT" name="sBMP4Knob.svg" compile="0" resource="1" file="Assets/sBMP4Knob.svg"/>
+      <FILE id="iICxSg" name="sBMP4KnobUniform.svg" compile="0" resource="1"
+            file="Assets/sBMP4KnobUniform.svg"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>
