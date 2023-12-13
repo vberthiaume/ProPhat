@@ -188,13 +188,13 @@ void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
         newValue = std::numeric_limits<float>::epsilon();
     }
 
-    if (parameterID == sBMP4AudioProcessorIDs::ampAttackID)
+    if (parameterID == sBMP4AudioProcessorIDs::ampAttackID.getParamID())
         ampParams.attack = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::ampDecayID)
+    else if (parameterID == sBMP4AudioProcessorIDs::ampDecayID.getParamID())
         ampParams.decay = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::ampSustainID)
+    else if (parameterID == sBMP4AudioProcessorIDs::ampSustainID.getParamID())
         ampParams.sustain = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::ampReleaseID)
+    else if (parameterID == sBMP4AudioProcessorIDs::ampReleaseID.getParamID())
         ampParams.release = newValue;
 
     ampADSR.setParameters (ampParams);
@@ -208,13 +208,13 @@ void sBMP4Voice::setFilterEnvParam (StringRef parameterID, float newValue)
         newValue = std::numeric_limits<float>::epsilon();
     }
 
-    if (parameterID == sBMP4AudioProcessorIDs::filterEnvAttackID)
+    if (parameterID == sBMP4AudioProcessorIDs::filterEnvAttackID.getParamID())
         filterEnvParams.attack = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::filterEnvDecayID)
+    else if (parameterID == sBMP4AudioProcessorIDs::filterEnvDecayID.getParamID())
         filterEnvParams.decay = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::filterEnvSustainID)
+    else if (parameterID == sBMP4AudioProcessorIDs::filterEnvSustainID.getParamID())
         filterEnvParams.sustain = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::filterEnvReleaseID)
+    else if (parameterID == sBMP4AudioProcessorIDs::filterEnvReleaseID.getParamID())
         filterEnvParams.release = newValue;
 
     filterEnvADSR.setParameters (filterEnvParams);

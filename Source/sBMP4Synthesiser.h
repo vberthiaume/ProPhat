@@ -52,58 +52,58 @@ public:
 
     void parameterChanged (const String& parameterID, float newValue) override
     {
-        if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID)
+        if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscFreq (sBMP4Voice::processorId::osc1Index, (int) newValue); }, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::osc2FreqID)
+        else if (parameterID == sBMP4AudioProcessorIDs::osc2FreqID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscFreq (sBMP4Voice::processorId::osc2Index, (int) newValue); }, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::osc1TuningID)
+        else if (parameterID == sBMP4AudioProcessorIDs::osc1TuningID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscTuning (sBMP4Voice::processorId::osc1Index, newValue); }, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::osc2TuningID)
+        else if (parameterID == sBMP4AudioProcessorIDs::osc2TuningID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscTuning (sBMP4Voice::processorId::osc2Index, newValue); }, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::osc1ShapeID)
+        else if (parameterID == sBMP4AudioProcessorIDs::osc1ShapeID.getParamID ())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscShape (sBMP4Voice::processorId::osc1Index, (int) newValue); }, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::osc2ShapeID)
+        else if (parameterID == sBMP4AudioProcessorIDs::osc2ShapeID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscShape (sBMP4Voice::processorId::osc2Index, (int) newValue); }, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::oscSubID)
+        else if (parameterID == sBMP4AudioProcessorIDs::oscSubID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscSub (newValue); }, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::oscMixID)
+        else if (parameterID == sBMP4AudioProcessorIDs::oscMixID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscMix (newValue); }, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::oscNoiseID)
+        else if (parameterID == sBMP4AudioProcessorIDs::oscNoiseID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscNoise (newValue); }, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::oscSlopID)
+        else if (parameterID == sBMP4AudioProcessorIDs::oscSlopID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setOscSlop (newValue); }, newValue);
 
-        else if (parameterID == sBMP4AudioProcessorIDs::ampAttackID
-                || parameterID == sBMP4AudioProcessorIDs::ampDecayID
-                || parameterID == sBMP4AudioProcessorIDs::ampSustainID
-                || parameterID == sBMP4AudioProcessorIDs::ampReleaseID)
+        else if (parameterID == sBMP4AudioProcessorIDs::ampAttackID.getParamID()
+                || parameterID == sBMP4AudioProcessorIDs::ampDecayID.getParamID()
+                || parameterID == sBMP4AudioProcessorIDs::ampSustainID.getParamID()
+                || parameterID == sBMP4AudioProcessorIDs::ampReleaseID.getParamID())
             for (auto voice : voices)
                 dynamic_cast<sBMP4Voice*> (voice)->setAmpParam (parameterID, newValue);
 
-        else if (parameterID == sBMP4AudioProcessorIDs::filterEnvAttackID
-                || parameterID == sBMP4AudioProcessorIDs::filterEnvDecayID
-                || parameterID == sBMP4AudioProcessorIDs::filterEnvSustainID
-                || parameterID == sBMP4AudioProcessorIDs::filterEnvReleaseID)
+        else if (parameterID == sBMP4AudioProcessorIDs::filterEnvAttackID.getParamID()
+                || parameterID == sBMP4AudioProcessorIDs::filterEnvDecayID.getParamID()
+                || parameterID == sBMP4AudioProcessorIDs::filterEnvSustainID.getParamID()
+                || parameterID == sBMP4AudioProcessorIDs::filterEnvReleaseID.getParamID())
             for (auto voice : voices)
                 dynamic_cast<sBMP4Voice*> (voice)->setFilterEnvParam (parameterID, newValue);
 
-        else if (parameterID == sBMP4AudioProcessorIDs::lfoShapeID)
+        else if (parameterID == sBMP4AudioProcessorIDs::lfoShapeID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoShape ((int) newValue); }, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::lfoDestID)
+        else if (parameterID == sBMP4AudioProcessorIDs::lfoDestID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoDest ((int) newValue); }, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::lfoFreqID)
+        else if (parameterID == sBMP4AudioProcessorIDs::lfoFreqID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoFreq (newValue); }, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::lfoAmountID)
+        else if (parameterID == sBMP4AudioProcessorIDs::lfoAmountID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setLfoAmount (newValue); }, newValue);
 
-        else if (parameterID == sBMP4AudioProcessorIDs::filterCutoffID)
+        else if (parameterID == sBMP4AudioProcessorIDs::filterCutoffID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setFilterCutoff (newValue); }, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::filterResonanceID)
+        else if (parameterID == sBMP4AudioProcessorIDs::filterResonanceID.getParamID())
             applyToAllVoices ([](sBMP4Voice* voice, float newValue) { voice->setFilterResonance (newValue); }, newValue);
 
-        else if (parameterID == sBMP4AudioProcessorIDs::effectParam1ID || parameterID == sBMP4AudioProcessorIDs::effectParam2ID)
+        else if (parameterID == sBMP4AudioProcessorIDs::effectParam1ID.getParamID() || parameterID == sBMP4AudioProcessorIDs::effectParam2ID.getParamID())
             setEffectParam (parameterID, newValue);
-        else if (parameterID == sBMP4AudioProcessorIDs::masterGainID)
+        else if (parameterID == sBMP4AudioProcessorIDs::masterGainID.getParamID())
             setMasterGain (newValue);
         else
             jassertfalse;
@@ -118,9 +118,9 @@ public:
 
     void setEffectParam (StringRef parameterID, float newValue)
     {
-        if (parameterID == sBMP4AudioProcessorIDs::effectParam1ID)
+        if (parameterID == sBMP4AudioProcessorIDs::effectParam1ID.getParamID())
             reverbParams.roomSize = newValue;
-        else if (parameterID == sBMP4AudioProcessorIDs::effectParam2ID)
+        else if (parameterID == sBMP4AudioProcessorIDs::effectParam2ID.getParamID())
             reverbParams.wetLevel = newValue;
 
         fxChain.get<reverbIndex>().setParameters (reverbParams);

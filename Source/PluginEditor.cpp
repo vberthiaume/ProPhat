@@ -47,49 +47,49 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 
     //OSCILLATORS
     oscGroup ({}, oscGroupDesc),
-    osc1FreqAttachment (p.state, osc1FreqID, osc1FreqSlider),
-    osc1TuningAttachment (p.state, osc1TuningID, osc1TuningSlider),
-    osc1ShapeButtons (p.state, osc1ShapeID, std::make_unique<OscShape> (OscShape()), osc1ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
+    osc1FreqAttachment (p.state, osc1FreqID.getParamID(), osc1FreqSlider),
+    osc1TuningAttachment (p.state, osc1TuningID.getParamID(), osc1TuningSlider),
+    osc1ShapeButtons (p.state, osc1ShapeID.getParamID(), std::make_unique<OscShape> (OscShape()), osc1ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
 
-    osc2FreqAttachment (p.state, osc2FreqID, osc2FreqSlider),
-    osc2TuningAttachment (p.state, osc2TuningID, osc2TuningSlider),
-    osc2ShapeButtons (p.state, osc2ShapeID, std::make_unique<OscShape> (OscShape()), osc2ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
+    osc2FreqAttachment (p.state, osc2FreqID.getParamID(), osc2FreqSlider),
+    osc2TuningAttachment (p.state, osc2TuningID.getParamID(), osc2TuningSlider),
+    osc2ShapeButtons (p.state, osc2ShapeID.getParamID(), std::make_unique<OscShape> (OscShape()), osc2ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
 
-    oscSubAttachment (p.state, oscSubID, oscSubSlider),
-    oscMixAttachment (p.state, oscMixID, oscMixSlider),
-    oscNoiseAttachment (p.state, oscNoiseID, oscNoiseSlider),
-    oscSlopAttachment (p.state, oscSlopID, oscSlopSlider),
+    oscSubAttachment (p.state, oscSubID.getParamID(), oscSubSlider),
+    oscMixAttachment (p.state, oscMixID.getParamID(), oscMixSlider),
+    oscNoiseAttachment (p.state, oscNoiseID.getParamID(), oscNoiseSlider),
+    oscSlopAttachment (p.state, oscSlopID.getParamID(), oscSlopSlider),
 
     //FILTERS
     filterGroup ({}, filterGroupDesc),
-    filterCutoffAttachment (p.state, filterCutoffID, filterCutoffSlider),
-    filterResonanceAttachment (p.state, filterResonanceID, filterResonanceSlider),
-    filterEnvAttackAttachment (p.state, filterEnvAttackID, filterEnvAttackSlider),
-    filterEnvDecayAttachment (p.state, filterEnvDecayID, filterEnvDecaySlider),
-    filterEnvSustainAttachment (p.state, filterEnvSustainID, filterEnvSustainSlider),
-    filterEnvReleaseAttachment (p.state, filterEnvReleaseID, filterEnvReleaseSlider),
+    filterCutoffAttachment (p.state, filterCutoffID.getParamID(), filterCutoffSlider),
+    filterResonanceAttachment (p.state, filterResonanceID.getParamID(), filterResonanceSlider),
+    filterEnvAttackAttachment (p.state, filterEnvAttackID.getParamID(), filterEnvAttackSlider),
+    filterEnvDecayAttachment (p.state, filterEnvDecayID.getParamID(), filterEnvDecaySlider),
+    filterEnvSustainAttachment (p.state, filterEnvSustainID.getParamID(), filterEnvSustainSlider),
+    filterEnvReleaseAttachment (p.state, filterEnvReleaseID.getParamID(), filterEnvReleaseSlider),
 
     //AMPLIFIER
     ampGroup ({}, ampGroupDesc),
-    ampAttackAttachment (p.state, ampAttackID, ampAttackSlider),
-    ampDecayAttachment (p.state, ampDecayID, ampDecaySlider),
-    ampSustainAttachment (p.state, ampSustainID, ampSustainSlider),
-    ampReleaseAttachment (p.state, ampReleaseID, ampReleaseSlider),
+    ampAttackAttachment (p.state, ampAttackID.getParamID(), ampAttackSlider),
+    ampDecayAttachment (p.state, ampDecayID.getParamID(), ampDecaySlider),
+    ampSustainAttachment (p.state, ampSustainID.getParamID(), ampSustainSlider),
+    ampReleaseAttachment (p.state, ampReleaseID.getParamID(), ampReleaseSlider),
 
     //LFO
     lfoGroup ({}, lfoGroupDesc),
-    lfoShapeButtons (p.state, lfoShapeID, std::make_unique<LfoShape> (LfoShape()), lfoShapeDesc, {lfoShape0, lfoShape1, /*lfoShape2, */lfoShape3, lfoShape4}),
-    lfoDestButtons (p.state, lfoDestID, std::make_unique<LfoDest> (LfoDest()), lfoDestDesc, {lfoDest0, lfoDest1, lfoDest2, lfoDest3}),
-    lfoFreqAttachment (p.state, lfoFreqID, lfoFreqSlider),
-    lfoAmountAttachment (p.state, lfoAmountID, lfoAmountSlider),
+    lfoShapeButtons (p.state, lfoShapeID.getParamID(), std::make_unique<LfoShape> (LfoShape()), lfoShapeDesc, {lfoShape0, lfoShape1, /*lfoShape2, */lfoShape3, lfoShape4}),
+    lfoDestButtons (p.state, lfoDestID.getParamID(), std::make_unique<LfoDest> (LfoDest()), lfoDestDesc, {lfoDest0, lfoDest1, lfoDest2, lfoDest3}),
+    lfoFreqAttachment (p.state, lfoFreqID.getParamID(), lfoFreqSlider),
+    lfoAmountAttachment (p.state, lfoAmountID.getParamID(), lfoAmountSlider),
 
     //EFFECT
     effectGroup ({}, effectGroupDesc),
-    effectParam1Attachment (p.state, effectParam1ID, effectParam1Slider),
-    effectParam2Attachment (p.state, effectParam2ID, effectParam2Slider),
+    effectParam1Attachment (p.state, effectParam1ID.getParamID(), effectParam1Slider),
+    effectParam2Attachment (p.state, effectParam2ID.getParamID(), effectParam2Slider),
 
     //OTHER
-    masterGainAttachment (p.state, masterGainID, masterGainSlider)
+    masterGainAttachment (p.state, masterGainID.getParamID(), masterGainSlider)
 {
 #if CPU_USAGE
     setSize (width, height + 50);
@@ -147,10 +147,10 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 
     addGroup (effectGroup, {&effectParam1Label, &effectParam2Label}, {effectParam1Desc, effectParam2Desc}, {&effectParam1Slider, &effectParam2Slider});
 
-    osc1ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID));
-    osc2ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID));
-    lfoShapeButtons.setSelectedButton  ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID));
-    lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID));
+    osc1ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID.getParamID()));
+    osc2ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID.getParamID()));
+    lfoShapeButtons.setSelectedButton  ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID.getParamID()));
+    lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
 }
 
 //==============================================================================

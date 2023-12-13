@@ -31,10 +31,8 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
                                      .withOutput ("Output", AudioChannelSet::stereo(), true)),
     state (*this, nullptr, "state",
     {
-        std::make_unique<AudioParameterInt>     (osc1FreqID, osc1FreqDesc, midiNoteRange.getRange().getStart(),
-                                                                           midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
-        std::make_unique<AudioParameterInt>     (osc2FreqID, osc2FreqDesc, midiNoteRange.getRange().getStart(),
-                                                                           midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
+        std::make_unique<AudioParameterInt>     (osc1FreqID, osc1FreqDesc, midiNoteRange.getRange().getStart(), midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
+        std::make_unique<AudioParameterInt>     (osc2FreqID, osc2FreqDesc, midiNoteRange.getRange().getStart(), midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
 
         std::make_unique<AudioParameterFloat>   (osc1TuningID, osc1TuningDesc, tuningSliderRange, (float) defaultOscTuning),
         std::make_unique<AudioParameterFloat>   (osc2TuningID, osc2TuningDesc, tuningSliderRange, (float) defaultOscTuning),
@@ -75,41 +73,41 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     , perfCounter ("ProcessBlock")
 #endif
 {
-    state.addParameterListener (osc1FreqID, &synth);
-    state.addParameterListener (osc2FreqID, &synth);
+    state.addParameterListener (osc1FreqID.getParamID(), &synth);
+    state.addParameterListener (osc2FreqID.getParamID(), &synth);
 
-    state.addParameterListener (osc1TuningID, &synth);
-    state.addParameterListener (osc2TuningID, &synth);
+    state.addParameterListener (osc1TuningID.getParamID(), &synth);
+    state.addParameterListener (osc2TuningID.getParamID(), &synth);
 
-    state.addParameterListener (osc1ShapeID, &synth);
-    state.addParameterListener (osc2ShapeID, &synth);
+    state.addParameterListener (osc1ShapeID.getParamID(), &synth);
+    state.addParameterListener (osc2ShapeID.getParamID(), &synth);
 
-    state.addParameterListener (oscSubID, &synth);
-    state.addParameterListener (oscMixID, &synth);
-    state.addParameterListener (oscNoiseID, &synth);
-    state.addParameterListener (oscSlopID, &synth);
+    state.addParameterListener (oscSubID.getParamID(), &synth);
+    state.addParameterListener (oscMixID.getParamID(), &synth);
+    state.addParameterListener (oscNoiseID.getParamID(), &synth);
+    state.addParameterListener (oscSlopID.getParamID(), &synth);
 
-    state.addParameterListener (filterCutoffID, &synth);
-    state.addParameterListener (filterResonanceID, &synth);
-    state.addParameterListener (filterEnvAttackID, &synth);
-    state.addParameterListener (filterEnvDecayID, &synth);
-    state.addParameterListener (filterEnvSustainID, &synth);
-    state.addParameterListener (filterEnvReleaseID, &synth);
+    state.addParameterListener (filterCutoffID.getParamID(), &synth);
+    state.addParameterListener (filterResonanceID.getParamID(), &synth);
+    state.addParameterListener (filterEnvAttackID.getParamID(), &synth);
+    state.addParameterListener (filterEnvDecayID.getParamID(), &synth);
+    state.addParameterListener (filterEnvSustainID.getParamID(), &synth);
+    state.addParameterListener (filterEnvReleaseID.getParamID(), &synth);
 
-    state.addParameterListener (ampAttackID, &synth);
-    state.addParameterListener (ampDecayID, &synth);
-    state.addParameterListener (ampSustainID, &synth);
-    state.addParameterListener (ampReleaseID, &synth);
+    state.addParameterListener (ampAttackID.getParamID(), &synth);
+    state.addParameterListener (ampDecayID.getParamID(), &synth);
+    state.addParameterListener (ampSustainID.getParamID(), &synth);
+    state.addParameterListener (ampReleaseID.getParamID(), &synth);
 
-    state.addParameterListener (lfoShapeID, &synth);
-    state.addParameterListener (lfoDestID, &synth);
-    state.addParameterListener (lfoFreqID, &synth);
-    state.addParameterListener (lfoAmountID, &synth);
+    state.addParameterListener (lfoShapeID.getParamID(), &synth);
+    state.addParameterListener (lfoDestID.getParamID(), &synth);
+    state.addParameterListener (lfoFreqID.getParamID(), &synth);
+    state.addParameterListener (lfoAmountID.getParamID(), &synth);
 
-    state.addParameterListener (effectParam1ID, &synth);
-    state.addParameterListener (effectParam2ID, &synth);
+    state.addParameterListener (effectParam1ID.getParamID(), &synth);
+    state.addParameterListener (effectParam2ID.getParamID(), &synth);
 
-    state.addParameterListener (masterGainID, &synth);
+    state.addParameterListener (masterGainID.getParamID(), &synth);
 }
 
 sBMP4AudioProcessor::~sBMP4AudioProcessor()

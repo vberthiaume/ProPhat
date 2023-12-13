@@ -100,42 +100,42 @@ namespace Constants
 
 namespace sBMP4AudioProcessorIDs
 {
-    const String osc1ShapeID = "osc1ShapeID";
-    const String osc1FreqID = "osc1FreqID";
-    const String osc1TuningID = "osc1TuningID";
+    const juce::ParameterID  osc1ShapeID { "osc1ShapeID", 1};
+    const juce::ParameterID  osc1FreqID { "osc1FreqID", 1};
+    const juce::ParameterID  osc1TuningID { "osc1TuningID", 1};
 
-    const String osc2ShapeID = "osc2ShapeID";
-    const String osc2FreqID = "osc2FreqID";
-    const String osc2TuningID = "osc2TuningID";
+    const juce::ParameterID  osc2ShapeID { "osc2ShapeID", 1};
+    const juce::ParameterID  osc2FreqID { "osc2FreqID", 1};
+    const juce::ParameterID  osc2TuningID { "osc2TuningID", 1};
 
-    const String oscSubID = "oscSubID";
-    const String oscMixID = "oscMixID";
-    const String oscNoiseID = "oscNoiseID";
-    const String oscSlopID = "oscSlopID";
+    const juce::ParameterID  oscSubID { "oscSubID", 1};
+    const juce::ParameterID  oscMixID { "oscMixID", 1};
+    const juce::ParameterID  oscNoiseID { "oscNoiseID", 1};
+    const juce::ParameterID  oscSlopID { "oscSlopID", 1};
 
-    const String filterCutoffID = "filterCutoffID";
-    const String filterResonanceID = "filterResonanceID";
+    const juce::ParameterID  filterCutoffID { "filterCutoffID", 1};
+    const juce::ParameterID  filterResonanceID { "filterResonanceID", 1};
 
-    const String ampAttackID = "ampAttackID";
-    const String ampDecayID = "ampDecayID";
-    const String ampSustainID = "ampSustainID";
-    const String ampReleaseID = "ampReleaseID";
+    const juce::ParameterID  ampAttackID { "ampAttackID", 1};
+    const juce::ParameterID  ampDecayID { "ampDecayID", 1};
+    const juce::ParameterID  ampSustainID { "ampSustainID", 1};
+    const juce::ParameterID  ampReleaseID { "ampReleaseID", 1};
 
-    const String filterEnvAttackID = "filterEnvAttackID";
-    const String filterEnvDecayID = "filterEnvDecayID";
-    const String filterEnvSustainID = "filterEnvSustainID";
-    const String filterEnvReleaseID = "filterEnvReleaseID";
+    const juce::ParameterID  filterEnvAttackID { "filterEnvAttackID", 1};
+    const juce::ParameterID  filterEnvDecayID { "filterEnvDecayID", 1};
+    const juce::ParameterID  filterEnvSustainID { "filterEnvSustainID", 1};
+    const juce::ParameterID  filterEnvReleaseID { "filterEnvReleaseID", 1};
 
-    const String lfoShapeID = "lfoShapeID";
-    const String lfoDestID = "lfoDestID";
-    const String lfoFreqID = "lfoFreqID";
-    const String lfoAmountID    = "lfoAmountID";
+    const juce::ParameterID  lfoShapeID { "lfoShapeID", 1};
+    const juce::ParameterID  lfoDestID { "lfoDestID", 1};
+    const juce::ParameterID  lfoFreqID { "lfoFreqID", 1};
+    const juce::ParameterID  lfoAmountID { "lfoAmountID", 1};
 
-    const String effectID       = "effectID";
-    const String effectParam1ID = "effectParam1ID";
-    const String effectParam2ID = "effectParam2ID";
+    const juce::ParameterID  effectID { "effectID", 1};
+    const juce::ParameterID  effectParam1ID { "effectParam1ID", 1};
+    const juce::ParameterID  effectParam2ID { "effectParam2ID", 1};
 
-    const String masterGainID = "masterGainID";
+    const juce::ParameterID  masterGainID { "masterGainID", 1};
 }
 
 namespace sBMP4AudioProcessorNames
