@@ -23,6 +23,8 @@
             file="Source/sBMP4LookAndFeel.cpp"/>
       <FILE id="prLzhu" name="sBMP4LookAndFeel.h" compile="0" resource="0"
             file="Source/sBMP4LookAndFeel.h"/>
+      <FILE id="sYObB0" name="sBMP4Synthesiser.cpp" compile="1" resource="0"
+            file="Source/sBMP4Synthesiser.cpp"/>
       <FILE id="DXkMBm" name="sBMP4Synthesiser.h" compile="0" resource="0"
             file="Source/sBMP4Synthesiser.h"/>
       <FILE id="ItumJq" name="SineWaveVoice.cpp" compile="1" resource="0"
