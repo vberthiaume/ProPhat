@@ -172,10 +172,10 @@ void sBMP4Voice::setOscMix (float newMix)
 
 void sBMP4Voice::updateOscLevels ()
 {
-    sub.setLevel (curVelocity * curSubLevel);
-    noise.setLevel (curVelocity * curNoiseLevel);
-    osc1.setLevel (curVelocity * (1 - oscMix));
-    osc2.setLevel (curVelocity * oscMix);
+    sub.setGain (curVelocity * curSubLevel);
+    noise.setGain (curVelocity * curNoiseLevel);
+    osc1.setGain (curVelocity * (1 - oscMix));
+    osc2.setGain (curVelocity * oscMix);
 }
 
 void sBMP4Voice::setAmpParam (juce::StringRef parameterID, float newValue)

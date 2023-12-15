@@ -23,12 +23,11 @@ template <typename Type>
 class GainedOscillator
 {
 public:
-
     GainedOscillator () :
         distribution ((Type) -1, (Type) 1)
     {
         setOscShape (OscShape::saw);
-        setLevel (Constants::defaultOscLevel);
+        setGain (Constants::defaultOscLevel);
     }
 
     void setFrequency (Type newValue, bool force = false)
@@ -125,30 +124,31 @@ public:
         if (wasActive != isActive)
         {
             if (isActive)
-                setLevel (lastActiveLevel);
+                setGain (lastActiveGain);
             else
-                setLevel (0);
+                setGain (0);
         }
     }
 
-    void setLevel (Type newValue)
+    void setGain (Type newValue)
     {
         if (! isActive)
             newValue = 0;
         else
-            lastActiveLevel = newValue;
+            lastActiveGain = newValue;
 
         auto& gain = processorChain.template get<gainIndex> ();
         gain.setGainLinear (newValue);
     }
 
-    Type getLevel () { return lastActiveLevel; }
+    Type getGain () { return lastActiveGain; }
 
     void reset () noexcept { processorChain.reset (); }
 
     template <typename ProcessContext>
     void process (const ProcessContext& context) noexcept
     {
+        //TODO: lock in audio thread!!!
         std::lock_guard<std::mutex> lock (processMutex);
 
         processorChain.process (context);
@@ -167,7 +167,7 @@ private:
 
     bool isActive = true;
 
-    Type lastActiveLevel {};
+    Type lastActiveGain {};
 
     juce::dsp::ProcessorChain<juce::dsp::Oscillator<Type>, juce::dsp::Gain<Type>> processorChain;
 
