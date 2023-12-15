@@ -24,11 +24,11 @@
 
 //==============================================================================
 
-class SnappingSlider : public Slider
+class SnappingSlider : public juce::Slider
 {
 public:
-    SnappingSlider (const SliderStyle& style = Slider::RotaryVerticalDrag, double snapValue = 0.0, double snapTolerance = 0.15) :
-        Slider (style, TextEntryBoxPosition::NoTextBox), 
+    SnappingSlider (const SliderStyle& style = juce::Slider::RotaryVerticalDrag, double snapValue = 0.0, double snapTolerance = 0.15) :
+        juce::Slider (style, TextEntryBoxPosition::NoTextBox), 
         snapVal (snapValue),
         tolerance (snapTolerance)
     {
@@ -56,15 +56,15 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SnappingSlider)
 };
 
-class sBMP4Label : public Label
+class sBMP4Label : public juce::Label
 {
-    void componentMovedOrResized (Component& component, bool /*wasMoved*/, bool /*wasResized*/) override
+    void componentMovedOrResized (juce::Component& component, bool /*wasMoved*/, bool /*wasResized*/) override
     {
         auto& lf = getLookAndFeel();
         auto f = lf.getLabelFont (*this);
         auto borderSize = lf.getLabelBorderSize (*this);
 
-        auto height = borderSize.getTopAndBottom() + 6 + roundToInt (f.getHeight() + 0.5f);
+        auto height = borderSize.getTopAndBottom() + 6 + juce::roundToInt (f.getHeight() + 0.5f);
         setBounds (component.getX(), component.getY() + component.getHeight() - height + 7, component.getWidth(), height);
     }
 };
@@ -72,7 +72,7 @@ class sBMP4Label : public Label
 //==============================================================================
 /**
 */
-class sBMP4AudioProcessorEditor : public AudioProcessorEditor
+class sBMP4AudioProcessorEditor : public juce::AudioProcessorEditor
 #if CPU_USAGE
     , public Timer
 #endif
@@ -82,28 +82,28 @@ public:
     sBMP4AudioProcessorEditor (sBMP4AudioProcessor&);
 
     //==============================================================================
-    void paint (Graphics&) override;
+    void paint (juce::Graphics&) override;
     void resized() override;
 
 #if CPU_USAGE
     void timerCallback() override
     {
        auto stats = processor.perfCounter.getStatisticsAndReset();
-       cpuUsageText.setText (String (stats.averageSeconds, 6), dontSendNotification);
+       cpuUsageText.setText (juce::String (stats.averageSeconds, 6), juce::dontSendNotification);
     }
 #endif
 
 private:
     sBMP4AudioProcessor& processor;
 
-    GroupComponent oscGroup, filterGroup, ampGroup, lfoGroup, effectGroup;
+    juce::GroupComponent oscGroup, filterGroup, ampGroup, lfoGroup, effectGroup;
 
-    Image backgroundTexture;
+    juce::Image backgroundTexture;
 
     //OSCILLATORS
     sBMP4Label osc1FreqSliderLabel, osc1TuningSliderLabel, osc2FreqSliderLabel, osc2TuningSliderLabel, oscSubSliderLabel, oscMixSliderLabel, oscNoiseSliderLabel, oscSlopSliderLabel;
     SnappingSlider osc1FreqSlider, osc2FreqSlider, osc1TuningSlider, osc2TuningSlider, oscSubSlider, oscMixSlider, oscNoiseSlider, oscSlopSlider;
-    AudioProcessorValueTreeState::SliderAttachment osc1FreqAttachment, osc2FreqAttachment, osc1TuningAttachment, osc2TuningAttachment,
+    juce::AudioProcessorValueTreeState::SliderAttachment osc1FreqAttachment, osc2FreqAttachment, osc1TuningAttachment, osc2TuningAttachment,
                                                    oscSubAttachment, oscMixAttachment, oscNoiseAttachment, oscSlopAttachment;
 
     ButtonGroupComponent osc1ShapeButtons, osc2ShapeButtons;
@@ -111,14 +111,14 @@ private:
     //FILTER
     sBMP4Label filterCutoffLabel, filterResonanceLabel, filterEnvAttackLabel, filterEnvDecayLabel, filterEnvSustainLabel, filterEnvReleaseLabel;
     SnappingSlider filterCutoffSlider, filterResonanceSlider;
-    AudioProcessorValueTreeState::SliderAttachment filterCutoffAttachment, filterResonanceAttachment;
+    juce::AudioProcessorValueTreeState::SliderAttachment filterCutoffAttachment, filterResonanceAttachment;
     SnappingSlider filterEnvAttackSlider, filterEnvDecaySlider, filterEnvSustainSlider, filterEnvReleaseSlider;
-    AudioProcessorValueTreeState::SliderAttachment filterEnvAttackAttachment, filterEnvDecayAttachment, filterEnvSustainAttachment, filterEnvReleaseAttachment;
+    juce::AudioProcessorValueTreeState::SliderAttachment filterEnvAttackAttachment, filterEnvDecayAttachment, filterEnvSustainAttachment, filterEnvReleaseAttachment;
 
     //AMPLIFIER
     sBMP4Label ampAttackLabel, ampDecayLabel, ampSustainLabel, ampReleaseLabel;
     SnappingSlider ampAttackSlider, ampDecaySlider, ampSustainSlider, ampReleaseSlider;
-    AudioProcessorValueTreeState::SliderAttachment ampAttackAttachment, ampDecayAttachment, ampSustainAttachment, ampReleaseAttachment;
+    juce::AudioProcessorValueTreeState::SliderAttachment ampAttackAttachment, ampDecayAttachment, ampSustainAttachment, ampReleaseAttachment;
 
     //LFO
     ButtonGroupComponent lfoShapeButtons;
@@ -126,21 +126,21 @@ private:
 
     sBMP4Label lfoFreqLabel, lfoAmountLabel;
     SnappingSlider lfoFreqSlider, lfoAmountSlider;
-    AudioProcessorValueTreeState::SliderAttachment lfoFreqAttachment, lfoAmountAttachment;
+    juce::AudioProcessorValueTreeState::SliderAttachment lfoFreqAttachment, lfoAmountAttachment;
 
     //EFFECT
     sBMP4Label effectParam1Label, effectParam2Label;
     SnappingSlider effectParam1Slider, effectParam2Slider;
-    AudioProcessorValueTreeState::SliderAttachment effectParam1Attachment, effectParam2Attachment;
+    juce::AudioProcessorValueTreeState::SliderAttachment effectParam1Attachment, effectParam2Attachment;
 
     //OTHER
     sBMP4Label masterGainLabel;
     SnappingSlider masterGainSlider;
-    AudioProcessorValueTreeState::SliderAttachment masterGainAttachment;
+    juce::AudioProcessorValueTreeState::SliderAttachment masterGainAttachment;
 
 #if CPU_USAGE
-    Label cpuUsageLabel;
-    Label cpuUsageText;
+    juce::Label cpuUsageLabel;
+    juce::Label cpuUsageText;
 #endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessorEditor)

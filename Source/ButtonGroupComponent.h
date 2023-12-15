@@ -81,15 +81,15 @@ enum defaults
     defaultLfoDest = (int) LfoDest::filterCutOff
 };
 
-class FilledDrawableButton : public DrawableButton
+class FilledDrawableButton : public juce::DrawableButton
 {
 public:
-    FilledDrawableButton (const String& buttonName, ButtonStyle buttonStyle) :
-        DrawableButton (buttonName, buttonStyle)
+    FilledDrawableButton (const juce::String& buttonName, ButtonStyle buttonStyle) :
+        juce::DrawableButton (buttonName, buttonStyle)
     {
     }
 
-    Rectangle<float> getImageBounds() const override
+    juce::Rectangle<float> getImageBounds() const override
     {
         auto bounds = getLocalBounds().toFloat();
         auto half = bounds.getHeight() / 4;
@@ -99,16 +99,16 @@ public:
     }
 };
 
-class ButtonGroupComponent : public Component, public Button::Listener, public AudioProcessorValueTreeState::Listener
+class ButtonGroupComponent : public juce::Component, public juce::Button::Listener, public juce::AudioProcessorValueTreeState::Listener
 {
 public:
 
-    ButtonGroupComponent (AudioProcessorValueTreeState& state, const String& parameterID, std::unique_ptr<Selection> theSelection,
-                          StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty = false);
+    ButtonGroupComponent (juce::AudioProcessorValueTreeState& state, const juce::String& parameterID, std::unique_ptr<Selection> theSelection,
+                          juce::StringRef mainButtonName, juce::Array<juce::StringRef> selectionButtonNames, bool allowEmpty = false);
 
-    void buttonClicked (Button* button) override;
+    void buttonClicked (juce::Button* button) override;
 
-    void paint (Graphics& /*g*/) override {}
+    void paint (juce::Graphics& /*g*/) override {}
 
     void setSelection (int selectionIndex);
 
@@ -116,17 +116,17 @@ public:
 
     void resized() override;
 
-    void parameterChanged (const String& parameterID, float newValue) override;
+    void parameterChanged (const juce::String& parameterID, float newValue) override;
 
 protected:
     void selectNext();
 
-    AudioProcessorValueTreeState& state;
-    String parameterID;
+    juce::AudioProcessorValueTreeState& state;
+    juce::String parameterID;
     sBMP4LookAndFeel lf;
 
     FilledDrawableButton mainButton;
-    OwnedArray<ToggleButton> selectionButtons;
+    juce::OwnedArray<juce::ToggleButton> selectionButtons;
     std::unique_ptr<Selection> selection;
     bool allowEmptySelection = false;
 };

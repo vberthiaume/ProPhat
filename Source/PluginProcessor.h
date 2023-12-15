@@ -25,7 +25,7 @@
 
 //==============================================================================
 
-class sBMP4AudioProcessor : public AudioProcessor
+class sBMP4AudioProcessor : public juce::AudioProcessor
 {
 public:
 
@@ -43,17 +43,17 @@ public:
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
 #endif
 
-    void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
-    void processBlock (AudioBuffer<double>&, MidiBuffer&) override;
+    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void processBlock (juce::AudioBuffer<double>&, juce::MidiBuffer&) override;
 
-    void process (AudioBuffer<float>& buffer, MidiBuffer& midiMessages);
+    void process (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages);
 
     //==============================================================================
-    AudioProcessorEditor* createEditor() override;
+    juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
 
     //==============================================================================
-    const String getName() const override { return JucePlugin_Name; }
+    const juce::String getName() const override { return JucePlugin_Name; }
 
     bool acceptsMidi() const override { return true; }
     bool producesMidi() const override { return false; }
@@ -64,14 +64,14 @@ public:
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
     void setCurrentProgram (int /*index*/) override { }
-    const String getProgramName (int /*index*/) override { return {}; }
-    void changeProgramName (int /*index*/, const String& /*newName*/) override { }
+    const juce::String getProgramName (int /*index*/) override { return {}; }
+    void changeProgramName (int /*index*/, const juce::String& /*newName*/) override { }
 
     //==============================================================================
-    void getStateInformation (MemoryBlock& destData) override;
+    void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    AudioProcessorValueTreeState state;
+    juce::AudioProcessorValueTreeState state;
 
 #if CPU_USAGE
     PerformanceCounter perfCounter;

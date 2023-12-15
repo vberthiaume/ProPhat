@@ -39,7 +39,7 @@ void GainedOscillator<Type>::setOscShape (int newShape)
             osc.initialise ([](Type x)
             {
                 //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-                return jmap (x, Type (-MathConstants<double>::pi), Type (MathConstants<double>::pi), Type (-1), Type (1));
+                return juce::jmap (x, Type (-juce::MathConstants<double>::pi), Type (juce::MathConstants<double>::pi), Type (-1), Type (1));
             }, 2);
         }
         break;
@@ -49,12 +49,12 @@ void GainedOscillator<Type>::setOscShape (int newShape)
             std::lock_guard<std::mutex> lock (processMutex);
             osc.initialise ([](Type x)
             {
-                Type y = jmap (x, Type (-MathConstants<double>::pi), Type (MathConstants<double>::pi), Type (-1), Type (1)) / 2;
+                Type y = juce::jmap (x, Type (-juce::MathConstants<double>::pi), Type (juce::MathConstants<double>::pi), Type (-1), Type (1)) / 2;
 
                 if (x < 0)
-                    return y += jmap (x, Type (-MathConstants<double>::pi), Type (0), Type (-1), Type (1)) / 2;
+                    return y += juce::jmap (x, Type (-juce::MathConstants<double>::pi), Type (0), Type (-1), Type (1)) / 2;
                 else
-                    return y += jmap (x, Type (0), Type (MathConstants<double>::pi), Type (1), Type (-1)) / 2;
+                    return y += juce::jmap (x, Type (0), Type (juce::MathConstants<double>::pi), Type (1), Type (-1)) / 2;
 
             }, 128);
         }
@@ -66,9 +66,9 @@ void GainedOscillator<Type>::setOscShape (int newShape)
             osc.initialise ([](Type x)
             {
                 if (x < 0)
-                    return jmap (x, Type (-MathConstants<double>::pi), Type (0), Type (-1), Type (1));
+                    return juce::jmap (x, Type (-juce::MathConstants<double>::pi), Type (0), Type (-1), Type (1));
                 else
-                    return jmap (x, Type (0), Type (MathConstants<double>::pi), Type (1), Type (-1));
+                    return juce::jmap (x, Type (0), Type (juce::MathConstants<double>::pi), Type (1), Type (-1));
 
             }, 128);
         }
@@ -131,17 +131,17 @@ distribution (-1.f, 1.f)
     lfo.setFrequency (defaultLfoFreq);
 }
 
-void sBMP4Voice::prepare (const dsp::ProcessSpec& spec)
+void sBMP4Voice::prepare (const juce::dsp::ProcessSpec& spec)
 {
     //seems like auval doesn't initalize spec properly and we need to instantiate more memory than it's asking
-    PluginHostType host;
+    juce::PluginHostType host;
     const auto auvalMultiplier = host.getHostPath().contains ("auval") ? 5 : 1;
 
-    osc1Block = dsp::AudioBlock<float> (heapBlock1, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
-    osc2Block = dsp::AudioBlock<float> (heapBlock2, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
-    noiseBlock = dsp::AudioBlock<float> (heapBlockNoise, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
+    osc1Block = juce::dsp::AudioBlock<float> (heapBlock1, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
+    osc2Block = juce::dsp::AudioBlock<float> (heapBlock2, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
+    noiseBlock = juce::dsp::AudioBlock<float> (heapBlockNoise, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
 
-    overlap = std::make_unique<AudioSampleBuffer> (AudioSampleBuffer (spec.numChannels, killRampSamples));
+    overlap = std::make_unique<juce::AudioSampleBuffer> (juce::AudioSampleBuffer (spec.numChannels, killRampSamples));
     overlap->clear();
 
     sub.prepare (spec);
@@ -180,7 +180,7 @@ void sBMP4Voice::updateOscFrequencies()
     osc2.setFrequency ((float) osc2Freq, true);
 }
 
-void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
+void sBMP4Voice::setAmpParam (juce::StringRef parameterID, float newValue)
 {
     if (newValue <= 0)
     {
@@ -200,7 +200,7 @@ void sBMP4Voice::setAmpParam (StringRef parameterID, float newValue)
     ampADSR.setParameters (ampParams);
 }
 
-void sBMP4Voice::setFilterEnvParam (StringRef parameterID, float newValue)
+void sBMP4Voice::setFilterEnvParam (juce::StringRef parameterID, float newValue)
 {
     if (newValue <= 0)
     {
@@ -238,7 +238,7 @@ void sBMP4Voice::setLfoShape (int shape)
             lfo.initialise ([](float x)
             {
                 //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-                return (float) jmap (x, -MathConstants<float>::pi, MathConstants<float>::pi, 0.f, 1.f);
+                return (float) juce::jmap (x, -juce::MathConstants<float>::pi, juce::MathConstants<float>::pi, 0.f, 1.f);
             }, 2);
         }
             break;
@@ -250,7 +250,7 @@ void sBMP4Voice::setLfoShape (int shape)
             std::lock_guard<std::mutex> lock (lfoMutex);
             lfo.initialise ([](float x)
             {
-                return (float) jmap (x, -MathConstants<float>::pi, MathConstants<float>::pi, 1.f, 0.f);
+                return (float) juce::jmap (x, -juce::MathConstants<float>::pi, juce::MathConstants<float>::pi, 1.f, 0.f);
             }, 2);
         }
             break;
@@ -347,8 +347,8 @@ void sBMP4Voice::updateLfo()
 
         case LfoDest::filterCutOff:
         {
-            auto lfoCutOffContributionHz = jmap (lfoOut, 0.0f, 1.0f, 10.0f, 10000.0f);
-            auto curCutOff = jmin (curFilterCutoff * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz, 18000.f);
+            auto lfoCutOffContributionHz = juce::jmap (lfoOut, 0.0f, 1.0f, 10.0f, 10000.0f);
+            auto curCutOff = juce::jmin (curFilterCutoff * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz, 18000.f);
             processorChain.get<(int)processorId::filterIndex>().setCutoffFrequencyHz (curCutOff);
         }
         break;
@@ -362,10 +362,10 @@ void sBMP4Voice::updateLfo()
     }
 }
 
-void sBMP4Voice::startNote (int /*midiNoteNumber*/, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
+void sBMP4Voice::startNote (int /*midiNoteNumber*/, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
 {
 #if DEBUG_VOICES
-    DBG ("\tDEBUG start: " + String (voiceId));
+    DBG ("\tDEBUG start: " + juce::String (voiceId));
 #endif
 
     ampADSR.setParameters (ampParams);
@@ -400,7 +400,7 @@ void sBMP4Voice::stopNote (float /*velocity*/, bool allowTailOff)
         filterEnvADSR.noteOff();
 
 #if DEBUG_VOICES
-        DBG ("\tDEBUG tailoff voice: " + String (voiceId));
+        DBG ("\tDEBUG tailoff voice: " + juce::String (voiceId));
 #endif
     }
     else
@@ -420,12 +420,12 @@ void sBMP4Voice::stopNote (float /*velocity*/, bool allowTailOff)
         clearCurrentNote();
 
 #if DEBUG_VOICES
-        DBG ("\tDEBUG kill voice: " + String (voiceId));
+        DBG ("\tDEBUG kill voice: " + juce::String (voiceId));
 #endif
     }
 }
 
-void sBMP4Voice::processEnvelope (dsp::AudioBlock<float>& block)
+void sBMP4Voice::processEnvelope (juce::dsp::AudioBlock<float>& block)
 {
     auto samples = block.getNumSamples();
     auto numChannels = block.getNumChannels();
@@ -451,12 +451,12 @@ void sBMP4Voice::processEnvelope (dsp::AudioBlock<float>& block)
     }
 }
 
-void sBMP4Voice::processRampUp (dsp::AudioBlock<float>& block, int curBlockSize)
+void sBMP4Voice::processRampUp (juce::dsp::AudioBlock<float>& block, int curBlockSize)
 {
 #if DEBUG_VOICES
-    DBG ("\tDEBUG RAMP UP " + String (rampUpSamples - rampUpSamplesLeft));
+    DBG ("\tDEBUG RAMP UP " + juce::String (rampUpSamples - rampUpSamplesLeft));
 #endif
-    auto curRampUpLenght = jmin ((int) curBlockSize, rampUpSamplesLeft);
+    auto curRampUpLenght = juce::jmin ((int) curBlockSize, rampUpSamplesLeft);
     auto prevRampUpValue = (rampUpSamples - rampUpSamplesLeft) / (float) rampUpSamples;
     auto nextRampUpValue = prevRampUpValue + curRampUpLenght / (float) rampUpSamples;
     auto incr = (nextRampUpValue - prevRampUpValue) / (curRampUpLenght);
@@ -484,13 +484,13 @@ void sBMP4Voice::processRampUp (dsp::AudioBlock<float>& block, int curBlockSize)
     }
 }
 
-void sBMP4Voice::processKillOverlap (dsp::AudioBlock<float>& block, int curBlockSize)
+void sBMP4Voice::processKillOverlap (juce::dsp::AudioBlock<float>& block, int curBlockSize)
 {
 #if DEBUG_VOICES
-    DBG ("\tDEBUG ADD OVERLAP" + String (overlapIndex));
+    DBG ("\tDEBUG ADD OVERLAP" + juce::String (overlapIndex));
 #endif
 
-    auto curSamples = jmin (killRampSamples - overlapIndex, (int) curBlockSize);
+    auto curSamples = juce::jmin (killRampSamples - overlapIndex, (int) curBlockSize);
 
     for (int c = 0; c < block.getNumChannels(); ++c)
     {
@@ -506,7 +506,7 @@ void sBMP4Voice::processKillOverlap (dsp::AudioBlock<float>& block, int curBlock
 
 #if PRINT_ALL_SAMPLES
             if (c == 0)
-                DBG ("\tADD\t" + String (prev) + "\t" + String (overl) + "\t" + String (total));
+                DBG ("\tADD\t" + juce::String (prev) + "\t" + juce::String (overl) + "\t" + juce::String (total));
 #endif
         }
     }
@@ -523,7 +523,7 @@ void sBMP4Voice::processKillOverlap (dsp::AudioBlock<float>& block, int curBlock
     }
 }
 
-void sBMP4Voice::assertForDiscontinuities (AudioBuffer<float>& outputBuffer, int startSample, int numSamples, String dbgPrefix)
+void sBMP4Voice::assertForDiscontinuities (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix)
 {
     auto prev = outputBuffer.getSample (0, startSample);
     auto prevDiff = abs (outputBuffer.getSample (0, startSample + 1) - prev);
@@ -538,7 +538,7 @@ void sBMP4Voice::assertForDiscontinuities (AudioBuffer<float>& outputBuffer, int
             if (c == 0)
             {
 #if PRINT_ALL_SAMPLES
-                DBG (dbgPrefix + String (outputBuffer.getSample (0, i)));
+                DBG (dbgPrefix + juce::String (outputBuffer.getSample (0, i)));
 #endif
                 auto cur = outputBuffer.getSample (0, i);
                 jassert (abs (cur - prev) < .2f);
@@ -553,7 +553,7 @@ void sBMP4Voice::assertForDiscontinuities (AudioBuffer<float>& outputBuffer, int
     }
 }
 
-void sBMP4Voice::applyKillRamp (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
+void sBMP4Voice::applyKillRamp (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
     outputBuffer.applyGainRamp (startSample, numSamples, 1.f, 0.f);
     currentlyKillingVoice = false;
@@ -565,7 +565,7 @@ void sBMP4Voice::applyKillRamp (AudioBuffer<float>& outputBuffer, int startSampl
 #endif
 }
 
-void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
+void sBMP4Voice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
     if (! currentlyKillingVoice && ! isVoiceActive())
         return;
@@ -581,28 +581,28 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
 
     for (size_t pos = 0; pos < numSamples;)
     {
-        auto curBlockSize = jmin (static_cast<size_t> (numSamples - pos), lfoUpdateCounter);
+        auto curBlockSize = juce::jmin (static_cast<size_t> (numSamples - pos), lfoUpdateCounter);
 
         //process osc1
         auto block1 = osc1Output.getSubBlock (pos, curBlockSize);
-        dsp::ProcessContextReplacing<float> osc1Context (block1);
+        juce::dsp::ProcessContextReplacing<float> osc1Context (block1);
         sub.process (osc1Context);
         osc1.process (osc1Context);
 
         //process osc2
         auto block2 = osc2Output.getSubBlock (pos, curBlockSize);
-        dsp::ProcessContextReplacing<float> osc2Context (block2);
+        juce::dsp::ProcessContextReplacing<float> osc2Context (block2);
         osc2.process (osc2Context);
 
         //process noise
         auto blockNoise = noiseOutput.getSubBlock (pos, curBlockSize);
-        dsp::ProcessContextReplacing<float> noiseContext (blockNoise);
+        juce::dsp::ProcessContextReplacing<float> noiseContext (blockNoise);
         noise.process (noiseContext);
 
         //process the sum of osc1 and osc2
         blockNoise.add (block1);
         blockNoise.add (block2);
-        dsp::ProcessContextReplacing<float> summedContext (blockNoise);
+        juce::dsp::ProcessContextReplacing<float> summedContext (blockNoise);
         processorChain.process (summedContext);
 
         //during this call, the voice may become inactive, but we still have to finish this loop to ensure the voice stays muted for the rest of the buffer
@@ -624,7 +624,7 @@ void sBMP4Voice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSam
         }
     }
 
-    dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (noiseBlock);
+    juce::dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (noiseBlock);
 
     if (currentlyKillingVoice)
         applyKillRamp (outputBuffer, startSample, numSamples);

@@ -27,46 +27,46 @@ using namespace Constants;
 
 //==============================================================================
 sBMP4AudioProcessor::sBMP4AudioProcessor() :
-    AudioProcessor (BusesProperties().withInput  ("Input", AudioChannelSet::stereo(), true)
-                                     .withOutput ("Output", AudioChannelSet::stereo(), true)),
+    juce::AudioProcessor (BusesProperties().withInput  ("Input", juce::AudioChannelSet::stereo(), true)
+                                     .withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
     state (*this, nullptr, "state",
     {
-        std::make_unique<AudioParameterInt>     (osc1FreqID, osc1FreqDesc, midiNoteRange.getRange().getStart(), midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
-        std::make_unique<AudioParameterInt>     (osc2FreqID, osc2FreqDesc, midiNoteRange.getRange().getStart(), midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
+        std::make_unique<juce::AudioParameterInt>     (osc1FreqID, osc1FreqDesc, midiNoteRange.getRange().getStart(), midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
+        std::make_unique<juce::AudioParameterInt>     (osc2FreqID, osc2FreqDesc, midiNoteRange.getRange().getStart(), midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
 
-        std::make_unique<AudioParameterFloat>   (osc1TuningID, osc1TuningDesc, tuningSliderRange, (float) defaultOscTuning),
-        std::make_unique<AudioParameterFloat>   (osc2TuningID, osc2TuningDesc, tuningSliderRange, (float) defaultOscTuning),
+        std::make_unique<juce::AudioParameterFloat>   (osc1TuningID, osc1TuningDesc, tuningSliderRange, (float) defaultOscTuning),
+        std::make_unique<juce::AudioParameterFloat>   (osc2TuningID, osc2TuningDesc, tuningSliderRange, (float) defaultOscTuning),
 
-        std::make_unique<AudioParameterFloat>   (oscSubID, oscSubOctDesc, sliderRange, (float) defaultSubOsc),
-        std::make_unique<AudioParameterFloat>   (oscMixID, oscMixDesc, sliderRange, (float) defaultOscMix),
-        std::make_unique<AudioParameterFloat>   (oscNoiseID, oscNoiseDesc, sliderRange, (float) defaultOscNoise),
-        std::make_unique<AudioParameterFloat>   (oscSlopID, oscSlopDesc, slopSliderRange, (float) defaultOscSlop),
+        std::make_unique<juce::AudioParameterFloat>   (oscSubID, oscSubOctDesc, sliderRange, (float) defaultSubOsc),
+        std::make_unique<juce::AudioParameterFloat>   (oscMixID, oscMixDesc, sliderRange, (float) defaultOscMix),
+        std::make_unique<juce::AudioParameterFloat>   (oscNoiseID, oscNoiseDesc, sliderRange, (float) defaultOscNoise),
+        std::make_unique<juce::AudioParameterFloat>   (oscSlopID, oscSlopDesc, slopSliderRange, (float) defaultOscSlop),
 
-        std::make_unique<AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
-        std::make_unique<AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
+        std::make_unique<juce::AudioParameterChoice>  (osc1ShapeID,  osc1ShapeDesc,  juce::StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
+        std::make_unique<juce::AudioParameterChoice>  (osc2ShapeID,  osc2ShapeDesc,  juce::StringArray {oscShape0, oscShape1, oscShape2, oscShape3, oscShape4}, defaultOscShape),
 
-        std::make_unique<AudioParameterFloat>   (filterCutoffID, filterCutoffSliderDesc, cutOffRange, defaultFilterCutoff),
-        std::make_unique<AudioParameterFloat>   (filterResonanceID, filterResonanceSliderDesc, sliderRange, defaultFilterResonance),
+        std::make_unique<juce::AudioParameterFloat>   (filterCutoffID, filterCutoffSliderDesc, cutOffRange, defaultFilterCutoff),
+        std::make_unique<juce::AudioParameterFloat>   (filterResonanceID, filterResonanceSliderDesc, sliderRange, defaultFilterResonance),
 
-        std::make_unique<AudioParameterFloat>   (ampAttackID, ampAttackSliderDesc, attackRange, defaultAmpA),
-        std::make_unique<AudioParameterFloat>   (ampDecayID, ampDecaySliderDesc, decayRange, defaultAmpD),
-        std::make_unique<AudioParameterFloat>   (ampSustainID, ampSustainSliderDesc, sustainRange, defaultAmpS),
-        std::make_unique<AudioParameterFloat>   (ampReleaseID, ampReleaseSliderDesc, releaseRange, defaultAmpR),
+        std::make_unique<juce::AudioParameterFloat>   (ampAttackID, ampAttackSliderDesc, attackRange, defaultAmpA),
+        std::make_unique<juce::AudioParameterFloat>   (ampDecayID, ampDecaySliderDesc, decayRange, defaultAmpD),
+        std::make_unique<juce::AudioParameterFloat>   (ampSustainID, ampSustainSliderDesc, sustainRange, defaultAmpS),
+        std::make_unique<juce::AudioParameterFloat>   (ampReleaseID, ampReleaseSliderDesc, releaseRange, defaultAmpR),
 
-        std::make_unique<AudioParameterFloat>   (filterEnvAttackID, ampAttackSliderDesc, attackRange, defaultAmpA),
-        std::make_unique<AudioParameterFloat>   (filterEnvDecayID, ampDecaySliderDesc, decayRange, defaultAmpD),
-        std::make_unique<AudioParameterFloat>   (filterEnvSustainID, ampSustainSliderDesc, sustainRange, defaultAmpS),
-        std::make_unique<AudioParameterFloat>   (filterEnvReleaseID, ampReleaseSliderDesc, releaseRange, defaultAmpR),
+        std::make_unique<juce::AudioParameterFloat>   (filterEnvAttackID, ampAttackSliderDesc, attackRange, defaultAmpA),
+        std::make_unique<juce::AudioParameterFloat>   (filterEnvDecayID, ampDecaySliderDesc, decayRange, defaultAmpD),
+        std::make_unique<juce::AudioParameterFloat>   (filterEnvSustainID, ampSustainSliderDesc, sustainRange, defaultAmpS),
+        std::make_unique<juce::AudioParameterFloat>   (filterEnvReleaseID, ampReleaseSliderDesc, releaseRange, defaultAmpR),
 
-        std::make_unique<AudioParameterFloat>   (lfoFreqID,   lfoFreqSliderDesc, lfoRange, defaultLfoFreq),
-        std::make_unique<AudioParameterChoice>  (lfoShapeID, lfoShapeDesc,  StringArray {lfoShape0, lfoShape1, /*lfoShape2,*/ lfoShape3, lfoShape4}, defaultLfoShape),
-        std::make_unique<AudioParameterChoice>  (lfoDestID, lfoDestDesc,  StringArray {lfoDest0, lfoDest1, lfoDest2, lfoDest3}, defaultLfoDest),
-        std::make_unique<AudioParameterFloat>   (lfoAmountID, lfoAmountSliderDesc, sliderRange, defaultLfoAmount),
+        std::make_unique<juce::AudioParameterFloat>   (lfoFreqID,   lfoFreqSliderDesc, lfoRange, defaultLfoFreq),
+        std::make_unique<juce::AudioParameterChoice>  (lfoShapeID, lfoShapeDesc,  juce::StringArray {lfoShape0, lfoShape1, /*lfoShape2,*/ lfoShape3, lfoShape4}, defaultLfoShape),
+        std::make_unique<juce::AudioParameterChoice>  (lfoDestID, lfoDestDesc,  juce::StringArray {lfoDest0, lfoDest1, lfoDest2, lfoDest3}, defaultLfoDest),
+        std::make_unique<juce::AudioParameterFloat>   (lfoAmountID, lfoAmountSliderDesc, sliderRange, defaultLfoAmount),
 
-        std::make_unique<AudioParameterFloat>   (effectParam1ID, effectParam1Desc, sliderRange, defaultEffectParam1),
-        std::make_unique<AudioParameterFloat>   (effectParam2ID, effectParam2Desc, sliderRange, defaultEffectParam2),
+        std::make_unique<juce::AudioParameterFloat>   (effectParam1ID, effectParam1Desc, sliderRange, defaultEffectParam1),
+        std::make_unique<juce::AudioParameterFloat>   (effectParam2ID, effectParam2Desc, sliderRange, defaultEffectParam2),
 
-        std::make_unique<AudioParameterFloat>   (masterGainID, masterGainDesc, sliderRange, defaultMasterGain)
+        std::make_unique<juce::AudioParameterFloat>   (masterGainID, masterGainDesc, sliderRange, defaultMasterGain)
     })
 
 #if CPU_USAGE
@@ -125,7 +125,7 @@ void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     lastSampleRate = sampleRate;
 
-    synth.prepare ({sampleRate, (uint32) samplesPerBlock, 2});
+    synth.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
 }
 
 void sBMP4AudioProcessor::releaseResources()
@@ -137,28 +137,28 @@ void sBMP4AudioProcessor::releaseResources()
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool sBMP4AudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-    return layouts.getMainOutputChannelSet() == AudioChannelSet::mono()
-        || layouts.getMainOutputChannelSet() == AudioChannelSet::stereo();
+    return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::mono()
+        || layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();
 }
 #endif
 
 //============================================================================= =
-void sBMP4AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void sBMP4AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     jassert (! isUsingDoublePrecision());
     process (buffer, midiMessages);
 }
 
-void sBMP4AudioProcessor::processBlock (AudioBuffer<double>& /*ogBuffer*/, MidiBuffer& /*midiMessages*/)
+void sBMP4AudioProcessor::processBlock (juce::AudioBuffer<double>& /*ogBuffer*/, juce::MidiBuffer& /*midiMessages*/)
 {
     jassertfalse;
     jassert (isUsingDoublePrecision());
     //process (ogBuffer, midiMessages);
 }
 
-void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void sBMP4AudioProcessor::process (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    ScopedNoDenormals noDenormals;
+    juce::ScopedNoDenormals noDenormals;
 
 #if CPU_USAGE
     perfCounter.start();
@@ -174,9 +174,9 @@ void sBMP4AudioProcessor::process (AudioBuffer<float>& buffer, MidiBuffer& midiM
 }
 
 //==============================================================================
-void sBMP4AudioProcessor::getStateInformation (MemoryBlock& destData)
+void sBMP4AudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    std::unique_ptr<XmlElement> xmlState (state.copyState().createXml());
+    std::unique_ptr<juce::XmlElement> xmlState (state.copyState().createXml());
 
     if (xmlState.get() != nullptr)
         copyXmlToBinary (*xmlState, destData);
@@ -184,19 +184,19 @@ void sBMP4AudioProcessor::getStateInformation (MemoryBlock& destData)
 
 void sBMP4AudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    std::unique_ptr<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
 
     if (xmlState.get() != nullptr)
-        state.replaceState (ValueTree::fromXml (*xmlState));
+        state.replaceState (juce::ValueTree::fromXml (*xmlState));
 }
 
 //==============================================================================
-AudioProcessorEditor* sBMP4AudioProcessor::createEditor()
+juce::AudioProcessorEditor* sBMP4AudioProcessor::createEditor()
 {
     return new sBMP4AudioProcessorEditor (*this);
 }
 
-AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new sBMP4AudioProcessor();
 }

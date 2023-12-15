@@ -18,11 +18,11 @@
 
 #include "ButtonGroupComponent.h"
 
-ButtonGroupComponent::ButtonGroupComponent (AudioProcessorValueTreeState& processorState, const String& theParameterID, std::unique_ptr<Selection> theSelection,
-                                            StringRef mainButtonName, Array<StringRef> selectionButtonNames, bool allowEmpty) :
+ButtonGroupComponent::ButtonGroupComponent (juce::AudioProcessorValueTreeState& processorState, const juce::String& theParameterID, std::unique_ptr<Selection> theSelection,
+                                            juce::StringRef mainButtonName, juce::Array<juce::StringRef> selectionButtonNames, bool allowEmpty) :
     state (processorState),
     parameterID (theParameterID),
-    mainButton (mainButtonName, DrawableButton::ImageAboveTextLabel),
+    mainButton (mainButtonName, juce::DrawableButton::ImageAboveTextLabel),
     selection (std::move (theSelection)),
     allowEmptySelection (allowEmpty)
 {
@@ -36,7 +36,7 @@ ButtonGroupComponent::ButtonGroupComponent (AudioProcessorValueTreeState& proces
 
     for (auto names : selectionButtonNames)
     {
-        auto button = new ToggleButton (names);
+        auto button = new juce::ToggleButton (names);
         button->setRadioGroupId (Constants::oscShapeRadioGroupId);
         button->setLookAndFeel (&lf);
         button->addListener (this);
@@ -60,7 +60,7 @@ void ButtonGroupComponent::resized()
         button->setBounds (bounds.removeFromTop (ogHeight / selectionButtons.size()));
 }
 
-void ButtonGroupComponent::buttonClicked (Button* button)
+void ButtonGroupComponent::buttonClicked (juce::Button* button)
 {
     auto incr = selection->isNullSelectionAllowed() ? 1 : 0;
 
@@ -98,7 +98,7 @@ void ButtonGroupComponent::setSelectedButton (int selectedButtonId)
         selectedButtonId = 0;
     }
 
-    selectionButtons[selectedButtonId]->setToggleState (true, dontSendNotification);
+    selectionButtons[selectedButtonId]->setToggleState (true, juce::dontSendNotification);
 }
 
 void ButtonGroupComponent::selectNext()
@@ -122,7 +122,7 @@ void ButtonGroupComponent::selectNext()
     setSelection (curSelection);
 }
 
-void ButtonGroupComponent::parameterChanged (const String& theParameterID, float newValue)
+void ButtonGroupComponent::parameterChanged (const juce::String& theParameterID, float newValue)
 {
     if (parameterID != theParameterID)
         return;
@@ -134,12 +134,12 @@ void ButtonGroupComponent::parameterChanged (const String& theParameterID, float
     {
         if (newSelection == 0)
             for (auto button : selectionButtons)
-                button->setToggleState (false, dontSendNotification);
+                button->setToggleState (false, juce::dontSendNotification);
         else
-            selectionButtons[newSelection - 1]->setToggleState (true, dontSendNotification);
+            selectionButtons[newSelection - 1]->setToggleState (true, juce::dontSendNotification);
     }
     else
     {
-        selectionButtons[newSelection]->setToggleState (true, dontSendNotification);
+        selectionButtons[newSelection]->setToggleState (true, juce::dontSendNotification);
     }
 }

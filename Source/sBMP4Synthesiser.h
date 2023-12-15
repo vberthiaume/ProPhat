@@ -21,19 +21,19 @@
 #include "SineWaveVoice.h"
 #include "Helpers.h"
 
-class sBMP4Synthesiser : public Synthesiser, public AudioProcessorValueTreeState::Listener
+class sBMP4Synthesiser : public juce::Synthesiser, public juce::AudioProcessorValueTreeState::Listener
 {
 public:
     sBMP4Synthesiser();
 
-    void prepare (const dsp::ProcessSpec& spec) noexcept;
+    void prepare (const juce::dsp::ProcessSpec& spec) noexcept;
 
-    void parameterChanged (const String& parameterID, float newValue) override;
+    void parameterChanged (const juce::String& parameterID, float newValue) override;
 
     using VoiceOperation = std::function<void (sBMP4Voice*, float)>;
     void applyToAllVoices (VoiceOperation operation, float newValue);
 
-    void setEffectParam (StringRef parameterID, float newValue);
+    void setEffectParam (juce::StringRef parameterID, float newValue);
 
     void setMasterGain (float gain)
     {
@@ -43,7 +43,7 @@ public:
     void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override;
 
 private:
-    void renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples) override;
+    void renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples) override;
 
     enum
     {
@@ -54,9 +54,9 @@ private:
     //@TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled{};
 
-    dsp::ProcessorChain<dsp::Reverb, dsp::Gain<float>> fxChain;
+    juce::dsp::ProcessorChain<juce::dsp::Reverb, juce::dsp::Gain<float>> fxChain;
 
-    dsp::Reverb::Parameters reverbParams;
+    juce::dsp::Reverb::Parameters reverbParams;
 
-    dsp::ProcessSpec curSpecs{};
+    juce::dsp::ProcessSpec curSpecs{};
 };

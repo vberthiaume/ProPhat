@@ -29,7 +29,7 @@ sBMP4Synthesiser::sBMP4Synthesiser ()
     fxChain.get<masterGainIndex> ().setRampDurationSeconds (0.1);
 }
 
-void sBMP4Synthesiser::prepare (const dsp::ProcessSpec& spec) noexcept
+void sBMP4Synthesiser::prepare (const juce::dsp::ProcessSpec& spec) noexcept
 {
     if (Helpers::areSameSpecs (curSpecs, spec))
         return;
@@ -44,7 +44,7 @@ void sBMP4Synthesiser::prepare (const dsp::ProcessSpec& spec) noexcept
     fxChain.prepare (spec);
 }
 
-void sBMP4Synthesiser::parameterChanged (const String& parameterID, float newValue)
+void sBMP4Synthesiser::parameterChanged (const juce::String& parameterID, float newValue)
 {
     if (parameterID == sBMP4AudioProcessorIDs::osc1FreqID.getParamID ())
         applyToAllVoices ([] (sBMP4Voice* voice, float newValue) { voice->setOscFreq (sBMP4Voice::processorId::osc1Index, (int) newValue); }, newValue);
@@ -109,7 +109,7 @@ void sBMP4Synthesiser::applyToAllVoices (VoiceOperation operation, float newValu
         operation (dynamic_cast<sBMP4Voice*> (voice), newValue);
 }
 
-void sBMP4Synthesiser::setEffectParam (StringRef parameterID, float newValue)
+void sBMP4Synthesiser::setEffectParam (juce::StringRef parameterID, float newValue)
 {
     if (parameterID == sBMP4AudioProcessorIDs::effectParam1ID.getParamID ())
         reverbParams.roomSize = newValue;
@@ -123,7 +123,7 @@ void sBMP4Synthesiser::noteOn (const int midiChannel, const int midiNoteNumber, 
 {
     {
         //this is lock in the audio thread??
-        const ScopedLock sl (lock);
+        const juce::ScopedLock sl (lock);
 
         //don't start new voices in current buffer call if we have filled all voices already.
         //voicesBeingKilled should be reset after each renderNextBlock call
@@ -134,13 +134,13 @@ void sBMP4Synthesiser::noteOn (const int midiChannel, const int midiNoteNumber, 
     Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
 }
 
-void sBMP4Synthesiser::renderVoices (AudioBuffer<float>& outputAudio, int startSample, int numSamples)
+void sBMP4Synthesiser::renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples)
 {
     for (auto* voice : voices)
         voice->renderNextBlock (outputAudio, startSample, numSamples);
 
-    auto block = dsp::AudioBlock<float> (outputAudio);
+    auto block = juce::dsp::AudioBlock<float> (outputAudio);
     auto blockToUse = block.getSubBlock ((size_t) startSample, (size_t) numSamples);
-    auto contextToUse = dsp::ProcessContextReplacing<float> (blockToUse);
+    auto contextToUse = juce::dsp::ProcessContextReplacing<float> (blockToUse);
     fxChain.process (contextToUse);
 }

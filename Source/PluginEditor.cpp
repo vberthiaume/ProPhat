@@ -42,7 +42,7 @@ enum sizes
 
 //==============================================================================
 sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
-    AudioProcessorEditor (p),
+    juce::AudioProcessorEditor (p),
     processor (p),
 
     //OSCILLATORS
@@ -94,8 +94,8 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 #if CPU_USAGE
     setSize (width, height + 50);
 
-    cpuUsageLabel.setText ("CPU Usage", dontSendNotification);
-    cpuUsageText.setJustificationType (Justification::left);
+    cpuUsageLabel.setText ("CPU Usage", juce::dontSendNotification);
+    cpuUsageText.setJustificationType (juce::Justification::left);
     addAndMakeVisible (cpuUsageLabel);
     addAndMakeVisible (cpuUsageText);
     startTimer (500);
@@ -107,22 +107,22 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     backgroundTexture = Helpers::getImage (BinaryData::blackMetal_jpg, BinaryData::blackMetal_jpgSize);
 
     //set up everything else
-    auto addGroup = [this](GroupComponent& group, Array<Label*> labels, Array<StringRef> labelTexts, Array<Component*> components)
+    auto addGroup = [this](juce::GroupComponent& group, juce::Array<juce::Label*> labels, juce::Array<juce::StringRef> labelTexts, juce::Array<juce::Component*> components)
     {
         jassert (labels.size() == components.size());
 
-        group.setTextLabelPosition (Justification::centred);
+        group.setTextLabelPosition (juce::Justification::centred);
         addAndMakeVisible (group);
 
         for (int i = 0; i < labels.size(); ++i)
         {
             if (labels[i] != nullptr)
             {
-                labels[i]->setText (labelTexts[i], dontSendNotification);
-                labels[i]->setJustificationType (Justification::centredBottom);
+                labels[i]->setText (labelTexts[i], juce::dontSendNotification);
+                labels[i]->setJustificationType (juce::Justification::centredBottom);
 
                 labels[i]->attachToComponent (components[i], false);
-                labels[i]->setFont (Font (fontSize));
+                labels[i]->setFont (juce::Font (fontSize));
             }
 
             addAndMakeVisible (components[i]);
@@ -130,7 +130,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     };
 
     addGroup (oscGroup, {&osc1FreqSliderLabel,  &osc1TuningSliderLabel, nullptr,            &oscSubSliderLabel, &osc2FreqSliderLabel,   &osc2TuningSliderLabel, nullptr,            &oscMixSliderLabel, &oscNoiseSliderLabel, &oscSlopSliderLabel},
-                        {osc1FreqDesc,          osc1TuningDesc,         String(),           oscSubOctDesc,      osc2FreqDesc,           osc2TuningDesc,         String(),           oscMixDesc,         oscNoiseDesc,         oscSlopDesc},
+                        {osc1FreqDesc,          osc1TuningDesc,         juce::String(),           oscSubOctDesc,      osc2FreqDesc,           osc2TuningDesc,         juce::String(),           oscMixDesc,         oscNoiseDesc,         oscSlopDesc},
                         {&osc1FreqSlider,       &osc1TuningSlider,      &osc1ShapeButtons,  &oscSubSlider,      &osc2FreqSlider,        &osc2TuningSlider,      &osc2ShapeButtons,  &oscMixSlider,      &oscNoiseSlider,      &oscSlopSlider});
 
     addGroup (filterGroup, {&filterCutoffLabel, &filterResonanceLabel, &filterEnvAttackLabel, &filterEnvDecayLabel, &filterEnvSustainLabel, &filterEnvReleaseLabel},
@@ -142,7 +142,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
                         {&masterGainSlider, &ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider});
 
     addGroup (lfoGroup, {nullptr, &lfoFreqLabel, nullptr, &lfoAmountLabel},
-                        {String(), lfoFreqSliderDesc, String(), lfoAmountSliderDesc},
+                        {juce::String(), lfoFreqSliderDesc, juce::String(), lfoAmountSliderDesc},
                         {&lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider});
 
     addGroup (effectGroup, {&effectParam1Label, &effectParam2Label}, {effectParam1Desc, effectParam2Desc}, {&effectParam1Slider, &effectParam2Slider});
@@ -154,7 +154,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 }
 
 //==============================================================================
-void sBMP4AudioProcessorEditor::paint (Graphics& g)
+void sBMP4AudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.drawImage (backgroundTexture, getLocalBounds().toFloat());
 }
@@ -167,7 +167,7 @@ void sBMP4AudioProcessorEditor::resized()
     auto topSection = bounds.removeFromTop (bounds.getHeight() / 2);
     auto bottomSection = bounds;
 
-    auto setupGroup = [](GroupComponent& group, Rectangle<int> groupBounds, Array<Component*> components, int numLines, int numColumns)
+    auto setupGroup = [](juce::GroupComponent& group, juce::Rectangle<int> groupBounds, juce::Array<juce::Component*> components, int numLines, int numColumns)
     {
         jassert (components.size() <= numLines * numColumns);
 

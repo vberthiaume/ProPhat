@@ -24,7 +24,7 @@
 #include "ButtonGroupComponent.h"
 #include <random>
 
-struct sBMP4Sound : public SynthesiserSound
+struct sBMP4Sound : public juce::SynthesiserSound
 {
     sBMP4Sound() {}
 
@@ -84,7 +84,7 @@ public:
         processorChain.process (context);
     }
 
-    void prepare (const dsp::ProcessSpec& spec)
+    void prepare (const juce::dsp::ProcessSpec& spec)
     {
         processorChain.prepare (spec);
     }
@@ -102,7 +102,7 @@ private:
 
     Type lastActiveLevel{};
 
-    dsp::ProcessorChain<dsp::Oscillator<Type>, dsp::Gain<Type>> processorChain;
+    juce::dsp::ProcessorChain<juce::dsp::Oscillator<Type>, juce::dsp::Gain<Type>> processorChain;
 
     std::uniform_real_distribution<Type> distribution;
     std::default_random_engine generator;
@@ -110,7 +110,7 @@ private:
 
 //==============================================================================
 using namespace Constants;
-class sBMP4Voice : public SynthesiserVoice
+class sBMP4Voice : public juce::SynthesiserVoice
 {
 public:
 
@@ -125,7 +125,7 @@ public:
 
     sBMP4Voice (int voiceId, std::set<int>* activeVoiceSet);
 
-    void prepare (const dsp::ProcessSpec& spec);
+    void prepare (const juce::dsp::ProcessSpec& spec);
 
     void updateOscFrequencies();
 
@@ -221,8 +221,8 @@ public:
         osc2.setLevel (curVelocity * oscMix);
     }
 
-    void setAmpParam (StringRef parameterID, float newValue);
-    void setFilterEnvParam (StringRef parameterID, float newValue);
+    void setAmpParam (juce::StringRef parameterID, float newValue);
+    void setFilterEnvParam (juce::StringRef parameterID, float newValue);
 
     void setLfoShape (int shape);
     void setLfoDest (int dest);
@@ -241,15 +241,15 @@ public:
         processorChain.get<(int) processorId::filterIndex>().setResonance (curFilterResonance);
     }
 
-    void startNote (int midiNoteNumber, float velocity, SynthesiserSound* /*sound*/, int currentPitchWheelPosition) override;
+    void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition) override;
 
     void pitchWheelMoved (int newPitchWheelValue) override;
 
     void stopNote (float /*velocity*/, bool allowTailOff) override;
 
-    bool canPlaySound (SynthesiserSound* sound) override { return dynamic_cast<sBMP4Sound*> (sound) != nullptr; }
+    bool canPlaySound (juce::SynthesiserSound* sound) override { return dynamic_cast<sBMP4Sound*> (sound) != nullptr; }
 
-    void renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
+    void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
 
     void controllerMoved (int /*controllerNumber*/, int /*newValue*/)  override {}
 
@@ -259,26 +259,26 @@ private:
     int voiceId;
 
     void updateLfo();
-    void processEnvelope (dsp::AudioBlock<float>& block);
-    void processRampUp (dsp::AudioBlock<float>& block, int curBlockSize);
-    void processKillOverlap (dsp::AudioBlock<float>& block, int curBlockSize);
-    void applyKillRamp (AudioBuffer<float>& outputBuffer, int startSample, int numSamples);
-    void assertForDiscontinuities (AudioBuffer<float>& outputBuffer, int startSample, int numSamples, String dbgPrefix);
+    void processEnvelope (juce::dsp::AudioBlock<float>& block);
+    void processRampUp (juce::dsp::AudioBlock<float>& block, int curBlockSize);
+    void processKillOverlap (juce::dsp::AudioBlock<float>& block, int curBlockSize);
+    void applyKillRamp (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples);
+    void assertForDiscontinuities (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix);
 
-    HeapBlock<char> heapBlock1, heapBlock2, heapBlockNoise;
-    dsp::AudioBlock<float> osc1Block, osc2Block, noiseBlock;
+    juce::HeapBlock<char> heapBlock1, heapBlock2, heapBlockNoise;
+    juce::dsp::AudioBlock<float> osc1Block, osc2Block, noiseBlock;
     GainedOscillator<float> sub, osc1, osc2, noise;
 
-    std::unique_ptr<AudioBuffer<float>> overlap;
+    std::unique_ptr<juce::AudioBuffer<float>> overlap;
     int overlapIndex = -1;
     //@TODO replace this currentlyKillingVoice bool with a check in the bitfield that voicesBeingKilled will become
     bool currentlyKillingVoice = false;
     std::set<int>* voicesBeingKilled;
 
-    dsp::ProcessorChain<dsp::LadderFilter<float>, dsp::Gain<float>> processorChain;
+    juce::dsp::ProcessorChain<juce::dsp::LadderFilter<float>, juce::dsp::Gain<float>> processorChain;
 
-    ADSR ampADSR, filterEnvADSR;
-    ADSR::Parameters ampParams, filterEnvParams;
+    juce::ADSR ampADSR, filterEnvADSR;
+    juce::ADSR::Parameters ampParams, filterEnvParams;
     bool currentlyReleasingNote = false, justDoneReleaseEnvelope = false;
 
     float curFilterCutoff = defaultFilterCutoff;
@@ -287,7 +287,7 @@ private:
     //lfo stuff
     static constexpr size_t lfoUpdateRate = 100;
     size_t lfoUpdateCounter = lfoUpdateRate;
-    dsp::Oscillator<float> lfo;
+    juce::dsp::Oscillator<float> lfo;
     std::mutex lfoMutex;
     float lfoAmount = defaultLfoAmount;
     LfoDest lfoDest;
@@ -295,7 +295,7 @@ private:
     float lfoOsc2NoteOffset = 0.f;
 
     //for the random lfo
-    Random rng;
+    juce::Random rng;
     float randomValue = 0.f;
     bool valueWasBig = false;
 

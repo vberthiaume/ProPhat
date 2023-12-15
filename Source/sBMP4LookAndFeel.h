@@ -24,27 +24,27 @@
 #define USE_SVG 1
 #endif
 
-class sBMP4LookAndFeel : public LookAndFeel_V4
+class sBMP4LookAndFeel : public juce::LookAndFeel_V4
 {
 public:
     sBMP4LookAndFeel();
 
-    void drawTickBox (Graphics& g, Component& /*component*/,
+    void drawTickBox (juce::Graphics& g, juce::Component& /*component*/,
                       float x, float y, float w, float h,
                       const bool ticked, const bool isEnabled,
                       const bool shouldDrawButtonAsHighlighted,
                       const bool shouldDrawButtonAsDown) override;
 
-    void drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
+    void drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
                            const float rotaryStartAngle, const float rotaryEndAngle,
-                           Slider& /*slider*/) override;
+                           juce::Slider& /*slider*/) override;
 
 private:
-    Image tickedButtonImage, untickedButtonImage;
+    juce::Image tickedButtonImage, untickedButtonImage;
 
 #if USE_SVG
-    std::unique_ptr<Drawable> rotarySliderDrawableImage;
+    std::unique_ptr<juce::Drawable> rotarySliderDrawableImage;
 #else
-    Image rotarySliderImage;
+    juce::Image rotarySliderImage;
 #endif
 };

@@ -78,24 +78,24 @@ namespace Constants
     static const auto cutOffSkewFactor = .5f;
     static const auto slopSkewFactor = .5f;
 
-    static const NormalisableRange<float> attackRange   {minA, 25.f, 0.f, ampSkewFactor};
-    static const NormalisableRange<float> decayRange    {minAmp, 25.f, 0.f, ampSkewFactor};
-    static const NormalisableRange<float> sustainRange  {minAmp, 1.f,  0.f, sustainSkewFactor};
-    static const NormalisableRange<float> releaseRange  {minAmp, 25.f, 0.f, ampSkewFactor};
+    static const juce::NormalisableRange<float> attackRange   {minA, 25.f, 0.f, ampSkewFactor};
+    static const juce::NormalisableRange<float> decayRange    {minAmp, 25.f, 0.f, ampSkewFactor};
+    static const juce::NormalisableRange<float> sustainRange  {minAmp, 1.f,  0.f, sustainSkewFactor};
+    static const juce::NormalisableRange<float> releaseRange  {minAmp, 25.f, 0.f, ampSkewFactor};
 
-    static const NormalisableRange<float> dBRange = {-12.f, 12.f};
-    static const NormalisableRange<float> sliderRange = {0.f, 1.f};
-    static const NormalisableRange<float> tuningSliderRange = {-0.5f, .5f};
-    static const NormalisableRange<float> slopSliderRange = {0.f, 1.0f, 0.f, slopSkewFactor};
+    static const juce::NormalisableRange<float> dBRange = {-12.f, 12.f};
+    static const juce::NormalisableRange<float> sliderRange = {0.f, 1.f};
+    static const juce::NormalisableRange<float> tuningSliderRange = {-0.5f, .5f};
+    static const juce::NormalisableRange<float> slopSliderRange = {0.f, 1.0f, 0.f, slopSkewFactor};
 
-    static const NormalisableRange<float> cutOffRange = {0.1f, 18000.f, 0.f, cutOffSkewFactor};
-    static const NormalisableRange<float> lfoRange = {0.1f, 10.f};
-    static const NormalisableRange<float> lfoNoteRange = {0.f, 16.f};
+    static const juce::NormalisableRange<float> cutOffRange = {0.1f, 18000.f, 0.f, cutOffSkewFactor};
+    static const juce::NormalisableRange<float> lfoRange = {0.1f, 10.f};
+    static const juce::NormalisableRange<float> lfoNoteRange = {0.f, 16.f};
 
     //Sets the base frequency of Oscillator 1 or 2 over a 9-octave
     //range from 16 Hz to 8KHz (when used with the Transpose buttons). Adjustment is in semitones.
-    static const NormalisableRange<int> midiNoteRange = {12, 120};   //actual midi note range is (0,127), but rev2, at least for oscilators is C0(0) to C10(120)
-    static const NormalisableRange<float> pitchWheelNoteRange = {-7.f, 7.f};
+    static const juce::NormalisableRange<int> midiNoteRange = {12, 120};   //actual midi note range is (0,127), but rev2, at least for oscilators is C0(0) to C10(120)
+    static const juce::NormalisableRange<float> pitchWheelNoteRange = {-7.f, 7.f};
 }
 
 namespace sBMP4AudioProcessorIDs
@@ -140,90 +140,90 @@ namespace sBMP4AudioProcessorIDs
 
 namespace sBMP4AudioProcessorNames
 {
-    const String oscGroupDesc = "OSCILLATORS";
-    const String osc1ShapeDesc = "SHAPE";
-    const String osc2ShapeDesc = "SHAPE";
-    const String osc1FreqDesc = "OSC 1 FREQ";
-    const String osc2FreqDesc = "OSC 2 FREQ";
-    const String osc1TuningDesc = "FINE TUNE";
-    const String osc2TuningDesc = "FINE TUNE";
+    const juce::String oscGroupDesc = "OSCILLATORS";
+    const juce::String osc1ShapeDesc = "SHAPE";
+    const juce::String osc2ShapeDesc = "SHAPE";
+    const juce::String osc1FreqDesc = "OSC 1 FREQ";
+    const juce::String osc2FreqDesc = "OSC 2 FREQ";
+    const juce::String osc1TuningDesc = "FINE TUNE";
+    const juce::String osc2TuningDesc = "FINE TUNE";
 
-    const String oscSubOctDesc = "SUB OCTAVE";
-    const String oscMixDesc = "OSC MIX";
-    const String oscNoiseDesc = "NOISE";
-    const String oscSlopDesc = "OSC SLOP";
+    const juce::String oscSubOctDesc = "SUB OCTAVE";
+    const juce::String oscMixDesc = "OSC MIX";
+    const juce::String oscNoiseDesc = "NOISE";
+    const juce::String oscSlopDesc = "OSC SLOP";
 
-    const String filterGroupDesc = "LOW-PASS FILTER";
-    const String filterCutoffSliderDesc = "CUTOFF";
-    const String filterResonanceSliderDesc = "RESONANCE";
+    const juce::String filterGroupDesc = "LOW-PASS FILTER";
+    const juce::String filterCutoffSliderDesc = "CUTOFF";
+    const juce::String filterResonanceSliderDesc = "RESONANCE";
 
-    const String ampGroupDesc = "AMPLIFIER";
-    const String ampAttackSliderDesc = "ATTACK";
-    const String ampDecaySliderDesc = "DECAY";
-    const String ampSustainSliderDesc = "SUSTAIN";
-    const String ampReleaseSliderDesc = "RELEASE";
+    const juce::String ampGroupDesc = "AMPLIFIER";
+    const juce::String ampAttackSliderDesc = "ATTACK";
+    const juce::String ampDecaySliderDesc = "DECAY";
+    const juce::String ampSustainSliderDesc = "SUSTAIN";
+    const juce::String ampReleaseSliderDesc = "RELEASE";
 
-    const String lfoGroupDesc = "LFO";
-    const String lfoShapeDesc = "SHAPE";
-    const String lfoDestDesc = "DEST";
-    const String lfoFreqSliderDesc = "FREQUENCY";
-    const String lfoAmountSliderDesc = "AMOUNT";
+    const juce::String lfoGroupDesc = "LFO";
+    const juce::String lfoShapeDesc = "SHAPE";
+    const juce::String lfoDestDesc = "DEST";
+    const juce::String lfoFreqSliderDesc = "FREQUENCY";
+    const juce::String lfoAmountSliderDesc = "AMOUNT";
 
 #if 0
-    const String effectGroupDesc = "EFFECT";
-    const String effectParam1Desc = "PARAM 1";
-    const String effectParam2Desc = "PARAM 2";
+    const juce::String effectGroupDesc = "EFFECT";
+    const juce::String effectParam1Desc = "PARAM 1";
+    const juce::String effectParam2Desc = "PARAM 2";
 #else
-    const String effectGroupDesc = "REVERB";
-    const String effectParam1Desc = "ROOM";
-    const String effectParam2Desc = "MIX";
+    const juce::String effectGroupDesc = "REVERB";
+    const juce::String effectParam1Desc = "ROOM";
+    const juce::String effectParam2Desc = "MIX";
 #endif
 
-    const String masterGainDesc = "MASTER VOLUME";
+    const juce::String masterGainDesc = "MASTER VOLUME";
 }
 
 namespace sBMP4AudioProcessorChoices
 {
-    const String oscShape0 = "None";
-    const String oscShape1 = "Sawtooth";
-    const String oscShape2 = "Saw + Tri";
-    const String oscShape3 = "Triangle";
-    const String oscShape4 = "Pulse";
+    const juce::String oscShape0 = "None";
+    const juce::String oscShape1 = "Sawtooth";
+    const juce::String oscShape2 = "Saw + Tri";
+    const juce::String oscShape3 = "Triangle";
+    const juce::String oscShape4 = "Pulse";
 
-    const String lfoShape0 = "Triangle";
-    const String lfoShape1 = "Sawtooth";
-    //const String lfoShape2 = "Rev Saw";
-    const String lfoShape3 = "Square";
-    const String lfoShape4 = "Random";
+    const juce::String lfoShape0 = "Triangle";
+    const juce::String lfoShape1 = "Sawtooth";
+    //const juce::String lfoShape2 = "Rev Saw";
+    const juce::String lfoShape3 = "Square";
+    const juce::String lfoShape4 = "Random";
 
-    const String lfoDest0 = "Osc1 Freq";
-    const String lfoDest1 = "Osc2 Freq";
-    const String lfoDest2 = "Cutoff";
-    const String lfoDest3 = "Resonance";
+    const juce::String lfoDest0 = "Osc1 Freq";
+    const juce::String lfoDest1 = "Osc2 Freq";
+    const juce::String lfoDest2 = "Cutoff";
+    const juce::String lfoDest3 = "Resonance";
 }
 
-inline bool getVarAsBool (const ValueTree& v, const Identifier& id) { return static_cast<bool> (v.getProperty (id)); }
-inline int getVarAsInt (const ValueTree& v, const Identifier& id) { return static_cast<int> (v.getProperty (id)); }
-inline int64 getVarAsInt64 (const ValueTree& v, const Identifier& id) { return static_cast<int64> (v.getProperty (id)); }
-inline double getVarAsDouble (const ValueTree& v, const Identifier& id) { return static_cast<double> (v.getProperty (id)); }
-inline float getVarAsFloat (const ValueTree& v, const Identifier& id) { return static_cast<float> (getVarAsDouble (v, id)); }
-inline String getVarAsString (const ValueTree& v, const Identifier& id) { return v.getProperty (id).toString(); }
-inline Identifier getVarAsIdentifier (const ValueTree& v, const Identifier& id) { return static_cast<Identifier> (v.getProperty (id)); }
+inline bool getVarAsBool (const juce::ValueTree& v, const juce::Identifier& id) { return static_cast<bool> (v.getProperty (id)); }
+inline int getVarAsInt (const juce::ValueTree& v, const juce::Identifier& id) { return static_cast<int> (v.getProperty (id)); }
+inline juce::int64 getVarAsInt64 (const juce::ValueTree& v, const juce::Identifier& id) { return static_cast<juce::int64> (v.getProperty (id)); }
+inline double getVarAsDouble (const juce::ValueTree& v, const juce::Identifier& id) { return static_cast<double> (v.getProperty (id)); }
+inline float getVarAsFloat (const juce::ValueTree& v, const juce::Identifier& id) { return static_cast<float> (getVarAsDouble (v, id)); }
+inline juce::String getVarAsString (const juce::ValueTree& v, const juce::Identifier& id) { return v.getProperty (id).toString(); }
+inline juce::Identifier getVarAsIdentifier (const juce::ValueTree& v, const juce::Identifier& id) { return static_cast<juce::Identifier> (v.getProperty (id)); }
 
 //@TODO make this a namespace and get rid of all (implicit) static keywords
 struct Helpers
 {
-    static Image getImage (const void* imageData, const int dataSize)
+    static juce::Image getImage (const void* imageData, const int dataSize)
     {
-        return ImageCache::getFromMemory (imageData, dataSize);
+        return juce::ImageCache::getFromMemory (imageData, dataSize);
     }
 
-    static std::unique_ptr<Drawable> getDrawable (const void* imageData, const int dataSize)
+    static std::unique_ptr<juce::Drawable> getDrawable (const void* imageData, const int dataSize)
     {
-        return Drawable::createFromImageData (imageData, dataSize);
+        return juce::Drawable::createFromImageData (imageData, dataSize);
     }
 
-    static float getRangedParamValue (AudioProcessorValueTreeState& state, StringRef id)
+    static float getRangedParamValue (juce::AudioProcessorValueTreeState& state, juce::StringRef id)
     {
         auto param = state.getParameter (id);
         return param == nullptr ? 0.f : param->convertFrom0to1 (param->getValue());
@@ -240,12 +240,12 @@ struct Helpers
     }
 
     template <typename Type>
-    static bool valueContainedInRange (Type value, NormalisableRange<Type> range)
+    static bool valueContainedInRange (Type value, juce::NormalisableRange<Type> range)
     {
         return value >= range.start && value <= range.end;
     }
 
-    inline static bool areSameSpecs (const dsp::ProcessSpec& spec1, const dsp::ProcessSpec& spec2)
+    inline static bool areSameSpecs (const juce::dsp::ProcessSpec& spec1, const juce::dsp::ProcessSpec& spec2)
     {
         return spec1.maximumBlockSize == spec2.maximumBlockSize
             && spec1.numChannels == spec2.numChannels
@@ -260,13 +260,13 @@ struct Helpers
 };
 
 #if 0
-auto addChoicesToComboBox = [this](Array<ComboBox*> combos, Array<StringRef> comboIDs)
+auto addChoicesToComboBox = [this](juce::Array<ComboBox*> combos, juce::Array<juce::StringRef> comboIDs)
 {
     jassert (combos.size() == comboIDs.size());
 
     for (int i = 0; i < combos.size(); ++i)
     {
-        auto comboParam = (AudioParameterChoice*) processor.state.getParameter (comboIDs[i]);
+        auto comboParam = (juce::AudioParameterChoice*) processor.state.getParameter (comboIDs[i]);
         jassert (comboParam != nullptr);
 
         int j = 1;

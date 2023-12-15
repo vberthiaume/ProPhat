@@ -34,15 +34,15 @@ sBMP4LookAndFeel::sBMP4LookAndFeel()
 #endif
 }
 
-void sBMP4LookAndFeel::drawTickBox (Graphics& g, Component& /*component*/,
+void sBMP4LookAndFeel::drawTickBox (juce::Graphics& g, juce::Component& /*component*/,
                                     float x, float y, float w, float h,
                                     const bool ticked, const bool isEnabled,
                                     const bool shouldDrawButtonAsHighlighted,
                                     const bool shouldDrawButtonAsDown)
 {
-    ignoreUnused (isEnabled, shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
+    juce::ignoreUnused (isEnabled, shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
 
-    Rectangle<float> tickBounds (x, y, w, h);
+    juce::Rectangle<float> tickBounds (x, y, w, h);
     tickBounds.reduce (0, h / 6);
 
     if (ticked)
@@ -51,28 +51,28 @@ void sBMP4LookAndFeel::drawTickBox (Graphics& g, Component& /*component*/,
         g.drawImage (untickedButtonImage, tickBounds);
 }
 
-void sBMP4LookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
-                                         const float rotaryStartAngle, const float rotaryEndAngle, Slider& /*slider*/)
+void sBMP4LookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
+                                         const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider& /*slider*/)
 {
-    auto outline = Colours::white;
-    auto bounds = Rectangle<int> (x, y, width, height).toFloat().reduced (10);
+    auto outline = juce::Colours::white;
+    auto bounds = juce::Rectangle<int> (x, y, width, height).toFloat().reduced (10);
 
     //draw background
     {
         g.setColour (outline);
-        Path path;
+        juce::Path path;
 
 #if 0
         path.startNewSubPath (bounds.getX(), bounds.getCentreY());
         path.lineTo (bounds.getRight(), bounds.getCentreY());
 #else
-        auto radius = jmin (bounds.getWidth(), bounds.getHeight()) / 2.0f;
-        auto lineW = jmin (8.0f, radius * 0.5f);
+        auto radius = juce::jmin (bounds.getWidth(), bounds.getHeight()) / 2.0f;
+        auto lineW = juce::jmin (8.0f, radius * 0.5f);
         auto arcRadius = radius - lineW * 0.5f;
         path.addCentredArc (bounds.getCentreX(), bounds.getCentreY(), arcRadius, arcRadius, 0.0f, rotaryStartAngle, rotaryEndAngle, true);
 #endif
 
-        auto type = PathStrokeType (1.f, PathStrokeType::beveled, PathStrokeType::square);
+        auto type = juce::PathStrokeType (1.f, juce::PathStrokeType::beveled, juce::PathStrokeType::square);
         float lenghts[] = {1.f, 8.f};
         type.createDashedStroke (path, path, lenghts, 2);
 
@@ -105,7 +105,7 @@ void sBMP4LookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, i
         const auto imageBounds = rotarySliderDrawableImage->getBounds().toFloat();
         const auto scaleFactor = squareSide / imageBounds.getWidth();
 
-        rotarySliderDrawableImage->draw (g, 1.f, AffineTransform::scale (scaleFactor).translated (xTranslation + gap, yTranslation + gap)
+        rotarySliderDrawableImage->draw (g, 1.f, juce::AffineTransform::scale (scaleFactor).translated (xTranslation + gap, yTranslation + gap)
                                                                  .rotated (toAngle, bounds.getCentreX(), bounds.getCentreY()));
 #else
         auto imageBounds = rotarySliderImage.getBounds().toFloat();
