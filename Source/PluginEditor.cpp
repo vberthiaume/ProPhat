@@ -36,11 +36,10 @@ enum sizes
 
     height =    2 * overallGap + 4 * panelGap + lineCount   * lineH,
     width =     2 * overallGap + 4 * panelGap + columnCount * columnW,
-
-    fontSize = 14
 };
 
 //==============================================================================
+
 sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     juce::AudioProcessorEditor (p),
     processor (p),
@@ -122,38 +121,41 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
                 labels[i]->setJustificationType (juce::Justification::centredBottom);
 
                 labels[i]->attachToComponent (components[i], false);
-                labels[i]->setFont (juce::Font (fontSize));
+                labels[i]->setFont (sharedFonts->regular.withHeight (labelFontHeight));
             }
 
             addAndMakeVisible (components[i]);
         }
     };
 
-    addGroup (oscGroup, {&osc1FreqSliderLabel,  &osc1TuningSliderLabel, nullptr,            &oscSubSliderLabel, &osc2FreqSliderLabel,   &osc2TuningSliderLabel, nullptr,            &oscMixSliderLabel, &oscNoiseSliderLabel, &oscSlopSliderLabel},
-                        {osc1FreqDesc,          osc1TuningDesc,         juce::String(),           oscSubOctDesc,      osc2FreqDesc,           osc2TuningDesc,         juce::String(),           oscMixDesc,         oscNoiseDesc,         oscSlopDesc},
-                        {&osc1FreqSlider,       &osc1TuningSlider,      &osc1ShapeButtons,  &oscSubSlider,      &osc2FreqSlider,        &osc2TuningSlider,      &osc2ShapeButtons,  &oscMixSlider,      &oscNoiseSlider,      &oscSlopSlider});
+    addGroup (oscGroup, { &osc1FreqSliderLabel,  &osc1TuningSliderLabel, nullptr,           &oscSubSliderLabel, &osc2FreqSliderLabel, &osc2TuningSliderLabel, nullptr,           &oscMixSliderLabel, &oscNoiseSliderLabel, &oscSlopSliderLabel},
+                        { osc1FreqDesc,          osc1TuningDesc,         juce::String (),   oscSubOctDesc,      osc2FreqDesc,         osc2TuningDesc,         juce::String (),   oscMixDesc,         oscNoiseDesc,         oscSlopDesc},
+                        { &osc1FreqSlider,       &osc1TuningSlider,      &osc1ShapeButtons, &oscSubSlider,      &osc2FreqSlider,      &osc2TuningSlider,      &osc2ShapeButtons, &oscMixSlider,      &oscNoiseSlider,      &oscSlopSlider});
 
-    addGroup (filterGroup, {&filterCutoffLabel, &filterResonanceLabel, &filterEnvAttackLabel, &filterEnvDecayLabel, &filterEnvSustainLabel, &filterEnvReleaseLabel},
-                           {filterCutoffSliderDesc, filterResonanceSliderDesc, ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc},
-                           {&filterCutoffSlider, &filterResonanceSlider, &filterEnvAttackSlider, &filterEnvDecaySlider, &filterEnvSustainSlider, &filterEnvReleaseSlider});
+    addGroup (filterGroup, { &filterCutoffLabel, &filterResonanceLabel, &filterEnvAttackLabel, &filterEnvDecayLabel, &filterEnvSustainLabel, &filterEnvReleaseLabel },
+                           { filterCutoffSliderDesc, filterResonanceSliderDesc, ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc },
+                           { &filterCutoffSlider, &filterResonanceSlider, &filterEnvAttackSlider, &filterEnvDecaySlider, &filterEnvSustainSlider, &filterEnvReleaseSlider });
 
-    addGroup (ampGroup, {&masterGainLabel, &ampAttackLabel, &ampDecayLabel, &ampSustainLabel, &ampReleaseLabel},
-                        {masterGainDesc, ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc},
-                        {&masterGainSlider, &ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider});
+    addGroup (ampGroup, { &masterGainLabel, &ampAttackLabel, &ampDecayLabel, &ampSustainLabel, &ampReleaseLabel },
+                        { masterGainDesc, ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc },
+                        { &masterGainSlider, &ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider });
 
-    addGroup (lfoGroup, {nullptr, &lfoFreqLabel, nullptr, &lfoAmountLabel},
-                        {juce::String(), lfoFreqSliderDesc, juce::String(), lfoAmountSliderDesc},
-                        {&lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider});
+    addGroup (lfoGroup, { nullptr, &lfoFreqLabel, nullptr, &lfoAmountLabel },
+                        { {}, lfoFreqSliderDesc, juce::String (), lfoAmountSliderDesc },
+                        { &lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider });
 
-    addGroup (effectGroup, {&effectParam1Label, &effectParam2Label}, {effectParam1Desc, effectParam2Desc}, {&effectParam1Slider, &effectParam2Slider});
+    addGroup (effectGroup, { &effectParam1Label, &effectParam2Label}, {effectParam1Desc, effectParam2Desc}, {&effectParam1Slider, &effectParam2Slider });
 
     osc1ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID.getParamID()));
     osc2ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID.getParamID()));
     lfoShapeButtons.setSelectedButton  ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID.getParamID()));
     lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
+
+
+    //I can't say I see this doing anything
+    setLookAndFeel (&lnf);
 }
 
-//==============================================================================
 void sBMP4AudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.drawImage (backgroundTexture, getLocalBounds().toFloat());

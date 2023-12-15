@@ -78,10 +78,9 @@ class sBMP4AudioProcessorEditor : public juce::AudioProcessorEditor
 #endif
 {
 public:
-
     sBMP4AudioProcessorEditor (sBMP4AudioProcessor&);
+    ~sBMP4AudioProcessorEditor () { setLookAndFeel (nullptr); }
 
-    //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
 
@@ -96,6 +95,9 @@ public:
 private:
     sBMP4AudioProcessor& processor;
 
+    sBMP4LookAndFeel lnf;
+    juce::SharedResourcePointer<SharedFonts> sharedFonts;
+
     juce::GroupComponent oscGroup, filterGroup, ampGroup, lfoGroup, effectGroup;
 
     juce::Image backgroundTexture;
@@ -104,7 +106,7 @@ private:
     sBMP4Label osc1FreqSliderLabel, osc1TuningSliderLabel, osc2FreqSliderLabel, osc2TuningSliderLabel, oscSubSliderLabel, oscMixSliderLabel, oscNoiseSliderLabel, oscSlopSliderLabel;
     SnappingSlider osc1FreqSlider, osc2FreqSlider, osc1TuningSlider, osc2TuningSlider, oscSubSlider, oscMixSlider, oscNoiseSlider, oscSlopSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment osc1FreqAttachment, osc2FreqAttachment, osc1TuningAttachment, osc2TuningAttachment,
-                                                   oscSubAttachment, oscMixAttachment, oscNoiseAttachment, oscSlopAttachment;
+                                                         oscSubAttachment, oscMixAttachment, oscNoiseAttachment, oscSlopAttachment;
 
     ButtonGroupComponent osc1ShapeButtons, osc2ShapeButtons;
 

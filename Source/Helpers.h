@@ -32,6 +32,9 @@
 
 namespace Constants
 {
+constexpr auto labelFontHeight          { 20 };
+constexpr auto groupComponentFontHeight { 20 };
+
 constexpr auto oscShapeRadioGroupId     { 1 };
 
 constexpr auto defaultSubOsc            { 0 };
@@ -202,6 +205,13 @@ constexpr auto lfoDest1     { "Osc2 Freq" };
 constexpr auto lfoDest2     { "Cutoff" };
 constexpr auto lfoDest3     { "Resonance" };
 }
+
+//====================================================================================================
+
+struct SharedFonts final
+{
+    juce::Font regular { juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsMedium_ttf, BinaryData::PoppinsMedium_ttfSize) };
+};
 
 //====================================================================================================
 

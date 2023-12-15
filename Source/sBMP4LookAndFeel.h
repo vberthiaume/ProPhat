@@ -39,6 +39,9 @@ public:
                            const float rotaryStartAngle, const float rotaryEndAngle,
                            juce::Slider& /*slider*/) override;
 
+    void drawGroupComponentOutline (juce::Graphics& g, int width, int height, const juce::String& text,
+                                    const juce::Justification& position, juce::GroupComponent& group) override;
+
 private:
     juce::Image tickedButtonImage, untickedButtonImage;
 
@@ -47,4 +50,6 @@ private:
 #else
     juce::Image rotarySliderImage;
 #endif
+
+    juce::SharedResourcePointer<SharedFonts> sharedFonts;
 };
