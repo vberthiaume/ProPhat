@@ -32,7 +32,7 @@
 
 namespace Constants
 {
-constexpr auto oscShapeRadioGroupId { 1 };
+constexpr auto oscShapeRadioGroupId     { 1 };
 
 constexpr auto defaultSubOsc            { 0 };
 constexpr auto defaultOscMix            { 0 };
@@ -93,164 +93,164 @@ const juce::NormalisableRange<int> midiNoteRange        { 12, 120 };   //actual 
 const juce::NormalisableRange<float> pitchWheelNoteRange{ -7.f, 7.f };
 }
 
+//====================================================================================================
+
 namespace sBMP4AudioProcessorIDs
 {
-const juce::ParameterID  osc1ShapeID { "osc1ShapeID", 1 };
-const juce::ParameterID  osc1FreqID { "osc1FreqID", 1 };
-const juce::ParameterID  osc1TuningID { "osc1TuningID", 1 };
+const juce::ParameterID  osc1ShapeID        { "osc1ShapeID", 1 };
+const juce::ParameterID  osc1FreqID         { "osc1FreqID", 1 };
+const juce::ParameterID  osc1TuningID       { "osc1TuningID", 1 };
 
-const juce::ParameterID  osc2ShapeID { "osc2ShapeID", 1 };
-const juce::ParameterID  osc2FreqID { "osc2FreqID", 1 };
-const juce::ParameterID  osc2TuningID { "osc2TuningID", 1 };
+const juce::ParameterID  osc2ShapeID        { "osc2ShapeID", 1 };
+const juce::ParameterID  osc2FreqID         { "osc2FreqID", 1 };
+const juce::ParameterID  osc2TuningID       { "osc2TuningID", 1 };
 
-const juce::ParameterID  oscSubID { "oscSubID", 1 };
-const juce::ParameterID  oscMixID { "oscMixID", 1 };
-const juce::ParameterID  oscNoiseID { "oscNoiseID", 1 };
-const juce::ParameterID  oscSlopID { "oscSlopID", 1 };
+const juce::ParameterID  oscSubID           { "oscSubID", 1 };
+const juce::ParameterID  oscMixID           { "oscMixID", 1 };
+const juce::ParameterID  oscNoiseID         { "oscNoiseID", 1 };
+const juce::ParameterID  oscSlopID          { "oscSlopID", 1 };
 
-const juce::ParameterID  filterCutoffID { "filterCutoffID", 1 };
-const juce::ParameterID  filterResonanceID { "filterResonanceID", 1 };
+const juce::ParameterID  filterCutoffID     { "filterCutoffID", 1 };
+const juce::ParameterID  filterResonanceID  { "filterResonanceID", 1 };
 
-const juce::ParameterID  ampAttackID { "ampAttackID", 1 };
-const juce::ParameterID  ampDecayID { "ampDecayID", 1 };
-const juce::ParameterID  ampSustainID { "ampSustainID", 1 };
-const juce::ParameterID  ampReleaseID { "ampReleaseID", 1 };
+const juce::ParameterID  ampAttackID        { "ampAttackID", 1 };
+const juce::ParameterID  ampDecayID         { "ampDecayID", 1 };
+const juce::ParameterID  ampSustainID       { "ampSustainID", 1 };
+const juce::ParameterID  ampReleaseID       { "ampReleaseID", 1 };
 
-const juce::ParameterID  filterEnvAttackID { "filterEnvAttackID", 1 };
-const juce::ParameterID  filterEnvDecayID { "filterEnvDecayID", 1 };
+const juce::ParameterID  filterEnvAttackID  { "filterEnvAttackID", 1 };
+const juce::ParameterID  filterEnvDecayID   { "filterEnvDecayID", 1 };
 const juce::ParameterID  filterEnvSustainID { "filterEnvSustainID", 1 };
 const juce::ParameterID  filterEnvReleaseID { "filterEnvReleaseID", 1 };
 
-const juce::ParameterID  lfoShapeID { "lfoShapeID", 1 };
-const juce::ParameterID  lfoDestID { "lfoDestID", 1 };
-const juce::ParameterID  lfoFreqID { "lfoFreqID", 1 };
-const juce::ParameterID  lfoAmountID { "lfoAmountID", 1 };
+const juce::ParameterID  lfoShapeID         { "lfoShapeID", 1 };
+const juce::ParameterID  lfoDestID          { "lfoDestID", 1 };
+const juce::ParameterID  lfoFreqID          { "lfoFreqID", 1 };
+const juce::ParameterID  lfoAmountID        { "lfoAmountID", 1 };
 
-const juce::ParameterID  effectID { "effectID", 1 };
-const juce::ParameterID  effectParam1ID { "effectParam1ID", 1 };
-const juce::ParameterID  effectParam2ID { "effectParam2ID", 1 };
+const juce::ParameterID  effectID           { "effectID", 1 };
+const juce::ParameterID  effectParam1ID     { "effectParam1ID", 1 };
+const juce::ParameterID  effectParam2ID     { "effectParam2ID", 1 };
 
-const juce::ParameterID  masterGainID { "masterGainID", 1 };
+const juce::ParameterID  masterGainID       { "masterGainID", 1 };
 }
+
+//====================================================================================================
 
 namespace sBMP4AudioProcessorNames
 {
-const juce::String oscGroupDesc = "OSCILLATORS";
-const juce::String osc1ShapeDesc = "SHAPE";
-const juce::String osc2ShapeDesc = "SHAPE";
-const juce::String osc1FreqDesc = "OSC 1 FREQ";
-const juce::String osc2FreqDesc = "OSC 2 FREQ";
-const juce::String osc1TuningDesc = "FINE TUNE";
-const juce::String osc2TuningDesc = "FINE TUNE";
+constexpr auto oscGroupDesc                 { "OSCILLATORS" };
+constexpr auto osc1ShapeDesc                { "SHAPE" };
+constexpr auto osc2ShapeDesc                { "SHAPE" };
+constexpr auto osc1FreqDesc                 { "OSC 1 FREQ" };
+constexpr auto osc2FreqDesc                 { "OSC 2 FREQ" };
+constexpr auto osc1TuningDesc               { "FINE TUNE" };
+constexpr auto osc2TuningDesc               { "FINE TUNE" };
 
-const juce::String oscSubOctDesc = "SUB OCTAVE";
-const juce::String oscMixDesc = "OSC MIX";
-const juce::String oscNoiseDesc = "NOISE";
-const juce::String oscSlopDesc = "OSC SLOP";
+constexpr auto oscSubOctDesc                { "SUB OCTAVE" };
+constexpr auto oscMixDesc                   { "OSC MIX" };
+constexpr auto oscNoiseDesc                 { "NOISE" };
+constexpr auto oscSlopDesc                  { "OSC SLOP" };
 
-const juce::String filterGroupDesc = "LOW-PASS FILTER";
-const juce::String filterCutoffSliderDesc = "CUTOFF";
-const juce::String filterResonanceSliderDesc = "RESONANCE";
+constexpr auto filterGroupDesc              { "LOW-PASS FILTER" };
+constexpr auto filterCutoffSliderDesc       { "CUTOFF" };
+constexpr auto filterResonanceSliderDesc    { "RESONANCE" };
 
-const juce::String ampGroupDesc = "AMPLIFIER";
-const juce::String ampAttackSliderDesc = "ATTACK";
-const juce::String ampDecaySliderDesc = "DECAY";
-const juce::String ampSustainSliderDesc = "SUSTAIN";
-const juce::String ampReleaseSliderDesc = "RELEASE";
+constexpr auto ampGroupDesc                 { "AMPLIFIER" };
+constexpr auto ampAttackSliderDesc          { "ATTACK" };
+constexpr auto ampDecaySliderDesc           { "DECAY" };
+constexpr auto ampSustainSliderDesc         { "SUSTAIN" };
+constexpr auto ampReleaseSliderDesc         { "RELEASE" };
 
-const juce::String lfoGroupDesc = "LFO";
-const juce::String lfoShapeDesc = "SHAPE";
-const juce::String lfoDestDesc = "DEST";
-const juce::String lfoFreqSliderDesc = "FREQUENCY";
-const juce::String lfoAmountSliderDesc = "AMOUNT";
+constexpr auto lfoGroupDesc                 { "LFO" };
+constexpr auto lfoShapeDesc                 { "SHAPE" };
+constexpr auto lfoDestDesc                  { "DEST" };
+constexpr auto lfoFreqSliderDesc            { "FREQUENCY" };
+constexpr auto lfoAmountSliderDesc          { "AMOUNT" };
 
 #if 0
-const juce::String effectGroupDesc = "EFFECT";
-const juce::String effectParam1Desc = "PARAM 1";
-const juce::String effectParam2Desc = "PARAM 2";
+constexpr auto effectGroupDesc              { "EFFECT" };
+constexpr auto effectParam1Desc             { "PARAM 1" };
+constexpr auto effectParam2Desc             { "PARAM 2" };
 #else
-const juce::String effectGroupDesc = "REVERB";
-const juce::String effectParam1Desc = "ROOM";
-const juce::String effectParam2Desc = "MIX";
+constexpr auto effectGroupDesc              { "REVERB" };
+constexpr auto effectParam1Desc             { "ROOM" };
+constexpr auto effectParam2Desc             { "MIX" };
 #endif
 
-const juce::String masterGainDesc = "MASTER VOLUME";
+constexpr auto masterGainDesc               { "MASTER VOLUME" };
 }
+
+//====================================================================================================
 
 namespace sBMP4AudioProcessorChoices
 {
-    const juce::String oscShape0 = "None";
-    const juce::String oscShape1 = "Sawtooth";
-    const juce::String oscShape2 = "Saw + Tri";
-    const juce::String oscShape3 = "Triangle";
-    const juce::String oscShape4 = "Pulse";
+constexpr auto oscShape0    { "None" };
+constexpr auto oscShape1    { "Sawtooth" };
+constexpr auto oscShape2    { "Saw + Tri" };
+constexpr auto oscShape3    { "Triangle" };
+constexpr auto oscShape4    { "Pulse" };
 
-    const juce::String lfoShape0 = "Triangle";
-    const juce::String lfoShape1 = "Sawtooth";
-    //const juce::String lfoShape2 = "Rev Saw";
-    const juce::String lfoShape3 = "Square";
-    const juce::String lfoShape4 = "Random";
+constexpr auto lfoShape0    { "Triangle" };
+constexpr auto lfoShape1    { "Sawtooth" };
+//constexpr auto lfoShape2    { "Rev Saw" };
+constexpr auto lfoShape3    { "Square" };
+constexpr auto lfoShape4    { "Random" };
 
-    const juce::String lfoDest0 = "Osc1 Freq";
-    const juce::String lfoDest1 = "Osc2 Freq";
-    const juce::String lfoDest2 = "Cutoff";
-    const juce::String lfoDest3 = "Resonance";
+constexpr auto lfoDest0     { "Osc1 Freq" };
+constexpr auto lfoDest1     { "Osc2 Freq" };
+constexpr auto lfoDest2     { "Cutoff" };
+constexpr auto lfoDest3     { "Resonance" };
 }
 
-inline bool getVarAsBool (const juce::ValueTree& v, const juce::Identifier& id) { return static_cast<bool> (v.getProperty (id)); }
-inline int getVarAsInt (const juce::ValueTree& v, const juce::Identifier& id) { return static_cast<int> (v.getProperty (id)); }
-inline juce::int64 getVarAsInt64 (const juce::ValueTree& v, const juce::Identifier& id) { return static_cast<juce::int64> (v.getProperty (id)); }
-inline double getVarAsDouble (const juce::ValueTree& v, const juce::Identifier& id) { return static_cast<double> (v.getProperty (id)); }
-inline float getVarAsFloat (const juce::ValueTree& v, const juce::Identifier& id) { return static_cast<float> (getVarAsDouble (v, id)); }
-inline juce::String getVarAsString (const juce::ValueTree& v, const juce::Identifier& id) { return v.getProperty (id).toString(); }
-inline juce::Identifier getVarAsIdentifier (const juce::ValueTree& v, const juce::Identifier& id) { return static_cast<juce::Identifier> (v.getProperty (id)); }
+//====================================================================================================
 
 namespace Helpers
 {
-    inline juce::Image getImage (const void* imageData, const int dataSize)
-    {
-        return juce::ImageCache::getFromMemory (imageData, dataSize);
-    }
+inline juce::Image getImage (const void* imageData, const int dataSize)
+{
+    return juce::ImageCache::getFromMemory (imageData, dataSize);
+}
 
-    inline std::unique_ptr<juce::Drawable> getDrawable (const void* imageData, const int dataSize)
-    {
-        return juce::Drawable::createFromImageData (imageData, dataSize);
-    }
+inline std::unique_ptr<juce::Drawable> getDrawable (const void* imageData, const int dataSize)
+{
+    return juce::Drawable::createFromImageData (imageData, dataSize);
+}
 
-    inline float getRangedParamValue (juce::AudioProcessorValueTreeState& state, juce::StringRef id)
-    {
-        auto param = state.getParameter (id);
-        return param == nullptr ? 0.f : param->convertFrom0to1 (param->getValue());
-    }
+inline float getRangedParamValue (juce::AudioProcessorValueTreeState& state, juce::StringRef id)
+{
+    auto param = state.getParameter (id);
+    return param == nullptr ? 0.f : param->convertFrom0to1 (param->getValue());
+}
 
-    inline double getDoubleMidiNoteInHertz (const double noteNumber, const double frequencyOfA = 440.0) noexcept
-    {
-        return frequencyOfA * std::pow (2.0, (noteNumber - 69.0) / 12.0);
-    }
+inline double getDoubleMidiNoteInHertz (const double noteNumber, const double frequencyOfA = 440.0) noexcept
+{
+    return frequencyOfA * std::pow (2.0, (noteNumber - 69.0) / 12.0);
+}
 
-    inline float getFloatMidiNoteInHertz (const float noteNumber, const float frequencyOfA = 440.0) noexcept
-    {
-        return frequencyOfA * (float) std::pow (2.0, (noteNumber - 69.0) / 12.0);
-    }
+inline float getFloatMidiNoteInHertz (const float noteNumber, const float frequencyOfA = 440.0) noexcept
+{
+    return frequencyOfA * (float) std::pow (2.0, (noteNumber - 69.0) / 12.0);
+}
 
-    template <typename Type>
-    inline bool valueContainedInRange (Type value, juce::NormalisableRange<Type> range)
-    {
-        return value >= range.start && value <= range.end;
-    }
+template <typename Type>
+inline bool valueContainedInRange (Type value, juce::NormalisableRange<Type> range)
+{
+    return value >= range.start && value <= range.end;
+}
 
-    inline bool areSameSpecs (const juce::dsp::ProcessSpec& spec1, const juce::dsp::ProcessSpec& spec2)
-    {
-        return spec1.maximumBlockSize == spec2.maximumBlockSize
-            && spec1.numChannels == spec2.numChannels
-            && spec1.sampleRate == spec2.sampleRate;
-    }
+inline bool areSameSpecs (const juce::dsp::ProcessSpec& spec1, const juce::dsp::ProcessSpec& spec2)
+{
+    return spec1.maximumBlockSize == spec2.maximumBlockSize
+        && spec1.numChannels == spec2.numChannels
+        && spec1.sampleRate == spec2.sampleRate;
+}
 
-    template <class T>
-    inline bool areSame (T a, T b, T e = std::numeric_limits <T>::epsilon())
-    {
-        return fabs (a - b) <= e;
-    }
+template <class T>
+inline bool areSame (T a, T b, T e = std::numeric_limits <T>::epsilon())
+{
+    return fabs (a - b) <= e;
+}
 }
 
 #if 0
