@@ -180,5 +180,54 @@ void sBMP4LookAndFeel::drawGroupComponentOutline (juce::Graphics& g, int width, 
                 roundToInt (x + textX), 0,
                 roundToInt (textW),
                 roundToInt (Constants::groupComponentFontHeight),
-                Justification::centred, true);
+                Justification::centred, false);
+}
+
+void sBMP4LookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& button,
+                                         bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+{
+    using namespace juce;
+
+    auto fontSize = Constants::buttonFontHeight; //jmin (15.0f, (float) button.getHeight () * 0.75f);
+    auto tickWidth = fontSize * 1.1f;
+
+    drawTickBox (g, button, 4.0f, ((float) button.getHeight () - tickWidth) * 0.5f,
+                 tickWidth, tickWidth,
+                 button.getToggleState (),
+                 button.isEnabled (),
+                 shouldDrawButtonAsHighlighted,
+                 shouldDrawButtonAsDown);
+
+    g.setColour (button.findColour (ToggleButton::textColourId));
+    g.setFont (sharedFonts->regular.withHeight (fontSize));
+
+    if (! button.isEnabled ())
+        g.setOpacity (0.5f);
+
+    g.drawFittedText (button.getButtonText (),
+                      button.getLocalBounds ().withTrimmedLeft (roundToInt (tickWidth) + 10)
+                                              .withTrimmedRight (2),
+                      Justification::centredLeft, 1, 1.f);
+}
+
+void sBMP4LookAndFeel::drawDrawableButton (juce::Graphics& g, juce::DrawableButton& button,
+                                           bool /*shouldDrawButtonAsHighlighted*/, bool /*shouldDrawButtonAsDown*/)
+{
+    using namespace juce;
+
+    bool toggleState = button.getToggleState ();
+
+    g.fillAll (button.findColour (toggleState ? DrawableButton::backgroundOnColourId
+                                  : DrawableButton::backgroundColourId));
+
+    g.setFont (sharedFonts->regular.withHeight (Constants::buttonSelectorFontHeight));
+
+    g.setColour (button.findColour (toggleState ? DrawableButton::textColourOnId
+                                    : DrawableButton::textColourId)
+                    .withMultipliedAlpha (button.isEnabled () ? 1.0f : 0.4f));
+
+    g.drawFittedText (button.getButtonText (),
+                      2, button.getHeight () - Constants::buttonSelectorFontHeight - 1,
+                      button.getWidth () - 4, Constants::buttonSelectorFontHeight,
+                      Justification::centred, 1, 1.f);
 }

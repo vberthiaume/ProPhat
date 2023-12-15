@@ -21,6 +21,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
 #include "ButtonGroupComponent.h"
+#include "sBMP4LookAndFeel.h"
 
 //==============================================================================
 
@@ -32,13 +33,7 @@ public:
         snapVal (snapValue),
         tolerance (snapTolerance)
     {
-        setLookAndFeel (&lf);
         setPopupDisplayEnabled (true, false, nullptr);
-    }
-
-    ~SnappingSlider()
-    {
-        setLookAndFeel (nullptr);
     }
 
     //@TODO reactivate this when needed, it's causing issues
@@ -48,8 +43,6 @@ public:
     //}
 
 private:
-    sBMP4LookAndFeel lf;
-
     double snapVal;     // The value of the slider at which to snap.
     double tolerance;   // The proximity (in proportion of the slider length) to the snap point before snapping.
 

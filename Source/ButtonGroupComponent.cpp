@@ -38,7 +38,6 @@ ButtonGroupComponent::ButtonGroupComponent (juce::AudioProcessorValueTreeState& 
     {
         auto button = new juce::ToggleButton (names);
         button->setRadioGroupId (Constants::oscShapeRadioGroupId);
-        button->setLookAndFeel (&lf);
         button->addListener (this);
         selectionButtons.add (button);
         addAndMakeVisible (button);

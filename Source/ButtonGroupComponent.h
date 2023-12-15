@@ -11,7 +11,6 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Helpers.h"
-#include "sBMP4LookAndFeel.h"
 #include <memory>
 
 struct Selection
@@ -123,7 +122,6 @@ protected:
 
     juce::AudioProcessorValueTreeState& state;
     juce::String parameterID;
-    sBMP4LookAndFeel lf;
 
     FilledDrawableButton mainButton;
     juce::OwnedArray<juce::ToggleButton> selectionButtons;

@@ -101,6 +101,8 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
 #else
     setSize (width, height);
 #endif
+
+    setLookAndFeel (&lnf);
     setResizable (true, true);
 
     backgroundTexture = Helpers::getImage (BinaryData::blackMetal_jpg, BinaryData::blackMetal_jpgSize);
@@ -150,10 +152,6 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     osc2ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID.getParamID()));
     lfoShapeButtons.setSelectedButton  ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID.getParamID()));
     lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
-
-
-    //I can't say I see this doing anything
-    setLookAndFeel (&lnf);
 }
 
 void sBMP4AudioProcessorEditor::paint (juce::Graphics& g)

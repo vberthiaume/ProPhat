@@ -42,6 +42,10 @@ public:
     void drawGroupComponentOutline (juce::Graphics& g, int width, int height, const juce::String& text,
                                     const juce::Justification& position, juce::GroupComponent& group) override;
 
+    void drawToggleButton (juce::Graphics&, juce::ToggleButton&, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+
+    void drawDrawableButton (juce::Graphics& g, juce::DrawableButton& button, bool /*shouldDrawButtonAsHighlighted*/, bool /*shouldDrawButtonAsDown*/) override;
+
 private:
     juce::Image tickedButtonImage, untickedButtonImage;
 

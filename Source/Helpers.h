@@ -32,8 +32,10 @@
 
 namespace Constants
 {
-constexpr auto labelFontHeight          { 20 };
-constexpr auto groupComponentFontHeight { 20 };
+constexpr auto groupComponentFontHeight { 22 };
+constexpr auto labelFontHeight          { 23 };
+constexpr auto buttonFontHeight         { 16 };
+constexpr auto buttonSelectorFontHeight { 18 };
 
 constexpr auto oscShapeRadioGroupId     { 1 };
 
