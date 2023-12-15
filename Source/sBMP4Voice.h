@@ -17,12 +17,12 @@
 */
 
 #pragma once
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "ButtonGroupComponent.h"
+#include "GainedOscillator.h"
 #include "Helpers.h"
+
 #include <mutex>
 #include <set>
-#include "ButtonGroupComponent.h"
-#include <random>
 
 struct sBMP4Sound : public juce::SynthesiserSound
 {
@@ -32,83 +32,9 @@ struct sBMP4Sound : public juce::SynthesiserSound
     bool appliesToChannel (int) override { return true; }
 };
 
-//==============================================================================
-template <typename Type>
-class GainedOscillator
-{
-public:
-
-    GainedOscillator():
-        distribution ((Type) -1, (Type) 1)
-    {
-        setOscShape (OscShape::saw);
-        setLevel (Constants::defaultOscLevel);
-    }
-
-    void setFrequency (Type newValue, bool force = false)
-    {
-        jassert (newValue > 0);
-
-        auto& osc = processorChain.template get<oscIndex>();
-        osc.setFrequency (newValue, force);
-    }
-
-    void setOscShape (int newShape);
-
-    void setLevel (Type newValue)
-    {
-        if (!isActive)
-            newValue = 0;
-        else
-            lastActiveLevel = newValue;
-
-        auto& gain = processorChain.template get<gainIndex>();
-        gain.setGainLinear (newValue);
-    }
-
-    Type getLevel()
-    {
-        return lastActiveLevel;
-    }
-
-    void reset() noexcept
-    {
-        processorChain.reset();
-    }
-
-    template <typename ProcessContext>
-    void process (const ProcessContext& context) noexcept
-    {
-        std::lock_guard<std::mutex> lock (processMutex);
-
-        processorChain.process (context);
-    }
-
-    void prepare (const juce::dsp::ProcessSpec& spec)
-    {
-        processorChain.prepare (spec);
-    }
-
-private:
-    enum
-    {
-        oscIndex,
-        gainIndex
-    };
-
-    std::mutex processMutex;
-
-    bool isActive = true;
-
-    Type lastActiveLevel{};
-
-    juce::dsp::ProcessorChain<juce::dsp::Oscillator<Type>, juce::dsp::Gain<Type>> processorChain;
-
-    std::uniform_real_distribution<Type> distribution;
-    std::default_random_engine generator;
-};
 
 //==============================================================================
+
 using namespace Constants;
 class sBMP4Voice : public juce::SynthesiserVoice
 {

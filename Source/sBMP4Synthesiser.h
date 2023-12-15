@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "SineWaveVoice.h"
+#include "sBMP4Voice.h"
 #include "Helpers.h"
 
 class sBMP4Synthesiser : public juce::Synthesiser, public juce::AudioProcessorValueTreeState::Listener

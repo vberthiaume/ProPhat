@@ -8,6 +8,8 @@
               addUsingNamespaceToJuceHeader="0">
   <MAINGROUP id="M1KKAR" name="sBMP4v2">
     <GROUP id="{F09A54D2-9168-8E51-F638-B70D48E09C9D}" name="Source">
+      <FILE id="fmyiJD" name="GainedOscillator.h" compile="0" resource="0"
+            file="Source/GainedOscillator.h"/>
       <FILE id="Tlmnnn" name="ButtonGroupComponent.cpp" compile="1" resource="0"
             file="Source/ButtonGroupComponent.cpp"/>
       <FILE id="BXRQon" name="ButtonGroupComponent.h" compile="0" resource="0"
@@ -28,9 +30,8 @@
             file="Source/sBMP4Synthesiser.cpp"/>
       <FILE id="DXkMBm" name="sBMP4Synthesiser.h" compile="0" resource="0"
             file="Source/sBMP4Synthesiser.h"/>
-      <FILE id="ItumJq" name="SineWaveVoice.cpp" compile="1" resource="0"
-            file="Source/SineWaveVoice.cpp"/>
-      <FILE id="mmelw3" name="SineWaveVoice.h" compile="0" resource="0" file="Source/SineWaveVoice.h"/>
+      <FILE id="ItumJq" name="sBMP4Voice.cpp" compile="1" resource="0" file="Source/sBMP4Voice.cpp"/>
+      <FILE id="mmelw3" name="sBMP4Voice.h" compile="0" resource="0" file="Source/sBMP4Voice.h"/>
     </GROUP>
     <GROUP id="{65D18CA8-6815-B6E4-CDD2-3E7E0045CF19}" name="Assets">
       <FILE id="wjnnKH" name="blackLight.png" compile="0" resource="1" file="Assets/blackLight.png"/>

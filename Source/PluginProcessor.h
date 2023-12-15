@@ -19,7 +19,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "SineWaveVoice.h"
+#include "sBMP4Voice.h"
 #include "sBMP4Synthesiser.h"
 #include "Helpers.h"
 
