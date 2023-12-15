@@ -95,86 +95,86 @@ const juce::NormalisableRange<float> pitchWheelNoteRange{ -7.f, 7.f };
 
 namespace sBMP4AudioProcessorIDs
 {
-    const juce::ParameterID  osc1ShapeID { "osc1ShapeID", 1};
-    const juce::ParameterID  osc1FreqID { "osc1FreqID", 1};
-    const juce::ParameterID  osc1TuningID { "osc1TuningID", 1};
+const juce::ParameterID  osc1ShapeID { "osc1ShapeID", 1 };
+const juce::ParameterID  osc1FreqID { "osc1FreqID", 1 };
+const juce::ParameterID  osc1TuningID { "osc1TuningID", 1 };
 
-    const juce::ParameterID  osc2ShapeID { "osc2ShapeID", 1};
-    const juce::ParameterID  osc2FreqID { "osc2FreqID", 1};
-    const juce::ParameterID  osc2TuningID { "osc2TuningID", 1};
+const juce::ParameterID  osc2ShapeID { "osc2ShapeID", 1 };
+const juce::ParameterID  osc2FreqID { "osc2FreqID", 1 };
+const juce::ParameterID  osc2TuningID { "osc2TuningID", 1 };
 
-    const juce::ParameterID  oscSubID { "oscSubID", 1};
-    const juce::ParameterID  oscMixID { "oscMixID", 1};
-    const juce::ParameterID  oscNoiseID { "oscNoiseID", 1};
-    const juce::ParameterID  oscSlopID { "oscSlopID", 1};
+const juce::ParameterID  oscSubID { "oscSubID", 1 };
+const juce::ParameterID  oscMixID { "oscMixID", 1 };
+const juce::ParameterID  oscNoiseID { "oscNoiseID", 1 };
+const juce::ParameterID  oscSlopID { "oscSlopID", 1 };
 
-    const juce::ParameterID  filterCutoffID { "filterCutoffID", 1};
-    const juce::ParameterID  filterResonanceID { "filterResonanceID", 1};
+const juce::ParameterID  filterCutoffID { "filterCutoffID", 1 };
+const juce::ParameterID  filterResonanceID { "filterResonanceID", 1 };
 
-    const juce::ParameterID  ampAttackID { "ampAttackID", 1};
-    const juce::ParameterID  ampDecayID { "ampDecayID", 1};
-    const juce::ParameterID  ampSustainID { "ampSustainID", 1};
-    const juce::ParameterID  ampReleaseID { "ampReleaseID", 1};
+const juce::ParameterID  ampAttackID { "ampAttackID", 1 };
+const juce::ParameterID  ampDecayID { "ampDecayID", 1 };
+const juce::ParameterID  ampSustainID { "ampSustainID", 1 };
+const juce::ParameterID  ampReleaseID { "ampReleaseID", 1 };
 
-    const juce::ParameterID  filterEnvAttackID { "filterEnvAttackID", 1};
-    const juce::ParameterID  filterEnvDecayID { "filterEnvDecayID", 1};
-    const juce::ParameterID  filterEnvSustainID { "filterEnvSustainID", 1};
-    const juce::ParameterID  filterEnvReleaseID { "filterEnvReleaseID", 1};
+const juce::ParameterID  filterEnvAttackID { "filterEnvAttackID", 1 };
+const juce::ParameterID  filterEnvDecayID { "filterEnvDecayID", 1 };
+const juce::ParameterID  filterEnvSustainID { "filterEnvSustainID", 1 };
+const juce::ParameterID  filterEnvReleaseID { "filterEnvReleaseID", 1 };
 
-    const juce::ParameterID  lfoShapeID { "lfoShapeID", 1};
-    const juce::ParameterID  lfoDestID { "lfoDestID", 1};
-    const juce::ParameterID  lfoFreqID { "lfoFreqID", 1};
-    const juce::ParameterID  lfoAmountID { "lfoAmountID", 1};
+const juce::ParameterID  lfoShapeID { "lfoShapeID", 1 };
+const juce::ParameterID  lfoDestID { "lfoDestID", 1 };
+const juce::ParameterID  lfoFreqID { "lfoFreqID", 1 };
+const juce::ParameterID  lfoAmountID { "lfoAmountID", 1 };
 
-    const juce::ParameterID  effectID { "effectID", 1};
-    const juce::ParameterID  effectParam1ID { "effectParam1ID", 1};
-    const juce::ParameterID  effectParam2ID { "effectParam2ID", 1};
+const juce::ParameterID  effectID { "effectID", 1 };
+const juce::ParameterID  effectParam1ID { "effectParam1ID", 1 };
+const juce::ParameterID  effectParam2ID { "effectParam2ID", 1 };
 
-    const juce::ParameterID  masterGainID { "masterGainID", 1};
+const juce::ParameterID  masterGainID { "masterGainID", 1 };
 }
 
 namespace sBMP4AudioProcessorNames
 {
-    const juce::String oscGroupDesc = "OSCILLATORS";
-    const juce::String osc1ShapeDesc = "SHAPE";
-    const juce::String osc2ShapeDesc = "SHAPE";
-    const juce::String osc1FreqDesc = "OSC 1 FREQ";
-    const juce::String osc2FreqDesc = "OSC 2 FREQ";
-    const juce::String osc1TuningDesc = "FINE TUNE";
-    const juce::String osc2TuningDesc = "FINE TUNE";
+const juce::String oscGroupDesc = "OSCILLATORS";
+const juce::String osc1ShapeDesc = "SHAPE";
+const juce::String osc2ShapeDesc = "SHAPE";
+const juce::String osc1FreqDesc = "OSC 1 FREQ";
+const juce::String osc2FreqDesc = "OSC 2 FREQ";
+const juce::String osc1TuningDesc = "FINE TUNE";
+const juce::String osc2TuningDesc = "FINE TUNE";
 
-    const juce::String oscSubOctDesc = "SUB OCTAVE";
-    const juce::String oscMixDesc = "OSC MIX";
-    const juce::String oscNoiseDesc = "NOISE";
-    const juce::String oscSlopDesc = "OSC SLOP";
+const juce::String oscSubOctDesc = "SUB OCTAVE";
+const juce::String oscMixDesc = "OSC MIX";
+const juce::String oscNoiseDesc = "NOISE";
+const juce::String oscSlopDesc = "OSC SLOP";
 
-    const juce::String filterGroupDesc = "LOW-PASS FILTER";
-    const juce::String filterCutoffSliderDesc = "CUTOFF";
-    const juce::String filterResonanceSliderDesc = "RESONANCE";
+const juce::String filterGroupDesc = "LOW-PASS FILTER";
+const juce::String filterCutoffSliderDesc = "CUTOFF";
+const juce::String filterResonanceSliderDesc = "RESONANCE";
 
-    const juce::String ampGroupDesc = "AMPLIFIER";
-    const juce::String ampAttackSliderDesc = "ATTACK";
-    const juce::String ampDecaySliderDesc = "DECAY";
-    const juce::String ampSustainSliderDesc = "SUSTAIN";
-    const juce::String ampReleaseSliderDesc = "RELEASE";
+const juce::String ampGroupDesc = "AMPLIFIER";
+const juce::String ampAttackSliderDesc = "ATTACK";
+const juce::String ampDecaySliderDesc = "DECAY";
+const juce::String ampSustainSliderDesc = "SUSTAIN";
+const juce::String ampReleaseSliderDesc = "RELEASE";
 
-    const juce::String lfoGroupDesc = "LFO";
-    const juce::String lfoShapeDesc = "SHAPE";
-    const juce::String lfoDestDesc = "DEST";
-    const juce::String lfoFreqSliderDesc = "FREQUENCY";
-    const juce::String lfoAmountSliderDesc = "AMOUNT";
+const juce::String lfoGroupDesc = "LFO";
+const juce::String lfoShapeDesc = "SHAPE";
+const juce::String lfoDestDesc = "DEST";
+const juce::String lfoFreqSliderDesc = "FREQUENCY";
+const juce::String lfoAmountSliderDesc = "AMOUNT";
 
 #if 0
-    const juce::String effectGroupDesc = "EFFECT";
-    const juce::String effectParam1Desc = "PARAM 1";
-    const juce::String effectParam2Desc = "PARAM 2";
+const juce::String effectGroupDesc = "EFFECT";
+const juce::String effectParam1Desc = "PARAM 1";
+const juce::String effectParam2Desc = "PARAM 2";
 #else
-    const juce::String effectGroupDesc = "REVERB";
-    const juce::String effectParam1Desc = "ROOM";
-    const juce::String effectParam2Desc = "MIX";
+const juce::String effectGroupDesc = "REVERB";
+const juce::String effectParam1Desc = "ROOM";
+const juce::String effectParam2Desc = "MIX";
 #endif
 
-    const juce::String masterGainDesc = "MASTER VOLUME";
+const juce::String masterGainDesc = "MASTER VOLUME";
 }
 
 namespace sBMP4AudioProcessorChoices
@@ -205,42 +205,41 @@ inline float getVarAsFloat (const juce::ValueTree& v, const juce::Identifier& id
 inline juce::String getVarAsString (const juce::ValueTree& v, const juce::Identifier& id) { return v.getProperty (id).toString(); }
 inline juce::Identifier getVarAsIdentifier (const juce::ValueTree& v, const juce::Identifier& id) { return static_cast<juce::Identifier> (v.getProperty (id)); }
 
-//@TODO make this a namespace and get rid of all (implicit) static keywords
-struct Helpers
+namespace Helpers
 {
-    static juce::Image getImage (const void* imageData, const int dataSize)
+    inline juce::Image getImage (const void* imageData, const int dataSize)
     {
         return juce::ImageCache::getFromMemory (imageData, dataSize);
     }
 
-    static std::unique_ptr<juce::Drawable> getDrawable (const void* imageData, const int dataSize)
+    inline std::unique_ptr<juce::Drawable> getDrawable (const void* imageData, const int dataSize)
     {
         return juce::Drawable::createFromImageData (imageData, dataSize);
     }
 
-    static float getRangedParamValue (juce::AudioProcessorValueTreeState& state, juce::StringRef id)
+    inline float getRangedParamValue (juce::AudioProcessorValueTreeState& state, juce::StringRef id)
     {
         auto param = state.getParameter (id);
         return param == nullptr ? 0.f : param->convertFrom0to1 (param->getValue());
     }
 
-    static double getDoubleMidiNoteInHertz (const double noteNumber, const double frequencyOfA = 440.0) noexcept
+    inline double getDoubleMidiNoteInHertz (const double noteNumber, const double frequencyOfA = 440.0) noexcept
     {
         return frequencyOfA * std::pow (2.0, (noteNumber - 69.0) / 12.0);
     }
 
-    static float getFloatMidiNoteInHertz (const float noteNumber, const float frequencyOfA = 440.0) noexcept
+    inline float getFloatMidiNoteInHertz (const float noteNumber, const float frequencyOfA = 440.0) noexcept
     {
         return frequencyOfA * (float) std::pow (2.0, (noteNumber - 69.0) / 12.0);
     }
 
     template <typename Type>
-    static bool valueContainedInRange (Type value, juce::NormalisableRange<Type> range)
+    inline bool valueContainedInRange (Type value, juce::NormalisableRange<Type> range)
     {
         return value >= range.start && value <= range.end;
     }
 
-    inline static bool areSameSpecs (const juce::dsp::ProcessSpec& spec1, const juce::dsp::ProcessSpec& spec2)
+    inline bool areSameSpecs (const juce::dsp::ProcessSpec& spec1, const juce::dsp::ProcessSpec& spec2)
     {
         return spec1.maximumBlockSize == spec2.maximumBlockSize
             && spec1.numChannels == spec2.numChannels
@@ -248,11 +247,11 @@ struct Helpers
     }
 
     template <class T>
-    static bool areSame (T a, T b, T e = std::numeric_limits <T>::epsilon())
+    inline bool areSame (T a, T b, T e = std::numeric_limits <T>::epsilon())
     {
         return fabs (a - b) <= e;
     }
-};
+}
 
 #if 0
 auto addChoicesToComboBox = [this](juce::Array<ComboBox*> combos, juce::Array<juce::StringRef> comboIDs)
