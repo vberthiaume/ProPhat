@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
-
 #ifndef CPU_USAGE
     #define CPU_USAGE 0
 #endif
@@ -34,68 +32,65 @@
 
 namespace Constants
 {
-    enum
-    {
-        oscShapeRadioGroupId = 1,
+constexpr auto oscShapeRadioGroupId { 1 };
 
-        defaultSubOsc = 0,
-        defaultOscMix = 0,
-        defaultOscNoise = 0,
-        defaultOscSlop = 0,
-        defaultOscTuning = 0,
+constexpr auto defaultSubOsc            { 0 };
+constexpr auto defaultOscMix            { 0 };
+constexpr auto defaultOscNoise          { 0 };
+constexpr auto defaultOscSlop           { 0 };
+constexpr auto defaultOscTuning         { 0 };
 
-        numVoices = 16,
-        defaultOscMidiNote = 48,    //C2 on rev2
-        middleCMidiNote = 60,       //C3 on rev2
+constexpr auto numVoices                { 16 };
+constexpr auto defaultOscMidiNote       { 48 }; //C2 on rev2
+constexpr auto middleCMidiNote          { 60 }; //C3 on rev2
 
-        killRampSamples = 300,
-        rampUpSamples = 100
-    };
+constexpr auto killRampSamples          { 300 };
+constexpr auto rampUpSamples            { 100 };
 
-    static const auto defaultOscLevel = .4f;
-    static const auto defaultMasterGain = .8f;
+constexpr auto defaultOscLevel          { .4f };
+constexpr auto defaultMasterGain        { .8f };
 
-    static const auto defaultFilterCutoff = 1000.f;
-    static const auto defaultFilterResonance = .5f;
+constexpr auto defaultFilterCutoff      { 1000.f };
+constexpr auto defaultFilterResonance   { .5f };
 
-    static const float defaultLfoFreq = 3.f;
-    static const float defaultLfoAmount = 0.f;
+constexpr float defaultLfoFreq          { 3.f };
+constexpr float defaultLfoAmount        { 0.f };
 
-    static const float defaultEffectParam1 = 0.f;
-    static const float defaultEffectParam2 = 0.f;
+constexpr float defaultEffectParam1     { 0.f };
+constexpr float defaultEffectParam2     { 0.f };
 
-    //envelope stuff
-    static const auto minA = .001f;
-    static const auto minAmp = .01f;
+//envelope stuff
+constexpr auto minA                     { .001f };
+constexpr auto minAmp                   { .01f };
 
-    static const auto defaultAmpA = minA;
-    static const auto defaultAmpD = minAmp;
-    static const auto defaultAmpS = 1.f;
-    static const auto defaultAmpR = .25f;
+constexpr auto defaultAmpA              { minA };
+constexpr auto defaultAmpD              { minAmp };
+constexpr auto defaultAmpS              { 1.f };
+constexpr auto defaultAmpR              { .25f };
 
-    static const auto sustainSkewFactor = .5f;
-    static const auto ampSkewFactor = .5f;
-    static const auto cutOffSkewFactor = .5f;
-    static const auto slopSkewFactor = .5f;
+constexpr auto sustainSkewFactor        { .5f };
+constexpr auto ampSkewFactor            { .5f };
+constexpr auto cutOffSkewFactor         { .5f };
+constexpr auto slopSkewFactor           { .5f };
 
-    static const juce::NormalisableRange<float> attackRange   {minA, 25.f, 0.f, ampSkewFactor};
-    static const juce::NormalisableRange<float> decayRange    {minAmp, 25.f, 0.f, ampSkewFactor};
-    static const juce::NormalisableRange<float> sustainRange  {minAmp, 1.f,  0.f, sustainSkewFactor};
-    static const juce::NormalisableRange<float> releaseRange  {minAmp, 25.f, 0.f, ampSkewFactor};
+const juce::NormalisableRange<float> attackRange        { minA, 25.f, 0.f, ampSkewFactor };
+const juce::NormalisableRange<float> decayRange         { minAmp, 25.f, 0.f, ampSkewFactor };
+const juce::NormalisableRange<float> sustainRange       { minAmp, 1.f,  0.f, sustainSkewFactor };
+const juce::NormalisableRange<float> releaseRange       { minAmp, 25.f, 0.f, ampSkewFactor };
 
-    static const juce::NormalisableRange<float> dBRange = {-12.f, 12.f};
-    static const juce::NormalisableRange<float> sliderRange = {0.f, 1.f};
-    static const juce::NormalisableRange<float> tuningSliderRange = {-0.5f, .5f};
-    static const juce::NormalisableRange<float> slopSliderRange = {0.f, 1.0f, 0.f, slopSkewFactor};
+const juce::NormalisableRange<float> dBRange            { -12.f, 12.f };
+const juce::NormalisableRange<float> sliderRange        { 0.f, 1.f };
+const juce::NormalisableRange<float> tuningSliderRange  { -0.5f, .5f };
+const juce::NormalisableRange<float> slopSliderRange    { 0.f, 1.0f, 0.f, slopSkewFactor };
 
-    static const juce::NormalisableRange<float> cutOffRange = {0.1f, 18000.f, 0.f, cutOffSkewFactor};
-    static const juce::NormalisableRange<float> lfoRange = {0.1f, 10.f};
-    static const juce::NormalisableRange<float> lfoNoteRange = {0.f, 16.f};
+const juce::NormalisableRange<float> cutOffRange        { 0.1f, 18000.f, 0.f, cutOffSkewFactor };
+const juce::NormalisableRange<float> lfoRange           { 0.1f, 10.f };
+const juce::NormalisableRange<float> lfoNoteRange       { 0.f, 16.f };
 
-    //Sets the base frequency of Oscillator 1 or 2 over a 9-octave
-    //range from 16 Hz to 8KHz (when used with the Transpose buttons). Adjustment is in semitones.
-    static const juce::NormalisableRange<int> midiNoteRange = {12, 120};   //actual midi note range is (0,127), but rev2, at least for oscilators is C0(0) to C10(120)
-    static const juce::NormalisableRange<float> pitchWheelNoteRange = {-7.f, 7.f};
+//Sets the base frequency of Oscillator 1 or 2 over a 9-octave
+//range from 16 Hz to 8KHz (when used with the Transpose buttons). Adjustment is in semitones.
+const juce::NormalisableRange<int> midiNoteRange        { 12, 120 };   //actual midi note range is (0,127), but rev2, at least for oscilators is C0(0) to C10(120)
+const juce::NormalisableRange<float> pitchWheelNoteRange{ -7.f, 7.f };
 }
 
 namespace sBMP4AudioProcessorIDs
