@@ -86,6 +86,98 @@ void sBMP4Voice::updateOscFrequencies()
     osc2.setFrequency ((float) osc2Freq, true);
 }
 
+void sBMP4Voice::setOscFreq (processorId oscNum, int newMidiNote)
+{
+    jassert (Helpers::valueContainedInRange (newMidiNote, midiNoteRange));
+
+    switch (oscNum)
+    {
+        case processorId::osc1Index:
+            osc1NoteOffset = middleCMidiNote - (float) newMidiNote;
+            break;
+        case processorId::osc2Index:
+            osc2NoteOffset = middleCMidiNote - (float) newMidiNote;
+            break;
+        default:
+            jassertfalse;
+            break;
+    }
+
+    updateOscFrequencies ();
+}
+
+void sBMP4Voice::setOscShape (processorId oscNum, int newShape)
+{
+    switch (oscNum)
+    {
+        case processorId::osc1Index:
+            osc1.setOscShape (newShape);
+            break;
+        case processorId::osc2Index:
+            osc2.setOscShape (newShape);
+            break;
+        default:
+            jassertfalse;
+            break;
+    }
+}
+
+void sBMP4Voice::setOscTuning (processorId oscNum, float newTuning)
+{
+    jassert (Helpers::valueContainedInRange (newTuning, tuningSliderRange));
+
+    switch (oscNum)
+    {
+        case processorId::osc1Index:
+            osc1TuningOffset = newTuning;
+            break;
+        case processorId::osc2Index:
+            osc2TuningOffset = newTuning;
+            break;
+        default:
+            jassertfalse;
+            break;
+    }
+    updateOscFrequencies ();
+}
+
+void sBMP4Voice::setOscSub (float newSub)
+{
+    jassert (Helpers::valueContainedInRange (newSub, sliderRange));
+    curSubLevel = newSub;
+    updateOscLevels ();
+}
+
+void sBMP4Voice::setOscNoise (float noiseLevel)
+{
+    jassert (Helpers::valueContainedInRange (noiseLevel, sliderRange));
+    curNoiseLevel = noiseLevel;
+    updateOscLevels ();
+}
+
+void sBMP4Voice::setOscSlop (float slop)
+{
+    jassert (Helpers::valueContainedInRange (slop, slopSliderRange));
+    slopMod = slop;
+    updateOscFrequencies ();
+}
+
+void sBMP4Voice::setOscMix (float newMix)
+{
+    jassert (Helpers::valueContainedInRange (newMix, sliderRange));
+
+    oscMix = newMix;
+    updateOscLevels ();
+}
+
+void sBMP4Voice::updateOscLevels ()
+{
+    sub.setLevel (curVelocity * curSubLevel);
+    noise.setLevel (curVelocity * curNoiseLevel);
+    osc1.setLevel (curVelocity * (1 - oscMix));
+    osc2.setLevel (curVelocity * oscMix);
+}
+
 void sBMP4Voice::setAmpParam (juce::StringRef parameterID, float newValue)
 {
     if (newValue <= 0)
@@ -216,6 +308,18 @@ void sBMP4Voice::setLfoDest (int dest)
 
     //change the destination
     lfoDest.curSelection = dest;
+}
+
+void sBMP4Voice::setFilterCutoff (float newValue)
+{
+    curFilterCutoff = newValue;
+    processorChain.get<(int) processorId::filterIndex> ().setCutoffFrequencyHz (curFilterCutoff);
+}
+
+void sBMP4Voice::setFilterResonance (float newAmount)
+{
+    curFilterResonance = newAmount;
+    processorChain.get<(int) processorId::filterIndex> ().setResonance (curFilterResonance);
 }
 
 void sBMP4Voice::pitchWheelMoved (int newPitchWheelValue)

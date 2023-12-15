@@ -32,7 +32,6 @@ struct sBMP4Sound : public juce::SynthesiserSound
     bool appliesToChannel (int) override { return true; }
 };
 
-
 //==============================================================================
 
 using namespace Constants;
@@ -55,97 +54,15 @@ public:
 
     void updateOscFrequencies();
 
-    void setOscFreq (processorId oscNum, int newMidiNote)
-    {
-        jassert (Helpers::valueContainedInRange (newMidiNote, midiNoteRange));
+    void setOscFreq (processorId oscNum, int newMidiNote);
+    void setOscShape (processorId oscNum, int newShape);
+    void setOscTuning (processorId oscNum, float newTuning);
+    void setOscSub (float newSub);
+    void setOscNoise (float noiseLevel);
+    void setOscSlop (float slop);
+    void setOscMix (float newMix);
 
-        switch (oscNum)
-        {
-            case processorId::osc1Index:
-                osc1NoteOffset = middleCMidiNote - (float) newMidiNote;
-                break;
-            case processorId::osc2Index:
-                osc2NoteOffset = middleCMidiNote - (float) newMidiNote;
-                break;
-            default:
-                jassertfalse;
-                break;
-        }
-
-        updateOscFrequencies();
-    }
-
-    void setOscShape (processorId oscNum, int newShape)
-    {
-        switch (oscNum)
-        {
-            case processorId::osc1Index:
-                osc1.setOscShape (newShape);
-                break;
-            case processorId::osc2Index:
-                osc2.setOscShape (newShape);
-                break;
-            default:
-                jassertfalse;
-                break;
-        }
-    }
-
-    void setOscTuning (processorId oscNum, float newTuning)
-    {
-        jassert (Helpers::valueContainedInRange (newTuning, tuningSliderRange));
-
-        switch (oscNum)
-        {
-            case processorId::osc1Index:
-                osc1TuningOffset = newTuning;
-                break;
-            case processorId::osc2Index:
-                osc2TuningOffset = newTuning;
-                break;
-            default:
-                jassertfalse;
-                break;
-        }
-        updateOscFrequencies();
-    }
-
-    void setOscSub (float newSub)
-    {
-        jassert (Helpers::valueContainedInRange (newSub, sliderRange));
-        curSubLevel = newSub;
-        updateOscLevels();
-    }
-
-    void setOscNoise (float noiseLevel)
-    {
-        jassert (Helpers::valueContainedInRange (noiseLevel, sliderRange));
-        curNoiseLevel = noiseLevel;
-        updateOscLevels();
-    }
-
-    void setOscSlop (float slop)
-    {
-        jassert (Helpers::valueContainedInRange (slop, slopSliderRange));
-        slopMod = slop;
-        updateOscFrequencies();
-    }
-
-    void setOscMix (float newMix)
-    {
-        jassert (Helpers::valueContainedInRange (newMix, sliderRange));
-
-        oscMix = newMix;
-        updateOscLevels();
-    }
-
-    void updateOscLevels()
-    {
-        sub.setLevel (curVelocity * curSubLevel);
-        noise.setLevel (curVelocity * curNoiseLevel);
-        osc1.setLevel (curVelocity * (1 - oscMix));
-        osc2.setLevel (curVelocity * oscMix);
-    }
+    void updateOscLevels();
 
     void setAmpParam (juce::StringRef parameterID, float newValue);
     void setFilterEnvParam (juce::StringRef parameterID, float newValue);
@@ -155,22 +72,12 @@ public:
     void setLfoFreq (float newFreq) { lfo.setFrequency (newFreq); }
     void setLfoAmount (float newAmount) { lfoAmount = newAmount; }
 
-    void setFilterCutoff (float newValue)
-    {
-        curFilterCutoff = newValue;
-        processorChain.get<(int) processorId::filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
-    }
-
-    void setFilterResonance (float newAmount)
-    {
-        curFilterResonance = newAmount;
-        processorChain.get<(int) processorId::filterIndex>().setResonance (curFilterResonance);
-    }
-
-    void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition) override;
+    void setFilterCutoff (float newValue);
+    void setFilterResonance (float newAmount);
 
     void pitchWheelMoved (int newPitchWheelValue) override;
 
+    void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition) override;
     void stopNote (float /*velocity*/, bool allowTailOff) override;
 
     bool canPlaySound (juce::SynthesiserSound* sound) override { return dynamic_cast<sBMP4Sound*> (sound) != nullptr; }
