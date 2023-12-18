@@ -23,19 +23,22 @@ using namespace sBMP4AudioProcessorIDs;
 using namespace sBMP4AudioProcessorNames;
 using namespace sBMP4AudioProcessorChoices;
 
-enum sizes
+namespace
 {
-    overallGap = 8,
-    panelGap = 10,
+constexpr auto overallGap           { 10.f };
+constexpr auto panelGap             { 15.f };
 
-    lineCount = 4,
-    lineH = 75,
+constexpr auto lineCount            { 4 };
+constexpr auto lineH                { 75.f };
 
-    columnCount = 9,
-    columnW = 110,
+constexpr auto numButtonGroupColumn { 1 };
+constexpr auto buttonGroupColumnW   { 125.f };
 
-    height =    2 * overallGap + 4 * panelGap + lineCount   * lineH,
-    width =     2 * overallGap + 4 * panelGap + columnCount * columnW,
+constexpr auto numSliderColumn      { 8 };
+constexpr auto sliderColumnW        { 98.f };
+
+constexpr auto totalHeight          { 2 * overallGap + 4 * panelGap + lineCount * lineH };
+constexpr auto totalWidth           { 2 * overallGap + 4 * panelGap + numButtonGroupColumn * buttonGroupColumnW + numSliderColumn * sliderColumnW };
 };
 
 //==============================================================================
@@ -99,7 +102,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     addAndMakeVisible (cpuUsageText);
     startTimer (500);
 #else
-    setSize (width, height);
+    setSize (static_cast<int> (totalWidth), static_cast<int> (totalHeight));
 #endif
 
     setLookAndFeel (&lnf);
@@ -108,22 +111,22 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     backgroundTexture = Helpers::getImage (BinaryData::blackMetal_jpg, BinaryData::blackMetal_jpgSize);
 
     //set up everything else
-    auto addGroup = [this](juce::GroupComponent& group, juce::Array<juce::Label*> labels, juce::Array<juce::StringRef> labelTexts, juce::Array<juce::Component*> components)
+    auto addGroup = [this](juce::GroupComponent& group, std::vector<sBMP4Label*> labels, std::vector<juce::StringRef> labelTexts, std::vector<juce::Component*> components)
     {
+        //these sizes need to match. If a component doesn't have a label, use nullptr for it
         jassert (labels.size() == components.size());
 
+        //setup group
         group.setTextLabelPosition (juce::Justification::centred);
         addAndMakeVisible (group);
 
-        for (int i = 0; i < labels.size(); ++i)
+        //setup components and labels
+        for (int i = 0; i < components.size(); ++i)
         {
             if (labels[i] != nullptr)
             {
                 labels[i]->setText (labelTexts[i], juce::dontSendNotification);
-                labels[i]->setJustificationType (juce::Justification::centredBottom);
-
                 labels[i]->attachToComponent (components[i], false);
-                labels[i]->setFont (sharedFonts->regular.withHeight (labelFontHeight));
             }
 
             addAndMakeVisible (components[i]);
@@ -134,19 +137,21 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
                         { osc1FreqDesc,          osc1TuningDesc,         juce::String (),   oscSubOctDesc,      osc2FreqDesc,         osc2TuningDesc,         juce::String (),   oscMixDesc,         oscNoiseDesc,         oscSlopDesc},
                         { &osc1FreqSlider,       &osc1TuningSlider,      &osc1ShapeButtons, &oscSubSlider,      &osc2FreqSlider,      &osc2TuningSlider,      &osc2ShapeButtons, &oscMixSlider,      &oscNoiseSlider,      &oscSlopSlider});
 
-    addGroup (filterGroup, { &filterCutoffLabel, &filterResonanceLabel, &filterEnvAttackLabel, &filterEnvDecayLabel, &filterEnvSustainLabel, &filterEnvReleaseLabel },
-                           { filterCutoffSliderDesc, filterResonanceSliderDesc, ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc },
-                           { &filterCutoffSlider, &filterResonanceSlider, &filterEnvAttackSlider, &filterEnvDecaySlider, &filterEnvSustainSlider, &filterEnvReleaseSlider });
+    addGroup (filterGroup, { &filterCutoffLabel,     &filterResonanceLabel,      &filterEnvAttackLabel,  &filterEnvDecayLabel,   &filterEnvSustainLabel,  &filterEnvReleaseLabel },
+                           { filterCutoffSliderDesc, filterResonanceSliderDesc,  ampAttackSliderDesc,    ampDecaySliderDesc,     ampSustainSliderDesc,    ampReleaseSliderDesc },
+                           { &filterCutoffSlider,    &filterResonanceSlider,     &filterEnvAttackSlider, &filterEnvDecaySlider,  &filterEnvSustainSlider, &filterEnvReleaseSlider });
 
-    addGroup (ampGroup, { &masterGainLabel, &ampAttackLabel, &ampDecayLabel, &ampSustainLabel, &ampReleaseLabel },
-                        { masterGainDesc, ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc },
-                        { &masterGainSlider, &ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider });
+    addGroup (ampGroup, { &masterGainLabel,  &ampAttackLabel,     &ampDecayLabel,     &ampSustainLabel,     &ampReleaseLabel },
+                        { masterGainDesc,    ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc },
+                        { &masterGainSlider, &ampAttackSlider,    &ampDecaySlider,    &ampSustainSlider,    &ampReleaseSlider });
 
-    addGroup (lfoGroup, { nullptr, &lfoFreqLabel, nullptr, &lfoAmountLabel },
-                        { {}, lfoFreqSliderDesc, juce::String (), lfoAmountSliderDesc },
-                        { &lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider });
+    addGroup (lfoGroup, { nullptr,          &lfoFreqLabel,     nullptr,         &lfoAmountLabel },
+                        { {},               lfoFreqSliderDesc, juce::String (), lfoAmountSliderDesc },
+                        { &lfoShapeButtons, &lfoFreqSlider,    &lfoDestButtons, &lfoAmountSlider });
 
-    addGroup (effectGroup, { &effectParam1Label, &effectParam2Label}, {effectParam1Desc, effectParam2Desc}, {&effectParam1Slider, &effectParam2Slider });
+    addGroup (effectGroup, { &effectParam1Label,  &effectParam2Label},
+                           { effectParam1Desc,    effectParam2Desc },
+                           { &effectParam1Slider, &effectParam2Slider });
 
     osc1ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID.getParamID()));
     osc2ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID.getParamID()));
@@ -161,20 +166,22 @@ void sBMP4AudioProcessorEditor::paint (juce::Graphics& g)
 
 void sBMP4AudioProcessorEditor::resized()
 {
-    auto bounds = getLocalBounds().reduced (overallGap);
+    auto bounds = getLocalBounds().toFloat().reduced (overallGap);
 
     //set up sections
     auto topSection = bounds.removeFromTop (bounds.getHeight() / 2);
     auto bottomSection = bounds;
 
-    auto setupGroup = [](juce::GroupComponent& group, juce::Rectangle<int> groupBounds, juce::Array<juce::Component*> components, int numLines, int numColumns)
+    auto positionGroup = [] (juce::GroupComponent& group, juce::Rectangle<float> groupBounds,
+                         juce::Array<juce::Component*> components, int numLines, int numColumns)
     {
         jassert (components.size() <= numLines * numColumns);
 
-        //setup group
-        group.setBounds (groupBounds);
+        //position the whole group
+        group.setBounds (groupBounds.toNearestInt ());
         groupBounds.reduce (panelGap, panelGap);
 
+        //position group components inside the group, going line per line and column per column
         auto curComponentIndex = 0;
         for (int i = 0; i < numLines; ++i)
         {
@@ -182,28 +189,35 @@ void sBMP4AudioProcessorEditor::resized()
 
             for (int j = 0; j < numColumns; ++j)
             {
-                auto bounds = lineBounds.removeFromLeft (columnW);
+                //jassert (curComponentIndex < components.size ());
 
-                if (curComponentIndex < components.size())
+                //components can be null if there's nothing to display in that space
+                if (components[curComponentIndex] != nullptr)
                 {
-                    if (components[curComponentIndex] != nullptr)
-                        components[curComponentIndex]->setBounds (bounds);
+                    auto columnW { sliderColumnW };
+                    if (auto buttonGroup { dynamic_cast<ButtonGroupComponent*> (components[curComponentIndex]) })
+                        columnW = buttonGroupColumnW;
 
-                    ++curComponentIndex;
+                    components[curComponentIndex]->setBounds (lineBounds.removeFromLeft (columnW).toNearestInt());
                 }
+
+                //get outta here if we're positioned all group components
+                if (++curComponentIndex == components.size ())
+                    return;
             }
         }
     };
 
-    //top section
-    setupGroup (oscGroup, topSection.removeFromLeft (5 * columnW + 2 * panelGap), {&osc1FreqSlider, &osc1TuningSlider, &osc1ShapeButtons, &oscSubSlider, &oscNoiseSlider,
-                                                                                   &osc2FreqSlider, &osc2TuningSlider, &osc2ShapeButtons, &oscMixSlider, &oscSlopSlider}, 2, 5);
-    setupGroup (filterGroup, topSection, {&filterCutoffSlider, &filterResonanceSlider, nullptr, nullptr, &filterEnvAttackSlider,&filterEnvDecaySlider, &filterEnvSustainSlider, &filterEnvReleaseSlider}, 2, 4);
+    //first line
+    const auto oscSection { topSection.removeFromLeft (4 * sliderColumnW + buttonGroupColumnW + 2 * panelGap) };
+    positionGroup (oscGroup, oscSection, { &osc1FreqSlider, &osc1TuningSlider, &osc1ShapeButtons, &oscSubSlider, &oscNoiseSlider,
+                                           &osc2FreqSlider, &osc2TuningSlider, &osc2ShapeButtons, &oscMixSlider, &oscSlopSlider }, 2, 5);
+    positionGroup (filterGroup, topSection, { &filterCutoffSlider, &filterResonanceSlider, nullptr, nullptr, &filterEnvAttackSlider,&filterEnvDecaySlider, &filterEnvSustainSlider, &filterEnvReleaseSlider }, 2, 4);
 
-    //bottom section
-    setupGroup (lfoGroup, bottomSection.removeFromLeft (2 * columnW + panelGap), {&lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider}, 2, 2);
-    setupGroup (effectGroup, bottomSection.removeFromLeft (2 * columnW + panelGap), {&effectParam1Slider, &effectParam2Slider}, 2, 2);
-    setupGroup (ampGroup, bottomSection, {&ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider, &masterGainSlider}, 1, 5);
+    //second line
+    positionGroup (lfoGroup, bottomSection.removeFromLeft (sliderColumnW + buttonGroupColumnW + panelGap), { &lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider }, 2, 2);
+    positionGroup (effectGroup, bottomSection.removeFromLeft (2 * sliderColumnW + panelGap), { &effectParam1Slider, &effectParam2Slider }, 2, 2);
+    positionGroup (ampGroup, bottomSection, { &ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider, &masterGainSlider }, 1, 5);
 
 #if CPU_USAGE
     auto cpuSectionH = 100;

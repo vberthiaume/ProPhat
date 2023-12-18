@@ -49,8 +49,18 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SnappingSlider)
 };
 
+/** The main labels used in the plugin.
+*/
 class sBMP4Label : public juce::Label
 {
+public:
+    sBMP4Label ()
+    {
+        setJustificationType (juce::Justification::centredBottom);
+        setFont (sharedFonts->regular.withHeight (labelFontHeight));
+        setMinimumHorizontalScale (1.f);
+    }
+
     void componentMovedOrResized (juce::Component& component, bool /*wasMoved*/, bool /*wasResized*/) override
     {
         auto& lf = getLookAndFeel();
@@ -60,6 +70,9 @@ class sBMP4Label : public juce::Label
         auto height = borderSize.getTopAndBottom() + 6 + juce::roundToInt (f.getHeight() + 0.5f);
         setBounds (component.getX(), component.getY() + component.getHeight() - height + 7, component.getWidth(), height);
     }
+
+private:
+    juce::SharedResourcePointer<SharedFonts> sharedFonts;
 };
 
 //==============================================================================

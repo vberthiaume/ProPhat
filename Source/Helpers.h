@@ -32,8 +32,8 @@
 
 namespace Constants
 {
-constexpr auto groupComponentFontHeight { 22 };
-constexpr auto labelFontHeight          { 23 };
+constexpr auto groupComponentFontHeight { 24 };
+constexpr auto labelFontHeight          { 22 };
 constexpr auto buttonFontHeight         { 16.f };
 constexpr auto buttonSelectorFontHeight { 18 };
 
@@ -183,7 +183,7 @@ constexpr auto effectParam1Desc             { "ROOM" };
 constexpr auto effectParam2Desc             { "MIX" };
 #endif
 
-constexpr auto masterGainDesc               { "MASTER VOLUME" };
+constexpr auto masterGainDesc               { "MASTER VOL" };
 }
 
 //====================================================================================================
