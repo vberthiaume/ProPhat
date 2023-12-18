@@ -65,11 +65,8 @@ void ButtonGroupComponent::resized()
     bounds.reduce (0.f, verticalGap);
     const auto buttonH { (ogHeight - 2 * verticalGap) / selectionButtons.size () };
     for (auto button : selectionButtons)
-    {
-        const auto b { bounds.removeFromTop (buttonH).toNearestInt () };
-        DBG (b.getHeight ());
-        button->setBounds (b);
-    }
+        button->setBounds (bounds.removeFromTop (buttonH).toNearestInt ());
+
 }
 
 void ButtonGroupComponent::buttonClicked (juce::Button* button)
