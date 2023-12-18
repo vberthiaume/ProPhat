@@ -33,9 +33,6 @@ sBMP4LookAndFeel::sBMP4LookAndFeel()
     //LOADING SVG USING DRAWABLES
     rotarySliderImage = Helpers::getImage (BinaryData::metalKnobFitted_png, BinaryData::metalKnobFitted_pngSize);
 #endif
-
-    setDefaultSansSerifTypeface (sharedFonts->regular.getTypefacePtr());
-    //setDefaultSansSerifTypefaceName ("PoppinsMedium");
 }
 
 void sBMP4LookAndFeel::drawTickBox (juce::Graphics& g, juce::Component& /*component*/,

@@ -24,27 +24,31 @@
 #define USE_SVG 1
 #endif
 
+/** The main look and feel for the plugin. Implements all the drawXXX functions we need.
+*   Most of these are just copies from juce::LookAndFeel_V4 so we can use our own font.
+*/
 class sBMP4LookAndFeel : public juce::LookAndFeel_V4
 {
 public:
     sBMP4LookAndFeel();
 
-    void drawTickBox (juce::Graphics& g, juce::Component& /*component*/,
+    void drawTickBox (juce::Graphics& g, juce::Component& component,
                       float x, float y, float w, float h,
                       const bool ticked, const bool isEnabled,
                       const bool shouldDrawButtonAsHighlighted,
                       const bool shouldDrawButtonAsDown) override;
 
     void drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
-                           const float rotaryStartAngle, const float rotaryEndAngle,
-                           juce::Slider& /*slider*/) override;
+                           const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider& slider) override;
 
     void drawGroupComponentOutline (juce::Graphics& g, int width, int height, const juce::String& text,
                                     const juce::Justification& position, juce::GroupComponent& group) override;
 
-    void drawToggleButton (juce::Graphics&, juce::ToggleButton&, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+    void drawToggleButton (juce::Graphics&, juce::ToggleButton&, bool shouldDrawButtonAsHighlighted,
+                           bool shouldDrawButtonAsDown) override;
 
-    void drawDrawableButton (juce::Graphics& g, juce::DrawableButton& button, bool /*shouldDrawButtonAsHighlighted*/, bool /*shouldDrawButtonAsDown*/) override;
+    void drawDrawableButton (juce::Graphics& g, juce::DrawableButton& button,
+                             bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
 private:
     juce::Image tickedButtonImage, untickedButtonImage;

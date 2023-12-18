@@ -34,7 +34,7 @@ namespace Constants
 {
 constexpr auto groupComponentFontHeight { 22 };
 constexpr auto labelFontHeight          { 23 };
-constexpr auto buttonFontHeight         { 16 };
+constexpr auto buttonFontHeight         { 16.f };
 constexpr auto buttonSelectorFontHeight { 18 };
 
 constexpr auto oscShapeRadioGroupId     { 1 };
@@ -210,6 +210,9 @@ constexpr auto lfoDest3     { "Resonance" };
 
 //====================================================================================================
 
+/** This struct can be used to have a single shared font object throughout the plugin. To use it somewhere,
+*   just create a juce::SharedResourcePointer<SharedFonts> sharedFonts.
+*/
 struct SharedFonts final
 {
     juce::Font regular { juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsMedium_ttf, BinaryData::PoppinsMedium_ttfSize) };
