@@ -23,19 +23,19 @@ using namespace sBMP4AudioProcessorIDs;
 using namespace sBMP4AudioProcessorNames;
 using namespace sBMP4AudioProcessorChoices;
 
-enum sizes
+namespace
 {
-    overallGap = 8,
-    panelGap = 10,
+constexpr auto overallGap   { 8.f };
+constexpr auto panelGap     {10.f };
 
-    lineCount = 4,
-    lineH = 75,
+constexpr auto lineCount    { 4 };
+constexpr auto lineH        { 75.f };
 
-    columnCount = 9,
-    columnW = 110,
+constexpr auto columnCount  { 9 };
+constexpr auto columnW      { 110.f };
 
-    height =    2 * overallGap + 4 * panelGap + lineCount   * lineH,
-    width =     2 * overallGap + 4 * panelGap + columnCount * columnW,
+constexpr auto totalHeight  { 2 * overallGap + 4 * panelGap + lineCount * lineH };
+constexpr auto totalWidth   { 2 * overallGap + 4 * panelGap + columnCount * columnW };
 };
 
 //==============================================================================
@@ -99,7 +99,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     addAndMakeVisible (cpuUsageText);
     startTimer (500);
 #else
-    setSize (width, height);
+    setSize (static_cast<int> (totalWidth), static_cast<int> (totalHeight));
 #endif
 
     setLookAndFeel (&lnf);
@@ -161,18 +161,19 @@ void sBMP4AudioProcessorEditor::paint (juce::Graphics& g)
 
 void sBMP4AudioProcessorEditor::resized()
 {
-    auto bounds = getLocalBounds().reduced (overallGap);
+    auto bounds = getLocalBounds().toFloat().reduced (overallGap);
 
     //set up sections
     auto topSection = bounds.removeFromTop (bounds.getHeight() / 2);
     auto bottomSection = bounds;
 
-    auto setupGroup = [](juce::GroupComponent& group, juce::Rectangle<int> groupBounds, juce::Array<juce::Component*> components, int numLines, int numColumns)
+    auto setupGroup = [](juce::GroupComponent& group, juce::Rectangle<float> groupBounds,
+                         juce::Array<juce::Component*> components, int numLines, int numColumns)
     {
         jassert (components.size() <= numLines * numColumns);
 
         //setup group
-        group.setBounds (groupBounds);
+        group.setBounds (groupBounds.toNearestInt ());
         groupBounds.reduce (panelGap, panelGap);
 
         auto curComponentIndex = 0;
@@ -187,7 +188,7 @@ void sBMP4AudioProcessorEditor::resized()
                 if (curComponentIndex < components.size())
                 {
                     if (components[curComponentIndex] != nullptr)
-                        components[curComponentIndex]->setBounds (bounds);
+                        components[curComponentIndex]->setBounds (bounds.toNearestInt());
 
                     ++curComponentIndex;
                 }

@@ -16,6 +16,11 @@
   ==============================================================================
 */
 
+namespace
+{
+constexpr auto verticalGap { 5.f };
+}
+
 #include "ButtonGroupComponent.h"
 
 ButtonGroupComponent::ButtonGroupComponent (juce::AudioProcessorValueTreeState& processorState, const juce::String& theParameterID, std::unique_ptr<Selection> theSelection,
@@ -48,15 +53,23 @@ ButtonGroupComponent::ButtonGroupComponent (juce::AudioProcessorValueTreeState& 
 
 void ButtonGroupComponent::resized()
 {
-    auto bounds = getLocalBounds();
-    auto ogHeight = bounds.getHeight();
+    auto bounds { getLocalBounds().toFloat()};
+    const auto ogHeight { bounds.getHeight() };
 
-    auto mainButtonBounds = bounds.removeFromLeft (bounds.getWidth() / 3);
-    mainButtonBounds.reduce (0, ogHeight / 5);
-    mainButton.setBounds (mainButtonBounds);
+    //position main button
+    auto mainButtonBounds = bounds.removeFromLeft (bounds.getWidth() / 3.f);
+    mainButtonBounds.reduce (0, ogHeight / 5.f);
+    mainButton.setBounds (mainButtonBounds.toNearestInt());
 
+    //position selection buttons
+    bounds.reduce (0.f, verticalGap);
+    const auto buttonH { (ogHeight - 2 * verticalGap) / selectionButtons.size () };
     for (auto button : selectionButtons)
-        button->setBounds (bounds.removeFromTop (ogHeight / selectionButtons.size()));
+    {
+        const auto b { bounds.removeFromTop (buttonH).toNearestInt () };
+        DBG (b.getHeight ());
+        button->setBounds (b);
+    }
 }
 
 void ButtonGroupComponent::buttonClicked (juce::Button* button)

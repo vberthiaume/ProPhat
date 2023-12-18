@@ -98,6 +98,10 @@ public:
     }
 };
 
+/** A component with a main button on the left that toggles between a series of selectionButtons
+*   (which are juce::ToggleButtons) on the right. Selection buttons are also selectable directly
+    by clicking on them.
+*/
 class ButtonGroupComponent : public juce::Component, public juce::Button::Listener, public juce::AudioProcessorValueTreeState::Listener
 {
 public:
