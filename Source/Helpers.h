@@ -32,7 +32,7 @@
 
 namespace Constants
 {
-constexpr auto groupComponentFontHeight { 22 };
+constexpr auto groupComponentFontHeight { 24 };
 constexpr auto labelFontHeight          { 22 };
 constexpr auto buttonFontHeight         { 16.f };
 constexpr auto buttonSelectorFontHeight { 18 };
