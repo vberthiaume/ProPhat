@@ -21,6 +21,7 @@
 #include "sBMP4Synthesiser.h"
 
 /** The main AudioProcessor for the plugin.
+*   All we do in here is basically set up the state and init the sBMP4Synth.
 */
 class sBMP4AudioProcessor : public juce::AudioProcessor
 {
@@ -31,7 +32,7 @@ public:
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override
     {
-        synth.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
+        sBMP4Synth.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
     }
 
     void reset () override {}
@@ -73,7 +74,7 @@ public:
 #endif
 
 private:
-    sBMP4Synthesiser synth;
+    sBMP4Synthesiser sBMP4Synth;
 
     juce::AudioProcessorValueTreeState constructState ();
 

@@ -38,12 +38,13 @@ sBMP4AudioProcessor::sBMP4AudioProcessor()
 
 juce::AudioProcessorValueTreeState sBMP4AudioProcessor::constructState ()
 {
+    //TODO: add undo manager!
     return { *this, nullptr, "state",
     {
-        std::make_unique<juce::AudioParameterInt> (osc1FreqID, osc1FreqDesc, midiNoteRange.getRange ().getStart (), midiNoteRange.getRange ().getEnd (), defaultOscMidiNote),
-        std::make_unique<juce::AudioParameterInt> (osc2FreqID, osc2FreqDesc, midiNoteRange.getRange ().getStart (), midiNoteRange.getRange ().getEnd (), defaultOscMidiNote),
+        std::make_unique<juce::AudioParameterInt>    (osc1FreqID, osc1FreqDesc, midiNoteRange.getRange ().getStart (), midiNoteRange.getRange ().getEnd (), defaultOscMidiNote),
+        std::make_unique<juce::AudioParameterInt>    (osc2FreqID, osc2FreqDesc, midiNoteRange.getRange ().getStart (), midiNoteRange.getRange ().getEnd (), defaultOscMidiNote),
 
-        std::make_unique<juce::AudioParameterFloat> (osc1TuningID, osc1TuningDesc, tuningSliderRange, (float) defaultOscTuning),
+        std::make_unique<juce::AudioParameterFloat>  (osc1TuningID, osc1TuningDesc, tuningSliderRange, (float) defaultOscTuning),
         std::make_unique<juce::AudioParameterFloat>  (osc2TuningID, osc2TuningDesc, tuningSliderRange, (float) defaultOscTuning),
 
         std::make_unique<juce::AudioParameterFloat>  (oscSubID, oscSubOctDesc, sliderRange, (float) defaultSubOsc),
@@ -81,41 +82,42 @@ juce::AudioProcessorValueTreeState sBMP4AudioProcessor::constructState ()
 
 void sBMP4AudioProcessor::addParamListenersToState ()
 {
-    state.addParameterListener (osc1FreqID.getParamID (), &synth);
-    state.addParameterListener (osc2FreqID.getParamID (), &synth);
+    //NOW HERE: WHAT DOES THIS ACTUALLY DO?
+    state.addParameterListener (osc1FreqID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (osc2FreqID.getParamID (), &sBMP4Synth);
 
-    state.addParameterListener (osc1TuningID.getParamID (), &synth);
-    state.addParameterListener (osc2TuningID.getParamID (), &synth);
+    state.addParameterListener (osc1TuningID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (osc2TuningID.getParamID (), &sBMP4Synth);
 
-    state.addParameterListener (osc1ShapeID.getParamID (), &synth);
-    state.addParameterListener (osc2ShapeID.getParamID (), &synth);
+    state.addParameterListener (osc1ShapeID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (osc2ShapeID.getParamID (), &sBMP4Synth);
 
-    state.addParameterListener (oscSubID.getParamID (), &synth);
-    state.addParameterListener (oscMixID.getParamID (), &synth);
-    state.addParameterListener (oscNoiseID.getParamID (), &synth);
-    state.addParameterListener (oscSlopID.getParamID (), &synth);
+    state.addParameterListener (oscSubID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (oscMixID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (oscNoiseID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (oscSlopID.getParamID (), &sBMP4Synth);
 
-    state.addParameterListener (filterCutoffID.getParamID (), &synth);
-    state.addParameterListener (filterResonanceID.getParamID (), &synth);
-    state.addParameterListener (filterEnvAttackID.getParamID (), &synth);
-    state.addParameterListener (filterEnvDecayID.getParamID (), &synth);
-    state.addParameterListener (filterEnvSustainID.getParamID (), &synth);
-    state.addParameterListener (filterEnvReleaseID.getParamID (), &synth);
+    state.addParameterListener (filterCutoffID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (filterResonanceID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (filterEnvAttackID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (filterEnvDecayID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (filterEnvSustainID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (filterEnvReleaseID.getParamID (), &sBMP4Synth);
 
-    state.addParameterListener (ampAttackID.getParamID (), &synth);
-    state.addParameterListener (ampDecayID.getParamID (), &synth);
-    state.addParameterListener (ampSustainID.getParamID (), &synth);
-    state.addParameterListener (ampReleaseID.getParamID (), &synth);
+    state.addParameterListener (ampAttackID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (ampDecayID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (ampSustainID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (ampReleaseID.getParamID (), &sBMP4Synth);
 
-    state.addParameterListener (lfoShapeID.getParamID (), &synth);
-    state.addParameterListener (lfoDestID.getParamID (), &synth);
-    state.addParameterListener (lfoFreqID.getParamID (), &synth);
-    state.addParameterListener (lfoAmountID.getParamID (), &synth);
+    state.addParameterListener (lfoShapeID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (lfoDestID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (lfoFreqID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (lfoAmountID.getParamID (), &sBMP4Synth);
 
-    state.addParameterListener (effectParam1ID.getParamID (), &synth);
-    state.addParameterListener (effectParam2ID.getParamID (), &synth);
+    state.addParameterListener (effectParam1ID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (effectParam2ID.getParamID (), &sBMP4Synth);
 
-    state.addParameterListener (masterGainID.getParamID (), &synth);
+    state.addParameterListener (masterGainID.getParamID (), &sBMP4Synth);
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -151,7 +153,7 @@ void sBMP4AudioProcessor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffe
     buffer.clear();
 
     //render the block
-    synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
+    sBMP4Synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
 #if CPU_USAGE
     perfCounter.stop();

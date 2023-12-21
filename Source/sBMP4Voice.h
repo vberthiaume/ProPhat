@@ -26,8 +26,6 @@
 
 struct sBMP4Sound : public juce::SynthesiserSound
 {
-    sBMP4Sound() {}
-
     bool appliesToNote    (int) override { return true; }
     bool appliesToChannel (int) override { return true; }
 };

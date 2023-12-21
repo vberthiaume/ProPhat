@@ -21,6 +21,10 @@
 #include "sBMP4Voice.h"
 #include "Helpers.h"
 
+/** The main Synthesiser for the plugin.
+*   It uses Constants::numVoices voices (of type sBMP4Voice), and one sBMP4Sound
+*   which applies to all midi notes.
+*/
 class sBMP4Synthesiser : public juce::Synthesiser, public juce::AudioProcessorValueTreeState::Listener
 {
 public:
@@ -35,10 +39,7 @@ public:
 
     void setEffectParam (juce::StringRef parameterID, float newValue);
 
-    void setMasterGain (float gain)
-    {
-        fxChain.get<masterGainIndex>().setGainLinear (gain);
-    }
+    void setMasterGain (float gain) { fxChain.get<masterGainIndex>().setGainLinear (gain); }
 
     void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override;
 
@@ -47,7 +48,7 @@ private:
 
     enum
     {
-        reverbIndex,
+        reverbIndex = 0,
         masterGainIndex
     };
 
