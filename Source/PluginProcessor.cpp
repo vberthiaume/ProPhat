@@ -25,10 +25,9 @@ using namespace sBMP4AudioProcessorNames;
 using namespace sBMP4AudioProcessorChoices;
 using namespace Constants;
 
-//==============================================================================
 sBMP4AudioProcessor::sBMP4AudioProcessor() :
     juce::AudioProcessor (BusesProperties().withInput  ("Input", juce::AudioChannelSet::stereo(), true)
-                                     .withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
+                                           .withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
     state (*this, nullptr, "state",
     {
         std::make_unique<juce::AudioParameterInt>     (osc1FreqID, osc1FreqDesc, midiNoteRange.getRange().getStart(), midiNoteRange.getRange().getEnd(), defaultOscMidiNote),
@@ -110,62 +109,39 @@ sBMP4AudioProcessor::sBMP4AudioProcessor() :
     state.addParameterListener (masterGainID.getParamID(), &synth);
 }
 
-sBMP4AudioProcessor::~sBMP4AudioProcessor()
-{
-}
-
-//==============================================================================
-
-void sBMP4AudioProcessor::reset()
-{
-}
-
-//==============================================================================
-void sBMP4AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
-{
-    lastSampleRate = sampleRate;
-
-    synth.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
-}
-
-void sBMP4AudioProcessor::releaseResources()
-{
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
-}
-
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool sBMP4AudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
     return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::mono()
-        || layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();
+           || layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();
 }
 #endif
 
-//============================================================================= =
 void sBMP4AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     jassert (! isUsingDoublePrecision());
     process (buffer, midiMessages);
 }
 
-void sBMP4AudioProcessor::processBlock (juce::AudioBuffer<double>& /*ogBuffer*/, juce::MidiBuffer& /*midiMessages*/)
+void sBMP4AudioProcessor::processBlock (juce::AudioBuffer<double>& buffer, juce::MidiBuffer& midiMessages)
 {
-    jassertfalse;
     jassert (isUsingDoublePrecision());
-    //process (ogBuffer, midiMessages);
+    process (buffer, midiMessages);
 }
 
-void sBMP4AudioProcessor::process (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+template <typename T>
+void sBMP4AudioProcessor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
 
 #if CPU_USAGE
     perfCounter.start();
 #endif
+
     //we're not dealing with any inputs here, so clear the buffer
     buffer.clear();
 
+    //render the block
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
 #if CPU_USAGE
@@ -173,24 +149,18 @@ void sBMP4AudioProcessor::process (juce::AudioBuffer<float>& buffer, juce::MidiB
 #endif
 }
 
-//==============================================================================
 void sBMP4AudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    std::unique_ptr<juce::XmlElement> xmlState (state.copyState().createXml());
-
-    if (xmlState.get() != nullptr)
+    if (auto xmlState { state.copyState ().createXml () })
         copyXmlToBinary (*xmlState, destData);
 }
 
 void sBMP4AudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
-
-    if (xmlState.get() != nullptr)
+    if (auto xmlState { getXmlFromBinary (data, sizeInBytes) })
         state.replaceState (juce::ValueTree::fromXml (*xmlState));
 }
 
-//==============================================================================
 juce::AudioProcessorEditor* sBMP4AudioProcessor::createEditor()
 {
     return new sBMP4AudioProcessorEditor (*this);

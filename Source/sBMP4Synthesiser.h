@@ -52,11 +52,11 @@ private:
     };
 
     //@TODO: make this into a bit mask thing?
-    std::set<int> voicesBeingKilled{};
+    std::set<int> voicesBeingKilled;
 
     juce::dsp::ProcessorChain<juce::dsp::Reverb, juce::dsp::Gain<float>> fxChain;
 
     juce::dsp::Reverb::Parameters reverbParams;
 
-    juce::dsp::ProcessSpec curSpecs{};
+    juce::dsp::ProcessSpec curSpecs;
 };
