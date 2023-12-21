@@ -27,6 +27,8 @@ class sBMP4AudioProcessor : public juce::AudioProcessor
 public:
     sBMP4AudioProcessor();
 
+    void addParamListenersToState ();
+
     void prepareToPlay (double sampleRate, int samplesPerBlock) override
     {
         synth.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
