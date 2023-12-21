@@ -5,7 +5,7 @@
               pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               pluginDesc="Subtractive synth based on the Prophet REV2" pluginManufacturer="BMP4"
               pluginManufacturerCode="BMP4" pluginCode="Sbmp" pluginAUMainType="'aumu'"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1">
+              addUsingNamespaceToJuceHeader="0">
   <MAINGROUP id="M1KKAR" name="sBMP4v2">
     <GROUP id="{F09A54D2-9168-8E51-F638-B70D48E09C9D}" name="Source">
       <FILE id="fmyiJD" name="GainedOscillator.h" compile="0" resource="0"
