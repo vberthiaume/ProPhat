@@ -73,5 +73,7 @@ public:
 private:
     sBMP4Synthesiser synth;
 
+    juce::AudioProcessorValueTreeState constructState ();
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessor)
 };
