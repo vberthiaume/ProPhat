@@ -9,69 +9,8 @@
 */
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
-#include "Helpers.h"
+#include "../Helpers.h"
 #include <memory>
-
-struct Selection
-{
-    Selection() = default;
-    Selection (int selection) : curSelection (selection) {}
-    virtual ~Selection() = default;
-
-    int curSelection;
-
-    virtual int getLastSelectionIndex() = 0;
-    virtual bool isNullSelectionAllowed() = 0;
-};
-
-struct OscShape : public Selection
-{
-    enum
-    {
-        none = 0,
-        saw,
-        sawTri,
-        triangle,
-        pulse,
-        totalSelectable,
-        noise // noise needs to be after totalSelectable, because it's not selectable with the regular oscillators
-    };
-
-    int getLastSelectionIndex() override { return totalSelectable - 1; }
-    bool isNullSelectionAllowed() override { return true; }
-};
-
-struct LfoShape : public Selection
-{
-    enum
-    {
-        triangle = 0,
-        saw,
-        //revSaw,
-        square,
-        random,
-        totalSelectable
-    };
-
-    int getLastSelectionIndex() override { return totalSelectable - 1; }
-    bool isNullSelectionAllowed() override { return false; }
-};
-
-struct LfoDest : public Selection
-{
-    enum
-    {
-        osc1Freq = 0,
-        osc2Freq,
-        filterCutOff,
-        filterResonance,
-        totalSelectable
-    };
-
-    int getLastSelectionIndex() override { return totalSelectable - 1; }
-    bool isNullSelectionAllowed() override { return false; }
-};
 
 enum defaults
 {

@@ -17,7 +17,6 @@
 */
 
 #include "sBMP4LookAndFeel.h"
-#include "Helpers.h"
 
 sBMP4LookAndFeel::sBMP4LookAndFeel()
 {

@@ -73,15 +73,13 @@ void sBMP4Synthesiser::parameterChanged (const juce::String& parameterID, float 
              || parameterID == ampDecayID.getParamID ()
              || parameterID == ampSustainID.getParamID ()
              || parameterID == ampReleaseID.getParamID ())
-        for (auto voice : voices)
-            dynamic_cast<sBMP4Voice*> (voice)->setAmpParam (parameterID, newValue);
+        applyToAllVoices ([parameterID] (sBMP4Voice* voice, float newValue) { voice->setAmpParam (parameterID, newValue); }, newValue);
 
     else if (parameterID == filterEnvAttackID.getParamID ()
              || parameterID == filterEnvDecayID.getParamID ()
              || parameterID == filterEnvSustainID.getParamID ()
              || parameterID == filterEnvReleaseID.getParamID ())
-        for (auto voice : voices)
-            dynamic_cast<sBMP4Voice*> (voice)->setFilterEnvParam (parameterID, newValue);
+        applyToAllVoices ([parameterID] (sBMP4Voice* voice, float newValue) { voice->setFilterEnvParam (parameterID, newValue); }, newValue);
 
     else if (parameterID == lfoShapeID.getParamID ())
         applyToAllVoices ([] (sBMP4Voice* voice, float newValue) { voice->setLfoShape ((int) newValue); }, newValue);

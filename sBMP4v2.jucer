@@ -8,24 +8,26 @@
               addUsingNamespaceToJuceHeader="0">
   <MAINGROUP id="M1KKAR" name="sBMP4v2">
     <GROUP id="{F09A54D2-9168-8E51-F638-B70D48E09C9D}" name="Source">
+      <GROUP id="{4B00E138-2E49-3682-528E-631D3E065DB0}" name="UI">
+        <FILE id="Ix1jl7" name="ButtonGroupComponent.cpp" compile="1" resource="0"
+              file="Source/UI/ButtonGroupComponent.cpp"/>
+        <FILE id="DwesYC" name="ButtonGroupComponent.h" compile="0" resource="0"
+              file="Source/UI/ButtonGroupComponent.h"/>
+        <FILE id="d1sUnw" name="PluginEditor.cpp" compile="1" resource="0"
+              file="Source/UI/PluginEditor.cpp"/>
+        <FILE id="CPBCbG" name="PluginEditor.h" compile="0" resource="0" file="Source/UI/PluginEditor.h"/>
+        <FILE id="lQq7M7" name="sBMP4LookAndFeel.cpp" compile="1" resource="0"
+              file="Source/UI/sBMP4LookAndFeel.cpp"/>
+        <FILE id="peN610" name="sBMP4LookAndFeel.h" compile="0" resource="0"
+              file="Source/UI/sBMP4LookAndFeel.h"/>
+      </GROUP>
       <FILE id="fmyiJD" name="GainedOscillator.h" compile="0" resource="0"
             file="Source/GainedOscillator.h"/>
-      <FILE id="Tlmnnn" name="ButtonGroupComponent.cpp" compile="1" resource="0"
-            file="Source/ButtonGroupComponent.cpp"/>
-      <FILE id="BXRQon" name="ButtonGroupComponent.h" compile="0" resource="0"
-            file="Source/ButtonGroupComponent.h"/>
       <FILE id="Hywnyk" name="Helpers.h" compile="0" resource="0" file="Source/Helpers.h"/>
       <FILE id="nZP4SQ" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="fptyKX" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
-      <FILE id="YxOzh9" name="PluginEditor.cpp" compile="1" resource="0"
-            file="Source/PluginEditor.cpp"/>
-      <FILE id="BDSnwx" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
-      <FILE id="JJnaGc" name="sBMP4LookAndFeel.cpp" compile="1" resource="0"
-            file="Source/sBMP4LookAndFeel.cpp"/>
-      <FILE id="prLzhu" name="sBMP4LookAndFeel.h" compile="0" resource="0"
-            file="Source/sBMP4LookAndFeel.h"/>
       <FILE id="sYObB0" name="sBMP4Synthesiser.cpp" compile="1" resource="0"
             file="Source/sBMP4Synthesiser.cpp"/>
       <FILE id="DXkMBm" name="sBMP4Synthesiser.h" compile="0" resource="0"

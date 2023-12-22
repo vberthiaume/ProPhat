@@ -16,7 +16,7 @@
   ==============================================================================
 */
 
-#include "PluginProcessor.h"
+#include "../PluginProcessor.h"
 #include "PluginEditor.h"
 
 using namespace sBMP4AudioProcessorIDs;

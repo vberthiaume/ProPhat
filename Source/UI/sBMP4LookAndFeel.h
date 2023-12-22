@@ -17,8 +17,7 @@
 */
 
 #pragma once
-#include "../JuceLibraryCode/JuceHeader.h"
-#include "Helpers.h"
+#include "../Helpers.h"
 
 #ifndef USE_SVG
 #define USE_SVG 1

@@ -19,7 +19,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "PluginProcessor.h"
+#include "../PluginProcessor.h"
 #include "ButtonGroupComponent.h"
 #include "sBMP4LookAndFeel.h"
 
