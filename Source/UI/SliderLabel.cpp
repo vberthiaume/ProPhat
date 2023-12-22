@@ -20,18 +20,23 @@
 
 SliderLabel::SliderLabel ()
 {
-    setJustificationType (juce::Justification::centredBottom);
+    setJustificationType (juce::Justification::centredTop);
     setFont (sharedFonts->regular.withHeight (Constants::labelFontHeight));
     setMinimumHorizontalScale (1.f);
 }
 
 void SliderLabel::componentMovedOrResized (juce::Component& attachedSlider, bool, bool)
 {
+    constexpr auto gap    { 7 };
     const auto theFont    { getFont () };
-    const auto textWidth  { theFont.getStringWidthFloat (getText ()) };
     const auto borderSize { getBorderSize () };
 
-    //TODO: we should probably set the width here to be the length of the text?
-    auto height = borderSize.getTopAndBottom () + 6 + juce::roundToInt (theFont.getHeight () + 0.5f);
-    setBounds (attachedSlider.getX (), attachedSlider.getY () + attachedSlider.getHeight () - height + 7, attachedSlider.getWidth (), height);
+    const auto width      { theFont.getStringWidth (getText ()) + borderSize.getLeftAndRight () };
+    const auto height     { theFont.getHeight() };
+
+    //position the label to be the width of its text and centered below the slider
+    setBounds (static_cast<int> (attachedSlider.getX () + (attachedSlider.getWidth () - width) / 2),
+               static_cast<int> (attachedSlider.getBottom () - height + gap),
+               width,
+               static_cast<int> (height));
 }
