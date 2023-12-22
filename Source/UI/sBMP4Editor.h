@@ -21,31 +21,7 @@
 #include "../sBMP4Processor.h"
 #include "ButtonGroupComponent.h"
 #include "sBMP4LookAndFeel.h"
-
-//==============================================================================
-
-class SnappingSlider : public juce::Slider
-{
-public:
-    SnappingSlider (const SliderStyle& style = juce::Slider::RotaryVerticalDrag, double snapValue = 0.0, double snapTolerance = 0.02) :
-        juce::Slider (style, TextEntryBoxPosition::NoTextBox), 
-        snapVal (snapValue),
-        tolerance (snapTolerance)
-    {
-        setPopupDisplayEnabled (true, false, nullptr);
-    }
-
-    double snapValue (double attemptedValue, DragMode) override
-    {
-        return std::abs (snapVal - attemptedValue) < tolerance ? snapVal : attemptedValue;
-    }
-
-private:
-    double snapVal;     // The value of the slider at which to snap.
-    double tolerance;   // The proximity (in proportion of the slider length) to the snap point before snapping.
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SnappingSlider)
-};
+#include "SnappingSlider.h"
 
 /** The main labels used in the plugin.
 */
