@@ -21,9 +21,9 @@
 #include "sBMP4Voice.h"
 #include "Helpers.h"
 
-/** The main Synthesiser for the plugin.
-*   It uses Constants::numVoices voices (of type sBMP4Voice), and one sBMP4Sound
-*   which applies to all midi notes.
+/** The main Synthesiser for the plugin. It uses Constants::numVoices voices (of type sBMP4Voice),
+*   and one sBMP4Sound, which applies to all midi notes. It responds to paramater changes in the
+*   state via juce::AudioProcessorValueTreeState::Listener().
 */
 class sBMP4Synthesiser : public juce::Synthesiser, public juce::AudioProcessorValueTreeState::Listener
 {
@@ -35,7 +35,11 @@ public:
     void parameterChanged (const juce::String& parameterID, float newValue) override;
 
     using VoiceOperation = std::function<void (sBMP4Voice*, float)>;
-    void applyToAllVoices (VoiceOperation operation, float newValue);
+    inline void applyToAllVoices (VoiceOperation operation, float newValue)
+    {
+        for (auto voice : voices)
+            operation (dynamic_cast<sBMP4Voice*> (voice), newValue);
+    }
 
     void setEffectParam (juce::StringRef parameterID, float newValue);
 
