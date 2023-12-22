@@ -23,8 +23,12 @@ constexpr auto verticalGap { 5.f };
 
 #include "ButtonGroupComponent.h"
 
-ButtonGroupComponent::ButtonGroupComponent (juce::AudioProcessorValueTreeState& processorState, const juce::String& theParameterID, std::unique_ptr<Selection> theSelection,
-                                            juce::StringRef mainButtonName, juce::Array<juce::StringRef> selectionButtonNames, bool allowEmpty) :
+ButtonGroupComponent::ButtonGroupComponent (juce::AudioProcessorValueTreeState& processorState,
+                                            const juce::String& theParameterID,
+                                            std::unique_ptr<Selection> theSelection,
+                                            juce::StringRef mainButtonName,
+                                            juce::Array<juce::StringRef> selectionButtonNames,
+                                            bool allowEmpty) :
     state (processorState),
     parameterID (theParameterID),
     mainButton (mainButtonName, juce::DrawableButton::ImageAboveTextLabel),
@@ -81,8 +85,8 @@ void ButtonGroupComponent::buttonClicked (juce::Button* button)
             if (selectionButtons[i] == button)
                 setSelection (i + incr);
 }
-/**
-    A selectionIndex of 0 means no selection. A selection of 1 is the first one
+
+/** A selectionIndex of 0 means no selection. A selection of 1 is the first one
 */
 void ButtonGroupComponent::setSelection (int selectionIndex)
 {
