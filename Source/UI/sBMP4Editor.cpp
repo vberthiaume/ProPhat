@@ -32,7 +32,7 @@ constexpr auto lineCount            { 4 };
 constexpr auto lineH                { 75.f };
 
 constexpr auto numButtonGroupColumn { 1 };
-constexpr auto buttonGroupColumnW   { 125.f };
+constexpr auto buttonGroupColumnW   { 140.f };
 
 constexpr auto numSliderColumn      { 8 };
 constexpr auto sliderColumnW        { 98.f };

@@ -17,7 +17,7 @@
 */
 
 #pragma once
-#include <JuceHeader.h>
+#include "Helpers.h"
 #include <random>
 
 template <typename Type>
