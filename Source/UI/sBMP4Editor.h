@@ -21,35 +21,9 @@
 #include "../sBMP4Processor.h"
 #include "ButtonGroupComponent.h"
 #include "sBMP4LookAndFeel.h"
+#include "sBMP4Label.h"
 #include "SnappingSlider.h"
 
-/** The main labels used in the plugin.
-*/
-class sBMP4Label : public juce::Label
-{
-public:
-    sBMP4Label ()
-    {
-        setJustificationType (juce::Justification::centredBottom);
-        setFont (sharedFonts->regular.withHeight (labelFontHeight));
-        setMinimumHorizontalScale (1.f);
-    }
-
-    void componentMovedOrResized (juce::Component& component, bool /*wasMoved*/, bool /*wasResized*/) override
-    {
-        auto& lf = getLookAndFeel();
-        auto f = lf.getLabelFont (*this);
-        auto borderSize = lf.getLabelBorderSize (*this);
-
-        auto height = borderSize.getTopAndBottom() + 6 + juce::roundToInt (f.getHeight() + 0.5f);
-        setBounds (component.getX(), component.getY() + component.getHeight() - height + 7, component.getWidth(), height);
-    }
-
-private:
-    juce::SharedResourcePointer<SharedFonts> sharedFonts;
-};
-
-//==============================================================================
 /**
 */
 class sBMP4Editor : public juce::AudioProcessorEditor
