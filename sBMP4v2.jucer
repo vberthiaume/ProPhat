@@ -13,21 +13,26 @@
               file="Source/UI/ButtonGroupComponent.cpp"/>
         <FILE id="DwesYC" name="ButtonGroupComponent.h" compile="0" resource="0"
               file="Source/UI/ButtonGroupComponent.h"/>
-        <FILE id="d1sUnw" name="PluginEditor.cpp" compile="1" resource="0"
-              file="Source/UI/PluginEditor.cpp"/>
-        <FILE id="CPBCbG" name="PluginEditor.h" compile="0" resource="0" file="Source/UI/PluginEditor.h"/>
+        <FILE id="d1sUnw" name="sBMP4Editor.cpp" compile="1" resource="0" file="Source/UI/sBMP4Editor.cpp"/>
+        <FILE id="CPBCbG" name="sBMP4Editor.h" compile="0" resource="0" file="Source/UI/sBMP4Editor.h"/>
+        <FILE id="dzY1tn" name="sBMP4Label.cpp" compile="1" resource="0" file="Source/UI/sBMP4Label.cpp"/>
+        <FILE id="a32gt3" name="sBMP4Label.h" compile="0" resource="0" file="Source/UI/sBMP4Label.h"/>
         <FILE id="lQq7M7" name="sBMP4LookAndFeel.cpp" compile="1" resource="0"
               file="Source/UI/sBMP4LookAndFeel.cpp"/>
         <FILE id="peN610" name="sBMP4LookAndFeel.h" compile="0" resource="0"
               file="Source/UI/sBMP4LookAndFeel.h"/>
+        <FILE id="mr33eA" name="SnappingSlider.cpp" compile="1" resource="0"
+              file="Source/UI/SnappingSlider.cpp"/>
+        <FILE id="vHfK7o" name="SnappingSlider.h" compile="0" resource="0"
+              file="Source/UI/SnappingSlider.h"/>
       </GROUP>
       <FILE id="fmyiJD" name="GainedOscillator.h" compile="0" resource="0"
             file="Source/GainedOscillator.h"/>
       <FILE id="Hywnyk" name="Helpers.h" compile="0" resource="0" file="Source/Helpers.h"/>
-      <FILE id="nZP4SQ" name="PluginProcessor.cpp" compile="1" resource="0"
-            file="Source/PluginProcessor.cpp"/>
-      <FILE id="fptyKX" name="PluginProcessor.h" compile="0" resource="0"
-            file="Source/PluginProcessor.h"/>
+      <FILE id="nZP4SQ" name="sBMP4Processor.cpp" compile="1" resource="0"
+            file="Source/sBMP4Processor.cpp"/>
+      <FILE id="fptyKX" name="sBMP4Processor.h" compile="0" resource="0"
+            file="Source/sBMP4Processor.h"/>
       <FILE id="sYObB0" name="sBMP4Synthesiser.cpp" compile="1" resource="0"
             file="Source/sBMP4Synthesiser.cpp"/>
       <FILE id="DXkMBm" name="sBMP4Synthesiser.h" compile="0" resource="0"

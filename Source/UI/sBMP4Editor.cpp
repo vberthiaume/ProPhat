@@ -16,8 +16,8 @@
   ==============================================================================
 */
 
-#include "../PluginProcessor.h"
-#include "PluginEditor.h"
+#include "../sBMP4Processor.h"
+#include "sBMP4Editor.h"
 
 using namespace sBMP4AudioProcessorIDs;
 using namespace sBMP4AudioProcessorNames;
@@ -43,7 +43,7 @@ constexpr auto totalWidth           { 2 * overallGap + 4 * panelGap + numButtonG
 
 //==============================================================================
 
-sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
+sBMP4Editor::sBMP4Editor (sBMP4Processor& p) :
     juce::AudioProcessorEditor (p),
     processor (p),
 
@@ -159,12 +159,12 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
 }
 
-void sBMP4AudioProcessorEditor::paint (juce::Graphics& g)
+void sBMP4Editor::paint (juce::Graphics& g)
 {
     g.drawImage (backgroundTexture, getLocalBounds().toFloat());
 }
 
-void sBMP4AudioProcessorEditor::resized()
+void sBMP4Editor::resized()
 {
     auto bounds = getLocalBounds().toFloat().reduced (overallGap);
 

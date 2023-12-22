@@ -16,8 +16,8 @@
   ==============================================================================
 */
 
-#include "PluginProcessor.h"
-#include "UI/PluginEditor.h"
+#include "sBMP4Processor.h"
+#include "UI/sBMP4Editor.h"
 #include <limits>
 
 using namespace sBMP4AudioProcessorIDs;
@@ -25,7 +25,7 @@ using namespace sBMP4AudioProcessorNames;
 using namespace sBMP4AudioProcessorChoices;
 using namespace Constants;
 
-sBMP4AudioProcessor::sBMP4AudioProcessor()
+sBMP4Processor::sBMP4Processor()
     : juce::AudioProcessor (BusesProperties().withInput  ("Input", juce::AudioChannelSet::stereo(), true)
                                              .withOutput ("Output", juce::AudioChannelSet::stereo(), true))
     , state { constructState () }
@@ -36,7 +36,7 @@ sBMP4AudioProcessor::sBMP4AudioProcessor()
     addParamListenersToState ();
 }
 
-juce::AudioProcessorValueTreeState sBMP4AudioProcessor::constructState ()
+juce::AudioProcessorValueTreeState sBMP4Processor::constructState ()
 {
     //TODO: add undo manager!
     return { *this, nullptr, "state",
@@ -80,7 +80,7 @@ juce::AudioProcessorValueTreeState sBMP4AudioProcessor::constructState ()
     }};
 }
 
-void sBMP4AudioProcessor::addParamListenersToState ()
+void sBMP4Processor::addParamListenersToState ()
 {
     //NOW HERE: WHAT DOES THIS ACTUALLY DO?
     state.addParameterListener (osc1FreqID.getParamID (), &sBMP4Synth);
@@ -121,27 +121,27 @@ void sBMP4AudioProcessor::addParamListenersToState ()
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool sBMP4AudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool sBMP4Processor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
     return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::mono()
            || layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();
 }
 #endif
 
-void sBMP4AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void sBMP4Processor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     jassert (! isUsingDoublePrecision());
     process (buffer, midiMessages);
 }
 
-void sBMP4AudioProcessor::processBlock (juce::AudioBuffer<double>& buffer, juce::MidiBuffer& midiMessages)
+void sBMP4Processor::processBlock (juce::AudioBuffer<double>& buffer, juce::MidiBuffer& midiMessages)
 {
     jassert (isUsingDoublePrecision());
     process (buffer, midiMessages);
 }
 
 template <typename T>
-void sBMP4AudioProcessor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages)
+void sBMP4Processor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
 
@@ -160,24 +160,24 @@ void sBMP4AudioProcessor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffe
 #endif
 }
 
-void sBMP4AudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void sBMP4Processor::getStateInformation (juce::MemoryBlock& destData)
 {
     if (auto xmlState { state.copyState ().createXml () })
         copyXmlToBinary (*xmlState, destData);
 }
 
-void sBMP4AudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void sBMP4Processor::setStateInformation (const void* data, int sizeInBytes)
 {
     if (auto xmlState { getXmlFromBinary (data, sizeInBytes) })
         state.replaceState (juce::ValueTree::fromXml (*xmlState));
 }
 
-juce::AudioProcessorEditor* sBMP4AudioProcessor::createEditor()
+juce::AudioProcessorEditor* sBMP4Processor::createEditor()
 {
-    return new sBMP4AudioProcessorEditor (*this);
+    return new sBMP4Editor (*this);
 }
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new sBMP4AudioProcessor();
+    return new sBMP4Processor();
 }

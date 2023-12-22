@@ -18,8 +18,7 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
-#include "../PluginProcessor.h"
+#include "../sBMP4Processor.h"
 #include "ButtonGroupComponent.h"
 #include "sBMP4LookAndFeel.h"
 
@@ -28,7 +27,7 @@
 class SnappingSlider : public juce::Slider
 {
 public:
-    SnappingSlider (const SliderStyle& style = juce::Slider::RotaryVerticalDrag, double snapValue = 0.0, double snapTolerance = 0.15) :
+    SnappingSlider (const SliderStyle& style = juce::Slider::RotaryVerticalDrag, double snapValue = 0.0, double snapTolerance = 0.02) :
         juce::Slider (style, TextEntryBoxPosition::NoTextBox), 
         snapVal (snapValue),
         tolerance (snapTolerance)
@@ -36,11 +35,10 @@ public:
         setPopupDisplayEnabled (true, false, nullptr);
     }
 
-    //@TODO reactivate this when needed, it's causing issues
-    //double snapValue (double attemptedValue, DragMode) override
-    //{
-    //    return std::abs (snapVal - attemptedValue) < tolerance ? snapVal : attemptedValue;
-    //}
+    double snapValue (double attemptedValue, DragMode) override
+    {
+        return std::abs (snapVal - attemptedValue) < tolerance ? snapVal : attemptedValue;
+    }
 
 private:
     double snapVal;     // The value of the slider at which to snap.
@@ -78,14 +76,14 @@ private:
 //==============================================================================
 /**
 */
-class sBMP4AudioProcessorEditor : public juce::AudioProcessorEditor
+class sBMP4Editor : public juce::AudioProcessorEditor
 #if CPU_USAGE
     , public Timer
 #endif
 {
 public:
-    sBMP4AudioProcessorEditor (sBMP4AudioProcessor&);
-    ~sBMP4AudioProcessorEditor () { setLookAndFeel (nullptr); }
+    sBMP4Editor (sBMP4Processor&);
+    ~sBMP4Editor () { setLookAndFeel (nullptr); }
 
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -99,7 +97,7 @@ public:
 #endif
 
 private:
-    sBMP4AudioProcessor& processor;
+    sBMP4Processor& processor;
 
     sBMP4LookAndFeel lnf;
     juce::SharedResourcePointer<SharedFonts> sharedFonts;
@@ -151,5 +149,5 @@ private:
     juce::Label cpuUsageText;
 #endif
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4Editor)
 };

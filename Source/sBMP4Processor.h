@@ -23,10 +23,10 @@
 /** The main AudioProcessor for the plugin.
 *   All we do in here is basically set up the state and init the sBMP4Synth.
 */
-class sBMP4AudioProcessor : public juce::AudioProcessor
+class sBMP4Processor : public juce::AudioProcessor
 {
 public:
-    sBMP4AudioProcessor();
+    sBMP4Processor();
 
     void addParamListenersToState ();
 
@@ -78,5 +78,5 @@ private:
 
     juce::AudioProcessorValueTreeState constructState ();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4Processor)
 };
