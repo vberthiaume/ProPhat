@@ -15,8 +15,8 @@
               file="Source/UI/ButtonGroupComponent.h"/>
         <FILE id="d1sUnw" name="sBMP4Editor.cpp" compile="1" resource="0" file="Source/UI/sBMP4Editor.cpp"/>
         <FILE id="CPBCbG" name="sBMP4Editor.h" compile="0" resource="0" file="Source/UI/sBMP4Editor.h"/>
-        <FILE id="dzY1tn" name="sBMP4Label.cpp" compile="1" resource="0" file="Source/UI/sBMP4Label.cpp"/>
-        <FILE id="a32gt3" name="sBMP4Label.h" compile="0" resource="0" file="Source/UI/sBMP4Label.h"/>
+        <FILE id="dzY1tn" name="SliderLabel.cpp" compile="1" resource="0" file="Source/UI/SliderLabel.cpp"/>
+        <FILE id="a32gt3" name="SliderLabel.h" compile="0" resource="0" file="Source/UI/SliderLabel.h"/>
         <FILE id="lQq7M7" name="sBMP4LookAndFeel.cpp" compile="1" resource="0"
               file="Source/UI/sBMP4LookAndFeel.cpp"/>
         <FILE id="peN610" name="sBMP4LookAndFeel.h" compile="0" resource="0"

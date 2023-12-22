@@ -21,10 +21,10 @@
 #include "../sBMP4Processor.h"
 #include "ButtonGroupComponent.h"
 #include "sBMP4LookAndFeel.h"
-#include "sBMP4Label.h"
+#include "SliderLabel.h"
 #include "SnappingSlider.h"
 
-/**
+/** The main editor for the plugin.
 */
 class sBMP4Editor : public juce::AudioProcessorEditor
 #if CPU_USAGE
@@ -57,7 +57,7 @@ private:
     juce::Image backgroundTexture;
 
     //OSCILLATORS
-    sBMP4Label osc1FreqSliderLabel, osc1TuningSliderLabel, osc2FreqSliderLabel, osc2TuningSliderLabel, oscSubSliderLabel, oscMixSliderLabel, oscNoiseSliderLabel, oscSlopSliderLabel;
+    SliderLabel osc1FreqSliderLabel, osc1TuningSliderLabel, osc2FreqSliderLabel, osc2TuningSliderLabel, oscSubSliderLabel, oscMixSliderLabel, oscNoiseSliderLabel, oscSlopSliderLabel;
     SnappingSlider osc1FreqSlider, osc2FreqSlider, osc1TuningSlider, osc2TuningSlider, oscSubSlider, oscMixSlider, oscNoiseSlider, oscSlopSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment osc1FreqAttachment, osc2FreqAttachment, osc1TuningAttachment, osc2TuningAttachment,
                                                          oscSubAttachment, oscMixAttachment, oscNoiseAttachment, oscSlopAttachment;
@@ -65,14 +65,14 @@ private:
     ButtonGroupComponent osc1ShapeButtons, osc2ShapeButtons;
 
     //FILTER
-    sBMP4Label filterCutoffLabel, filterResonanceLabel, filterEnvAttackLabel, filterEnvDecayLabel, filterEnvSustainLabel, filterEnvReleaseLabel;
+    SliderLabel filterCutoffLabel, filterResonanceLabel, filterEnvAttackLabel, filterEnvDecayLabel, filterEnvSustainLabel, filterEnvReleaseLabel;
     SnappingSlider filterCutoffSlider, filterResonanceSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment filterCutoffAttachment, filterResonanceAttachment;
     SnappingSlider filterEnvAttackSlider, filterEnvDecaySlider, filterEnvSustainSlider, filterEnvReleaseSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment filterEnvAttackAttachment, filterEnvDecayAttachment, filterEnvSustainAttachment, filterEnvReleaseAttachment;
 
     //AMPLIFIER
-    sBMP4Label ampAttackLabel, ampDecayLabel, ampSustainLabel, ampReleaseLabel;
+    SliderLabel ampAttackLabel, ampDecayLabel, ampSustainLabel, ampReleaseLabel;
     SnappingSlider ampAttackSlider, ampDecaySlider, ampSustainSlider, ampReleaseSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment ampAttackAttachment, ampDecayAttachment, ampSustainAttachment, ampReleaseAttachment;
 
@@ -80,17 +80,17 @@ private:
     ButtonGroupComponent lfoShapeButtons;
     ButtonGroupComponent lfoDestButtons;
 
-    sBMP4Label lfoFreqLabel, lfoAmountLabel;
+    SliderLabel lfoFreqLabel, lfoAmountLabel;
     SnappingSlider lfoFreqSlider, lfoAmountSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment lfoFreqAttachment, lfoAmountAttachment;
 
     //EFFECT
-    sBMP4Label effectParam1Label, effectParam2Label;
+    SliderLabel effectParam1Label, effectParam2Label;
     SnappingSlider effectParam1Slider, effectParam2Slider;
     juce::AudioProcessorValueTreeState::SliderAttachment effectParam1Attachment, effectParam2Attachment;
 
     //OTHER
-    sBMP4Label masterGainLabel;
+    SliderLabel masterGainLabel;
     SnappingSlider masterGainSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment masterGainAttachment;
 

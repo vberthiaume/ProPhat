@@ -19,14 +19,15 @@
 #pragma once
 #include "../Helpers.h"
 
-/** The main labels used in the plugin.
+/** Labels that are attached to Sliders
 */
-class sBMP4Label : public juce::Label
+class SliderLabel : public juce::Label
 {
 public:
-    sBMP4Label ();
+    SliderLabel ();
 
-    void componentMovedOrResized (juce::Component& component, bool /*wasMoved*/, bool /*wasResized*/) override;
+    /** Called when the attached slider is moved or resized. */
+    void componentMovedOrResized (juce::Component& attachedSlider, bool /*wasMoved*/, bool /*wasResized*/) override;
 
 private:
     juce::SharedResourcePointer<SharedFonts> sharedFonts;
