@@ -17,6 +17,7 @@
 */
 
 #pragma once
+#include <JuceHeader.h>
 
 #ifndef CPU_USAGE
     #define CPU_USAGE 0
@@ -207,6 +208,67 @@ constexpr auto lfoDest1     { "Osc2 Freq" };
 constexpr auto lfoDest2     { "Cutoff" };
 constexpr auto lfoDest3     { "Resonance" };
 }
+
+struct Selection
+{
+    Selection () = default;
+    Selection (int selection) : curSelection (selection) {}
+    virtual ~Selection () = default;
+
+    int curSelection;
+
+    virtual int getLastSelectionIndex () = 0;
+    virtual bool isNullSelectionAllowed () = 0;
+};
+
+struct OscShape : public Selection
+{
+    enum
+    {
+        none = 0,
+        saw,
+        sawTri,
+        triangle,
+        pulse,
+        totalSelectable,
+        noise // noise needs to be after totalSelectable, because it's not selectable with the regular oscillators
+    };
+
+    int getLastSelectionIndex () override { return totalSelectable - 1; }
+    bool isNullSelectionAllowed () override { return true; }
+};
+
+struct LfoShape : public Selection
+{
+    enum
+    {
+        triangle = 0,
+        saw,
+        //revSaw,
+        square,
+        random,
+        totalSelectable
+    };
+
+    int getLastSelectionIndex () override { return totalSelectable - 1; }
+    bool isNullSelectionAllowed () override { return false; }
+};
+
+struct LfoDest : public Selection
+{
+    enum
+    {
+        osc1Freq = 0,
+        osc2Freq,
+        filterCutOff,
+        filterResonance,
+        totalSelectable
+    };
+
+    int getLastSelectionIndex () override { return totalSelectable - 1; }
+    bool isNullSelectionAllowed () override { return false; }
+};
+
 
 //====================================================================================================
 

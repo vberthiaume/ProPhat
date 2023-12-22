@@ -18,74 +18,22 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
-#include "PluginProcessor.h"
+#include "../sBMP4Processor.h"
 #include "ButtonGroupComponent.h"
 #include "sBMP4LookAndFeel.h"
+#include "SliderLabel.h"
+#include "SnappingSlider.h"
 
-//==============================================================================
-
-class SnappingSlider : public juce::Slider
-{
-public:
-    SnappingSlider (const SliderStyle& style = juce::Slider::RotaryVerticalDrag, double snapValue = 0.0, double snapTolerance = 0.15) :
-        juce::Slider (style, TextEntryBoxPosition::NoTextBox), 
-        snapVal (snapValue),
-        tolerance (snapTolerance)
-    {
-        setPopupDisplayEnabled (true, false, nullptr);
-    }
-
-    //@TODO reactivate this when needed, it's causing issues
-    //double snapValue (double attemptedValue, DragMode) override
-    //{
-    //    return std::abs (snapVal - attemptedValue) < tolerance ? snapVal : attemptedValue;
-    //}
-
-private:
-    double snapVal;     // The value of the slider at which to snap.
-    double tolerance;   // The proximity (in proportion of the slider length) to the snap point before snapping.
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SnappingSlider)
-};
-
-/** The main labels used in the plugin.
+/** The main editor for the plugin.
 */
-class sBMP4Label : public juce::Label
-{
-public:
-    sBMP4Label ()
-    {
-        setJustificationType (juce::Justification::centredBottom);
-        setFont (sharedFonts->regular.withHeight (labelFontHeight));
-        setMinimumHorizontalScale (1.f);
-    }
-
-    void componentMovedOrResized (juce::Component& component, bool /*wasMoved*/, bool /*wasResized*/) override
-    {
-        auto& lf = getLookAndFeel();
-        auto f = lf.getLabelFont (*this);
-        auto borderSize = lf.getLabelBorderSize (*this);
-
-        auto height = borderSize.getTopAndBottom() + 6 + juce::roundToInt (f.getHeight() + 0.5f);
-        setBounds (component.getX(), component.getY() + component.getHeight() - height + 7, component.getWidth(), height);
-    }
-
-private:
-    juce::SharedResourcePointer<SharedFonts> sharedFonts;
-};
-
-//==============================================================================
-/**
-*/
-class sBMP4AudioProcessorEditor : public juce::AudioProcessorEditor
+class sBMP4Editor : public juce::AudioProcessorEditor
 #if CPU_USAGE
     , public Timer
 #endif
 {
 public:
-    sBMP4AudioProcessorEditor (sBMP4AudioProcessor&);
-    ~sBMP4AudioProcessorEditor () { setLookAndFeel (nullptr); }
+    sBMP4Editor (sBMP4Processor&);
+    ~sBMP4Editor () { setLookAndFeel (nullptr); }
 
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -99,7 +47,7 @@ public:
 #endif
 
 private:
-    sBMP4AudioProcessor& processor;
+    sBMP4Processor& processor;
 
     sBMP4LookAndFeel lnf;
     juce::SharedResourcePointer<SharedFonts> sharedFonts;
@@ -109,7 +57,7 @@ private:
     juce::Image backgroundTexture;
 
     //OSCILLATORS
-    sBMP4Label osc1FreqSliderLabel, osc1TuningSliderLabel, osc2FreqSliderLabel, osc2TuningSliderLabel, oscSubSliderLabel, oscMixSliderLabel, oscNoiseSliderLabel, oscSlopSliderLabel;
+    SliderLabel osc1FreqSliderLabel, osc1TuningSliderLabel, osc2FreqSliderLabel, osc2TuningSliderLabel, oscSubSliderLabel, oscMixSliderLabel, oscNoiseSliderLabel, oscSlopSliderLabel;
     SnappingSlider osc1FreqSlider, osc2FreqSlider, osc1TuningSlider, osc2TuningSlider, oscSubSlider, oscMixSlider, oscNoiseSlider, oscSlopSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment osc1FreqAttachment, osc2FreqAttachment, osc1TuningAttachment, osc2TuningAttachment,
                                                          oscSubAttachment, oscMixAttachment, oscNoiseAttachment, oscSlopAttachment;
@@ -117,14 +65,14 @@ private:
     ButtonGroupComponent osc1ShapeButtons, osc2ShapeButtons;
 
     //FILTER
-    sBMP4Label filterCutoffLabel, filterResonanceLabel, filterEnvAttackLabel, filterEnvDecayLabel, filterEnvSustainLabel, filterEnvReleaseLabel;
+    SliderLabel filterCutoffLabel, filterResonanceLabel, filterEnvAttackLabel, filterEnvDecayLabel, filterEnvSustainLabel, filterEnvReleaseLabel;
     SnappingSlider filterCutoffSlider, filterResonanceSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment filterCutoffAttachment, filterResonanceAttachment;
     SnappingSlider filterEnvAttackSlider, filterEnvDecaySlider, filterEnvSustainSlider, filterEnvReleaseSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment filterEnvAttackAttachment, filterEnvDecayAttachment, filterEnvSustainAttachment, filterEnvReleaseAttachment;
 
     //AMPLIFIER
-    sBMP4Label ampAttackLabel, ampDecayLabel, ampSustainLabel, ampReleaseLabel;
+    SliderLabel ampAttackLabel, ampDecayLabel, ampSustainLabel, ampReleaseLabel;
     SnappingSlider ampAttackSlider, ampDecaySlider, ampSustainSlider, ampReleaseSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment ampAttackAttachment, ampDecayAttachment, ampSustainAttachment, ampReleaseAttachment;
 
@@ -132,17 +80,17 @@ private:
     ButtonGroupComponent lfoShapeButtons;
     ButtonGroupComponent lfoDestButtons;
 
-    sBMP4Label lfoFreqLabel, lfoAmountLabel;
+    SliderLabel lfoFreqLabel, lfoAmountLabel;
     SnappingSlider lfoFreqSlider, lfoAmountSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment lfoFreqAttachment, lfoAmountAttachment;
 
     //EFFECT
-    sBMP4Label effectParam1Label, effectParam2Label;
+    SliderLabel effectParam1Label, effectParam2Label;
     SnappingSlider effectParam1Slider, effectParam2Slider;
     juce::AudioProcessorValueTreeState::SliderAttachment effectParam1Attachment, effectParam2Attachment;
 
     //OTHER
-    sBMP4Label masterGainLabel;
+    SliderLabel masterGainLabel;
     SnappingSlider masterGainSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment masterGainAttachment;
 
@@ -151,5 +99,5 @@ private:
     juce::Label cpuUsageText;
 #endif
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4Editor)
 };

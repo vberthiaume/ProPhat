@@ -1,77 +1,24 @@
 /*
   ==============================================================================
 
-    ButtonGroupComponent.h
-    Created: 23 Jan 2019 4:41:28pm
-    Author:  Haake
+   Copyright (c) 2019 - Vincent Berthiaume
+
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
+
+   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
-#include "Helpers.h"
+#include "../Helpers.h"
 #include <memory>
-
-struct Selection
-{
-    Selection() = default;
-    Selection (int selection) : curSelection (selection) {}
-    virtual ~Selection() = default;
-
-    int curSelection;
-
-    virtual int getLastSelectionIndex() = 0;
-    virtual bool isNullSelectionAllowed() = 0;
-};
-
-struct OscShape : public Selection
-{
-    enum
-    {
-        none = 0,
-        saw,
-        sawTri,
-        triangle,
-        pulse,
-        totalSelectable,
-        noise // noise needs to be after totalSelectable, because it's not selectable with the regular oscillators
-    };
-
-    int getLastSelectionIndex() override { return totalSelectable - 1; }
-    bool isNullSelectionAllowed() override { return true; }
-};
-
-struct LfoShape : public Selection
-{
-    enum
-    {
-        triangle = 0,
-        saw,
-        //revSaw,
-        square,
-        random,
-        totalSelectable
-    };
-
-    int getLastSelectionIndex() override { return totalSelectable - 1; }
-    bool isNullSelectionAllowed() override { return false; }
-};
-
-struct LfoDest : public Selection
-{
-    enum
-    {
-        osc1Freq = 0,
-        osc2Freq,
-        filterCutOff,
-        filterResonance,
-        totalSelectable
-    };
-
-    int getLastSelectionIndex() override { return totalSelectable - 1; }
-    bool isNullSelectionAllowed() override { return false; }
-};
 
 enum defaults
 {
@@ -97,6 +44,8 @@ public:
         return reduced;
     }
 };
+
+//=====================================================================
 
 /** A component with a main button on the left that toggles between a series of selectionButtons
 *   (which are juce::ToggleButtons) on the right. Selection buttons are also selectable directly

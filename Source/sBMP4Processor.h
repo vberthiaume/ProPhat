@@ -18,26 +18,25 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
-#include "sBMP4Voice.h"
 #include "sBMP4Synthesiser.h"
-#include "Helpers.h"
 
-//==============================================================================
-
-class sBMP4AudioProcessor : public juce::AudioProcessor
+/** The main AudioProcessor for the plugin.
+*   All we do in here is basically set up the state and init the sBMP4Synth.
+*/
+class sBMP4Processor : public juce::AudioProcessor
 {
 public:
+    sBMP4Processor();
 
-    //==============================================================================
-    sBMP4AudioProcessor();
-    ~sBMP4AudioProcessor();
+    void addParamListenersToState ();
 
-    void reset() override;
+    void prepareToPlay (double sampleRate, int samplesPerBlock) override
+    {
+        sBMP4Synth.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
+    }
 
-    //==============================================================================
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
-    void releaseResources() override;
+    void reset () override {}
+    void releaseResources () override {}
 
 #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
@@ -46,13 +45,12 @@ public:
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     void processBlock (juce::AudioBuffer<double>&, juce::MidiBuffer&) override;
 
-    void process (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages);
+    template <typename T>
+    void process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages);
 
-    //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
 
-    //==============================================================================
     const juce::String getName() const override { return JucePlugin_Name; }
 
     bool acceptsMidi() const override { return true; }
@@ -60,14 +58,12 @@ public:
     bool isMidiEffect() const override { return false; }
     double getTailLengthSeconds() const override { return 0.0; }
 
-    //==============================================================================
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
     void setCurrentProgram (int /*index*/) override { }
     const juce::String getProgramName (int /*index*/) override { return {}; }
     void changeProgramName (int /*index*/, const juce::String& /*newName*/) override { }
 
-    //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
@@ -78,11 +74,9 @@ public:
 #endif
 
 private:
+    sBMP4Synthesiser sBMP4Synth;
 
-    //==============================================================================
-    double lastSampleRate = {};
+    juce::AudioProcessorValueTreeState constructState ();
 
-    sBMP4Synthesiser synth;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4AudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4Processor)
 };

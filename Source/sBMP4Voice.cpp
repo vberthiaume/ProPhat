@@ -17,7 +17,7 @@
 */
 
 #include "sBMP4Voice.h"
-#include "ButtonGroupComponent.h"
+#include "UI/ButtonGroupComponent.h"
 
 sBMP4Voice::sBMP4Voice (int vId, std::set<int>* activeVoiceSet) :
 voiceId (vId),

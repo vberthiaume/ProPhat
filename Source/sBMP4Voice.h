@@ -17,7 +17,7 @@
 */
 
 #pragma once
-#include "ButtonGroupComponent.h"
+//#include "UI/ButtonGroupComponent.h"
 #include "GainedOscillator.h"
 #include "Helpers.h"
 
@@ -26,8 +26,6 @@
 
 struct sBMP4Sound : public juce::SynthesiserSound
 {
-    sBMP4Sound() {}
-
     bool appliesToNote    (int) override { return true; }
     bool appliesToChannel (int) override { return true; }
 };

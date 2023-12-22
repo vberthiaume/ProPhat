@@ -16,8 +16,8 @@
   ==============================================================================
 */
 
-#include "PluginProcessor.h"
-#include "PluginEditor.h"
+#include "../sBMP4Processor.h"
+#include "sBMP4Editor.h"
 
 using namespace sBMP4AudioProcessorIDs;
 using namespace sBMP4AudioProcessorNames;
@@ -32,7 +32,7 @@ constexpr auto lineCount            { 4 };
 constexpr auto lineH                { 75.f };
 
 constexpr auto numButtonGroupColumn { 1 };
-constexpr auto buttonGroupColumnW   { 125.f };
+constexpr auto buttonGroupColumnW   { 140.f };
 
 constexpr auto numSliderColumn      { 8 };
 constexpr auto sliderColumnW        { 98.f };
@@ -43,12 +43,12 @@ constexpr auto totalWidth           { 2 * overallGap + 4 * panelGap + numButtonG
 
 //==============================================================================
 
-sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
+sBMP4Editor::sBMP4Editor (sBMP4Processor& p) :
     juce::AudioProcessorEditor (p),
     processor (p),
 
     //OSCILLATORS
-    oscGroup ({}, oscGroupDesc),
+    oscGroup ("oscGroup", oscGroupDesc),
     osc1FreqAttachment (p.state, osc1FreqID.getParamID(), osc1FreqSlider),
     osc1TuningAttachment (p.state, osc1TuningID.getParamID(), osc1TuningSlider),
     osc1ShapeButtons (p.state, osc1ShapeID.getParamID(), std::make_unique<OscShape> (OscShape()), osc1ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
@@ -63,7 +63,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     oscSlopAttachment (p.state, oscSlopID.getParamID(), oscSlopSlider),
 
     //FILTERS
-    filterGroup ({}, filterGroupDesc),
+    filterGroup ("filterGroup", filterGroupDesc),
     filterCutoffAttachment (p.state, filterCutoffID.getParamID(), filterCutoffSlider),
     filterResonanceAttachment (p.state, filterResonanceID.getParamID(), filterResonanceSlider),
     filterEnvAttackAttachment (p.state, filterEnvAttackID.getParamID(), filterEnvAttackSlider),
@@ -72,21 +72,21 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     filterEnvReleaseAttachment (p.state, filterEnvReleaseID.getParamID(), filterEnvReleaseSlider),
 
     //AMPLIFIER
-    ampGroup ({}, ampGroupDesc),
+    ampGroup ("ampGroup", ampGroupDesc),
     ampAttackAttachment (p.state, ampAttackID.getParamID(), ampAttackSlider),
     ampDecayAttachment (p.state, ampDecayID.getParamID(), ampDecaySlider),
     ampSustainAttachment (p.state, ampSustainID.getParamID(), ampSustainSlider),
     ampReleaseAttachment (p.state, ampReleaseID.getParamID(), ampReleaseSlider),
 
     //LFO
-    lfoGroup ({}, lfoGroupDesc),
+    lfoGroup ("lfoGroup", lfoGroupDesc),
     lfoShapeButtons (p.state, lfoShapeID.getParamID(), std::make_unique<LfoShape> (LfoShape()), lfoShapeDesc, {lfoShape0, lfoShape1, /*lfoShape2, */lfoShape3, lfoShape4}),
     lfoDestButtons (p.state, lfoDestID.getParamID(), std::make_unique<LfoDest> (LfoDest()), lfoDestDesc, {lfoDest0, lfoDest1, lfoDest2, lfoDest3}),
     lfoFreqAttachment (p.state, lfoFreqID.getParamID(), lfoFreqSlider),
     lfoAmountAttachment (p.state, lfoAmountID.getParamID(), lfoAmountSlider),
 
     //EFFECT
-    effectGroup ({}, effectGroupDesc),
+    effectGroup ("effectGroup", effectGroupDesc),
     effectParam1Attachment (p.state, effectParam1ID.getParamID(), effectParam1Slider),
     effectParam2Attachment (p.state, effectParam2ID.getParamID(), effectParam2Slider),
 
@@ -111,7 +111,7 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     backgroundTexture = Helpers::getImage (BinaryData::blackMetal_jpg, BinaryData::blackMetal_jpgSize);
 
     //set up everything else
-    auto addGroup = [this](juce::GroupComponent& group, std::vector<sBMP4Label*> labels, std::vector<juce::StringRef> labelTexts, std::vector<juce::Component*> components)
+    auto addGroup = [this](juce::GroupComponent& group, std::vector<SliderLabel*> labels, std::vector<juce::StringRef> labelTexts, std::vector<juce::Component*> components)
     {
         //these sizes need to match. If a component doesn't have a label, use nullptr for it
         jassert (labels.size() == components.size());
@@ -159,12 +159,12 @@ sBMP4AudioProcessorEditor::sBMP4AudioProcessorEditor (sBMP4AudioProcessor& p) :
     lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
 }
 
-void sBMP4AudioProcessorEditor::paint (juce::Graphics& g)
+void sBMP4Editor::paint (juce::Graphics& g)
 {
     g.drawImage (backgroundTexture, getLocalBounds().toFloat());
 }
 
-void sBMP4AudioProcessorEditor::resized()
+void sBMP4Editor::resized()
 {
     auto bounds = getLocalBounds().toFloat().reduced (overallGap);
 

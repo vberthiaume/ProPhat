@@ -17,6 +17,7 @@
 */
 
 #pragma once
+#include "Helpers.h"
 #include <random>
 
 template <typename Type>

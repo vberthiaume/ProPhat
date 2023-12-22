@@ -17,7 +17,6 @@
 */
 
 #include "sBMP4LookAndFeel.h"
-#include "Helpers.h"
 
 sBMP4LookAndFeel::sBMP4LookAndFeel()
 {
@@ -185,7 +184,7 @@ void sBMP4LookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& 
 {
     using namespace juce;
 
-    auto fontSize = Constants::buttonFontHeight; //jmin (15.0f, (float) button.getHeight () * 0.75f);
+    auto fontSize = Constants::buttonFontHeight;
     auto tickWidth = fontSize * 1.1f;
 
     drawTickBox (g, button, 4.0f, ((float) button.getHeight () - tickWidth) * 0.5f,
@@ -195,16 +194,20 @@ void sBMP4LookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& 
                  shouldDrawButtonAsHighlighted,
                  shouldDrawButtonAsDown);
 
+    const auto font { sharedFonts->regular.withHeight (fontSize) };
     g.setColour (button.findColour (ToggleButton::textColourId));
-    g.setFont (sharedFonts->regular.withHeight (fontSize));
+    g.setFont (font);
 
     if (! button.isEnabled ())
         g.setOpacity (0.5f);
 
-    g.drawFittedText (button.getButtonText (),
-                      button.getLocalBounds ().withTrimmedLeft (roundToInt (tickWidth) + 10)
-                                              .withTrimmedRight (2),
-                      Justification::centredLeft, 1, 1.f);
+    const auto text { button.getButtonText () };
+    const auto textWidth { font.getStringWidth (text) };
+    g.drawFittedText (text,
+                      button.getLocalBounds ().withTrimmedLeft (roundToInt (tickWidth) + 10) .withWidth (textWidth),
+                      Justification::centredLeft,
+                      1,
+                      1.f);
 }
 
 void sBMP4LookAndFeel::drawDrawableButton (juce::Graphics& g, juce::DrawableButton& button,
@@ -212,19 +215,23 @@ void sBMP4LookAndFeel::drawDrawableButton (juce::Graphics& g, juce::DrawableButt
 {
     using namespace juce;
 
-    bool toggleState = button.getToggleState ();
+    const bool toggleState = button.getToggleState ();
+    g.fillAll (button.findColour (toggleState ? DrawableButton::backgroundOnColourId : DrawableButton::backgroundColourId));
 
-    g.fillAll (button.findColour (toggleState ? DrawableButton::backgroundOnColourId
-                                  : DrawableButton::backgroundColourId));
+    const auto font { sharedFonts->regular.withHeight (Constants::buttonSelectorFontHeight) };
+    g.setFont (font);
 
-    g.setFont (sharedFonts->regular.withHeight (Constants::buttonSelectorFontHeight));
+    g.setColour (button.findColour (toggleState ? DrawableButton::textColourOnId : DrawableButton::textColourId)
+                       .withMultipliedAlpha (button.isEnabled () ? 1.0f : 0.4f));
 
-    g.setColour (button.findColour (toggleState ? DrawableButton::textColourOnId
-                                    : DrawableButton::textColourId)
-                    .withMultipliedAlpha (button.isEnabled () ? 1.0f : 0.4f));
-
-    g.drawFittedText (button.getButtonText (),
-                      2, button.getHeight () - Constants::buttonSelectorFontHeight - 1,
-                      button.getWidth () - 4, Constants::buttonSelectorFontHeight,
-                      Justification::centred, 1, 1.f);
+    const auto text { button.getButtonText () };
+    const auto textWidth { font.getStringWidth (text) };
+    g.drawFittedText (text,
+                      (button.getWidth () - textWidth) / 2,
+                      button.getHeight () - Constants::buttonSelectorFontHeight - 1,
+                      textWidth,
+                      Constants::buttonSelectorFontHeight,
+                      Justification::centred,
+                      1,
+                      1.f);
 }
