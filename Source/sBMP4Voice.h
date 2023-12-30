@@ -71,6 +71,7 @@ public:
     void setLfoAmount (float newAmount) { lfoAmount = newAmount; }
 
     void setFilterCutoff (float newValue);
+    void setFilterTiltCutoff (float newValue);
     void setFilterResonance (float newAmount);
 
     void pitchWheelMoved (int newPitchWheelValue) override;
@@ -82,13 +83,17 @@ public:
 
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
 
-    void controllerMoved (int /*controllerNumber*/, int /*newValue*/)  override {}
+    void controllerMoved (int controllerNumber, int newValue) override;
 
     int getVoiceId() { return voiceId; }
 
 private:
     int voiceId;
 
+    void setFilterCutoffInternal (float curCutOff);
+    void setFilterResonanceInternal (float curCutOff);
+
+    /** Calculate LFO values. Called on the audio thread. */
     void updateLfo();
     void processEnvelope (juce::dsp::AudioBlock<float>& block);
     void processRampUp (juce::dsp::AudioBlock<float>& block, int curBlockSize);
@@ -152,4 +157,6 @@ private:
 
     std::uniform_real_distribution<float> distribution;
     std::default_random_engine generator;
+
+    float tiltCutoff { 0.f };
 };
