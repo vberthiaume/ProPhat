@@ -300,13 +300,6 @@ void sBMP4Voice::setLfoDest (int dest)
     lfoOsc1NoteOffset = 0.f;
     lfoOsc2NoteOffset = 0.f;
 
-    //TODO: do we need those??
-    if (lfoDest.curSelection == LfoDest::filterCutOff)
-        setFilterCutoff (curFilterCutoff);
-
-    if (lfoDest.curSelection == LfoDest::filterResonance)
-        setFilterResonanceInternal (curFilterResonance);
-
     //change the destination
     lfoDest.curSelection = dest;
 }
@@ -349,7 +342,7 @@ inline void sBMP4Voice::updateLfo()
         lfoOut = lfo.processSample (0.0f) * lfoAmount;
     }
 
-    //@TODO get this switch out of here, this is awful for performances
+    //TODO get this switch out of here, this is awful for performances
     switch (lfoDest.curSelection)
     {
         case LfoDest::osc1Freq:
@@ -663,34 +656,13 @@ void sBMP4Voice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int st
 #endif
 }
 
+//TODO: I think we need to catch this controller moved business somewhere higher up, like in the processor, where we have access to the state
+//and then we can set the paramId right in the state and have both the audio and the UI change with the orba tilt
 void sBMP4Voice::controllerMoved (int controllerNumber, int newValue)
 {
     //DBG ("controllerNumber: " + juce::String (controllerNumber) + ", newValue: " + juce::String (newValue));
 
-    //1 == orba tilt, with a newValue between 0 and 127
+    //1 == orba tilt. The newValue range [0-127] is converted to [curFilterCutoff, cutOffRange.end]
     if (controllerNumber == 1)
-    {
-        //0-127 range converted to current cutoff-18k
-        //const auto cutoff { juce::jmap (static_cast<float> (newValue), 0.f, 127.f, curFilterCutoff, cutOffRange.end) };
-        //processorChain.get<(int) processorId::filterIndex> ().setCutoffFrequencyHz (cutoff);
-
-        //0-127 range converted to current cutoff-18k with a log mapping
-        const auto normalizedValue { juce::jmap (static_cast<float> (newValue), 0.f, 127.f, 0.f, 1.f)};
-        setFilterTiltCutoff (juce::mapToLog10 (normalizedValue, curFilterCutoff, cutOffRange.end));
-        //processorChain.get<(int) processorId::filterIndex> ().setCutoffFrequencyHz (cutoff);
-
-        //0-127 range linearly converted to 0-18k
-        //const auto cutoff { juce::jmap (static_cast<float> (newValue), 0.f, 127.f, cutOffRange.start, cutOffRange.end) };
-        //setFilterCutoff (cutoff);
-
-        //0-127 range converted to 0-18k with a log mapping
-        /*const auto normalizedValue { juce::jmap (static_cast<float> (newValue), 0.f, 127.f, 0.f, 1.f)};
-        const auto cutoff { juce::mapToLog10 (normalizedValue, cutOffRange.start, cutOffRange.end) };
-        setFilterCutoff (cutoff);*/
-
-        //TODO: I think we need to catch this controller moved business somewhere higher up, like in the processor, where we have access to the state
-        //and then we can set the paramId right in the state and have both the audio and the UI change with the orba tilt
-        //state.set
-        //DBG (tiltCutoff);
-    }
+        setFilterTiltCutoff (juce::jmap (static_cast<float> (newValue), 0.f, 127.f, curFilterCutoff, cutOffRange.end));
 }
