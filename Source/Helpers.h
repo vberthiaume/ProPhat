@@ -103,42 +103,41 @@ const juce::NormalisableRange<float> pitchWheelNoteRange{ -7.f, 7.f };
 
 namespace sBMP4AudioProcessorIDs
 {
-const juce::ParameterID  osc1ShapeID        { "osc1ShapeID", 1 };
-const juce::ParameterID  osc1FreqID         { "osc1FreqID", 1 };
-const juce::ParameterID  osc1TuningID       { "osc1TuningID", 1 };
+const juce::ParameterID osc1ShapeID        { "osc1ShapeID", 1 };
+const juce::ParameterID osc1FreqID         { "osc1FreqID", 1 };
+const juce::ParameterID osc1TuningID       { "osc1TuningID", 1 };
 
-const juce::ParameterID  osc2ShapeID        { "osc2ShapeID", 1 };
-const juce::ParameterID  osc2FreqID         { "osc2FreqID", 1 };
-const juce::ParameterID  osc2TuningID       { "osc2TuningID", 1 };
+const juce::ParameterID osc2ShapeID        { "osc2ShapeID", 1 };
+const juce::ParameterID osc2FreqID         { "osc2FreqID", 1 };
+const juce::ParameterID osc2TuningID       { "osc2TuningID", 1 };
 
-const juce::ParameterID  oscSubID           { "oscSubID", 1 };
-const juce::ParameterID  oscMixID           { "oscMixID", 1 };
-const juce::ParameterID  oscNoiseID         { "oscNoiseID", 1 };
-const juce::ParameterID  oscSlopID          { "oscSlopID", 1 };
+const juce::ParameterID oscSubID           { "oscSubID", 1 };
+const juce::ParameterID oscMixID           { "oscMixID", 1 };
+const juce::ParameterID oscNoiseID         { "oscNoiseID", 1 };
+const juce::ParameterID oscSlopID          { "oscSlopID", 1 };
 
-const juce::ParameterID  filterCutoffID     { "filterCutoffID", 1 };
-const juce::ParameterID  filterResonanceID  { "filterResonanceID", 1 };
+const juce::ParameterID filterCutoffID     { "filterCutoffID", 1 };
+const juce::ParameterID filterResonanceID  { "filterResonanceID", 1 };
 
-const juce::ParameterID  ampAttackID        { "ampAttackID", 1 };
-const juce::ParameterID  ampDecayID         { "ampDecayID", 1 };
-const juce::ParameterID  ampSustainID       { "ampSustainID", 1 };
-const juce::ParameterID  ampReleaseID       { "ampReleaseID", 1 };
+const juce::ParameterID ampAttackID        { "ampAttackID", 1 };
+const juce::ParameterID ampDecayID         { "ampDecayID", 1 };
+const juce::ParameterID ampSustainID       { "ampSustainID", 1 };
+const juce::ParameterID ampReleaseID       { "ampReleaseID", 1 };
 
-const juce::ParameterID  filterEnvAttackID  { "filterEnvAttackID", 1 };
-const juce::ParameterID  filterEnvDecayID   { "filterEnvDecayID", 1 };
-const juce::ParameterID  filterEnvSustainID { "filterEnvSustainID", 1 };
-const juce::ParameterID  filterEnvReleaseID { "filterEnvReleaseID", 1 };
+const juce::ParameterID filterEnvAttackID  { "filterEnvAttackID", 1 };
+const juce::ParameterID filterEnvDecayID   { "filterEnvDecayID", 1 };
+const juce::ParameterID filterEnvSustainID { "filterEnvSustainID", 1 };
+const juce::ParameterID filterEnvReleaseID { "filterEnvReleaseID", 1 };
 
-const juce::ParameterID  lfoShapeID         { "lfoShapeID", 1 };
-const juce::ParameterID  lfoDestID          { "lfoDestID", 1 };
-const juce::ParameterID  lfoFreqID          { "lfoFreqID", 1 };
-const juce::ParameterID  lfoAmountID        { "lfoAmountID", 1 };
+const juce::ParameterID lfoShapeID         { "lfoShapeID", 1 };
+const juce::ParameterID lfoDestID          { "lfoDestID", 1 };
+const juce::ParameterID lfoFreqID          { "lfoFreqID", 1 };
+const juce::ParameterID lfoAmountID        { "lfoAmountID", 1 };
 
-const juce::ParameterID  effectID           { "effectID", 1 };
-const juce::ParameterID  effectParam1ID     { "effectParam1ID", 1 };
-const juce::ParameterID  effectParam2ID     { "effectParam2ID", 1 };
+const juce::ParameterID effectParam1ID     { "effectParam1ID", 1 };
+const juce::ParameterID effectParam2ID     { "effectParam2ID", 1 };
 
-const juce::ParameterID  masterGainID       { "masterGainID", 1 };
+const juce::ParameterID masterGainID       { "masterGainID", 1 };
 }
 
 //====================================================================================================
@@ -268,7 +267,6 @@ struct LfoDest : public Selection
     int getLastSelectionIndex () override { return totalSelectable - 1; }
     bool isNullSelectionAllowed () override { return false; }
 };
-
 
 //====================================================================================================
 

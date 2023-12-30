@@ -65,6 +65,10 @@ public:
     void changeProgramName (int /*index*/, const juce::String& /*newName*/) override { }
 
     void getStateInformation (juce::MemoryBlock& destData) override;
+
+    /** This is called at startup and will cause callbacks to
+    *   sBMP4Synthesiser::parameterChanged() for all stored parameters.
+    */
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     juce::AudioProcessorValueTreeState state;

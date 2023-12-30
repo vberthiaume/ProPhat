@@ -41,13 +41,13 @@ public:
             operation (dynamic_cast<sBMP4Voice*> (voice), newValue);
     }
 
-    void setEffectParam (juce::StringRef parameterID, float newValue);
-
     void setMasterGain (float gain) { fxChain.get<masterGainIndex>().setGainLinear (gain); }
 
     void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override;
 
 private:
+    void setEffectParam (juce::StringRef parameterID, float newValue);
+
     void renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples) override;
 
     enum
@@ -61,7 +61,18 @@ private:
 
     juce::dsp::ProcessorChain<juce::dsp::Reverb, juce::dsp::Gain<float>> fxChain;
 
-    juce::dsp::Reverb::Parameters reverbParams;
+    juce::dsp::Reverb::Parameters reverbParams
+    {
+        //manually setting all these because we need to set the default room size and wet level to 0 if we want to be able to retrieve
+        //these values from a saved state. If they are saved as 0 in the state, the event callback will not be propagated because
+        //the change isn't forced-pushed
+        0.0f, //< Room size, 0 to 1.0, where 1.0 is big, 0 is small.
+        0.5f, //< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped.
+        0.0f, //< Wet level, 0 to 1.0
+        0.4f, //< Dry level, 0 to 1.0
+        1.0f, //< Reverb width, 0 to 1.0, where 1.0 is very wide.
+        0.0f  //< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop.
+    };
 
     juce::dsp::ProcessSpec curSpecs;
 };
