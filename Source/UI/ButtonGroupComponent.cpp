@@ -52,6 +52,8 @@ ButtonGroupComponent::ButtonGroupComponent (juce::AudioProcessorValueTreeState& 
         addAndMakeVisible (button);
     }
 
+    //adding this class as a parameter listener so we get callbacks in parameterChanged()
+    //when the associated parameterID changes.
     state.addParameterListener (parameterID, this);
 }
 

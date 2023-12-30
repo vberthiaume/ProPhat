@@ -27,6 +27,9 @@ sBMP4Synthesiser::sBMP4Synthesiser ()
 
     setMasterGain (defaultMasterGain);
     fxChain.get<masterGainIndex> ().setRampDurationSeconds (0.1);
+
+    //we need to manually override the default reverb params to make sure 0 values are set if needed
+    fxChain.get<reverbIndex> ().setParameters (reverbParams);
 }
 
 void sBMP4Synthesiser::prepare (const juce::dsp::ProcessSpec& spec) noexcept
@@ -47,6 +50,8 @@ void sBMP4Synthesiser::prepare (const juce::dsp::ProcessSpec& spec) noexcept
 void sBMP4Synthesiser::parameterChanged (const juce::String& parameterID, float newValue)
 {
     using namespace sBMP4AudioProcessorIDs;
+
+    //DBG ("sBMP4Synthesiser::parameterChanged (" + parameterID + ", " + juce::String (newValue));
 
     if (parameterID == osc1FreqID.getParamID ())
         applyToAllVoices ([] (sBMP4Voice* voice, float newValue) { voice->setOscFreq (sBMP4Voice::processorId::osc1Index, (int) newValue); }, newValue);
@@ -109,6 +114,8 @@ void sBMP4Synthesiser::setEffectParam (juce::StringRef parameterID, float newVal
         reverbParams.roomSize = newValue;
     else if (parameterID == sBMP4AudioProcessorIDs::effectParam2ID.getParamID ())
         reverbParams.wetLevel = newValue;
+    else
+        jassertfalse;   //unknown effect parameter!
 
     fxChain.get<reverbIndex> ().setParameters (reverbParams);
 }

@@ -19,7 +19,7 @@
 #pragma once
 #include "../Helpers.h"
 
-/** Labels that are attached to Sliders
+/** Labels that are attached to Sliders.
 */
 class SliderLabel : public juce::Label
 {
