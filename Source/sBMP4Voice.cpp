@@ -19,14 +19,14 @@
 #include "sBMP4Voice.h"
 #include "UI/ButtonGroupComponent.h"
 
-sBMP4Voice::sBMP4Voice (int vId, std::set<int>* activeVoiceSet) :
-voiceId (vId),
-voicesBeingKilled (activeVoiceSet),
-distribution (-1.f, 1.f)
+sBMP4Voice::sBMP4Voice (int vId, std::set<int>* activeVoiceSet)
+    : voiceId (vId)
+    , voicesBeingKilled (activeVoiceSet)
+    , distribution (-1.f, 1.f)
 {
     processorChain.get<(int)processorId::masterGainIndex>().setGainLinear (defaultOscLevel);
-    processorChain.get<(int)processorId::filterIndex>().setCutoffFrequencyHz (defaultFilterCutoff);
-    processorChain.get<(int)processorId::filterIndex>().setResonance (defaultFilterResonance);
+    setFilterCutoffInternal (defaultFilterCutoff);
+    setFilterResonanceInternal (defaultFilterResonance);
 
     sub.setOscShape (OscShape::pulse);
     noise.setOscShape (OscShape::noise);
@@ -300,12 +300,6 @@ void sBMP4Voice::setLfoDest (int dest)
     lfoOsc1NoteOffset = 0.f;
     lfoOsc2NoteOffset = 0.f;
 
-    if (lfoDest.curSelection == LfoDest::filterCutOff)
-        processorChain.get<(int)processorId::filterIndex>().setCutoffFrequencyHz (curFilterCutoff);
-
-    if (lfoDest.curSelection == LfoDest::filterResonance)
-        processorChain.get<(int)processorId::filterIndex>().setResonance (curFilterResonance);
-
     //change the destination
     lfoDest.curSelection = dest;
 }
@@ -313,13 +307,19 @@ void sBMP4Voice::setLfoDest (int dest)
 void sBMP4Voice::setFilterCutoff (float newValue)
 {
     curFilterCutoff = newValue;
-    processorChain.get<(int) processorId::filterIndex> ().setCutoffFrequencyHz (curFilterCutoff);
+    setFilterCutoffInternal (curFilterCutoff + tiltCutoff);
+}
+
+void sBMP4Voice::setFilterTiltCutoff (float newValue)
+{
+    tiltCutoff = newValue;
+    setFilterCutoffInternal (curFilterCutoff + tiltCutoff);
 }
 
 void sBMP4Voice::setFilterResonance (float newAmount)
 {
     curFilterResonance = newAmount;
-    processorChain.get<(int) processorId::filterIndex> ().setResonance (curFilterResonance);
+    setFilterResonanceInternal (curFilterResonance);
 }
 
 void sBMP4Voice::pitchWheelMoved (int newPitchWheelValue)
@@ -329,20 +329,20 @@ void sBMP4Voice::pitchWheelMoved (int newPitchWheelValue)
 }
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
-void sBMP4Voice::updateLfo()
+inline void sBMP4Voice::updateLfo()
 {
     //apply filter envelope
-    //@TODO make this into a slider
+    //TODO make this into a slider
     const auto envelopeAmount = 2;
-    processorChain.get<(int)processorId::filterIndex>().setCutoffFrequencyHz (curFilterCutoff * (1 + envelopeAmount * filterEnvelope));
 
     float lfoOut;
     {
+        //TODO: LOCK IN AUDIO THREAD
         std::lock_guard<std::mutex> lock (lfoMutex);
         lfoOut = lfo.processSample (0.0f) * lfoAmount;
     }
 
-    //@TODO get this switch out of here, this is awful for performances
+    //TODO get this switch out of here, this is awful for performances
     switch (lfoDest.curSelection)
     {
         case LfoDest::osc1Freq:
@@ -357,19 +357,31 @@ void sBMP4Voice::updateLfo()
 
         case LfoDest::filterCutOff:
         {
-            auto lfoCutOffContributionHz = juce::jmap (lfoOut, 0.0f, 1.0f, 10.0f, 10000.0f);
-            auto curCutOff = juce::jmin (curFilterCutoff * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz, 18000.f);
-            processorChain.get<(int)processorId::filterIndex>().setCutoffFrequencyHz (curCutOff);
+            const auto lfoCutOffContributionHz { juce::jmap (lfoOut, 0.0f, 1.0f, 10.0f, 10000.0f) };
+            const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
+            setFilterCutoffInternal (curCutOff);
         }
         break;
 
         case LfoDest::filterResonance:
-            processorChain.get<(int)processorId::filterIndex>().setResonance (curFilterResonance * (1 + lfoOut));
+            setFilterResonanceInternal (curFilterResonance * (1 + envelopeAmount * lfoOut));
             break;
 
         default:
             break;
     }
+}
+
+inline void sBMP4Voice::setFilterCutoffInternal (float curCutOff)
+{
+    const auto limitedCutOff { juce::jlimit (cutOffRange.start, cutOffRange.end, curCutOff) };
+    processorChain.get<(int) processorId::filterIndex> ().setCutoffFrequencyHz (limitedCutOff);
+}
+
+inline void sBMP4Voice::setFilterResonanceInternal (float curResonance)
+{
+    const auto limitedResonance { juce::jlimit (0.f, 1.f, curResonance) };
+    processorChain.get<(int) processorId::filterIndex> ().setResonance (limitedResonance);
 }
 
 void sBMP4Voice::startNote (int /*midiNoteNumber*/, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
@@ -642,4 +654,15 @@ void sBMP4Voice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int st
     else
         assertForDiscontinuities (outputBuffer, startSample, numSamples, {});
 #endif
+}
+
+//TODO: I think we need to catch this controller moved business somewhere higher up, like in the processor, where we have access to the state
+//and then we can set the paramId right in the state and have both the audio and the UI change with the orba tilt
+void sBMP4Voice::controllerMoved (int controllerNumber, int newValue)
+{
+    //DBG ("controllerNumber: " + juce::String (controllerNumber) + ", newValue: " + juce::String (newValue));
+
+    //1 == orba tilt. The newValue range [0-127] is converted to [curFilterCutoff, cutOffRange.end]
+    if (controllerNumber == 1)
+        setFilterTiltCutoff (juce::jmap (static_cast<float> (newValue), 0.f, 127.f, curFilterCutoff, cutOffRange.end));
 }
