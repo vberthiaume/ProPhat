@@ -9,3 +9,6 @@ Builds/*
 *.xcf
 *.xcuserdatad
 *.vcxproj.user
+
+#doxygen
+docs/html
