@@ -32,5 +32,5 @@ public:
     //void paint (juce::Graphics& g) override { g.fillAll (juce::Colours::red); }
 
 private:
-    juce::SharedResourcePointer<SharedFonts> sharedFonts;
+    juce::SharedResourcePointer<SharedFonts> fonts;
 };

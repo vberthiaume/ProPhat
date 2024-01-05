@@ -21,7 +21,7 @@
 SliderLabel::SliderLabel ()
 {
     setJustificationType (juce::Justification::centredTop);
-    setFont (sharedFonts->regular.withHeight (Constants::labelFontHeight));
+    setFont (fonts->regular.withHeight (Constants::labelFontHeight));
     setMinimumHorizontalScale (1.f);
 }
 

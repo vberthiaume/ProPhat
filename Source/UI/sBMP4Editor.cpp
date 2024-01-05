@@ -49,7 +49,6 @@ constexpr auto totalWidth           { 2 * overallGap + 4 * panelGap + numButtonG
 sBMP4Editor::sBMP4Editor (sBMP4Processor& p) :
     juce::AudioProcessorEditor (p),
     processor (p)
-    , logo ("Logo", "ProPhat")
 
     //OSCILLATORS
     , oscGroup ("oscGroup", oscGroupDesc),
@@ -114,9 +113,10 @@ sBMP4Editor::sBMP4Editor (sBMP4Processor& p) :
 
     backgroundTexture = Helpers::getImage (BinaryData::blackMetal_jpg, BinaryData::blackMetal_jpgSize);
 
-    logo.setFont (lnf.getRegularFont (logoFontHeight));
-    logo.setBorderSize ({});
-    addAndMakeVisible (logo);
+    logoText.setJustification (juce::Justification::centredLeft);
+    logoText.append ("Pro", fonts->getThinFont (logoFontHeight), juce::Colours::white);
+    logoText.append ("Phat", fonts->getBoldFont (logoFontHeight), juce::Colours::white);
+    logoTextLayout.createLayout (logoText, totalWidth);
 
     //set up everything else
     auto addGroup = [this](juce::GroupComponent& group, std::vector<SliderLabel*> labels, std::vector<juce::StringRef> labelTexts, std::vector<juce::Component*> components)
@@ -170,13 +170,15 @@ sBMP4Editor::sBMP4Editor (sBMP4Processor& p) :
 void sBMP4Editor::paint (juce::Graphics& g)
 {
     g.drawImage (backgroundTexture, getLocalBounds().toFloat());
+
+    logoTextLayout.draw (g, logoBounds);
 }
 
 void sBMP4Editor::resized()
 {
     auto bounds = getLocalBounds().toFloat().reduced (overallGap);
 
-    logo.setBounds (bounds.removeFromTop (logoHeight).toNearestInt ());
+    logoBounds = bounds.removeFromTop (logoHeight);
 
     //set up sections
     auto topSection = bounds.removeFromTop (bounds.getHeight() / 2);

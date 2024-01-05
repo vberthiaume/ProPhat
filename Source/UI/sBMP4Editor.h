@@ -50,13 +50,15 @@ private:
     sBMP4Processor& processor;
 
     sBMP4LookAndFeel lnf;
-    juce::SharedResourcePointer<SharedFonts> sharedFonts;
+    juce::SharedResourcePointer<SharedFonts> fonts;
 
     juce::GroupComponent oscGroup, filterGroup, ampGroup, lfoGroup, effectGroup;
 
     juce::Image backgroundTexture;
 
-    juce::Label logo;
+    juce::AttributedString logoText;
+    juce::TextLayout logoTextLayout;
+    juce::Rectangle<float> logoBounds;
 
     //OSCILLATORS
     SliderLabel osc1FreqSliderLabel, osc1TuningSliderLabel, osc2FreqSliderLabel, osc2TuningSliderLabel, oscSubSliderLabel, oscMixSliderLabel, oscNoiseSliderLabel, oscSlopSliderLabel;

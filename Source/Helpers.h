@@ -271,11 +271,17 @@ struct LfoDest : public Selection
 //====================================================================================================
 
 /** This struct can be used to have a single shared font object throughout the plugin. To use it somewhere,
-*   just create a juce::SharedResourcePointer<SharedFonts> sharedFonts.
+*   just create a @code juce::SharedResourcePointer<SharedFonts> fonts @endcode.
 */
 struct SharedFonts final
 {
     juce::Font regular { juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsMedium_ttf, BinaryData::PoppinsMedium_ttfSize) };
+    juce::Font thin    { juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsThin_ttf, BinaryData::PoppinsThin_ttfSize) };
+    juce::Font bold    { juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsBlack_ttf, BinaryData::PoppinsBlack_ttfSize) };
+
+    juce::Font getRegularFont (float h) { return regular.withHeight (h); }
+    juce::Font getThinFont (float h)    { return thin.withHeight (h); }
+    juce::Font getBoldFont (float h)    { return bold.withHeight (h); }
 };
 
 //====================================================================================================

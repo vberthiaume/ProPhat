@@ -56,8 +56,12 @@
       <FILE id="SN3npT" name="sBMP4Knob.svg" compile="0" resource="1" file="Assets/sBMP4Knob.svg"/>
       <FILE id="iICxSg" name="sBMP4KnobUniform.svg" compile="0" resource="1"
             file="Assets/sBMP4KnobUniform.svg"/>
+      <FILE id="klJSBi" name="Poppins-Black.ttf" compile="0" resource="1"
+            file="Assets/Poppins-Black.ttf"/>
       <FILE id="hAYHP3" name="Poppins-Medium.ttf" compile="0" resource="1"
             file="Assets/Poppins-Medium.ttf"/>
+      <FILE id="wUE961" name="Poppins-Thin.ttf" compile="0" resource="1"
+            file="Assets/Poppins-Thin.ttf"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>

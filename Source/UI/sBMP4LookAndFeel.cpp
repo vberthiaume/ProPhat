@@ -126,7 +126,7 @@ void sBMP4LookAndFeel::drawGroupComponentOutline (juce::Graphics& g, int width, 
 
     using namespace juce;
 
-    Font f (sharedFonts->regular.withHeight (Constants::groupComponentFontHeight));
+    Font f (fonts->regular.withHeight (Constants::groupComponentFontHeight));
 
     Path p;
     auto x = indent;
@@ -194,7 +194,7 @@ void sBMP4LookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& 
                  shouldDrawButtonAsHighlighted,
                  shouldDrawButtonAsDown);
 
-    const auto font { sharedFonts->regular.withHeight (fontSize) };
+    const auto font { fonts->regular.withHeight (fontSize) };
     g.setColour (button.findColour (ToggleButton::textColourId));
     g.setFont (font);
 
@@ -218,7 +218,7 @@ void sBMP4LookAndFeel::drawDrawableButton (juce::Graphics& g, juce::DrawableButt
     const bool toggleState = button.getToggleState ();
     g.fillAll (button.findColour (toggleState ? DrawableButton::backgroundOnColourId : DrawableButton::backgroundColourId));
 
-    const auto font { sharedFonts->regular.withHeight (Constants::buttonSelectorFontHeight) };
+    const auto font { fonts->regular.withHeight (Constants::buttonSelectorFontHeight) };
     g.setFont (font);
 
     g.setColour (button.findColour (toggleState ? DrawableButton::textColourOnId : DrawableButton::textColourId)
