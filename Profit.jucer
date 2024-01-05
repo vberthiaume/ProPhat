@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="CVmhyA" name="sBMP4v2" projectType="audioplug" useAppConfig="0"
+<JUCERPROJECT id="CVmhyA" name="Profit" projectType="audioplug" useAppConfig="0"
               jucerFormatVersion="1" pluginFormats="buildAU,buildStandalone,buildVST3"
               pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               pluginDesc="Subtractive synth based on the Prophet REV2" pluginManufacturer="BMP4"
               pluginManufacturerCode="BMP4" pluginCode="Sbmp" pluginAUMainType="'aumu'"
               addUsingNamespaceToJuceHeader="0">
-  <MAINGROUP id="M1KKAR" name="sBMP4v2">
+  <MAINGROUP id="M1KKAR" name="Profit">
     <GROUP id="{F09A54D2-9168-8E51-F638-B70D48E09C9D}" name="Source">
       <GROUP id="{4B00E138-2E49-3682-528E-631D3E065DB0}" name="UI">
         <FILE id="Ix1jl7" name="ButtonGroupComponent.cpp" compile="1" resource="0"
