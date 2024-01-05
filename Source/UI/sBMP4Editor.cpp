@@ -28,6 +28,9 @@ namespace
 constexpr auto overallGap           { 10.f };
 constexpr auto panelGap             { 15.f };
 
+constexpr auto logoHeight           { 50.f };
+constexpr auto logoFontHeight       { 100.f };
+
 constexpr auto lineCount            { 4 };
 constexpr auto lineH                { 75.f };
 
@@ -37,7 +40,7 @@ constexpr auto buttonGroupColumnW   { 140.f };
 constexpr auto numSliderColumn      { 8 };
 constexpr auto sliderColumnW        { 98.f };
 
-constexpr auto totalHeight          { 2 * overallGap + 4 * panelGap + lineCount * lineH };
+constexpr auto totalHeight          { 2 * overallGap + logoHeight + 4 * panelGap + lineCount * lineH };
 constexpr auto totalWidth           { 2 * overallGap + 4 * panelGap + numButtonGroupColumn * buttonGroupColumnW + numSliderColumn * sliderColumnW };
 };
 
@@ -45,10 +48,11 @@ constexpr auto totalWidth           { 2 * overallGap + 4 * panelGap + numButtonG
 
 sBMP4Editor::sBMP4Editor (sBMP4Processor& p) :
     juce::AudioProcessorEditor (p),
-    processor (p),
+    processor (p)
+    , logo ("Logo", "ProPhat")
 
     //OSCILLATORS
-    oscGroup ("oscGroup", oscGroupDesc),
+    , oscGroup ("oscGroup", oscGroupDesc),
     osc1FreqAttachment (p.state, osc1FreqID.getParamID(), osc1FreqSlider),
     osc1TuningAttachment (p.state, osc1TuningID.getParamID(), osc1TuningSlider),
     osc1ShapeButtons (p.state, osc1ShapeID.getParamID(), std::make_unique<OscShape> (OscShape()), osc1ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
@@ -110,6 +114,10 @@ sBMP4Editor::sBMP4Editor (sBMP4Processor& p) :
 
     backgroundTexture = Helpers::getImage (BinaryData::blackMetal_jpg, BinaryData::blackMetal_jpgSize);
 
+    logo.setFont (lnf.getRegularFont (logoFontHeight));
+    logo.setBorderSize ({});
+    addAndMakeVisible (logo);
+
     //set up everything else
     auto addGroup = [this](juce::GroupComponent& group, std::vector<SliderLabel*> labels, std::vector<juce::StringRef> labelTexts, std::vector<juce::Component*> components)
     {
@@ -167,6 +175,8 @@ void sBMP4Editor::paint (juce::Graphics& g)
 void sBMP4Editor::resized()
 {
     auto bounds = getLocalBounds().toFloat().reduced (overallGap);
+
+    logo.setBounds (bounds.removeFromTop (logoHeight).toNearestInt ());
 
     //set up sections
     auto topSection = bounds.removeFromTop (bounds.getHeight() / 2);

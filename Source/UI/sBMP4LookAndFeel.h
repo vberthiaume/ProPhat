@@ -31,6 +31,8 @@ class sBMP4LookAndFeel : public juce::LookAndFeel_V4
 public:
     sBMP4LookAndFeel();
 
+    juce::Font getRegularFont (float h) { return sharedFonts->regular.withHeight (h); }
+
     void drawTickBox (juce::Graphics& g, juce::Component& component,
                       float x, float y, float w, float h,
                       const bool ticked, const bool isEnabled,
