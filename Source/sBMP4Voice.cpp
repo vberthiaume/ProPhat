@@ -40,8 +40,7 @@ sBMP4Voice::sBMP4Voice (int vId, std::set<int>* activeVoiceSet)
 void sBMP4Voice::prepare (const juce::dsp::ProcessSpec& spec)
 {
     //seems like auval doesn't initalize spec properly and we need to instantiate more memory than it's asking
-    juce::PluginHostType host;
-    const auto auvalMultiplier = host.getHostPath().contains ("auval") ? 5 : 1;
+    const auto auvalMultiplier = juce::PluginHostType().getHostPath().contains ("auval") ? 5 : 1;
 
     osc1Block = juce::dsp::AudioBlock<float> (heapBlock1, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
     osc2Block = juce::dsp::AudioBlock<float> (heapBlock2, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="CVmhyA" name="ProPhat" projectType="audioplug" useAppConfig="0"
-              jucerFormatVersion="1" pluginFormats="buildAU,buildAUv3,buildStandalone,buildVST3"
+              jucerFormatVersion="1" pluginFormats="buildAU,buildStandalone,buildVST3"
               pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               pluginDesc="Phat synth based on the Prophet REV2" pluginManufacturer="BMP4"
-              pluginCode="Bvql" pluginAUMainType="'aumu'" addUsingNamespaceToJuceHeader="0"
+              pluginCode="Bpro" pluginAUMainType="'aumu'" addUsingNamespaceToJuceHeader="0"
               companyName="BMP4" bundleIdentifier="com.BMP4.ProPhat" companyWebsite="https://github.com/vberthiaume"
               companyEmail="vberthiaume@gmail.com" pluginManufacturerCode="Bmp4"
               version="1.0.0" pluginName="ProPhat">
