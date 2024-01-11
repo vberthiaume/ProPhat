@@ -29,8 +29,8 @@
         <FILE id="vHfK7o" name="SnappingSlider.h" compile="0" resource="0"
               file="Source/UI/SnappingSlider.h"/>
       </GROUP>
-      <FILE id="YplCHm" name="ProPhatApplication.cpp" compile="0" resource="0"
-            file="Source/ProPhatApplication.cpp"/>
+      <FILE id="YplCHm" name="ProPhatApplication.h" compile="0" resource="0"
+            file="Source/ProPhatApplication.h"/>
       <FILE id="qCHbO0" name="ProPhatWindow.h" compile="0" resource="0" file="Source/ProPhatWindow.h"/>
       <FILE id="fmyiJD" name="GainedOscillator.h" compile="0" resource="0"
             file="Source/GainedOscillator.h"/>

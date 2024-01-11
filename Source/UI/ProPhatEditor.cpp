@@ -17,7 +17,7 @@
 */
 
 #include "ProPhatEditor.h"
-#include "../ProPhatApplication.cpp"
+#include "../ProPhatApplication.h"
 
 using namespace ProPhatAudioProcessorIDs;
 using namespace ProPhatAudioProcessorNames;
