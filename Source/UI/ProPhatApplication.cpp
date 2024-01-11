@@ -20,7 +20,7 @@
 
 ProPhatApplication::ProPhatApplication ()
 {
-    PropertiesFile::Options options;
+    juce::PropertiesFile::Options options;
 
     options.applicationName = appName;
     options.filenameSuffix = ".settings";
@@ -41,7 +41,7 @@ ProPhatWindow* ProPhatApplication::createWindow ()
 #endif
 
     return new ProPhatWindow (getApplicationName (),
-                              LookAndFeel::getDefaultLookAndFeel ().findColour (ResizableWindow::backgroundColourId),
+                              juce::LookAndFeel::getDefaultLookAndFeel ().findColour (juce::ResizableWindow::backgroundColourId),
                               appProperties.getUserSettings (),
                               false, {}, nullptr
 #ifdef JucePlugin_PreferredChannelConfigurations
@@ -57,7 +57,7 @@ ProPhatWindow* ProPhatApplication::createWindow ()
 
 //==============================================================================
 
-void ProPhatApplication::initialise (const String&)
+void ProPhatApplication::initialise (const juce::String&)
 {
     mainWindow.reset (createWindow ());
 
@@ -81,9 +81,9 @@ void ProPhatApplication::systemRequestedQuit ()
     if (mainWindow != nullptr)
         mainWindow->pluginHolder->savePluginState ();
 
-    if (ModalComponentManager::getInstance ()->cancelAllModalComponents ())
+    if (juce::ModalComponentManager::getInstance ()->cancelAllModalComponents ())
     {
-        Timer::callAfterDelay (100, [] ()
+        juce::Timer::callAfterDelay (100, [] ()
         {
             if (auto app = JUCEApplicationBase::getInstance ())
                 app->systemRequestedQuit ();

@@ -18,13 +18,14 @@
 
 #include "ProPhatWindow.h"
 
-/** Creates a window with a given title and colour.
-The settings object can be a PropertySet that the class should use to
-store its settings (it can also be null). If takeOwnershipOfSettings is
-true, then the settings object will be owned and deleted by this object.
-*/
-
-ProPhatWindow::ProPhatWindow (const String& title, Colour backgroundColour, PropertySet* settingsToUse, bool takeOwnershipOfSettings, const String& preferredDefaultDeviceName, const AudioDeviceManager::AudioDeviceSetup* preferredSetupOptions, const Array<PluginInOuts>& constrainToConfiguration, bool autoOpenMidiDevices)
+ProPhatWindow::ProPhatWindow (const juce::String& title,
+                              juce::Colour backgroundColour,
+                              juce::PropertySet* settingsToUse,
+                              bool takeOwnershipOfSettings,
+                              const juce::String& preferredDefaultDeviceName,
+                              const juce::AudioDeviceManager::AudioDeviceSetup* preferredSetupOptions,
+                              const juce::Array<PluginInOuts>& constrainToConfiguration,
+                              bool autoOpenMidiDevices)
     : DocumentWindow (title, backgroundColour, DocumentWindow::minimiseButton | DocumentWindow::closeButton)
     , optionsButton ("Options")
 {
@@ -40,9 +41,9 @@ ProPhatWindow::ProPhatWindow (const String& title, Colour backgroundColour, Prop
     optionsButton.setTriggeredOnMouseDown (true);
 #endif
 
-    setUsingNativeTitleBar (true);
+    //setUsingNativeTitleBar (true);
 
-    pluginHolder.reset (new StandalonePluginHolder (settingsToUse, takeOwnershipOfSettings,
+    pluginHolder.reset (new juce::StandalonePluginHolder (settingsToUse, takeOwnershipOfSettings,
                                                     preferredDefaultDeviceName, preferredSetupOptions,
                                                     constrainToConfiguration, autoOpenMidiDevices));
 
@@ -52,12 +53,12 @@ ProPhatWindow::ProPhatWindow (const String& title, Colour backgroundColour, Prop
 #else
     updateContent ();
 
-    const auto windowScreenBounds = [this] () -> Rectangle<int>
+    const auto windowScreenBounds = [this] () -> juce::Rectangle<int>
     {
         const auto width = getWidth ();
         const auto height = getHeight ();
 
-        const auto& displays = Desktop::getInstance ().getDisplays ();
+        const auto& displays = juce::Desktop::getInstance ().getDisplays ();
 
         if (auto* props = pluginHolder->settings.get ())
         {
@@ -70,8 +71,8 @@ ProPhatWindow::ProPhatWindow (const String& title, Colour backgroundColour, Prop
             {
                 const auto screenLimits = displays.getDisplayForRect ({ x, y, width, height })->userArea;
 
-                return { jlimit (screenLimits.getX (), jmax (screenLimits.getX (), screenLimits.getRight () - width),  x),
-                    jlimit (screenLimits.getY (), jmax (screenLimits.getY (), screenLimits.getBottom () - height), y),
+                return { juce::jlimit (screenLimits.getX (), juce::jmax (screenLimits.getX (), screenLimits.getRight () - width),  x),
+                    juce::jlimit (screenLimits.getY (), juce::jmax (screenLimits.getY (), screenLimits.getBottom () - height), y),
                     width, height };
             }
         }
@@ -106,8 +107,6 @@ ProPhatWindow::~ProPhatWindow ()
     pluginHolder = nullptr;
 }
 
-/** Deletes and re-creates the plugin, resetting it to its default state. */
-
 void ProPhatWindow::resetToDefaultState ()
 {
     pluginHolder->stopPlaying ();
@@ -126,7 +125,7 @@ void ProPhatWindow::closeButtonPressed ()
 {
     pluginHolder->savePluginState ();
 
-    JUCEApplicationBase::quit ();
+    juce::JUCEApplicationBase::quit ();
 }
 
 void ProPhatWindow::handleMenuResult (int result)
@@ -155,9 +154,9 @@ void ProPhatWindow::updateContent ()
     setContentOwned (content, resizeAutomatically);
 }
 
-void ProPhatWindow::buttonClicked (Button*)
+void ProPhatWindow::buttonClicked (juce::Button*)
 {
-    PopupMenu m;
+    juce::PopupMenu m;
     m.addItem (1, TRANS ("Audio/MIDI Settings..."));
     m.addSeparator ();
     m.addItem (2, TRANS ("Save current state..."));
@@ -165,6 +164,6 @@ void ProPhatWindow::buttonClicked (Button*)
     m.addSeparator ();
     m.addItem (4, TRANS ("Reset to default state"));
 
-    m.showMenuAsync (PopupMenu::Options (),
-                     ModalCallbackFunction::forComponent (menuCallback, this));
+    m.showMenuAsync (juce::PopupMenu::Options (),
+                     juce::ModalCallbackFunction::forComponent (menuCallback, this));
 }

@@ -22,8 +22,6 @@
 
 #include "../submodules/JUCE/modules/juce_audio_plugin_client/Standalone/juce_StandaloneFilterWindow.h"
 
-using namespace juce;
-
 /**
     A class that can be used to run a simple standalone application containing your filter.
 
@@ -33,35 +31,35 @@ using namespace juce;
 
     @tags{Audio}
 */
-class ProPhatWindow : public DocumentWindow, private Button::Listener
+class ProPhatWindow : public juce::DocumentWindow, private juce::Button::Listener
 {
 public:
-    typedef StandalonePluginHolder::PluginInOuts PluginInOuts;
+    typedef juce::StandalonePluginHolder::PluginInOuts PluginInOuts;
 
     /** Creates a window with a given title and colour.
         The settings object can be a PropertySet that the class should use to
         store its settings (it can also be null). If takeOwnershipOfSettings is
         true, then the settings object will be owned and deleted by this object.
     */
-    ProPhatWindow (const String& title,
-                            Colour backgroundColour,
-                            PropertySet* settingsToUse,
-                            bool takeOwnershipOfSettings,
-                            const String& preferredDefaultDeviceName = String(),
-                            const AudioDeviceManager::AudioDeviceSetup* preferredSetupOptions = nullptr,
-                            const Array<PluginInOuts>& constrainToConfiguration = {},
-                           #if JUCE_ANDROID || JUCE_IOS
-                            bool autoOpenMidiDevices = true
-                           #else
-                            bool autoOpenMidiDevices = false
-                           #endif
-                            );
+    ProPhatWindow (const juce::String& title,
+                  juce::Colour backgroundColour,
+                  juce::PropertySet* settingsToUse,
+                  bool takeOwnershipOfSettings,
+                  const juce::String& preferredDefaultDeviceName = juce::String (),
+                  const juce::AudioDeviceManager::AudioDeviceSetup* preferredSetupOptions = nullptr,
+                  const juce::Array<PluginInOuts>& constrainToConfiguration = {},
+#if JUCE_ANDROID || JUCE_IOS
+                  bool autoOpenMidiDevices = true
+#else
+                  bool autoOpenMidiDevices = false
+#endif
+    );
 
-    ~ProPhatWindow() override;
+    ~ProPhatWindow () override;
 
     //==============================================================================
-    AudioProcessor* getAudioProcessor() const noexcept      { return pluginHolder->processor.get(); }
-    AudioDeviceManager& getDeviceManager() const noexcept   { return pluginHolder->deviceManager; }
+    juce::AudioProcessor* getAudioProcessor() const noexcept      { return pluginHolder->processor.get(); }
+    juce::AudioDeviceManager& getDeviceManager() const noexcept   { return pluginHolder->deviceManager; }
 
     /** Deletes and re-creates the plugin, resetting it to its default state. */
     void resetToDefaultState();
@@ -82,26 +80,26 @@ public:
         optionsButton.setBounds (8, 6, 60, getTitleBarHeight() - 8);
     }
 
-    virtual StandalonePluginHolder* getPluginHolder()    { return pluginHolder.get(); }
+    virtual juce::StandalonePluginHolder* getPluginHolder()    { return pluginHolder.get(); }
 
-    std::unique_ptr<StandalonePluginHolder> pluginHolder;
+    std::unique_ptr<juce::StandalonePluginHolder> pluginHolder;
 
 private:
     void updateContent();
 
-    void buttonClicked (Button*) override;
+    void buttonClicked (juce::Button*) override;
 
     //==============================================================================
-    class MainContentComponent  : public Component,
-                                  private Value::Listener,
-                                  private Button::Listener,
-                                  private ComponentListener
+    class MainContentComponent  : public juce::Component,
+                                  private juce::Value::Listener,
+                                  private juce::Button::Listener,
+                                  private juce::ComponentListener
     {
     public:
         MainContentComponent (ProPhatWindow& filterWindow)
             : owner (filterWindow), notification (this),
               editor (owner.getAudioProcessor()->hasEditor() ? owner.getAudioProcessor()->createEditorIfNeeded()
-                                                             : new GenericAudioProcessorEditor (*owner.getAudioProcessor()))
+                                                             : new juce::GenericAudioProcessorEditor (*owner.getAudioProcessor()))
         {
             inputMutedValue.referTo (owner.pluginHolder->getMuteInputValue());
 
@@ -139,7 +137,7 @@ private:
             handleResized();
         }
 
-        ComponentBoundsConstrainer* getEditorConstrainer() const
+        juce::ComponentBoundsConstrainer* getEditorConstrainer() const
         {
             if (auto* e = editor.get())
                 return e->getConstrainer();
@@ -147,9 +145,9 @@ private:
             return nullptr;
         }
 
-        BorderSize<int> computeBorder() const
+        juce::BorderSize<int> computeBorder() const
         {
-            const auto nativeFrame = [&]() -> BorderSize<int>
+            const auto nativeFrame = [&]() -> juce::BorderSize<int>
             {
                 if (auto* peer = owner.getPeer())
                     if (const auto frameSize = peer->getFrameSizeIfPresent())
@@ -159,17 +157,17 @@ private:
             }();
 
             return nativeFrame.addedTo (owner.getContentComponentBorder())
-                              .addedTo (BorderSize<int> { shouldShowNotification ? NotificationArea::height : 0, 0, 0, 0 });
+                              .addedTo (juce::BorderSize<int> { shouldShowNotification ? NotificationArea::height : 0, 0, 0, 0 });
         }
 
     private:
         //==============================================================================
-        class NotificationArea : public Component
+        class NotificationArea : public juce::Component
         {
         public:
             enum { height = 30 };
 
-            NotificationArea (Button::Listener* settingsButtonListener)
+            NotificationArea (juce::Button::Listener* settingsButtonListener)
                 : notification ("notification", "Audio input is muted to avoid feedback loop"),
                  #if JUCE_IOS || JUCE_ANDROID
                   settingsButton ("Unmute Input")
@@ -179,7 +177,7 @@ private:
             {
                 setOpaque (true);
 
-                notification.setColour (Label::textColourId, Colours::black);
+                notification.setColour (juce::Label::textColourId, juce::Colours::black);
 
                 settingsButton.addListener (settingsButtonListener);
 
@@ -187,14 +185,14 @@ private:
                 addAndMakeVisible (settingsButton);
             }
 
-            void paint (Graphics& g) override
+            void paint (juce::Graphics& g) override
             {
                 auto r = getLocalBounds();
 
-                g.setColour (Colours::darkgoldenrod);
+                g.setColour (juce::Colours::darkgoldenrod);
                 g.fillRect (r.removeFromBottom (1));
 
-                g.setColour (Colours::lightgoldenrodyellow);
+                g.setColour (juce::Colours::lightgoldenrodyellow);
                 g.fillRect (r);
             }
 
@@ -206,8 +204,8 @@ private:
                 notification.setBounds (r);
             }
         private:
-            Label notification;
-            TextButton settingsButton;
+            juce::Label notification;
+            juce::TextButton settingsButton;
         };
 
         //==============================================================================
@@ -228,8 +226,8 @@ private:
            #endif
         }
 
-        void valueChanged (Value& value) override     { inputMutedChanged (value.getValue()); }
-        void buttonClicked (Button*) override
+        void valueChanged (juce::Value& value) override     { inputMutedChanged (value.getValue()); }
+        void buttonClicked (juce::Button*) override
         {
            #if JUCE_IOS || JUCE_ANDROID
             owner.pluginHolder->getMuteInputValue().setValue (false);
@@ -259,7 +257,7 @@ private:
 
         void handleMovedOrResized()
         {
-            const ScopedValueSetter<bool> scope (preventResizingEditor, true);
+            const juce::ScopedValueSetter<bool> scope (preventResizingEditor, true);
 
             if (editor != nullptr)
             {
@@ -275,7 +273,7 @@ private:
             handleMovedOrResized();
         }
 
-        Rectangle<int> getSizeToContainEditor() const
+        juce::Rectangle<int> getSizeToContainEditor() const
         {
             if (editor != nullptr)
                 return getLocalArea (editor.get(), editor->getLocalBounds());
@@ -286,8 +284,8 @@ private:
         //==============================================================================
         ProPhatWindow& owner;
         NotificationArea notification;
-        std::unique_ptr<AudioProcessorEditor> editor;
-        Value inputMutedValue;
+        std::unique_ptr<juce::AudioProcessorEditor> editor;
+        juce::Value inputMutedValue;
         bool shouldShowNotification = false;
         bool preventResizingEditor = false;
 
@@ -306,17 +304,17 @@ private:
         accordingly. The end result is that the peer is resized twice in a row to different sizes,
         which can appear glitchy/flickery to the user.
     */
-    class DecoratorConstrainer : public BorderedComponentBoundsConstrainer
+    class DecoratorConstrainer : public juce::BorderedComponentBoundsConstrainer
     {
     public:
-        ComponentBoundsConstrainer* getWrappedConstrainer() const override
+        juce::ComponentBoundsConstrainer* getWrappedConstrainer() const override
         {
             return contentComponent != nullptr ? contentComponent->getEditorConstrainer() : nullptr;
         }
 
-        BorderSize<int> getAdditionalBorder() const override
+        juce::BorderSize<int> getAdditionalBorder() const override
         {
-            return contentComponent != nullptr ? contentComponent->computeBorder() : BorderSize<int>{};
+            return contentComponent != nullptr ? contentComponent->computeBorder() : juce::BorderSize<int>{};
         }
 
         void setMainContentComponent (MainContentComponent* in) { contentComponent = in; }
@@ -326,7 +324,7 @@ private:
     };
 
     //==============================================================================
-    TextButton optionsButton;
+    juce::TextButton optionsButton;
     DecoratorConstrainer decoratorConstrainer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProPhatWindow)

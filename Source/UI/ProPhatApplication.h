@@ -20,30 +20,30 @@
 
 #include "ProPhatWindow.h"
 
-class ProPhatApplication final : public JUCEApplication
+class ProPhatApplication final : public juce::JUCEApplication
 {
 public:
     ProPhatApplication ();
 
-    const String getApplicationName () override { return appName; }
-    const String getApplicationVersion () override { return JucePlugin_VersionString; }
+    const juce::String getApplicationName () override { return appName; }
+    const juce::String getApplicationVersion () override { return JucePlugin_VersionString; }
     bool moreThanOneInstanceAllowed () override { return true; }
-    void anotherInstanceStarted (const String&) override {}
+    void anotherInstanceStarted (const juce::String&) override {}
 
     virtual ProPhatWindow* createWindow ();
 
-    void initialise (const String&) override;
+    void initialise (const juce::String&) override;
 
     void shutdown () override;
 
     void systemRequestedQuit () override;
 
 protected:
-    ApplicationProperties appProperties;
+    juce::ApplicationProperties appProperties;
     std::unique_ptr<ProPhatWindow> mainWindow;
 
 private:
-    const String appName { CharPointer_UTF8 (JucePlugin_Name) };
+    const juce::String appName { juce::CharPointer_UTF8 (JucePlugin_Name) };
 };
 
 #if JucePlugin_Build_Standalone && JUCE_IOS
@@ -62,7 +62,7 @@ bool JUCE_CALLTYPE juce_isInterAppAudioConnected ()
 
 void JUCE_CALLTYPE juce_switchToHostApplication ()
 {
-    if (auto holder = StandalonePluginHolder::getInstance ())
+    if (auto holder = juce::StandalonePluginHolder::getInstance ())
         holder->switchToHostApplication ();
 }
 
