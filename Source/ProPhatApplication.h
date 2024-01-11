@@ -18,6 +18,8 @@
 
 #pragma once
 
+#if JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP
+
 #include "ProPhatWindow.h"
 
 class ProPhatApplication final : public JUCEApplication
@@ -144,3 +146,5 @@ JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 #endif
 
 START_JUCE_APPLICATION (ProPhatApplication)
+
+#endif
