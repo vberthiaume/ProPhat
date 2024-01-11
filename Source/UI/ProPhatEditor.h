@@ -19,6 +19,9 @@
 #pragma once
 
 #include "../ProPhatProcessor.h"
+
+//#include "../ProPhatWindow.h"
+
 #include "ButtonGroupComponent.h"
 #include "ProPhatLookAndFeel.h"
 #include "SliderLabel.h"
