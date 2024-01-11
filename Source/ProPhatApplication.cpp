@@ -18,10 +18,7 @@
 
 #pragma once
 
-//#include <juce_audio_plugin_client/Standalone/juce_StandaloneFilterWindow.h>
 #include "ProPhatWindow.h"
-
-//using namespace juce;
 
 class StandaloneFilterApp final : public JUCEApplication
 {
@@ -146,9 +143,4 @@ JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 
 #endif
 
-
-//JUCE_CREATE_APPLICATION_DEFINE (ProPhatApplication)
-
-//JUCE_CREATE_APPLICATION_DEFINE (StandaloneFilterApp)
 START_JUCE_APPLICATION (StandaloneFilterApp)
-

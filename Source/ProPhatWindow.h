@@ -22,14 +22,6 @@
 
 using namespace juce;
 
-#ifndef DOXYGEN
- //#include <juce_audio_plugin_client/detail/juce_CreatePluginFilter.h>
-#endif
-
-//namespace juce
-//{
-
-//==============================================================================
 /**
     An object that creates and plays a standalone instance of an AudioProcessor.
 
@@ -708,10 +700,8 @@ class StandaloneFilterWindow    : public DocumentWindow,
                                   private Button::Listener
 {
 public:
-    //==============================================================================
     typedef StandalonePluginHolder::PluginInOuts PluginInOuts;
 
-    //==============================================================================
     /** Creates a window with a given title and colour.
         The settings object can be a PropertySet that the class should use to
         store its settings (it can also be null). If takeOwnershipOfSettings is
@@ -738,12 +728,14 @@ public:
        #if JUCE_IOS || JUCE_ANDROID
         setTitleBarHeight (0);
        #else
-        setTitleBarButtonsRequired (DocumentWindow::minimiseButton | DocumentWindow::closeButton, false);
+        setTitleBarButtonsRequired (DocumentWindow::minimiseButton | DocumentWindow::closeButton | DocumentWindow::maximiseButton, false);
 
         Component::addAndMakeVisible (optionsButton);
         optionsButton.addListener (this);
         optionsButton.setTriggeredOnMouseDown (true);
        #endif
+
+        setUsingNativeTitleBar (true);
 
         pluginHolder.reset (new StandalonePluginHolder (settingsToUse, takeOwnershipOfSettings,
                                                         preferredDefaultDeviceName, preferredSetupOptions,
@@ -1151,4 +1143,4 @@ inline StandalonePluginHolder* StandalonePluginHolder::getInstance()
     return nullptr;
 }
 
-//} // namespace juce
+
