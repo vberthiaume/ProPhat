@@ -9,19 +9,19 @@
    without fee is hereby granted provided that the above copyright notice and
    this permission notice appear in all copies.
 
-   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   ProPhat IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
    DISCLAIMED.
 
   ==============================================================================
 */
 
-#include "../sBMP4Processor.h"
-#include "sBMP4Editor.h"
+#include "../ProPhatProcessor.h"
+#include "ProPhatEditor.h"
 
-using namespace sBMP4AudioProcessorIDs;
-using namespace sBMP4AudioProcessorNames;
-using namespace sBMP4AudioProcessorChoices;
+using namespace ProPhatAudioProcessorIDs;
+using namespace ProPhatAudioProcessorNames;
+using namespace ProPhatAudioProcessorChoices;
 
 namespace
 {
@@ -46,7 +46,7 @@ constexpr auto totalWidth           { 2 * overallGap + 4 * panelGap + numButtonG
 
 //==============================================================================
 
-sBMP4Editor::sBMP4Editor (sBMP4Processor& p) :
+ProPhatEditor::ProPhatEditor (ProPhatProcessor& p) :
     juce::AudioProcessorEditor (p),
     processor (p)
 
@@ -167,14 +167,14 @@ sBMP4Editor::sBMP4Editor (sBMP4Processor& p) :
     lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
 }
 
-void sBMP4Editor::paint (juce::Graphics& g)
+void ProPhatEditor::paint (juce::Graphics& g)
 {
     g.drawImage (backgroundTexture, getLocalBounds().toFloat());
 
     logoTextLayout.draw (g, logoBounds);
 }
 
-void sBMP4Editor::resized()
+void ProPhatEditor::resized()
 {
     auto bounds = getLocalBounds().toFloat().reduced (overallGap);
 

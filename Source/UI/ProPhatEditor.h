@@ -9,7 +9,7 @@
    without fee is hereby granted provided that the above copyright notice and
    this permission notice appear in all copies.
 
-   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   ProPhat IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
    DISCLAIMED.
 
@@ -18,22 +18,22 @@
 
 #pragma once
 
-#include "../sBMP4Processor.h"
+#include "../ProPhatProcessor.h"
 #include "ButtonGroupComponent.h"
-#include "sBMP4LookAndFeel.h"
+#include "ProPhatLookAndFeel.h"
 #include "SliderLabel.h"
 #include "SnappingSlider.h"
 
 /** The main editor for the plugin.
 */
-class sBMP4Editor : public juce::AudioProcessorEditor
+class ProPhatEditor : public juce::AudioProcessorEditor
 #if CPU_USAGE
     , public Timer
 #endif
 {
 public:
-    sBMP4Editor (sBMP4Processor&);
-    ~sBMP4Editor () { setLookAndFeel (nullptr); }
+    ProPhatEditor (ProPhatProcessor&);
+    ~ProPhatEditor () { setLookAndFeel (nullptr); }
 
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -47,9 +47,9 @@ public:
 #endif
 
 private:
-    sBMP4Processor& processor;
+    ProPhatProcessor& processor;
 
-    sBMP4LookAndFeel lnf;
+    ProPhatLookAndFeel lnf;
     juce::SharedResourcePointer<SharedFonts> fonts;
 
     juce::GroupComponent oscGroup, filterGroup, ampGroup, lfoGroup, effectGroup;
@@ -103,5 +103,5 @@ private:
     juce::Label cpuUsageText;
 #endif
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4Editor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProPhatEditor)
 };

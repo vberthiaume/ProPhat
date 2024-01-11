@@ -10,13 +10,13 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="211.93169mm"
-   height="211.93169mm"
-   viewBox="0 0 211.93169 211.93169"
+   width="211.66669mm"
+   height="211.66669mm"
+   viewBox="0 0 211.66669 211.66669"
    version="1.1"
    id="svg8"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="sBMP4KnobUniform.svg">
+   sodipodi:docname="ProPhatKnob.svg">
   <defs
      id="defs2">
     <linearGradient
@@ -31,17 +31,36 @@
          offset="1"
          style="stop-color:#666666;stop-opacity:1" />
     </linearGradient>
-    <radialGradient
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2290">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop2286" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop2288" />
+    </linearGradient>
+    <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient854"
-       id="radialGradient9350"
-       cx="105.60654"
-       cy="105.21488"
-       fx="105.60654"
-       fy="105.21488"
-       r="105.96584"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(2.6654615,5.5343075e-8,0,2.3800929,-175.88365,-145.20632)" />
+       id="linearGradient4526"
+       x1="1.8898711"
+       y1="148.83334"
+       x2="266.47321"
+       y2="145.80952"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2290"
+       id="linearGradient2292"
+       x1="103.56548"
+       y1="66.812502"
+       x2="118.68452"
+       y2="68.324402"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -50,11 +69,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994948"
-     inkscape:cx="707.10429"
-     inkscape:cy="452.71182"
+     inkscape:zoom="0.35"
+     inkscape:cx="-532.85711"
+     inkscape:cy="414.28576"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
@@ -69,7 +88,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -77,31 +96,19 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-1.0014188,-46.647255)">
+     transform="translate(-1.1339188,-46.779755)">
     <circle
        id="path3713"
        cx="106.96726"
        cy="152.6131"
-       style="opacity:0.997;fill:url(#radialGradient9350);fill-opacity:1;stroke:#000000;stroke-width:0.26499999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:url(#linearGradient4526);fill-opacity:1;stroke-width:0.265;stroke:#000000;opacity:0.997;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        r="105.83334" />
-    <path
-       style="opacity:0.997;fill:none;fill-opacity:1;stroke:#a7a7a7;stroke-width:2.6331625;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 211.54247,152.57533 A 104.57978,104.55822 0 0 1 106.96269,257.13354 104.57978,104.55822 0 0 1 2.3829017,152.57533 104.57978,104.55822 0 0 1 106.96269,48.017107 104.57978,104.55822 0 0 1 211.54247,152.57533 Z"
-       id="circle826"
-       inkscape:connector-curvature="0" />
-  </g>
-  <g
-     inkscape:groupmode="layer"
-     id="layer2"
-     inkscape:label="Layer 2"
-     transform="translate(0.13250006,0.13250069)">
     <rect
-       transform="translate(-1.1339188,-46.779754)"
-       style="fill:#cccccc;fill-opacity:1;stroke-width:0.24776688"
+       style="fill:url(#linearGradient2292);fill-opacity:1;stroke-width:0.11477114"
        id="rect4532"
-       width="14.363095"
-       height="88.446426"
-       x="99.02977"
+       width="6.8035717"
+       height="40.065472"
+       x="103.56548"
        y="46.779766" />
   </g>
 </svg>

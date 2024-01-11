@@ -9,17 +9,17 @@
    without fee is hereby granted provided that the above copyright notice and
    this permission notice appear in all copies.
 
-   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   ProPhat IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
    DISCLAIMED.
 
   ==============================================================================
 */
 
-#include "sBMP4Voice.h"
+#include "ProPhatVoice.h"
 #include "UI/ButtonGroupComponent.h"
 
-sBMP4Voice::sBMP4Voice (int vId, std::set<int>* activeVoiceSet)
+ProPhatVoice::ProPhatVoice (int vId, std::set<int>* activeVoiceSet)
     : voiceId (vId)
     , voicesBeingKilled (activeVoiceSet)
     , distribution (-1.f, 1.f)
@@ -37,7 +37,7 @@ sBMP4Voice::sBMP4Voice (int vId, std::set<int>* activeVoiceSet)
     lfo.setFrequency (defaultLfoFreq);
 }
 
-void sBMP4Voice::prepare (const juce::dsp::ProcessSpec& spec)
+void ProPhatVoice::prepare (const juce::dsp::ProcessSpec& spec)
 {
     //seems like auval doesn't initalize spec properly and we need to instantiate more memory than it's asking
     juce::PluginHostType host;
@@ -65,7 +65,7 @@ void sBMP4Voice::prepare (const juce::dsp::ProcessSpec& spec)
     lfo.prepare ({spec.sampleRate / lfoUpdateRate, auvalMultiplier * spec.maximumBlockSize, spec.numChannels});
 }
 
-void sBMP4Voice::updateOscFrequencies()
+void ProPhatVoice::updateOscFrequencies()
 {
     auto midiNote = getCurrentlyPlayingNote();
 
@@ -86,7 +86,7 @@ void sBMP4Voice::updateOscFrequencies()
     osc2.setFrequency ((float) osc2Freq, true);
 }
 
-void sBMP4Voice::setOscFreq (processorId oscNum, int newMidiNote)
+void ProPhatVoice::setOscFreq (processorId oscNum, int newMidiNote)
 {
     jassert (Helpers::valueContainedInRange (newMidiNote, midiNoteRange));
 
@@ -106,7 +106,7 @@ void sBMP4Voice::setOscFreq (processorId oscNum, int newMidiNote)
     updateOscFrequencies ();
 }
 
-void sBMP4Voice::setOscShape (processorId oscNum, int newShape)
+void ProPhatVoice::setOscShape (processorId oscNum, int newShape)
 {
     switch (oscNum)
     {
@@ -122,7 +122,7 @@ void sBMP4Voice::setOscShape (processorId oscNum, int newShape)
     }
 }
 
-void sBMP4Voice::setOscTuning (processorId oscNum, float newTuning)
+void ProPhatVoice::setOscTuning (processorId oscNum, float newTuning)
 {
     jassert (Helpers::valueContainedInRange (newTuning, tuningSliderRange));
 
@@ -141,28 +141,28 @@ void sBMP4Voice::setOscTuning (processorId oscNum, float newTuning)
     updateOscFrequencies ();
 }
 
-void sBMP4Voice::setOscSub (float newSub)
+void ProPhatVoice::setOscSub (float newSub)
 {
     jassert (Helpers::valueContainedInRange (newSub, sliderRange));
     curSubLevel = newSub;
     updateOscLevels ();
 }
 
-void sBMP4Voice::setOscNoise (float noiseLevel)
+void ProPhatVoice::setOscNoise (float noiseLevel)
 {
     jassert (Helpers::valueContainedInRange (noiseLevel, sliderRange));
     curNoiseLevel = noiseLevel;
     updateOscLevels ();
 }
 
-void sBMP4Voice::setOscSlop (float slop)
+void ProPhatVoice::setOscSlop (float slop)
 {
     jassert (Helpers::valueContainedInRange (slop, slopSliderRange));
     slopMod = slop;
     updateOscFrequencies ();
 }
 
-void sBMP4Voice::setOscMix (float newMix)
+void ProPhatVoice::setOscMix (float newMix)
 {
     jassert (Helpers::valueContainedInRange (newMix, sliderRange));
 
@@ -170,7 +170,7 @@ void sBMP4Voice::setOscMix (float newMix)
     updateOscLevels ();
 }
 
-void sBMP4Voice::updateOscLevels ()
+void ProPhatVoice::updateOscLevels ()
 {
     sub.setGain (curVelocity * curSubLevel);
     noise.setGain (curVelocity * curNoiseLevel);
@@ -178,7 +178,7 @@ void sBMP4Voice::updateOscLevels ()
     osc2.setGain (curVelocity * oscMix);
 }
 
-void sBMP4Voice::setAmpParam (juce::StringRef parameterID, float newValue)
+void ProPhatVoice::setAmpParam (juce::StringRef parameterID, float newValue)
 {
     if (newValue <= 0)
     {
@@ -186,19 +186,19 @@ void sBMP4Voice::setAmpParam (juce::StringRef parameterID, float newValue)
         newValue = std::numeric_limits<float>::epsilon();
     }
 
-    if (parameterID == sBMP4AudioProcessorIDs::ampAttackID.getParamID())
+    if (parameterID == ProPhatAudioProcessorIDs::ampAttackID.getParamID())
         ampParams.attack = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::ampDecayID.getParamID())
+    else if (parameterID == ProPhatAudioProcessorIDs::ampDecayID.getParamID())
         ampParams.decay = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::ampSustainID.getParamID())
+    else if (parameterID == ProPhatAudioProcessorIDs::ampSustainID.getParamID())
         ampParams.sustain = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::ampReleaseID.getParamID())
+    else if (parameterID == ProPhatAudioProcessorIDs::ampReleaseID.getParamID())
         ampParams.release = newValue;
 
     ampADSR.setParameters (ampParams);
 }
 
-void sBMP4Voice::setFilterEnvParam (juce::StringRef parameterID, float newValue)
+void ProPhatVoice::setFilterEnvParam (juce::StringRef parameterID, float newValue)
 {
     if (newValue <= 0)
     {
@@ -206,20 +206,20 @@ void sBMP4Voice::setFilterEnvParam (juce::StringRef parameterID, float newValue)
         newValue = std::numeric_limits<float>::epsilon();
     }
 
-    if (parameterID == sBMP4AudioProcessorIDs::filterEnvAttackID.getParamID())
+    if (parameterID == ProPhatAudioProcessorIDs::filterEnvAttackID.getParamID())
         filterEnvParams.attack = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::filterEnvDecayID.getParamID())
+    else if (parameterID == ProPhatAudioProcessorIDs::filterEnvDecayID.getParamID())
         filterEnvParams.decay = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::filterEnvSustainID.getParamID())
+    else if (parameterID == ProPhatAudioProcessorIDs::filterEnvSustainID.getParamID())
         filterEnvParams.sustain = newValue;
-    else if (parameterID == sBMP4AudioProcessorIDs::filterEnvReleaseID.getParamID())
+    else if (parameterID == ProPhatAudioProcessorIDs::filterEnvReleaseID.getParamID())
         filterEnvParams.release = newValue;
 
     filterEnvADSR.setParameters (filterEnvParams);
 }
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscilate between [-1, 1]
-void sBMP4Voice::setLfoShape (int shape)
+void ProPhatVoice::setLfoShape (int shape)
 {
     switch (shape)
     {
@@ -294,7 +294,7 @@ void sBMP4Voice::setLfoShape (int shape)
     }
 }
 
-void sBMP4Voice::setLfoDest (int dest)
+void ProPhatVoice::setLfoDest (int dest)
 {
     //reset everything
     lfoOsc1NoteOffset = 0.f;
@@ -304,32 +304,32 @@ void sBMP4Voice::setLfoDest (int dest)
     lfoDest.curSelection = dest;
 }
 
-void sBMP4Voice::setFilterCutoff (float newValue)
+void ProPhatVoice::setFilterCutoff (float newValue)
 {
     curFilterCutoff = newValue;
     setFilterCutoffInternal (curFilterCutoff + tiltCutoff);
 }
 
-void sBMP4Voice::setFilterTiltCutoff (float newValue)
+void ProPhatVoice::setFilterTiltCutoff (float newValue)
 {
     tiltCutoff = newValue;
     setFilterCutoffInternal (curFilterCutoff + tiltCutoff);
 }
 
-void sBMP4Voice::setFilterResonance (float newAmount)
+void ProPhatVoice::setFilterResonance (float newAmount)
 {
     curFilterResonance = newAmount;
     setFilterResonanceInternal (curFilterResonance);
 }
 
-void sBMP4Voice::pitchWheelMoved (int newPitchWheelValue)
+void ProPhatVoice::pitchWheelMoved (int newPitchWheelValue)
 {
     pitchWheelPosition = newPitchWheelValue;
     updateOscFrequencies();
 }
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
-inline void sBMP4Voice::updateLfo()
+inline void ProPhatVoice::updateLfo()
 {
     //apply filter envelope
     //TODO make this into a slider
@@ -372,19 +372,19 @@ inline void sBMP4Voice::updateLfo()
     }
 }
 
-inline void sBMP4Voice::setFilterCutoffInternal (float curCutOff)
+inline void ProPhatVoice::setFilterCutoffInternal (float curCutOff)
 {
     const auto limitedCutOff { juce::jlimit (cutOffRange.start, cutOffRange.end, curCutOff) };
     processorChain.get<(int) processorId::filterIndex> ().setCutoffFrequencyHz (limitedCutOff);
 }
 
-inline void sBMP4Voice::setFilterResonanceInternal (float curResonance)
+inline void ProPhatVoice::setFilterResonanceInternal (float curResonance)
 {
     const auto limitedResonance { juce::jlimit (0.f, 1.f, curResonance) };
     processorChain.get<(int) processorId::filterIndex> ().setResonance (limitedResonance);
 }
 
-void sBMP4Voice::startNote (int /*midiNoteNumber*/, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
+void ProPhatVoice::startNote (int /*midiNoteNumber*/, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
 {
 #if DEBUG_VOICES
     DBG ("\tDEBUG start: " + juce::String (voiceId));
@@ -413,7 +413,7 @@ void sBMP4Voice::startNote (int /*midiNoteNumber*/, float velocity, juce::Synthe
     updateOscLevels();
 }
 
-void sBMP4Voice::stopNote (float /*velocity*/, bool allowTailOff)
+void ProPhatVoice::stopNote (float /*velocity*/, bool allowTailOff)
 {
     if (allowTailOff)
     {
@@ -447,7 +447,7 @@ void sBMP4Voice::stopNote (float /*velocity*/, bool allowTailOff)
     }
 }
 
-void sBMP4Voice::processEnvelope (juce::dsp::AudioBlock<float>& block)
+void ProPhatVoice::processEnvelope (juce::dsp::AudioBlock<float>& block)
 {
     auto samples = block.getNumSamples();
     auto numChannels = block.getNumChannels();
@@ -473,7 +473,7 @@ void sBMP4Voice::processEnvelope (juce::dsp::AudioBlock<float>& block)
     }
 }
 
-void sBMP4Voice::processRampUp (juce::dsp::AudioBlock<float>& block, int curBlockSize)
+void ProPhatVoice::processRampUp (juce::dsp::AudioBlock<float>& block, int curBlockSize)
 {
 #if DEBUG_VOICES
     DBG ("\tDEBUG RAMP UP " + juce::String (rampUpSamples - rampUpSamplesLeft));
@@ -506,7 +506,7 @@ void sBMP4Voice::processRampUp (juce::dsp::AudioBlock<float>& block, int curBloc
     }
 }
 
-void sBMP4Voice::processKillOverlap (juce::dsp::AudioBlock<float>& block, int curBlockSize)
+void ProPhatVoice::processKillOverlap (juce::dsp::AudioBlock<float>& block, int curBlockSize)
 {
 #if DEBUG_VOICES
     DBG ("\tDEBUG ADD OVERLAP" + juce::String (overlapIndex));
@@ -545,7 +545,7 @@ void sBMP4Voice::processKillOverlap (juce::dsp::AudioBlock<float>& block, int cu
     }
 }
 
-void sBMP4Voice::assertForDiscontinuities (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix)
+void ProPhatVoice::assertForDiscontinuities (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix)
 {
     auto prev = outputBuffer.getSample (0, startSample);
     auto prevDiff = abs (outputBuffer.getSample (0, startSample + 1) - prev);
@@ -575,7 +575,7 @@ void sBMP4Voice::assertForDiscontinuities (juce::AudioBuffer<float>& outputBuffe
     }
 }
 
-void sBMP4Voice::applyKillRamp (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
+void ProPhatVoice::applyKillRamp (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
     outputBuffer.applyGainRamp (startSample, numSamples, 1.f, 0.f);
     currentlyKillingVoice = false;
@@ -587,7 +587,7 @@ void sBMP4Voice::applyKillRamp (juce::AudioBuffer<float>& outputBuffer, int star
 #endif
 }
 
-void sBMP4Voice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
+void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
     if (! currentlyKillingVoice && ! isVoiceActive())
         return;
@@ -658,7 +658,7 @@ void sBMP4Voice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int st
 
 //TODO: I think we need to catch this controller moved business somewhere higher up, like in the processor, where we have access to the state
 //and then we can set the paramId right in the state and have both the audio and the UI change with the orba tilt
-void sBMP4Voice::controllerMoved (int controllerNumber, int newValue)
+void ProPhatVoice::controllerMoved (int controllerNumber, int newValue)
 {
     //DBG ("controllerNumber: " + juce::String (controllerNumber) + ", newValue: " + juce::String (newValue));
 

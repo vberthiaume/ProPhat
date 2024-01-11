@@ -15,14 +15,15 @@
               file="Source/UI/ButtonGroupComponent.cpp"/>
         <FILE id="DwesYC" name="ButtonGroupComponent.h" compile="0" resource="0"
               file="Source/UI/ButtonGroupComponent.h"/>
-        <FILE id="d1sUnw" name="sBMP4Editor.cpp" compile="1" resource="0" file="Source/UI/sBMP4Editor.cpp"/>
-        <FILE id="CPBCbG" name="sBMP4Editor.h" compile="0" resource="0" file="Source/UI/sBMP4Editor.h"/>
+        <FILE id="d1sUnw" name="ProPhatEditor.cpp" compile="1" resource="0"
+              file="Source/UI/ProPhatEditor.cpp"/>
+        <FILE id="CPBCbG" name="ProPhatEditor.h" compile="0" resource="0" file="Source/UI/ProPhatEditor.h"/>
         <FILE id="dzY1tn" name="SliderLabel.cpp" compile="1" resource="0" file="Source/UI/SliderLabel.cpp"/>
         <FILE id="a32gt3" name="SliderLabel.h" compile="0" resource="0" file="Source/UI/SliderLabel.h"/>
-        <FILE id="lQq7M7" name="sBMP4LookAndFeel.cpp" compile="1" resource="0"
-              file="Source/UI/sBMP4LookAndFeel.cpp"/>
-        <FILE id="peN610" name="sBMP4LookAndFeel.h" compile="0" resource="0"
-              file="Source/UI/sBMP4LookAndFeel.h"/>
+        <FILE id="lQq7M7" name="ProPhatLookAndFeel.cpp" compile="1" resource="0"
+              file="Source/UI/ProPhatLookAndFeel.cpp"/>
+        <FILE id="peN610" name="ProPhatLookAndFeel.h" compile="0" resource="0"
+              file="Source/UI/ProPhatLookAndFeel.h"/>
         <FILE id="mr33eA" name="SnappingSlider.cpp" compile="1" resource="0"
               file="Source/UI/SnappingSlider.cpp"/>
         <FILE id="vHfK7o" name="SnappingSlider.h" compile="0" resource="0"
@@ -31,16 +32,17 @@
       <FILE id="fmyiJD" name="GainedOscillator.h" compile="0" resource="0"
             file="Source/GainedOscillator.h"/>
       <FILE id="Hywnyk" name="Helpers.h" compile="0" resource="0" file="Source/Helpers.h"/>
-      <FILE id="nZP4SQ" name="sBMP4Processor.cpp" compile="1" resource="0"
-            file="Source/sBMP4Processor.cpp"/>
-      <FILE id="fptyKX" name="sBMP4Processor.h" compile="0" resource="0"
-            file="Source/sBMP4Processor.h"/>
-      <FILE id="sYObB0" name="sBMP4Synthesiser.cpp" compile="1" resource="0"
-            file="Source/sBMP4Synthesiser.cpp"/>
-      <FILE id="DXkMBm" name="sBMP4Synthesiser.h" compile="0" resource="0"
-            file="Source/sBMP4Synthesiser.h"/>
-      <FILE id="ItumJq" name="sBMP4Voice.cpp" compile="1" resource="0" file="Source/sBMP4Voice.cpp"/>
-      <FILE id="mmelw3" name="sBMP4Voice.h" compile="0" resource="0" file="Source/sBMP4Voice.h"/>
+      <FILE id="nZP4SQ" name="ProPhatProcessor.cpp" compile="1" resource="0"
+            file="Source/ProPhatProcessor.cpp"/>
+      <FILE id="fptyKX" name="ProPhatProcessor.h" compile="0" resource="0"
+            file="Source/ProPhatProcessor.h"/>
+      <FILE id="sYObB0" name="ProPhatSynthesiser.cpp" compile="1" resource="0"
+            file="Source/ProPhatSynthesiser.cpp"/>
+      <FILE id="DXkMBm" name="ProPhatSynthesiser.h" compile="0" resource="0"
+            file="Source/ProPhatSynthesiser.h"/>
+      <FILE id="ItumJq" name="ProPhatVoice.cpp" compile="1" resource="0"
+            file="Source/ProPhatVoice.cpp"/>
+      <FILE id="mmelw3" name="ProPhatVoice.h" compile="0" resource="0" file="Source/ProPhatVoice.h"/>
     </GROUP>
     <GROUP id="{65D18CA8-6815-B6E4-CDD2-3E7E0045CF19}" name="Assets">
       <FILE id="wjnnKH" name="blackLight.png" compile="0" resource="1" file="Assets/blackLight.png"/>
@@ -55,9 +57,9 @@
       <FILE id="zeiCgl" name="redLight.svg" compile="0" resource="1" file="Assets/redLight.svg"/>
       <FILE id="cAHkOK" name="redSquare.svg" compile="0" resource="1" file="Assets/redSquare.svg"/>
       <FILE id="X1JE3t" name="redTexture.png" compile="0" resource="1" file="Assets/redTexture.png"/>
-      <FILE id="SN3npT" name="sBMP4Knob.svg" compile="0" resource="1" file="Assets/sBMP4Knob.svg"/>
-      <FILE id="iICxSg" name="sBMP4KnobUniform.svg" compile="0" resource="1"
-            file="Assets/sBMP4KnobUniform.svg"/>
+      <FILE id="SN3npT" name="ProPhatKnob.svg" compile="0" resource="1" file="Assets/ProPhatKnob.svg"/>
+      <FILE id="iICxSg" name="ProPhatKnobUniform.svg" compile="0" resource="1"
+            file="Assets/ProPhatKnobUniform.svg"/>
       <FILE id="klJSBi" name="Poppins-Black.ttf" compile="0" resource="1"
             file="Assets/Poppins-Black.ttf"/>
       <FILE id="hAYHP3" name="Poppins-Medium.ttf" compile="0" resource="1"

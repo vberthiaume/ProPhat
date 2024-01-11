@@ -9,7 +9,7 @@
    without fee is hereby granted provided that the above copyright notice and
    this permission notice appear in all copies.
 
-   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   ProPhat IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
    DISCLAIMED.
 
@@ -18,21 +18,21 @@
 
 #pragma once
 
-#include "sBMP4Synthesiser.h"
+#include "ProPhatSynthesiser.h"
 
 /** The main AudioProcessor for the plugin.
-*   All we do in here is basically set up the state and init the sBMP4Synth.
+*   All we do in here is basically set up the state and init the ProPhatSynth.
 */
-class sBMP4Processor : public juce::AudioProcessor
+class ProPhatProcessor : public juce::AudioProcessor
 {
 public:
-    sBMP4Processor();
+    ProPhatProcessor();
 
     void addParamListenersToState ();
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override
     {
-        sBMP4Synth.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
+        ProPhatSynth.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
     }
 
     void reset () override {}
@@ -67,7 +67,7 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
 
     /** This is called at startup and will cause callbacks to
-    *   sBMP4Synthesiser::parameterChanged() for all stored parameters.
+    *   ProPhatSynthesiser::parameterChanged() for all stored parameters.
     */
     void setStateInformation (const void* data, int sizeInBytes) override;
 
@@ -78,9 +78,9 @@ public:
 #endif
 
 private:
-    sBMP4Synthesiser sBMP4Synth;
+    ProPhatSynthesiser ProPhatSynth;
 
     juce::AudioProcessorValueTreeState constructState ();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (sBMP4Processor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProPhatProcessor)
 };

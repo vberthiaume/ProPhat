@@ -9,23 +9,23 @@
    without fee is hereby granted provided that the above copyright notice and
    this permission notice appear in all copies.
 
-   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   ProPhat IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
    DISCLAIMED.
 
   ==============================================================================
 */
 
-#include "sBMP4Processor.h"
-#include "UI/sBMP4Editor.h"
+#include "ProPhatProcessor.h"
+#include "UI/ProPhatEditor.h"
 #include <limits>
 
-using namespace sBMP4AudioProcessorIDs;
-using namespace sBMP4AudioProcessorNames;
-using namespace sBMP4AudioProcessorChoices;
+using namespace ProPhatAudioProcessorIDs;
+using namespace ProPhatAudioProcessorNames;
+using namespace ProPhatAudioProcessorChoices;
 using namespace Constants;
 
-sBMP4Processor::sBMP4Processor()
+ProPhatProcessor::ProPhatProcessor()
     : juce::AudioProcessor (BusesProperties().withInput  ("Input", juce::AudioChannelSet::stereo(), true)
                                              .withOutput ("Output", juce::AudioChannelSet::stereo(), true))
     , state { constructState () }
@@ -36,7 +36,7 @@ sBMP4Processor::sBMP4Processor()
     addParamListenersToState ();
 }
 
-juce::AudioProcessorValueTreeState sBMP4Processor::constructState ()
+juce::AudioProcessorValueTreeState ProPhatProcessor::constructState ()
 {
     //TODO: add undo manager!
     return { *this, nullptr, "state",
@@ -80,68 +80,68 @@ juce::AudioProcessorValueTreeState sBMP4Processor::constructState ()
     }};
 }
 
-void sBMP4Processor::addParamListenersToState ()
+void ProPhatProcessor::addParamListenersToState ()
 {
     //NOW HERE: WHAT DOES THIS ACTUALLY DO?
-    state.addParameterListener (osc1FreqID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (osc2FreqID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (osc1FreqID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (osc2FreqID.getParamID (), &ProPhatSynth);
 
-    state.addParameterListener (osc1TuningID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (osc2TuningID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (osc1TuningID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (osc2TuningID.getParamID (), &ProPhatSynth);
 
-    state.addParameterListener (osc1ShapeID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (osc2ShapeID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (osc1ShapeID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (osc2ShapeID.getParamID (), &ProPhatSynth);
 
-    state.addParameterListener (oscSubID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (oscMixID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (oscNoiseID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (oscSlopID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (oscSubID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (oscMixID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (oscNoiseID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (oscSlopID.getParamID (), &ProPhatSynth);
 
-    state.addParameterListener (filterCutoffID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (filterResonanceID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (filterEnvAttackID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (filterEnvDecayID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (filterEnvSustainID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (filterEnvReleaseID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (filterCutoffID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (filterResonanceID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (filterEnvAttackID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (filterEnvDecayID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (filterEnvSustainID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (filterEnvReleaseID.getParamID (), &ProPhatSynth);
 
-    state.addParameterListener (ampAttackID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (ampDecayID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (ampSustainID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (ampReleaseID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (ampAttackID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (ampDecayID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (ampSustainID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (ampReleaseID.getParamID (), &ProPhatSynth);
 
-    state.addParameterListener (lfoShapeID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (lfoDestID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (lfoFreqID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (lfoAmountID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (lfoShapeID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (lfoDestID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (lfoFreqID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (lfoAmountID.getParamID (), &ProPhatSynth);
 
-    state.addParameterListener (effectParam1ID.getParamID (), &sBMP4Synth);
-    state.addParameterListener (effectParam2ID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (effectParam1ID.getParamID (), &ProPhatSynth);
+    state.addParameterListener (effectParam2ID.getParamID (), &ProPhatSynth);
 
-    state.addParameterListener (masterGainID.getParamID (), &sBMP4Synth);
+    state.addParameterListener (masterGainID.getParamID (), &ProPhatSynth);
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool sBMP4Processor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool ProPhatProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
     return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::mono()
            || layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();
 }
 #endif
 
-void sBMP4Processor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void ProPhatProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     jassert (! isUsingDoublePrecision());
     process (buffer, midiMessages);
 }
 
-void sBMP4Processor::processBlock (juce::AudioBuffer<double>& buffer, juce::MidiBuffer& midiMessages)
+void ProPhatProcessor::processBlock (juce::AudioBuffer<double>& buffer, juce::MidiBuffer& midiMessages)
 {
     jassert (isUsingDoublePrecision());
     process (buffer, midiMessages);
 }
 
 template <typename T>
-void sBMP4Processor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages)
+void ProPhatProcessor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
 
@@ -153,31 +153,31 @@ void sBMP4Processor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& mi
     buffer.clear();
 
     //render the block
-    sBMP4Synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
+    ProPhatSynth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
 #if CPU_USAGE
     perfCounter.stop();
 #endif
 }
 
-void sBMP4Processor::getStateInformation (juce::MemoryBlock& destData)
+void ProPhatProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     if (auto xmlState { state.copyState ().createXml () })
         copyXmlToBinary (*xmlState, destData);
 }
 
-void sBMP4Processor::setStateInformation (const void* data, int sizeInBytes)
+void ProPhatProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     if (auto xmlState { getXmlFromBinary (data, sizeInBytes) })
         state.replaceState (juce::ValueTree::fromXml (*xmlState));
 }
 
-juce::AudioProcessorEditor* sBMP4Processor::createEditor()
+juce::AudioProcessorEditor* ProPhatProcessor::createEditor()
 {
-    return new sBMP4Editor (*this);
+    return new ProPhatEditor (*this);
 }
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new sBMP4Processor();
+    return new ProPhatProcessor();
 }

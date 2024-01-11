@@ -9,7 +9,7 @@
    without fee is hereby granted provided that the above copyright notice and
    this permission notice appear in all copies.
 
-   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   ProPhat IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
    DISCLAIMED.
 
@@ -24,7 +24,7 @@
 #include <mutex>
 #include <set>
 
-struct sBMP4Sound : public juce::SynthesiserSound
+struct ProPhatSound : public juce::SynthesiserSound
 {
     bool appliesToNote    (int) override { return true; }
     bool appliesToChannel (int) override { return true; }
@@ -33,7 +33,7 @@ struct sBMP4Sound : public juce::SynthesiserSound
 //==============================================================================
 
 using namespace Constants;
-class sBMP4Voice : public juce::SynthesiserVoice
+class ProPhatVoice : public juce::SynthesiserVoice
 {
 public:
 
@@ -46,7 +46,7 @@ public:
         osc2Index,
     };
 
-    sBMP4Voice (int voiceId, std::set<int>* activeVoiceSet);
+    ProPhatVoice (int voiceId, std::set<int>* activeVoiceSet);
 
     void prepare (const juce::dsp::ProcessSpec& spec);
 
@@ -79,7 +79,7 @@ public:
     void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition) override;
     void stopNote (float /*velocity*/, bool allowTailOff) override;
 
-    bool canPlaySound (juce::SynthesiserSound* sound) override { return dynamic_cast<sBMP4Sound*> (sound) != nullptr; }
+    bool canPlaySound (juce::SynthesiserSound* sound) override { return dynamic_cast<ProPhatSound*> (sound) != nullptr; }
 
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
 

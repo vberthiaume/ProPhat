@@ -9,7 +9,7 @@
    without fee is hereby granted provided that the above copyright notice and
    this permission notice appear in all copies.
 
-   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   ProPhat IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
    DISCLAIMED.
 
@@ -26,10 +26,10 @@
 /** The main look and feel for the plugin. Implements all the drawXXX functions we need.
 *   Most of these are just copies from juce::LookAndFeel_V4 so we can use our own font.
 */
-class sBMP4LookAndFeel : public juce::LookAndFeel_V4
+class ProPhatLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
-    sBMP4LookAndFeel();
+    ProPhatLookAndFeel();
 
     void drawTickBox (juce::Graphics& g, juce::Component& component,
                       float x, float y, float w, float h,

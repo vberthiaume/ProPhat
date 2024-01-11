@@ -9,16 +9,16 @@
    without fee is hereby granted provided that the above copyright notice and
    this permission notice appear in all copies.
 
-   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   ProPhat IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
    DISCLAIMED.
 
   ==============================================================================
 */
 
-#include "sBMP4LookAndFeel.h"
+#include "ProPhatLookAndFeel.h"
 
-sBMP4LookAndFeel::sBMP4LookAndFeel()
+ProPhatLookAndFeel::ProPhatLookAndFeel()
 {
     /*tickedButtonImage = Helpers::getImage (BinaryData::redTexture_png, BinaryData::redTexture_pngSize);
     untickedButtonImage = Helpers::getImage (BinaryData::blackTexture_jpg, BinaryData::blackTexture_jpgSize);*/
@@ -27,14 +27,14 @@ sBMP4LookAndFeel::sBMP4LookAndFeel()
     untickedButtonImage = Helpers::getImage (BinaryData::blackLight_png, BinaryData::blackLight_pngSize);
 
 #if USE_SVG
-    rotarySliderDrawableImage = Helpers::getDrawable (BinaryData::sBMP4KnobUniform_svg, BinaryData::sBMP4KnobUniform_svgSize);
+    rotarySliderDrawableImage = Helpers::getDrawable (BinaryData::ProPhatKnobUniform_svg, BinaryData::ProPhatKnobUniform_svgSize);
 #else
     //LOADING SVG USING DRAWABLES
     rotarySliderImage = Helpers::getImage (BinaryData::metalKnobFitted_png, BinaryData::metalKnobFitted_pngSize);
 #endif
 }
 
-void sBMP4LookAndFeel::drawTickBox (juce::Graphics& g, juce::Component& /*component*/,
+void ProPhatLookAndFeel::drawTickBox (juce::Graphics& g, juce::Component& /*component*/,
                                     float x, float y, float w, float h,
                                     const bool ticked, const bool isEnabled,
                                     const bool shouldDrawButtonAsHighlighted,
@@ -51,7 +51,7 @@ void sBMP4LookAndFeel::drawTickBox (juce::Graphics& g, juce::Component& /*compon
         g.drawImage (untickedButtonImage, tickBounds);
 }
 
-void sBMP4LookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
+void ProPhatLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
                                          const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider& /*slider*/)
 {
     auto outline = juce::Colours::white;
@@ -117,7 +117,7 @@ void sBMP4LookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int wi
     }
 }
 
-void sBMP4LookAndFeel::drawGroupComponentOutline (juce::Graphics& g, int width, int height, const juce::String& text,
+void ProPhatLookAndFeel::drawGroupComponentOutline (juce::Graphics& g, int width, int height, const juce::String& text,
                                                   const juce::Justification& position, juce::GroupComponent& group)
 {
     const float indent = 3.0f;
@@ -179,7 +179,7 @@ void sBMP4LookAndFeel::drawGroupComponentOutline (juce::Graphics& g, int width, 
                 Justification::centred, false);
 }
 
-void sBMP4LookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& button,
+void ProPhatLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& button,
                                          bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
     using namespace juce;
@@ -210,7 +210,7 @@ void sBMP4LookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& 
                       1.f);
 }
 
-void sBMP4LookAndFeel::drawDrawableButton (juce::Graphics& g, juce::DrawableButton& button,
+void ProPhatLookAndFeel::drawDrawableButton (juce::Graphics& g, juce::DrawableButton& button,
                                            bool /*shouldDrawButtonAsHighlighted*/, bool /*shouldDrawButtonAsDown*/)
 {
     using namespace juce;

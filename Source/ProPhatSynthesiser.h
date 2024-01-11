@@ -9,7 +9,7 @@
    without fee is hereby granted provided that the above copyright notice and
    this permission notice appear in all copies.
 
-   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   ProPhat IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
    DISCLAIMED.
 
@@ -18,27 +18,27 @@
 
 #pragma once
 
-#include "sBMP4Voice.h"
+#include "ProPhatVoice.h"
 #include "Helpers.h"
 
-/** The main Synthesiser for the plugin. It uses Constants::numVoices voices (of type sBMP4Voice),
-*   and one sBMP4Sound, which applies to all midi notes. It responds to paramater changes in the
+/** The main Synthesiser for the plugin. It uses Constants::numVoices voices (of type ProPhatVoice),
+*   and one ProPhatSound, which applies to all midi notes. It responds to paramater changes in the
 *   state via juce::AudioProcessorValueTreeState::Listener().
 */
-class sBMP4Synthesiser : public juce::Synthesiser, public juce::AudioProcessorValueTreeState::Listener
+class ProPhatSynthesiser : public juce::Synthesiser, public juce::AudioProcessorValueTreeState::Listener
 {
 public:
-    sBMP4Synthesiser();
+    ProPhatSynthesiser();
 
     void prepare (const juce::dsp::ProcessSpec& spec) noexcept;
 
     void parameterChanged (const juce::String& parameterID, float newValue) override;
 
-    using VoiceOperation = std::function<void (sBMP4Voice*, float)>;
+    using VoiceOperation = std::function<void (ProPhatVoice*, float)>;
     inline void applyToAllVoices (VoiceOperation operation, float newValue)
     {
         for (auto voice : voices)
-            operation (dynamic_cast<sBMP4Voice*> (voice), newValue);
+            operation (dynamic_cast<ProPhatVoice*> (voice), newValue);
     }
 
     void setMasterGain (float gain) { fxChain.get<masterGainIndex>().setGainLinear (gain); }

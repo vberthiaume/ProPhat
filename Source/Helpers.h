@@ -9,7 +9,7 @@
    without fee is hereby granted provided that the above copyright notice and
    this permission notice appear in all copies.
 
-   sBMP4 IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   ProPhat IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
    DISCLAIMED.
 
@@ -101,7 +101,7 @@ const juce::NormalisableRange<float> pitchWheelNoteRange{ -7.f, 7.f };
 
 //====================================================================================================
 
-namespace sBMP4AudioProcessorIDs
+namespace ProPhatAudioProcessorIDs
 {
 const juce::ParameterID osc1ShapeID        { "osc1ShapeID", 1 };
 const juce::ParameterID osc1FreqID         { "osc1FreqID", 1 };
@@ -142,7 +142,7 @@ const juce::ParameterID masterGainID       { "masterGainID", 1 };
 
 //====================================================================================================
 
-namespace sBMP4AudioProcessorNames
+namespace ProPhatAudioProcessorNames
 {
 constexpr auto oscGroupDesc                 { "OSCILLATORS" };
 constexpr auto osc1ShapeDesc                { "SHAPE" };
@@ -188,7 +188,7 @@ constexpr auto masterGainDesc               { "MASTER VOL" };
 
 //====================================================================================================
 
-namespace sBMP4AudioProcessorChoices
+namespace ProPhatAudioProcessorChoices
 {
 constexpr auto oscShape0    { "None" };
 constexpr auto oscShape1    { "Sawtooth" };
