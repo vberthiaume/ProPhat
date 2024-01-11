@@ -696,8 +696,7 @@ private:
 
     @tags{Audio}
 */
-class StandaloneFilterWindow    : public DocumentWindow,
-                                  private Button::Listener
+class ProPhatWindow    : public DocumentWindow, private Button::Listener
 {
 public:
     typedef StandalonePluginHolder::PluginInOuts PluginInOuts;
@@ -707,7 +706,7 @@ public:
         store its settings (it can also be null). If takeOwnershipOfSettings is
         true, then the settings object will be owned and deleted by this object.
     */
-    StandaloneFilterWindow (const String& title,
+    ProPhatWindow (const String& title,
                             Colour backgroundColour,
                             PropertySet* settingsToUse,
                             bool takeOwnershipOfSettings,
@@ -786,7 +785,7 @@ public:
        #endif
     }
 
-    ~StandaloneFilterWindow() override
+    ~ProPhatWindow() override
     {
        #if (! JUCE_IOS) && (! JUCE_ANDROID)
         if (auto* props = pluginHolder->settings.get())
@@ -840,7 +839,7 @@ public:
         }
     }
 
-    static void menuCallback (int result, StandaloneFilterWindow* button)
+    static void menuCallback (int result, ProPhatWindow* button)
     {
         if (button != nullptr && result != 0)
             button->handleMenuResult (result);
@@ -892,7 +891,7 @@ private:
                                   private ComponentListener
     {
     public:
-        MainContentComponent (StandaloneFilterWindow& filterWindow)
+        MainContentComponent (ProPhatWindow& filterWindow)
             : owner (filterWindow), notification (this),
               editor (owner.getAudioProcessor()->hasEditor() ? owner.getAudioProcessor()->createEditorIfNeeded()
                                                              : new GenericAudioProcessorEditor (*owner.getAudioProcessor()))
@@ -1078,7 +1077,7 @@ private:
         }
 
         //==============================================================================
-        StandaloneFilterWindow& owner;
+        ProPhatWindow& owner;
         NotificationArea notification;
         std::unique_ptr<AudioProcessorEditor> editor;
         Value inputMutedValue;
@@ -1123,7 +1122,7 @@ private:
     TextButton optionsButton;
     DecoratorConstrainer decoratorConstrainer;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StandaloneFilterWindow)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProPhatWindow)
 };
 
 inline StandalonePluginHolder* StandalonePluginHolder::getInstance()
@@ -1135,7 +1134,7 @@ inline StandalonePluginHolder* StandalonePluginHolder::getInstance()
         const int numTopLevelWindows = desktop.getNumComponents();
 
         for (int i = 0; i < numTopLevelWindows; ++i)
-            if (auto window = dynamic_cast<StandaloneFilterWindow*> (desktop.getComponent (i)))
+            if (auto window = dynamic_cast<ProPhatWindow*> (desktop.getComponent (i)))
                 return window->getPluginHolder();
     }
    #endif

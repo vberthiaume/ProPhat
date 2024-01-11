@@ -20,10 +20,10 @@
 
 #include "ProPhatWindow.h"
 
-class StandaloneFilterApp final : public JUCEApplication
+class ProPhatApplication final : public JUCEApplication
 {
 public:
-    StandaloneFilterApp ()
+    ProPhatApplication ()
     {
         PropertiesFile::Options options;
 
@@ -44,13 +44,13 @@ public:
     bool moreThanOneInstanceAllowed () override { return true; }
     void anotherInstanceStarted (const String&) override {}
 
-    virtual StandaloneFilterWindow* createWindow ()
+    virtual ProPhatWindow* createWindow ()
     {
 #ifdef JucePlugin_PreferredChannelConfigurations
         StandalonePluginHolder::PluginInOuts channels[] = { JucePlugin_PreferredChannelConfigurations };
 #endif
 
-        return new StandaloneFilterWindow (getApplicationName (),
+        return new ProPhatWindow (getApplicationName (),
                                            LookAndFeel::getDefaultLookAndFeel ().findColour (ResizableWindow::backgroundColourId),
                                            appProperties.getUserSettings (),
                                            false, {}, nullptr
@@ -105,7 +105,7 @@ public:
 
 protected:
     ApplicationProperties appProperties;
-    std::unique_ptr<StandaloneFilterWindow> mainWindow;
+    std::unique_ptr<ProPhatWindow> mainWindow;
 
 private:
     const String appName { CharPointer_UTF8 (JucePlugin_Name) };
@@ -143,4 +143,4 @@ JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 
 #endif
 
-START_JUCE_APPLICATION (StandaloneFilterApp)
+START_JUCE_APPLICATION (ProPhatApplication)
