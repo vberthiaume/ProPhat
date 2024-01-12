@@ -17,7 +17,7 @@
 */
 
 #pragma once
-#include "../Helpers.h"
+#include "../Utility/Helpers.h"
 
 #ifndef USE_SVG
 #define USE_SVG 1

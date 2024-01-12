@@ -19,17 +19,10 @@
 #pragma once
 
 #include <JuceHeader.h>
-
 #include "../submodules/JUCE/modules/juce_audio_plugin_client/Standalone/juce_StandaloneFilterWindow.h"
 
 /**
-    A class that can be used to run a simple standalone application containing your filter.
-
-    Just create one of these objects in your JUCEApplicationBase::initialise() method, and
-    let it do its work. It will create your filter object using the same createPluginFilter() function
-    that the other plugin wrappers use.
-
-    @tags{Audio}
+ * @brief The main window when running the plugin in standalone mode.
 */
 class ProPhatWindow : public juce::DocumentWindow, private juce::Button::Listener
 {

@@ -17,6 +17,7 @@
 */
 
 #include "ProPhatWindow.h"
+#include "../Utility/Macros.h"
 
 ProPhatWindow::ProPhatWindow (const juce::String& title,
                               juce::Colour backgroundColour,
@@ -41,7 +42,9 @@ ProPhatWindow::ProPhatWindow (const juce::String& title,
     optionsButton.setTriggeredOnMouseDown (true);
 #endif
 
-    //setUsingNativeTitleBar (true);
+#if USE_NATIVE_TITLE_BAR
+    setUsingNativeTitleBar (true);
+#endif
 
     pluginHolder.reset (new juce::StandalonePluginHolder (settingsToUse, takeOwnershipOfSettings,
                                                     preferredDefaultDeviceName, preferredSetupOptions,

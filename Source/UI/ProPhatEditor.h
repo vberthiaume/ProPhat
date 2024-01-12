@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "../ProPhatProcessor.h"
+#include "../DSP/ProPhatProcessor.h"
 
 #include "ButtonGroupComponent.h"
 #include "ProPhatLookAndFeel.h"

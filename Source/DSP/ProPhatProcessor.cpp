@@ -17,7 +17,7 @@
 */
 
 #include "ProPhatProcessor.h"
-#include "UI/ProPhatEditor.h"
+#include "../UI/ProPhatEditor.h"
 #include <limits>
 
 using namespace ProPhatAudioProcessorIDs;

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "../Utility/Macros.h"
 #include "ProPhatSynthesiser.h"
 
 /** The main AudioProcessor for the plugin.

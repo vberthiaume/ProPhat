@@ -19,7 +19,7 @@
 #pragma once
 
 #include "ProPhatVoice.h"
-#include "Helpers.h"
+#include "../Utility/Helpers.h"
 
 /** The main Synthesiser for the plugin. It uses Constants::numVoices voices (of type ProPhatVoice),
 *   and one ProPhatSound, which applies to all midi notes. It responds to paramater changes in the

@@ -17,7 +17,8 @@
 */
 
 #include "ProPhatVoice.h"
-#include "UI/ButtonGroupComponent.h"
+#include "../UI/ButtonGroupComponent.h"
+#include "../Utility/Macros.h"
 
 ProPhatVoice::ProPhatVoice (int vId, std::set<int>* activeVoiceSet)
     : voiceId (vId)
