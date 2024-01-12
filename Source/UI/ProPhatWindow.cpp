@@ -17,7 +17,6 @@
 */
 
 #include "ProPhatWindow.h"
-#include "../Utility/Macros.h"
 
 ProPhatWindow::ProPhatWindow (const juce::String& title,
                               juce::Colour backgroundColour,
@@ -28,7 +27,9 @@ ProPhatWindow::ProPhatWindow (const juce::String& title,
                               const juce::Array<PluginInOuts>& constrainToConfiguration,
                               bool autoOpenMidiDevices)
     : DocumentWindow (title, backgroundColour, DocumentWindow::minimiseButton | DocumentWindow::closeButton)
+#if ! USE_NATIVE_TITLE_BAR
     , optionsButton ("Options")
+#endif
 {
     setConstrainer (&decoratorConstrainer);
 
@@ -37,14 +38,15 @@ ProPhatWindow::ProPhatWindow (const juce::String& title,
 #else
     setTitleBarButtonsRequired (DocumentWindow::minimiseButton | DocumentWindow::closeButton, false);
 
-    Component::addAndMakeVisible (optionsButton);
-    optionsButton.addListener (this);
-    optionsButton.setTriggeredOnMouseDown (true);
-#endif
-
 #if USE_NATIVE_TITLE_BAR
     setUsingNativeTitleBar (true);
-#endif
+#else
+    addAndMakeVisible (optionsButton);
+    optionsButton.addListener (this);
+    optionsButton.setTriggeredOnMouseDown (true);
+
+#endif //USE_NATIVE_TITLE_BAR
+#endif //JUCE_IOS || JUCE_ANDROID
 
     pluginHolder.reset (new juce::StandalonePluginHolder (settingsToUse, takeOwnershipOfSettings,
                                                           preferredDefaultDeviceName, preferredSetupOptions,
@@ -127,20 +129,15 @@ void ProPhatWindow::resetToDefaultState ()
 void ProPhatWindow::closeButtonPressed ()
 {
     pluginHolder->savePluginState ();
-
     juce::JUCEApplicationBase::quit ();
 }
 
-void ProPhatWindow::handleMenuResult (int result)
+void ProPhatWindow::resized ()
 {
-    switch (result)
-    {
-        case 1:  pluginHolder->showAudioSettingsDialog (); break;
-        case 2:  pluginHolder->askUserToSaveState (); break;
-        case 3:  pluginHolder->askUserToLoadState (); break;
-        case 4:  resetToDefaultState (); break;
-        default: break;
-    }
+    DocumentWindow::resized();
+#if ! USE_NATIVE_TITLE_BAR
+    optionsButton.setBounds (8, 6, 60, getTitleBarHeight() - 8);
+#endif
 }
 
 void ProPhatWindow::updateContent ()
@@ -157,6 +154,7 @@ void ProPhatWindow::updateContent ()
     setContentOwned (content, resizeAutomatically);
 }
 
+#if ! USE_NATIVE_TITLE_BAR
 void ProPhatWindow::buttonClicked (juce::Button*)
 {
     juce::PopupMenu m;
@@ -170,3 +168,16 @@ void ProPhatWindow::buttonClicked (juce::Button*)
     m.showMenuAsync (juce::PopupMenu::Options (),
                      juce::ModalCallbackFunction::forComponent (menuCallback, this));
 }
+
+void ProPhatWindow::handleMenuResult (int result)
+{
+    switch (result)
+    {
+        case 1:  pluginHolder->showAudioSettingsDialog (); break;
+        case 2:  pluginHolder->askUserToSaveState (); break;
+        case 3:  pluginHolder->askUserToLoadState (); break;
+        case 4:  resetToDefaultState (); break;
+        default: break;
+    }
+}
+#endif

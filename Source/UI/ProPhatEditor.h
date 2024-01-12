@@ -28,9 +28,13 @@
 /** The main editor for the plugin.
 */
 class ProPhatEditor : public juce::AudioProcessorEditor
+#if USE_NATIVE_TITLE_BAR
+    , private juce::Button::Listener
+#endif
 #if CPU_USAGE
     , public Timer
 #endif
+
 {
 public:
     ProPhatEditor (ProPhatProcessor&);
@@ -50,8 +54,24 @@ public:
 private:
     ProPhatProcessor& processor;
 
+#if USE_NATIVE_TITLE_BAR
+    void buttonClicked (juce::Button*) override;
+#endif
+
     ProPhatLookAndFeel lnf;
     juce::SharedResourcePointer<SharedFonts> fonts;
+
+#if USE_NATIVE_TITLE_BAR
+    juce::TextButton optionsButton;
+
+    static void menuCallback (int result, ProPhatEditor* editor)
+    {
+        if (editor && result != 0)
+            editor->handleMenuResult (result);
+    }
+
+    void handleMenuResult (int result);
+#endif
 
     juce::GroupComponent oscGroup, filterGroup, ampGroup, lfoGroup, effectGroup;
 

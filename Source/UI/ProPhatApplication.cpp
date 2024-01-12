@@ -55,8 +55,6 @@ ProPhatWindow* ProPhatApplication::createWindow ()
     );
 }
 
-//==============================================================================
-
 void ProPhatApplication::initialise (const juce::String&)
 {
     mainWindow.reset (createWindow ());
@@ -73,8 +71,6 @@ void ProPhatApplication::shutdown ()
     mainWindow = nullptr;
     appProperties.saveIfNeeded ();
 }
-
-//==============================================================================
 
 void ProPhatApplication::systemRequestedQuit ()
 {

@@ -32,6 +32,8 @@ public:
 
     virtual ProPhatWindow* createWindow ();
 
+    juce::StandalonePluginHolder* getPluginHolder() { return mainWindow ? mainWindow->getPluginHolder() : nullptr; }
+
     void initialise (const juce::String&) override;
 
     void shutdown () override;

@@ -20,11 +20,16 @@
 
 #include <JuceHeader.h>
 #include "../submodules/JUCE/modules/juce_audio_plugin_client/Standalone/juce_StandaloneFilterWindow.h"
+#include "../Utility/Macros.h"
 
 /**
  * @brief The main window when running the plugin in standalone mode.
 */
-class ProPhatWindow : public juce::DocumentWindow, private juce::Button::Listener
+class ProPhatWindow
+    : public juce::DocumentWindow
+#if ! USE_NATIVE_TITLE_BAR
+    , private juce::Button::Listener
+#endif
 {
 public:
     typedef juce::StandalonePluginHolder::PluginInOuts PluginInOuts;
@@ -49,29 +54,23 @@ public:
     );
 
     ~ProPhatWindow () override;
+    void closeButtonPressed() override;
+    void resized() override;
 
-    //==============================================================================
     juce::AudioProcessor* getAudioProcessor() const noexcept      { return pluginHolder->processor.get(); }
     juce::AudioDeviceManager& getDeviceManager() const noexcept   { return pluginHolder->deviceManager; }
 
     /** Deletes and re-creates the plugin, resetting it to its default state. */
     void resetToDefaultState();
 
-    void closeButtonPressed() override;
-
-    void handleMenuResult (int result);
-
+#if ! USE_NATIVE_TITLE_BAR
     static void menuCallback (int result, ProPhatWindow* button)
     {
         if (button != nullptr && result != 0)
             button->handleMenuResult (result);
     }
-
-    void resized() override
-    {
-        DocumentWindow::resized();
-        optionsButton.setBounds (8, 6, 60, getTitleBarHeight() - 8);
-    }
+    void handleMenuResult (int result);
+#endif
 
     virtual juce::StandalonePluginHolder* getPluginHolder()    { return pluginHolder.get(); }
 
@@ -80,7 +79,9 @@ public:
 private:
     void updateContent();
 
+#if ! USE_NATIVE_TITLE_BAR
     void buttonClicked (juce::Button*) override;
+#endif
 
     //==============================================================================
     class MainContentComponent  : public juce::Component,
@@ -316,8 +317,9 @@ private:
         MainContentComponent* contentComponent = nullptr;
     };
 
-    //==============================================================================
+#if ! USE_NATIVE_TITLE_BAR
     juce::TextButton optionsButton;
+#endif
     DecoratorConstrainer decoratorConstrainer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProPhatWindow)

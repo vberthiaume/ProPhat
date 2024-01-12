@@ -31,5 +31,5 @@
 #endif
 
 #ifndef USE_NATIVE_TITLE_BAR
-#define USE_NATIVE_TITLE_BAR 0
+#define USE_NATIVE_TITLE_BAR 1
 #endif
