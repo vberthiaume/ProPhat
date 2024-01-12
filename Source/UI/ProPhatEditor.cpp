@@ -50,7 +50,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p) :
     juce::AudioProcessorEditor (p),
     processor (p)
 #if USE_NATIVE_TITLE_BAR
-    , optionsButton ("Options")
+    , optionsButton ("OPTIONS")
 #endif
 
     //OSCILLATORS
@@ -124,6 +124,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p) :
 #if USE_NATIVE_TITLE_BAR
     addAndMakeVisible (optionsButton);
     optionsButton.addListener (this);
+
     optionsButton.setTriggeredOnMouseDown (true);
 
 //    optionsButton.onClick = [this]()
@@ -239,7 +240,7 @@ void ProPhatEditor::resized()
 
     auto logoRow { bounds.removeFromTop (logoHeight) };
 #if USE_NATIVE_TITLE_BAR
-    optionsButton.setBounds (bounds.removeFromRight (60.f).toNearestInt());
+    optionsButton.setBounds (logoRow.removeFromRight (60.f).withHeight (25.f).toNearestInt());
 #endif
     logoBounds = logoRow;
 

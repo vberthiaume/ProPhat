@@ -31,6 +31,11 @@ class ProPhatLookAndFeel : public juce::LookAndFeel_V4
 public:
     ProPhatLookAndFeel();
 
+    juce::Font getTextButtonFont (juce::TextButton&, int buttonHeight) override
+    {
+        return fonts->getRegularFont (juce::jmin (16.0f, (float) buttonHeight * 0.6f));
+    }
+
     void drawTickBox (juce::Graphics& g, juce::Component& component,
                       float x, float y, float w, float h,
                       const bool ticked, const bool isEnabled,
