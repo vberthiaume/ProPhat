@@ -62,7 +62,7 @@ void ProPhatApplication::initialise (const juce::String&)
     mainWindow.reset (createWindow ());
 
 #if JUCE_STANDALONE_FILTER_WINDOW_USE_KIOSK_MODE
-    Desktop::getInstance ().setKioskModeComponent (mainWindow.get (), false);
+    juce::Desktop::getInstance ().setKioskModeComponent (mainWindow.get (), false);
 #endif
 
     mainWindow->setVisible (true);
