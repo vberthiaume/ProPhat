@@ -47,8 +47,8 @@ ProPhatWindow::ProPhatWindow (const juce::String& title,
 #endif
 
     pluginHolder.reset (new juce::StandalonePluginHolder (settingsToUse, takeOwnershipOfSettings,
-                                                    preferredDefaultDeviceName, preferredSetupOptions,
-                                                    constrainToConfiguration, autoOpenMidiDevices));
+                                                          preferredDefaultDeviceName, preferredSetupOptions,
+                                                          constrainToConfiguration, autoOpenMidiDevices));
 
 #if JUCE_IOS || JUCE_ANDROID
     setFullScreen (true);
