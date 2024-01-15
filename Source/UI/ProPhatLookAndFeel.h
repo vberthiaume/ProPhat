@@ -33,8 +33,11 @@ public:
 
     juce::Font getTextButtonFont (juce::TextButton&, int buttonHeight) override
     {
-        return fonts->getRegularFont (juce::jmin (16.0f, (float) buttonHeight * 0.6f));
+        return fonts->getRegularFont (juce::jmin (static_cast<float> (Constants::labelFontHeight), buttonHeight * 0.8f));
     }
+
+    void drawButtonBackground (juce::Graphics& g, juce::Button& button, const juce::Colour& backgroundColour,
+                               bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
     void drawTickBox (juce::Graphics& g, juce::Component& component,
                       float x, float y, float w, float h,
