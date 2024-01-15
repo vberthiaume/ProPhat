@@ -124,22 +124,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p) :
 #if USE_NATIVE_TITLE_BAR
     addAndMakeVisible (optionsButton);
     optionsButton.addListener (this);
-
     optionsButton.setTriggeredOnMouseDown (true);
-
-//    optionsButton.onClick = [this]()
-//    {
-//        juce::PopupMenu m;
-//        m.addItem (1, TRANS ("Audio/MIDI Settings..."));
-//        m.addSeparator ();
-//        m.addItem (2, TRANS ("Save current state..."));
-//        m.addItem (3, TRANS ("Load a saved state..."));
-//        m.addSeparator ();
-//        m.addItem (4, TRANS ("Reset to default state"));
-//
-//        m.showMenuAsync (juce::PopupMenu::Options (),
-//                         juce::ModalCallbackFunction::forComponent (menuCallback, this));
-//    };
 #endif
 
     //set up everything else
@@ -195,12 +180,12 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p) :
 void ProPhatEditor::buttonClicked (juce::Button*)
 {
     juce::PopupMenu m;
-    m.addItem (1, TRANS ("Audio/MIDI Settings..."));
+    m.addItem (1, juce::translate ("Audio/MIDI Settings..."));
     m.addSeparator ();
-    m.addItem (2, TRANS ("Save current state..."));
-    m.addItem (3, TRANS ("Load a saved state..."));
+    m.addItem (2, juce::translate ("Save current state..."));
+    m.addItem (3, juce::translate ("Load a saved state..."));
     m.addSeparator ();
-    m.addItem (4, TRANS ("Reset to default state"));
+    m.addItem (4, juce::translate ("Reset to default state"));
 
     m.showMenuAsync (juce::PopupMenu::Options (),
                      juce::ModalCallbackFunction::forComponent (menuCallback, this));
@@ -239,7 +224,7 @@ void ProPhatEditor::resized()
     auto bounds = getLocalBounds().toFloat().reduced (overallGap);
 
     auto logoRow { bounds.removeFromTop (logoHeight) };
-#if USE_NATIVE_TITLE_BAR
+#if USE_NATIVE_TITLE_BAR && ! JUCE_ANDROID && ! JUCE_IOS
     optionsButton.setBounds (logoRow.removeFromRight (60.f).withHeight (25.f).toNearestInt());
 #endif
     logoBounds = logoRow;

@@ -49,9 +49,6 @@ ProPhatWindow* ProPhatApplication::createWindow ()
 #else
                               , {}
 #endif
-#if JUCE_DONT_AUTO_OPEN_MIDI_DEVICES_ON_MOBILE
-                              , false
-#endif
     );
 }
 

@@ -33,7 +33,7 @@ public:
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override
     {
-        ProPhatSynth.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
+        proPhatSynth.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
     }
 
     void reset () override {}
@@ -79,7 +79,7 @@ public:
 #endif
 
 private:
-    ProPhatSynthesiser ProPhatSynth;
+    ProPhatSynthesiser proPhatSynth;
 
     juce::AudioProcessorValueTreeState constructState ();
 
