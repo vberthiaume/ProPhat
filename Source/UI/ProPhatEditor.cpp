@@ -46,58 +46,58 @@ constexpr auto totalWidth           { 2 * overallGap + 4 * panelGap + numButtonG
 
 //==============================================================================
 
-ProPhatEditor::ProPhatEditor (ProPhatProcessor& p) :
-    juce::AudioProcessorEditor (p),
-    processor (p)
+ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
+    : juce::AudioProcessorEditor (p)
+    , processor (p)
 #if USE_NATIVE_TITLE_BAR
     , optionsButton ("OPTIONS")
 #endif
 
     //OSCILLATORS
-    , oscGroup ("oscGroup", oscGroupDesc),
-    osc1FreqAttachment (p.state, osc1FreqID.getParamID(), osc1FreqSlider),
-    osc1TuningAttachment (p.state, osc1TuningID.getParamID(), osc1TuningSlider),
-    osc1ShapeButtons (p.state, osc1ShapeID.getParamID(), std::make_unique<OscShape> (OscShape()), osc1ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
+    , oscGroup ("oscGroup", oscGroupDesc)
+    , osc1FreqAttachment (p.state, osc1FreqID.getParamID(), osc1FreqSlider)
+    , osc1TuningAttachment (p.state, osc1TuningID.getParamID(), osc1TuningSlider)
+    , osc1ShapeButtons (p.state, osc1ShapeID.getParamID(), std::make_unique<OscShape> (OscShape()), osc1ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true)
 
-    osc2FreqAttachment (p.state, osc2FreqID.getParamID(), osc2FreqSlider),
-    osc2TuningAttachment (p.state, osc2TuningID.getParamID(), osc2TuningSlider),
-    osc2ShapeButtons (p.state, osc2ShapeID.getParamID(), std::make_unique<OscShape> (OscShape()), osc2ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true),
+    , osc2FreqAttachment (p.state, osc2FreqID.getParamID(), osc2FreqSlider)
+    , osc2TuningAttachment (p.state, osc2TuningID.getParamID(), osc2TuningSlider)
+    , osc2ShapeButtons (p.state, osc2ShapeID.getParamID(), std::make_unique<OscShape> (OscShape()), osc2ShapeDesc, {oscShape1, oscShape2, oscShape3, oscShape4}, true)
 
-    oscSubAttachment (p.state, oscSubID.getParamID(), oscSubSlider),
-    oscMixAttachment (p.state, oscMixID.getParamID(), oscMixSlider),
-    oscNoiseAttachment (p.state, oscNoiseID.getParamID(), oscNoiseSlider),
-    oscSlopAttachment (p.state, oscSlopID.getParamID(), oscSlopSlider),
+    , oscSubAttachment (p.state, oscSubID.getParamID(), oscSubSlider)
+    , oscMixAttachment (p.state, oscMixID.getParamID(), oscMixSlider)
+    , oscNoiseAttachment (p.state, oscNoiseID.getParamID(), oscNoiseSlider)
+    , oscSlopAttachment (p.state, oscSlopID.getParamID(), oscSlopSlider)
 
     //FILTERS
-    filterGroup ("filterGroup", filterGroupDesc),
-    filterCutoffAttachment (p.state, filterCutoffID.getParamID(), filterCutoffSlider),
-    filterResonanceAttachment (p.state, filterResonanceID.getParamID(), filterResonanceSlider),
-    filterEnvAttackAttachment (p.state, filterEnvAttackID.getParamID(), filterEnvAttackSlider),
-    filterEnvDecayAttachment (p.state, filterEnvDecayID.getParamID(), filterEnvDecaySlider),
-    filterEnvSustainAttachment (p.state, filterEnvSustainID.getParamID(), filterEnvSustainSlider),
-    filterEnvReleaseAttachment (p.state, filterEnvReleaseID.getParamID(), filterEnvReleaseSlider),
+    , filterGroup ("filterGroup", filterGroupDesc)
+    , filterCutoffAttachment (p.state, filterCutoffID.getParamID(), filterCutoffSlider)
+    , filterResonanceAttachment (p.state, filterResonanceID.getParamID(), filterResonanceSlider)
+    , filterEnvAttackAttachment (p.state, filterEnvAttackID.getParamID(), filterEnvAttackSlider)
+    , filterEnvDecayAttachment (p.state, filterEnvDecayID.getParamID(), filterEnvDecaySlider)
+    , filterEnvSustainAttachment (p.state, filterEnvSustainID.getParamID(), filterEnvSustainSlider)
+    , filterEnvReleaseAttachment (p.state, filterEnvReleaseID.getParamID(), filterEnvReleaseSlider)
 
     //AMPLIFIER
-    ampGroup ("ampGroup", ampGroupDesc),
-    ampAttackAttachment (p.state, ampAttackID.getParamID(), ampAttackSlider),
-    ampDecayAttachment (p.state, ampDecayID.getParamID(), ampDecaySlider),
-    ampSustainAttachment (p.state, ampSustainID.getParamID(), ampSustainSlider),
-    ampReleaseAttachment (p.state, ampReleaseID.getParamID(), ampReleaseSlider),
+    , ampGroup ("ampGroup", ampGroupDesc)
+    , ampAttackAttachment (p.state, ampAttackID.getParamID(), ampAttackSlider)
+    , ampDecayAttachment (p.state, ampDecayID.getParamID(), ampDecaySlider)
+    , ampSustainAttachment (p.state, ampSustainID.getParamID(), ampSustainSlider)
+    , ampReleaseAttachment (p.state, ampReleaseID.getParamID(), ampReleaseSlider)
 
     //LFO
-    lfoGroup ("lfoGroup", lfoGroupDesc),
-    lfoShapeButtons (p.state, lfoShapeID.getParamID(), std::make_unique<LfoShape> (LfoShape()), lfoShapeDesc, {lfoShape0, lfoShape1, /*lfoShape2, */lfoShape3, lfoShape4}),
-    lfoDestButtons (p.state, lfoDestID.getParamID(), std::make_unique<LfoDest> (LfoDest()), lfoDestDesc, {lfoDest0, lfoDest1, lfoDest2, lfoDest3}),
-    lfoFreqAttachment (p.state, lfoFreqID.getParamID(), lfoFreqSlider),
-    lfoAmountAttachment (p.state, lfoAmountID.getParamID(), lfoAmountSlider),
+    , lfoGroup ("lfoGroup", lfoGroupDesc)
+    , lfoShapeButtons (p.state, lfoShapeID.getParamID(), std::make_unique<LfoShape> (LfoShape()), lfoShapeDesc, {lfoShape0, lfoShape1, /*lfoShape2, */lfoShape3, lfoShape4})
+    , lfoDestButtons (p.state, lfoDestID.getParamID(), std::make_unique<LfoDest> (LfoDest()), lfoDestDesc, {lfoDest0, lfoDest1, lfoDest2, lfoDest3})
+    , lfoFreqAttachment (p.state, lfoFreqID.getParamID(), lfoFreqSlider)
+    , lfoAmountAttachment (p.state, lfoAmountID.getParamID(), lfoAmountSlider)
 
     //EFFECT
-    effectGroup ("effectGroup", effectGroupDesc),
-    effectParam1Attachment (p.state, effectParam1ID.getParamID(), effectParam1Slider),
-    effectParam2Attachment (p.state, effectParam2ID.getParamID(), effectParam2Slider),
+    , effectGroup ("effectGroup", effectGroupDesc)
+    , effectParam1Attachment (p.state, effectParam1ID.getParamID(), effectParam1Slider)
+    , effectParam2Attachment (p.state, effectParam2ID.getParamID(), effectParam2Slider)
 
     //OTHER
-    masterGainAttachment (p.state, masterGainID.getParamID(), masterGainSlider)
+    , masterGainAttachment (p.state, masterGainID.getParamID(), masterGainSlider)
 {
 #if CPU_USAGE
     setSize (width, height + 50);
