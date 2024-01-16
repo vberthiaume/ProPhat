@@ -23,5 +23,7 @@ SnappingSlider::SnappingSlider (const SliderStyle& style, double snapValue, doub
     , snapVal (snapValue)
     , tolerance (snapTolerance)
 {
+#if JUCE_DEBUG
     setPopupDisplayEnabled (true, false, nullptr);
+#endif
 }

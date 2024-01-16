@@ -17,6 +17,7 @@
 */
 
 #include "ProPhatWindow.h"
+#include "dwmapi.h"
 
 ProPhatWindow::ProPhatWindow (const juce::String& title,
                               juce::Colour backgroundColour,
@@ -40,6 +41,9 @@ ProPhatWindow::ProPhatWindow (const juce::String& title,
 
 #if USE_NATIVE_TITLE_BAR
     setUsingNativeTitleBar (true);
+    setVisible (true);
+
+    juce::Desktop::getInstance ().addDarkModeSettingListener (this);
 #else
     juce::Component::addAndMakeVisible (optionsButton);
     optionsButton.addListener (this);
@@ -94,6 +98,8 @@ ProPhatWindow::ProPhatWindow (const juce::String& title,
     if (auto* processor = getAudioProcessor ())
         if (auto* editor = processor->getActiveEditor ())
             setResizable (editor->isResizable (), false);
+
+    darkModeSettingChanged ();
 #endif
 }
 
@@ -154,7 +160,19 @@ void ProPhatWindow::updateContent ()
     setContentOwned (content, resizeAutomatically);
 }
 
-#if ! USE_NATIVE_TITLE_BAR
+#if USE_NATIVE_TITLE_BAR
+void ProPhatWindow::darkModeSettingChanged ()
+{
+    auto hwnd = getPeer ()->getNativeHandle ();
+
+    BOOL USE_DARK_MODE = juce::Desktop::getInstance ().isDarkModeActive ();
+    COLORREF COLOUR = USE_DARK_MODE ? 0x00505050 : 0x00FFFFFF;
+
+    auto result = DwmSetWindowAttribute ((HWND) hwnd, DWMWINDOWATTRIBUTE::DWMWA_CAPTION_COLOR, &COLOUR, sizeof (COLOUR));
+    result = DwmSetWindowAttribute ((HWND) hwnd, DWMWINDOWATTRIBUTE::DWMWA_USE_IMMERSIVE_DARK_MODE, &USE_DARK_MODE, sizeof (USE_DARK_MODE));
+}
+
+#else
 void ProPhatWindow::buttonClicked (juce::Button*)
 {
     juce::PopupMenu m;

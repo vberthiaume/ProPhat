@@ -202,7 +202,7 @@ void ProPhatEditor::handleMenuResult (int result)
                 case 1:  pluginHolder->showAudioSettingsDialog (); break;
                 case 2:  pluginHolder->askUserToSaveState (); break;
                 case 3:  pluginHolder->askUserToLoadState (); break;
-                    //        case 4:  resetToDefaultState (); break;
+                case 4:  app->resetToDefaultState (); break;
                 default: jassertfalse; break;
             }
             return;

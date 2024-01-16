@@ -40,6 +40,8 @@ public:
 
     void systemRequestedQuit () override;
 
+    void resetToDefaultState () { if (mainWindow) mainWindow->resetToDefaultState (); }
+
 protected:
     juce::ApplicationProperties appProperties;
     std::unique_ptr<ProPhatWindow> mainWindow;

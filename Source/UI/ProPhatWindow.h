@@ -27,7 +27,9 @@
 */
 class ProPhatWindow
     : public juce::DocumentWindow
-#if ! USE_NATIVE_TITLE_BAR
+#if USE_NATIVE_TITLE_BAR
+    , public juce::DarkModeSettingListener
+#else
     , private juce::Button::Listener
 #endif
 {
@@ -63,7 +65,9 @@ public:
     /** Deletes and re-creates the plugin, resetting it to its default state. */
     void resetToDefaultState();
 
-#if ! USE_NATIVE_TITLE_BAR
+#if USE_NATIVE_TITLE_BAR
+    void darkModeSettingChanged () override;
+#else
     static void menuCallback (int result, ProPhatWindow* button)
     {
         if (button != nullptr && result != 0)
