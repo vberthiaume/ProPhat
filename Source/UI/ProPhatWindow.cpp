@@ -17,7 +17,9 @@
 */
 
 #include "ProPhatWindow.h"
+#if USE_NATIVE_TITLE_BAR && JUCE_WINDOWS
 #include "dwmapi.h"
+#endif
 
 ProPhatWindow::ProPhatWindow (const juce::String& title,
                               juce::Colour backgroundColour,
@@ -163,13 +165,15 @@ void ProPhatWindow::updateContent ()
 #if USE_NATIVE_TITLE_BAR
 void ProPhatWindow::darkModeSettingChanged ()
 {
+#if JUCE_WINDOWS
     auto hwnd = getPeer ()->getNativeHandle ();
 
     BOOL USE_DARK_MODE = juce::Desktop::getInstance ().isDarkModeActive ();
-    COLORREF COLOUR = USE_DARK_MODE ? 0x00505050 : 0x00FFFFFF;
+    COLORREF COLOUR = USE_DARK_MODE ? 0x001E1E1E : 0x00FFFFFF;
 
     auto result = DwmSetWindowAttribute ((HWND) hwnd, DWMWINDOWATTRIBUTE::DWMWA_CAPTION_COLOR, &COLOUR, sizeof (COLOUR));
     result = DwmSetWindowAttribute ((HWND) hwnd, DWMWINDOWATTRIBUTE::DWMWA_USE_IMMERSIVE_DARK_MODE, &USE_DARK_MODE, sizeof (USE_DARK_MODE));
+#endif
 }
 
 #else
