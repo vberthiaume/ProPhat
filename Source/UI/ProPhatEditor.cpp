@@ -225,7 +225,7 @@ void ProPhatEditor::resized()
 
     auto logoRow { bounds.removeFromTop (logoHeight) };
 #if USE_NATIVE_TITLE_BAR && ! JUCE_ANDROID && ! JUCE_IOS
-    optionsButton.setBounds (logoRow.removeFromRight (60.f).withHeight (25.f).toNearestInt());
+    optionsButton.setBounds (logoRow.removeFromRight (70.f).withHeight (25.f).toNearestInt());
 #endif
     logoBounds = logoRow;
 

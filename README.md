@@ -2,4 +2,4 @@
 
 A **phat** virtual synthesizer inspired by the Prophet REV2!
 
-![image](https://github.com/vberthiaume/ProPhat/assets/3721265/090d843b-8113-447d-a7cc-412acbcefa96)
+![image](https://github.com/vberthiaume/ProPhat/assets/3721265/f15cc5df-ffad-4370-bb6e-9119eacc90d2)

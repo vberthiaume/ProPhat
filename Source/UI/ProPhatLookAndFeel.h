@@ -33,7 +33,12 @@ public:
 
     juce::Font getTextButtonFont (juce::TextButton&, int buttonHeight) override
     {
-        return fonts->getRegularFont (juce::jmin (static_cast<float> (Constants::labelFontHeight), buttonHeight * 0.8f));
+#if JUCE_MAC
+        const auto factor { .7f };
+#else
+        const auto factor { .8f };
+#endif
+        return fonts->getRegularFont (juce::jmin (static_cast<float> (Constants::labelFontHeight), buttonHeight * factor));
     }
 
     void drawCornerResizer (juce::Graphics&, int, int, bool, bool) override {}
