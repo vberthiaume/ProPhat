@@ -63,14 +63,10 @@
       <FILE id="JHkSBH" name="blackLight.svg" compile="0" resource="1" file="Assets/blackLight.svg"/>
       <FILE id="GDRRMB" name="blackMetal.jpg" compile="0" resource="1" file="Assets/blackMetal.jpg"/>
       <FILE id="czzc7e" name="blackSquare.svg" compile="0" resource="1" file="Assets/blackSquare.svg"/>
-      <FILE id="CAdb03" name="blackTexture.jpg" compile="0" resource="1"
-            file="Assets/blackTexture.jpg"/>
-      <FILE id="mId4mw" name="metalKnobFitted.png" compile="0" resource="1"
-            file="Assets/metalKnobFitted.png"/>
       <FILE id="vm0Xtj" name="redLight.png" compile="0" resource="1" file="Assets/redLight.png"/>
-      <FILE id="zeiCgl" name="redLight.svg" compile="0" resource="1" file="Assets/redLight.svg"/>
       <FILE id="cAHkOK" name="redSquare.svg" compile="0" resource="1" file="Assets/redSquare.svg"/>
       <FILE id="X1JE3t" name="redTexture.png" compile="0" resource="1" file="Assets/redTexture.png"/>
+      <FILE id="d80OoT" name="phatKnob.svg" compile="0" resource="1" file="Assets/phatKnob.svg"/>
       <FILE id="SN3npT" name="ProPhatKnob.svg" compile="0" resource="1" file="Assets/ProPhatKnob.svg"/>
       <FILE id="iICxSg" name="ProPhatKnobUniform.svg" compile="0" resource="1"
             file="Assets/ProPhatKnobUniform.svg"/>

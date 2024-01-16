@@ -35,5 +35,5 @@
 #endif
 
 #ifndef USE_BACKGROUND_IMAGE
- #define USE_BACKGROUND_IMAGE 1
+ #define USE_BACKGROUND_IMAGE 0
 #endif

@@ -28,7 +28,7 @@ ProPhatLookAndFeel::ProPhatLookAndFeel()
     untickedButtonImage = Helpers::getImage (BinaryData::blackLight_png, BinaryData::blackLight_pngSize);
 
 #if USE_SVG
-    rotarySliderDrawableImage = Helpers::getDrawable (BinaryData::ProPhatKnobUniform_svg, BinaryData::ProPhatKnobUniform_svgSize);
+    rotarySliderDrawableImage = Helpers::getDrawable (BinaryData::phatKnob_svg, BinaryData::phatKnob_svgSize);
 #else
     //LOADING SVG USING DRAWABLES
     rotarySliderImage = Helpers::getImage (BinaryData::metalKnobFitted_png, BinaryData::metalKnobFitted_pngSize);
@@ -98,7 +98,7 @@ void ProPhatLookAndFeel::drawTickBox (juce::Graphics& g, juce::Component& /*comp
 }
 
 void ProPhatLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
-                                         const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider& /*slider*/)
+                                           const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider& /*slider*/)
 {
     auto outline = juce::Colours::white;
     auto bounds = juce::Rectangle<int> (x, y, width, height).toFloat().reduced (10);
@@ -152,7 +152,7 @@ void ProPhatLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int 
         const auto scaleFactor = squareSide / imageBounds.getWidth();
 
         rotarySliderDrawableImage->draw (g, 1.f, juce::AffineTransform::scale (scaleFactor).translated (xTranslation + gap, yTranslation + gap)
-                                                                 .rotated (toAngle, bounds.getCentreX(), bounds.getCentreY()));
+                                                                                           .rotated (toAngle, bounds.getCentreX (), bounds.getCentreY ()));
 #else
         auto imageBounds = rotarySliderImage.getBounds().toFloat();
         auto scaleFactor = squareSide / imageBounds.getWidth();
