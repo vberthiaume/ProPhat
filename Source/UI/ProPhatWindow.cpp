@@ -41,7 +41,7 @@ ProPhatWindow::ProPhatWindow (const juce::String& title,
 #if USE_NATIVE_TITLE_BAR
     setUsingNativeTitleBar (true);
 #else
-    addAndMakeVisible (optionsButton);
+    juce::Component::addAndMakeVisible (optionsButton);
     optionsButton.addListener (this);
     optionsButton.setTriggeredOnMouseDown (true);
 

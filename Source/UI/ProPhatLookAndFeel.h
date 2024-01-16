@@ -36,6 +36,8 @@ public:
         return fonts->getRegularFont (juce::jmin (static_cast<float> (Constants::labelFontHeight), buttonHeight * 0.8f));
     }
 
+    void drawCornerResizer (juce::Graphics&, int, int, bool, bool) override {}
+
     void drawButtonBackground (juce::Graphics& g, juce::Button& button, const juce::Colour& backgroundColour,
                                bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
