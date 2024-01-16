@@ -17,7 +17,7 @@
 */
 
 #pragma once
-#include "../Helpers.h"
+#include "../Utility/Helpers.h"
 
 #ifndef USE_SVG
 #define USE_SVG 1
@@ -30,6 +30,16 @@ class ProPhatLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
     ProPhatLookAndFeel();
+
+    juce::Font getTextButtonFont (juce::TextButton&, int buttonHeight) override
+    {
+        return fonts->getRegularFont (juce::jmin (static_cast<float> (Constants::labelFontHeight), buttonHeight * 0.8f));
+    }
+
+    void drawCornerResizer (juce::Graphics&, int, int, bool, bool) override {}
+
+    void drawButtonBackground (juce::Graphics& g, juce::Button& button, const juce::Colour& backgroundColour,
+                               bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
     void drawTickBox (juce::Graphics& g, juce::Component& component,
                       float x, float y, float w, float h,

@@ -34,6 +34,51 @@ ProPhatLookAndFeel::ProPhatLookAndFeel()
 #endif
 }
 
+void ProPhatLookAndFeel::drawButtonBackground (juce::Graphics& g, juce::Button& button, const juce::Colour&,
+                                               bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+{
+    auto cornerSize = 6.0f;
+    auto bounds = button.getLocalBounds ().toFloat ().reduced (0.5f, 0.5f);
+
+    const auto backgroundColour { juce::Colours::transparentBlack };
+    auto baseColour = backgroundColour.withMultipliedSaturation (button.hasKeyboardFocus (true) ? 2.f : 0.9f)
+                                      .withMultipliedAlpha (button.hasKeyboardFocus (true) ? 1.0f : 0.5f);
+
+    if (shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted)
+        baseColour = baseColour.contrasting (shouldDrawButtonAsHighlighted ? 0.2f : 0.05f);
+
+    g.setColour (baseColour);
+
+    auto flatOnLeft = button.isConnectedOnLeft ();
+    auto flatOnRight = button.isConnectedOnRight ();
+    auto flatOnTop = button.isConnectedOnTop ();
+    auto flatOnBottom = button.isConnectedOnBottom ();
+
+    if (flatOnLeft || flatOnRight || flatOnTop || flatOnBottom)
+    {
+        juce::Path path;
+        path.addRoundedRectangle (bounds.getX (), bounds.getY (),
+                                  bounds.getWidth (), bounds.getHeight (),
+                                  cornerSize, cornerSize,
+                                  ! (flatOnLeft || flatOnTop),
+                                  ! (flatOnRight || flatOnTop),
+                                  ! (flatOnLeft || flatOnBottom),
+                                  ! (flatOnRight || flatOnBottom));
+
+        g.fillPath (path);
+
+        g.setColour (button.findColour (juce::ComboBox::outlineColourId));
+        g.strokePath (path, juce::PathStrokeType (1.0f));
+    }
+    else
+    {
+        g.fillRoundedRectangle (bounds, cornerSize);
+
+        g.setColour (button.findColour (juce::ComboBox::outlineColourId));
+        g.drawRoundedRectangle (bounds, cornerSize, 1.0f);
+    }
+}
+
 void ProPhatLookAndFeel::drawTickBox (juce::Graphics& g, juce::Component& /*component*/,
                                     float x, float y, float w, float h,
                                     const bool ticked, const bool isEnabled,

@@ -16,8 +16,8 @@
   ==============================================================================
 */
 
-#include "../ProPhatProcessor.h"
 #include "ProPhatEditor.h"
+#include "ProPhatApplication.h"
 
 using namespace ProPhatAudioProcessorIDs;
 using namespace ProPhatAudioProcessorNames;
@@ -49,6 +49,9 @@ constexpr auto totalWidth           { 2 * overallGap + 4 * panelGap + numButtonG
 ProPhatEditor::ProPhatEditor (ProPhatProcessor& p) :
     juce::AudioProcessorEditor (p),
     processor (p)
+#if USE_NATIVE_TITLE_BAR
+    , optionsButton ("OPTIONS")
+#endif
 
     //OSCILLATORS
     , oscGroup ("oscGroup", oscGroupDesc),
@@ -118,6 +121,12 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p) :
     logoText.append ("Phat", fonts->getBoldFont (logoFontHeight), juce::Colours::white);
     logoTextLayout.createLayout (logoText, totalWidth);
 
+#if USE_NATIVE_TITLE_BAR
+    addAndMakeVisible (optionsButton);
+    optionsButton.addListener (this);
+    optionsButton.setTriggeredOnMouseDown (true);
+#endif
+
     //set up everything else
     auto addGroup = [this](juce::GroupComponent& group, std::vector<SliderLabel*> labels, std::vector<juce::StringRef> labelTexts, std::vector<juce::Component*> components)
     {
@@ -167,6 +176,42 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p) :
     lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
 }
 
+#if USE_NATIVE_TITLE_BAR
+void ProPhatEditor::buttonClicked (juce::Button*)
+{
+    juce::PopupMenu m;
+    m.addItem (1, juce::translate ("Audio/MIDI Settings..."));
+    m.addSeparator ();
+    m.addItem (2, juce::translate ("Save current state..."));
+    m.addItem (3, juce::translate ("Load a saved state..."));
+    m.addSeparator ();
+    m.addItem (4, juce::translate ("Reset to default state"));
+
+    m.showMenuAsync (juce::PopupMenu::Options (),
+                     juce::ModalCallbackFunction::forComponent (menuCallback, this));
+}
+
+void ProPhatEditor::handleMenuResult (int result)
+{
+    if (const auto app { dynamic_cast<ProPhatApplication*> (juce::JUCEApplication::getInstance()) })
+    {
+        if (const auto pluginHolder { app->getPluginHolder() })
+        {
+            switch (result)
+            {
+                case 1:  pluginHolder->showAudioSettingsDialog (); break;
+                case 2:  pluginHolder->askUserToSaveState (); break;
+                case 3:  pluginHolder->askUserToLoadState (); break;
+                case 4:  app->resetToDefaultState (); break;
+                default: jassertfalse; break;
+            }
+            return;
+        }
+    }
+    jassertfalse;
+}
+#endif
+
 void ProPhatEditor::paint (juce::Graphics& g)
 {
     g.drawImage (backgroundTexture, getLocalBounds().toFloat());
@@ -178,7 +223,11 @@ void ProPhatEditor::resized()
 {
     auto bounds = getLocalBounds().toFloat().reduced (overallGap);
 
-    logoBounds = bounds.removeFromTop (logoHeight);
+    auto logoRow { bounds.removeFromTop (logoHeight) };
+#if USE_NATIVE_TITLE_BAR && ! JUCE_ANDROID && ! JUCE_IOS
+    optionsButton.setBounds (logoRow.removeFromRight (60.f).withHeight (25.f).toNearestInt());
+#endif
+    logoBounds = logoRow;
 
     //set up sections
     auto topSection = bounds.removeFromTop (bounds.getHeight() / 2);

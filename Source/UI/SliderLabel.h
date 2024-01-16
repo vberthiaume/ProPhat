@@ -17,7 +17,7 @@
 */
 
 #pragma once
-#include "../Helpers.h"
+#include "../Utility/Helpers.h"
 
 /** Labels that are attached to Sliders.
 */

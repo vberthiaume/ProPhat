@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-   Copyright (c) 2023 - Vincent Berthiaume
+   Copyright (c) 2024 - Vincent Berthiaume
 
    The code included in this file is provided under the terms of the ISC license
    http://www.isc.org/downloads/software-support-policy/isc-license. Permission
@@ -16,14 +16,20 @@
   ==============================================================================
 */
 
-#include "SnappingSlider.h"
+#pragma once
 
-SnappingSlider::SnappingSlider (const SliderStyle& style, double snapValue, double snapTolerance)
-    : juce::Slider (style, TextEntryBoxPosition::NoTextBox)
-    , snapVal (snapValue)
-    , tolerance (snapTolerance)
-{
-#if JUCE_DEBUG
-    setPopupDisplayEnabled (true, false, nullptr);
+#ifndef CPU_USAGE
+#define CPU_USAGE 0
 #endif
-}
+
+#ifndef DEBUG_VOICES
+#define DEBUG_VOICES 0
+#endif
+
+#ifndef PRINT_ALL_SAMPLES
+#define PRINT_ALL_SAMPLES 0
+#endif
+
+#ifndef USE_NATIVE_TITLE_BAR
+#define USE_NATIVE_TITLE_BAR 1
+#endif

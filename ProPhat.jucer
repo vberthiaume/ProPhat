@@ -4,13 +4,36 @@
               jucerFormatVersion="1" pluginFormats="buildAU,buildAUv3,buildStandalone,buildVST3"
               pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               pluginDesc="Phat synth based on the Prophet REV2" pluginManufacturer="BMP4"
-              pluginCode="Bvql" pluginAUMainType="'aumu'" addUsingNamespaceToJuceHeader="0"
-              companyName="BMP4" bundleIdentifier="com.BMP4.ProPhat" companyWebsite="https://github.com/vberthiaume"
+              pluginCode="Bvql" pluginAUMainType="'aumu'" companyName="BMP4"
+              bundleIdentifier="com.BMP4.ProPhat" companyWebsite="https://github.com/vberthiaume"
               companyEmail="vberthiaume@gmail.com" pluginManufacturerCode="Bmp4"
-              version="1.0.0" pluginName="ProPhat">
+              version="1.0.0" pluginName="ProPhat" defines="JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1"
+              addUsingNamespaceToJuceHeader="0">
   <MAINGROUP id="M1KKAR" name="ProPhat">
     <GROUP id="{F09A54D2-9168-8E51-F638-B70D48E09C9D}" name="Source">
+      <GROUP id="{C46181DF-9CB7-DFF8-29BC-F04A2626D6F2}" name="DSP">
+        <FILE id="LtOhvg" name="GainedOscillator.h" compile="0" resource="0"
+              file="Source/DSP/GainedOscillator.h"/>
+        <FILE id="c7Oc8R" name="ProPhatProcessor.cpp" compile="1" resource="0"
+              file="Source/DSP/ProPhatProcessor.cpp"/>
+        <FILE id="xtf5aq" name="ProPhatProcessor.h" compile="0" resource="0"
+              file="Source/DSP/ProPhatProcessor.h"/>
+        <FILE id="MpOJvm" name="ProPhatSynthesiser.cpp" compile="1" resource="0"
+              file="Source/DSP/ProPhatSynthesiser.cpp"/>
+        <FILE id="FF94oD" name="ProPhatSynthesiser.h" compile="0" resource="0"
+              file="Source/DSP/ProPhatSynthesiser.h"/>
+        <FILE id="V2L4ZF" name="ProPhatVoice.cpp" compile="1" resource="0"
+              file="Source/DSP/ProPhatVoice.cpp"/>
+        <FILE id="T3Sfpf" name="ProPhatVoice.h" compile="0" resource="0" file="Source/DSP/ProPhatVoice.h"/>
+      </GROUP>
       <GROUP id="{4B00E138-2E49-3682-528E-631D3E065DB0}" name="UI">
+        <FILE id="Hi8poK" name="ProPhatApplication.h" compile="0" resource="0"
+              file="Source/UI/ProPhatApplication.h"/>
+        <FILE id="JMCiJr" name="ProPhatApplication.cpp" compile="1" resource="0"
+              file="Source/UI/ProPhatApplication.cpp"/>
+        <FILE id="GCejHI" name="ProPhatWindow.h" compile="0" resource="0" file="Source/UI/ProPhatWindow.h"/>
+        <FILE id="nAlJNf" name="ProPhatWindow.cpp" compile="1" resource="0"
+              file="Source/UI/ProPhatWindow.cpp"/>
         <FILE id="Ix1jl7" name="ButtonGroupComponent.cpp" compile="1" resource="0"
               file="Source/UI/ButtonGroupComponent.cpp"/>
         <FILE id="DwesYC" name="ButtonGroupComponent.h" compile="0" resource="0"
@@ -29,22 +52,13 @@
         <FILE id="vHfK7o" name="SnappingSlider.h" compile="0" resource="0"
               file="Source/UI/SnappingSlider.h"/>
       </GROUP>
-      <FILE id="fmyiJD" name="GainedOscillator.h" compile="0" resource="0"
-            file="Source/GainedOscillator.h"/>
-      <FILE id="Hywnyk" name="Helpers.h" compile="0" resource="0" file="Source/Helpers.h"/>
-      <FILE id="nZP4SQ" name="ProPhatProcessor.cpp" compile="1" resource="0"
-            file="Source/ProPhatProcessor.cpp"/>
-      <FILE id="fptyKX" name="ProPhatProcessor.h" compile="0" resource="0"
-            file="Source/ProPhatProcessor.h"/>
-      <FILE id="sYObB0" name="ProPhatSynthesiser.cpp" compile="1" resource="0"
-            file="Source/ProPhatSynthesiser.cpp"/>
-      <FILE id="DXkMBm" name="ProPhatSynthesiser.h" compile="0" resource="0"
-            file="Source/ProPhatSynthesiser.h"/>
-      <FILE id="ItumJq" name="ProPhatVoice.cpp" compile="1" resource="0"
-            file="Source/ProPhatVoice.cpp"/>
-      <FILE id="mmelw3" name="ProPhatVoice.h" compile="0" resource="0" file="Source/ProPhatVoice.h"/>
+      <GROUP id="{D7C89EAC-283F-6012-E353-5811BED2526A}" name="Utility">
+        <FILE id="I6Oafz" name="Helpers.h" compile="0" resource="0" file="Source/Utility/Helpers.h"/>
+        <FILE id="fCUy1n" name="Macros.h" compile="0" resource="0" file="Source/Utility/Macros.h"/>
+      </GROUP>
     </GROUP>
     <GROUP id="{65D18CA8-6815-B6E4-CDD2-3E7E0045CF19}" name="Assets">
+      <FILE id="XONqu9" name="icon.png" compile="0" resource="1" file="Assets/icon.png"/>
       <FILE id="wjnnKH" name="blackLight.png" compile="0" resource="1" file="Assets/blackLight.png"/>
       <FILE id="JHkSBH" name="blackLight.svg" compile="0" resource="1" file="Assets/blackLight.svg"/>
       <FILE id="GDRRMB" name="blackMetal.jpg" compile="0" resource="1" file="Assets/blackMetal.jpg"/>
@@ -86,7 +100,8 @@
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
-    <ANDROIDSTUDIO targetFolder="Builds/Android">
+    <ANDROIDSTUDIO targetFolder="Builds/Android" androidScreenOrientation="landscape"
+                   smallIcon="XONqu9" bigIcon="XONqu9">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug"/>
         <CONFIGURATION isDebug="0" name="Release"/>
@@ -107,7 +122,8 @@
         <MODULEPATH id="juce_gui_extra" path="submodules/JUCE/modules"/>
       </MODULEPATHS>
     </ANDROIDSTUDIO>
-    <VS2022 targetFolder="Builds/VisualStudio2022">
+    <VS2022 targetFolder="Builds/VisualStudio2022" smallIcon="XONqu9" bigIcon="XONqu9"
+            externalLibraries="Dwmapi.lib">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug"/>
         <CONFIGURATION isDebug="0" name="Release"/>
@@ -128,7 +144,9 @@
         <MODULEPATH id="juce_gui_extra" path="submodules/JUCE/modules"/>
       </MODULEPATHS>
     </VS2022>
-    <XCODE_IPHONE targetFolder="Builds/iOS">
+    <XCODE_IPHONE targetFolder="Builds/iOS" iosScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight"
+                  iPadScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight"
+                  smallIcon="XONqu9" bigIcon="XONqu9">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug"/>
         <CONFIGURATION isDebug="0" name="Release"/>
@@ -149,7 +167,7 @@
         <MODULEPATH id="juce_gui_extra" path="submodules/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_IPHONE>
-    <XCODE_MAC targetFolder="Builds/MacOSX">
+    <XCODE_MAC targetFolder="Builds/MacOSX" smallIcon="XONqu9" bigIcon="XONqu9">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug"/>
         <CONFIGURATION isDebug="0" name="Release"/>
