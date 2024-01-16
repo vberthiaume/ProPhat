@@ -19,17 +19,21 @@
 #pragma once
 
 #ifndef CPU_USAGE
-#define CPU_USAGE 0
+ #define CPU_USAGE 0
 #endif
 
 #ifndef DEBUG_VOICES
-#define DEBUG_VOICES 0
+ #define DEBUG_VOICES 0
 #endif
 
 #ifndef PRINT_ALL_SAMPLES
-#define PRINT_ALL_SAMPLES 0
+ #define PRINT_ALL_SAMPLES 0
 #endif
 
 #ifndef USE_NATIVE_TITLE_BAR
-#define USE_NATIVE_TITLE_BAR 1
+ #define USE_NATIVE_TITLE_BAR 1
+#endif
+
+#ifndef USE_BACKGROUND_IMAGE
+ #define USE_BACKGROUND_IMAGE 1
 #endif

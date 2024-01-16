@@ -21,6 +21,8 @@
 
 namespace Constants
 {
+constexpr auto phatGrey                 { 0xff191919 };
+
 constexpr auto groupComponentFontHeight { 24 };
 constexpr auto labelFontHeight          { 22 };
 constexpr auto buttonFontHeight         { 16.f };

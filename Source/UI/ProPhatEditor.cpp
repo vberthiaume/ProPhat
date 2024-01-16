@@ -114,7 +114,9 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     setLookAndFeel (&lnf);
     setResizable (true, true);
 
+#if USE_BACKGROUND_IMAGE
     backgroundTexture = Helpers::getImage (BinaryData::blackMetal_jpg, BinaryData::blackMetal_jpgSize);
+#endif
 
     logoText.setJustification (juce::Justification::centredLeft);
     logoText.append ("Pro", fonts->getThinFont (logoFontHeight), juce::Colours::white);
@@ -214,7 +216,12 @@ void ProPhatEditor::handleMenuResult (int result)
 
 void ProPhatEditor::paint (juce::Graphics& g)
 {
+#if USE_BACKGROUND_IMAGE
     g.drawImage (backgroundTexture, getLocalBounds().toFloat());
+#else
+    g.setColour (juce::Colours::black);
+    g.fillAll ();
+#endif
 
     logoTextLayout.draw (g, logoBounds);
 }

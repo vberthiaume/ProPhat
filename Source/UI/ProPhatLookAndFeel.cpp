@@ -17,6 +17,7 @@
 */
 
 #include "ProPhatLookAndFeel.h"
+#include "../Utility/Macros.h"
 
 ProPhatLookAndFeel::ProPhatLookAndFeel()
 {
@@ -209,13 +210,15 @@ void ProPhatLookAndFeel::drawGroupComponentOutline (juce::Graphics& g, int width
 
     auto alpha = group.isEnabled () ? 1.0f : 0.5f;
 
-    g.setColour (group.findColour (GroupComponent::outlineColourId)
-                 .withMultipliedAlpha (alpha));
+#if ! USE_BACKGROUND_IMAGE
+    g.setColour (juce::Colour { Constants::phatGrey });
+    g.fillPath (p);
+#endif
 
+    g.setColour (group.findColour (GroupComponent::outlineColourId).withMultipliedAlpha (alpha));
     g.strokePath (p, PathStrokeType (2.0f));
 
-    g.setColour (group.findColour (GroupComponent::textColourId)
-                 .withMultipliedAlpha (alpha));
+    g.setColour (group.findColour (GroupComponent::textColourId).withMultipliedAlpha (alpha));
     g.setFont (f);
     g.drawText (text,
                 roundToInt (x + textX), 0,
@@ -225,7 +228,7 @@ void ProPhatLookAndFeel::drawGroupComponentOutline (juce::Graphics& g, int width
 }
 
 void ProPhatLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& button,
-                                         bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+                                           bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
     using namespace juce;
 

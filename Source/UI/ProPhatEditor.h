@@ -75,7 +75,9 @@ private:
 
     juce::GroupComponent oscGroup, filterGroup, ampGroup, lfoGroup, effectGroup;
 
+#if USE_BACKGROUND_IMAGE
     juce::Image backgroundTexture;
+#endif
 
     juce::AttributedString logoText;
     juce::TextLayout logoTextLayout;
