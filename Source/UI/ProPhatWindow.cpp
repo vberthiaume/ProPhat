@@ -171,8 +171,8 @@ void ProPhatWindow::darkModeSettingChanged ()
     BOOL USE_DARK_MODE = juce::Desktop::getInstance ().isDarkModeActive ();
     COLORREF COLOUR = USE_DARK_MODE ? 0x001E1E1E : 0x00FFFFFF;
 
-    //auto result = DwmSetWindowAttribute ((HWND) hwnd, DWMWINDOWATTRIBUTE::DWMWA_CAPTION_COLOR, &COLOUR, sizeof (COLOUR));
-    //result = DwmSetWindowAttribute ((HWND) hwnd, DWMWINDOWATTRIBUTE::DWMWA_USE_IMMERSIVE_DARK_MODE, &USE_DARK_MODE, sizeof (USE_DARK_MODE));
+    auto result = DwmSetWindowAttribute ((HWND) hwnd, DWMWINDOWATTRIBUTE::DWMWA_CAPTION_COLOR, &COLOUR, sizeof (COLOUR));
+    result = DwmSetWindowAttribute ((HWND) hwnd, DWMWINDOWATTRIBUTE::DWMWA_USE_IMMERSIVE_DARK_MODE, &USE_DARK_MODE, sizeof (USE_DARK_MODE));
 #endif
 }
 
