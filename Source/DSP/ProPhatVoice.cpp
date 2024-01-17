@@ -604,7 +604,7 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
 
     for (size_t pos = 0; pos < numSamples;)
     {
-        auto curBlockSize = juce::jmin (static_cast<size_t> (numSamples - pos), lfoUpdateCounter);
+        const auto curBlockSize = juce::jmin (static_cast<size_t> (numSamples - pos), lfoUpdateCounter);
 
         //process osc1
         auto block1 = osc1Output.getSubBlock (pos, curBlockSize);
