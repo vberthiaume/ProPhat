@@ -53,28 +53,30 @@ void ProPhatSynthesiser::parameterChanged (const juce::String& parameterID, floa
 
     //DBG ("ProPhatSynthesiser::parameterChanged (" + parameterID + ", " + juce::String (newValue));
 
-    if (parameterID == osc1FreqID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscFreq (ProPhatVoice::OscId::osc1Index, (int) newValue); }, newValue);
-    else if (parameterID == osc2FreqID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscFreq (ProPhatVoice::OscId::osc2Index, (int) newValue); }, newValue);
-    else if (parameterID == osc1TuningID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscTuning (ProPhatVoice::OscId::osc1Index, newValue); }, newValue);
-    else if (parameterID == osc2TuningID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscTuning (ProPhatVoice::OscId::osc2Index, newValue); }, newValue);
-    else if (parameterID == osc1ShapeID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscShape (ProPhatVoice::OscId::osc1Index, (int) newValue); }, newValue);
-    else if (parameterID == osc2ShapeID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscShape (ProPhatVoice::OscId::osc2Index, (int) newValue); }, newValue);
-    else if (parameterID == oscSubID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscSub (newValue); }, newValue);
-    else if (parameterID == oscMixID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscMix (newValue); }, newValue);
-    else if (parameterID == oscNoiseID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscNoise (newValue); }, newValue);
-    else if (parameterID == oscSlopID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscSlop (newValue); }, newValue);
+    //TODO: make the voices or the osc listeners instead?
+    //if (parameterID == osc1FreqID.getParamID ())
+    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscFreq (ProPhatVoice::OscId::osc1Index, (int) newValue); }, newValue);
+    //else if (parameterID == osc2FreqID.getParamID ())
+    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscFreq (ProPhatVoice::OscId::osc2Index, (int) newValue); }, newValue);
+    //else if (parameterID == osc1TuningID.getParamID ())
+    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscTuning (ProPhatVoice::OscId::osc1Index, newValue); }, newValue);
+    //else if (parameterID == osc2TuningID.getParamID ())
+    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscTuning (ProPhatVoice::OscId::osc2Index, newValue); }, newValue);
+    //else if (parameterID == osc1ShapeID.getParamID ())
+    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscShape (ProPhatVoice::OscId::osc1Index, (int) newValue); }, newValue);
+    //else if (parameterID == osc2ShapeID.getParamID ())
+    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscShape (ProPhatVoice::OscId::osc2Index, (int) newValue); }, newValue);
+    //else if (parameterID == oscSubID.getParamID ())
+    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscSub (newValue); }, newValue);
+    //else if (parameterID == oscMixID.getParamID ())
+    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscMix (newValue); }, newValue);
+    //else if (parameterID == oscNoiseID.getParamID ())
+    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscNoise (newValue); }, newValue);
+    //else if (parameterID == oscSlopID.getParamID ())
+    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscSlop (newValue); }, newValue);
 
-    else if (parameterID == ampAttackID.getParamID ()
+    //else 
+        if (parameterID == ampAttackID.getParamID ()
              || parameterID == ampDecayID.getParamID ()
              || parameterID == ampSustainID.getParamID ()
              || parameterID == ampReleaseID.getParamID ())
@@ -104,8 +106,8 @@ void ProPhatSynthesiser::parameterChanged (const juce::String& parameterID, floa
         setEffectParam (parameterID, newValue);
     else if (parameterID == masterGainID.getParamID ())
         setMasterGain (newValue);
-    else
-        jassertfalse;
+    //else
+    //    jassertfalse;
 }
 
 void ProPhatSynthesiser::setEffectParam (juce::StringRef parameterID, float newValue)

@@ -23,14 +23,10 @@
 ProPhatVoice::ProPhatVoice (int vId, std::set<int>* activeVoiceSet)
     : voiceId (vId)
     , voicesBeingKilled (activeVoiceSet)
-    , distribution (-1.f, 1.f)
 {
     processorChain.get<(int)ProcessorId::masterGainIndex>().setGainLinear (defaultOscLevel);
     setFilterCutoffInternal (defaultFilterCutoff);
     setFilterResonanceInternal (defaultFilterResonance);
-
-    sub.setOscShape (OscShape::pulse);
-    noise.setOscShape (OscShape::noise);
 
     lfoDest.curSelection = (int) defaultLfoDest;
 
@@ -40,21 +36,11 @@ ProPhatVoice::ProPhatVoice (int vId, std::set<int>* activeVoiceSet)
 
 void ProPhatVoice::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    //seems like auval doesn't initalize spec properly and we need to instantiate more memory than it's asking
-    juce::PluginHostType host;
-    const auto auvalMultiplier = host.getHostPath().contains ("auval") ? 5 : 1;
-
-    osc1Block = juce::dsp::AudioBlock<float> (heapBlock1, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
-    osc2Block = juce::dsp::AudioBlock<float> (heapBlock2, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
-    noiseBlock = juce::dsp::AudioBlock<float> (heapBlockNoise, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
+    oscillators.prepare (spec);
 
     overlap = std::make_unique<juce::AudioSampleBuffer> (juce::AudioSampleBuffer (spec.numChannels, killRampSamples));
     overlap->clear();
 
-    sub.prepare (spec);
-    noise.prepare (spec);
-    osc1.prepare (spec);
-    osc2.prepare (spec);
     processorChain.prepare (spec);
 
     ampADSR.setSampleRate (spec.sampleRate);
@@ -63,120 +49,9 @@ void ProPhatVoice::prepare (const juce::dsp::ProcessSpec& spec)
     filterEnvADSR.setSampleRate (spec.sampleRate);
     filterEnvADSR.setParameters (filterEnvParams);
 
+    //seems like auval doesn't initalize spec properly and we need to instantiate more memory than it's asking
+    const auto auvalMultiplier = juce::PluginHostType ().getHostPath ().contains ("auval") ? 5 : 1;
     lfo.prepare ({spec.sampleRate / lfoUpdateRate, auvalMultiplier * spec.maximumBlockSize, spec.numChannels});
-}
-
-void ProPhatVoice::updateOscFrequencies()
-{
-    auto midiNote = getCurrentlyPlayingNote();
-
-    if (midiNote < 0)
-        return;
-
-    auto pitchWheelDeltaNote = pitchWheelNoteRange.convertFrom0to1 (pitchWheelPosition / 16383.f);
-
-    auto curOsc1Slop = slopOsc1 * slopMod;
-    auto curOsc2Slop = slopOsc2 * slopMod;
-
-    auto osc1FloatNote = midiNote - osc1NoteOffset + osc1TuningOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote + curOsc1Slop;
-    sub.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote - 12), true);
-    noise.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote), true);
-    osc1.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote), true);
-
-    auto osc2Freq = Helpers::getFloatMidiNoteInHertz (midiNote - osc2NoteOffset + osc2TuningOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote + curOsc2Slop);
-    osc2.setFrequency ((float) osc2Freq, true);
-}
-
-void ProPhatVoice::setOscFreq (OscId oscNum, int newMidiNote)
-{
-    jassert (Helpers::valueContainedInRange (newMidiNote, midiNoteRange));
-
-    switch (oscNum)
-    {
-        case OscId::osc1Index:
-            osc1NoteOffset = middleCMidiNote - (float) newMidiNote;
-            break;
-        case OscId::osc2Index:
-            osc2NoteOffset = middleCMidiNote - (float) newMidiNote;
-            break;
-        default:
-            jassertfalse;
-            break;
-    }
-
-    updateOscFrequencies ();
-}
-
-void ProPhatVoice::setOscShape (OscId oscNum, int newShape)
-{
-    switch (oscNum)
-    {
-        case OscId::osc1Index:
-            osc1.setOscShape (newShape);
-            break;
-        case OscId::osc2Index:
-            osc2.setOscShape (newShape);
-            break;
-        default:
-            jassertfalse;
-            break;
-    }
-}
-
-void ProPhatVoice::setOscTuning (OscId oscNum, float newTuning)
-{
-    jassert (Helpers::valueContainedInRange (newTuning, tuningSliderRange));
-
-    switch (oscNum)
-    {
-        case OscId::osc1Index:
-            osc1TuningOffset = newTuning;
-            break;
-        case OscId::osc2Index:
-            osc2TuningOffset = newTuning;
-            break;
-        default:
-            jassertfalse;
-            break;
-    }
-    updateOscFrequencies ();
-}
-
-void ProPhatVoice::setOscSub (float newSub)
-{
-    jassert (Helpers::valueContainedInRange (newSub, sliderRange));
-    curSubLevel = newSub;
-    updateOscLevels ();
-}
-
-void ProPhatVoice::setOscNoise (float noiseLevel)
-{
-    jassert (Helpers::valueContainedInRange (noiseLevel, sliderRange));
-    curNoiseLevel = noiseLevel;
-    updateOscLevels ();
-}
-
-void ProPhatVoice::setOscSlop (float slop)
-{
-    jassert (Helpers::valueContainedInRange (slop, slopSliderRange));
-    slopMod = slop;
-    updateOscFrequencies ();
-}
-
-void ProPhatVoice::setOscMix (float newMix)
-{
-    jassert (Helpers::valueContainedInRange (newMix, sliderRange));
-
-    oscMix = newMix;
-    updateOscLevels ();
-}
-
-void ProPhatVoice::updateOscLevels ()
-{
-    sub.setGain (curVelocity * curSubLevel);
-    noise.setGain (curVelocity * curNoiseLevel);
-    osc1.setGain (curVelocity * (1 - oscMix));
-    osc2.setGain (curVelocity * oscMix);
 }
 
 void ProPhatVoice::setAmpParam (juce::StringRef parameterID, float newValue)
@@ -298,8 +173,7 @@ void ProPhatVoice::setLfoShape (int shape)
 void ProPhatVoice::setLfoDest (int dest)
 {
     //reset everything
-    lfoOsc1NoteOffset = 0.f;
-    lfoOsc2NoteOffset = 0.f;
+    oscillators.resetLfoOscNoteOffsets ();
 
     //change the destination
     lfoDest.curSelection = dest;
@@ -325,8 +199,7 @@ void ProPhatVoice::setFilterResonance (float newAmount)
 
 void ProPhatVoice::pitchWheelMoved (int newPitchWheelValue)
 {
-    pitchWheelPosition = newPitchWheelValue;
-    updateOscFrequencies();
+    oscillators.pitchWheelMoved (newPitchWheelValue);
 }
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
@@ -347,13 +220,15 @@ void ProPhatVoice::updateLfo()
     switch (lfoDest.curSelection)
     {
         case LfoDest::osc1Freq:
-            lfoOsc1NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);
-            updateOscFrequencies();
+            //lfoOsc1NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);
+            //oscillators.updateOscFrequencies();
+            oscillators.setLfoOsc1NoteOffset (lfoNoteRange.convertFrom0to1 (lfoOut));
             break;
 
         case LfoDest::osc2Freq:
-            lfoOsc2NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);
-            updateOscFrequencies();
+            /*lfoOsc2NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);
+            oscillators.updateOscFrequencies();*/
+            oscillators.setLfoOsc2NoteOffset (lfoNoteRange.convertFrom0to1 (lfoOut));
             break;
 
         case LfoDest::filterCutOff:
@@ -385,7 +260,7 @@ inline void ProPhatVoice::setFilterResonanceInternal (float curResonance)
     processorChain.get<(int) ProcessorId::filterIndex> ().setResonance (limitedResonance);
 }
 
-void ProPhatVoice::startNote (int /*midiNoteNumber*/, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
+void ProPhatVoice::startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
 {
 #if DEBUG_VOICES
     DBG ("\tDEBUG start: " + juce::String (voiceId));
@@ -399,19 +274,12 @@ void ProPhatVoice::startNote (int /*midiNoteNumber*/, float velocity, juce::Synt
     filterEnvADSR.reset();
     filterEnvADSR.noteOn();
 
-    pitchWheelPosition = currentPitchWheelPosition;
-
-    slopOsc1 = distribution (generator);
-    slopOsc2 = distribution (generator);
-
-    updateOscFrequencies();
-
-    curVelocity = velocity;
+    oscillators.updateOscFrequencies (midiNoteNumber, velocity, currentPitchWheelPosition);
 
     rampingUp = true;
     rampUpSamplesLeft = rampUpSamples;
 
-    updateOscLevels();
+    oscillators.updateOscLevels();
 }
 
 void ProPhatVoice::stopNote (float /*velocity*/, bool allowTailOff)
@@ -593,49 +461,26 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
     if (! currentlyKillingVoice && ! isVoiceActive())
         return;
 
-    auto osc1Output = osc1Block.getSubBlock (0, (size_t) numSamples);
-    osc1Output.clear();
+    //TODO: BIG BIG if here lol
+    auto totalBlockQuestionMark = oscillators.prepareRender (numSamples);
 
-    auto osc2Output = osc2Block.getSubBlock (0, (size_t) numSamples);
-    osc2Output.clear();
-
-    auto noiseOutput = noiseBlock.getSubBlock (0, (size_t) numSamples);
-    noiseOutput.clear();
-
-    for (size_t pos = 0; pos < numSamples;)
+    for (int pos = 0; pos < numSamples;)
     {
-        const auto curBlockSize = juce::jmin (static_cast<size_t> (numSamples - pos), lfoUpdateCounter);
+        const auto curBlockSize = juce::jmin (numSamples - pos, lfoUpdateCounter);
 
-        //process osc1
-        auto block1 = osc1Output.getSubBlock (pos, curBlockSize);
-        juce::dsp::ProcessContextReplacing<float> osc1Context (block1);
-        sub.process (osc1Context);
-        osc1.process (osc1Context);
+        auto oscBlock { oscillators.process (pos, curBlockSize) };
 
-        //process osc2
-        auto block2 = osc2Output.getSubBlock (pos, curBlockSize);
-        juce::dsp::ProcessContextReplacing<float> osc2Context (block2);
-        osc2.process (osc2Context);
-
-        //process noise
-        auto blockNoise = noiseOutput.getSubBlock (pos, curBlockSize);
-        juce::dsp::ProcessContextReplacing<float> noiseContext (blockNoise);
-        noise.process (noiseContext);
-
-        //process the sum of osc1 and osc2
-        blockNoise.add (block1);
-        blockNoise.add (block2);
-        juce::dsp::ProcessContextReplacing<float> summedContext (blockNoise);
-        processorChain.process (summedContext);
+        juce::dsp::ProcessContextReplacing<float> oscContext (oscBlock);
+        processorChain.process (oscContext);
 
         //during this call, the voice may become inactive, but we still have to finish this loop to ensure the voice stays muted for the rest of the buffer
-        processEnvelope (blockNoise);
+        processEnvelope (oscBlock);
 
         if (rampingUp)
-            processRampUp (blockNoise, (int) curBlockSize);
+            processRampUp (oscBlock, (int) curBlockSize);
 
         if (overlapIndex > -1)
-            processKillOverlap (blockNoise, (int) curBlockSize);
+            processKillOverlap (oscBlock, (int) curBlockSize);
 
         pos += curBlockSize;
         lfoUpdateCounter -= curBlockSize;
@@ -647,7 +492,7 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
         }
     }
 
-    juce::dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (noiseBlock);
+    juce::dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (totalBlockQuestionMark);
 
     if (currentlyKillingVoice)
         applyKillRamp (outputBuffer, startSample, numSamples);

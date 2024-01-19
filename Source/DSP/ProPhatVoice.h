@@ -17,8 +17,8 @@
 */
 
 #pragma once
-#include "GainedOscillator.h"
 #include "../Utility/Helpers.h"
+#include "PhatOscillators.h"
 
 #include <mutex>
 #include <set>
@@ -42,28 +42,9 @@ public:
         masterGainIndex,
     };
 
-    enum class OscId
-    {
-        osc1Index = 0,
-        osc2Index,
-    };
-
     ProPhatVoice (int voiceId, std::set<int>* activeVoiceSet);
 
     void prepare (const juce::dsp::ProcessSpec& spec);
-
-    //TODO: all these OSC things should probably be a class?
-    void updateOscFrequencies();
-
-    void setOscFreq (OscId oscNum, int newMidiNote);
-    void setOscShape (OscId oscNum, int newShape);
-    void setOscTuning (OscId oscNum, float newTuning);
-    void setOscSub (float newSub);
-    void setOscNoise (float noiseLevel);
-    void setOscSlop (float slop);
-    void setOscMix (float newMix);
-
-    void updateOscLevels();
 
     void setAmpParam (juce::StringRef parameterID, float newValue);
     void setFilterEnvParam (juce::StringRef parameterID, float newValue);
@@ -104,9 +85,7 @@ private:
     void applyKillRamp (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples);
     void assertForDiscontinuities (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix);
 
-    juce::HeapBlock<char> heapBlock1, heapBlock2, heapBlockNoise;
-    juce::dsp::AudioBlock<float> osc1Block, osc2Block, noiseBlock;
-    GainedOscillator<float> sub, osc1, osc2, noise;
+    PhatOscillators oscillators;
 
     std::unique_ptr<juce::AudioBuffer<float>> overlap;
     int overlapIndex = -1;
@@ -124,42 +103,22 @@ private:
     float curFilterResonance = defaultFilterResonance;
 
     //lfo stuff
-    static constexpr size_t lfoUpdateRate = 100;
-    size_t lfoUpdateCounter = lfoUpdateRate;
+    static constexpr auto lfoUpdateRate = 100;
+    int lfoUpdateCounter = lfoUpdateRate;
     juce::dsp::Oscillator<float> lfo;
     std::mutex lfoMutex;
     float lfoAmount = defaultLfoAmount;
     LfoDest lfoDest;
-    float lfoOsc1NoteOffset = 0.f;
-    float lfoOsc2NoteOffset = 0.f;
 
     //for the random lfo
     juce::Random rng;
     float randomValue = 0.f;
     bool valueWasBig = false;
 
-    int pitchWheelPosition = 0;
-
-    float osc1NoteOffset = (float) middleCMidiNote - defaultOscMidiNote;
-    float osc2NoteOffset = (float) middleCMidiNote - defaultOscMidiNote;
-
-    float osc1TuningOffset = 0.f;
-    float osc2TuningOffset = 0.f;
-
-    float curVelocity = 0.f;
-    float curSubLevel = 0.f;
-    float oscMix = 0.f;
-    float curNoiseLevel = 0.f;
-
-    float slopOsc1 = 0.f, slopOsc2 = 0.f, slopMod = 0.f;
-
     bool rampingUp = false;
     int rampUpSamplesLeft = 0;
 
     float filterEnvelope{};
-
-    std::uniform_real_distribution<float> distribution;
-    std::default_random_engine generator;
 
     float tiltCutoff { 0.f };
 };
