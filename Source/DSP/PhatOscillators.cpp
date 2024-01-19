@@ -106,21 +106,21 @@ juce::dsp::AudioBlock<float>& PhatOscillators::prepareRender (int numSamples)
     return noiseBlock;
 }
 
-juce::dsp::AudioBlock<float> PhatOscillators::process (int pos, int curBlockSize)
+juce::dsp::AudioBlock<float> PhatOscillators::process (int pos, int subBlockSize)
 {
     //process osc1
-    auto block1 { osc1Output.getSubBlock (pos, curBlockSize) };
+    auto block1 { osc1Output.getSubBlock (pos, subBlockSize) };
     juce::dsp::ProcessContextReplacing<float> osc1Context (block1);
-    sub.process (osc1Context);
+    sub.process (osc1Context); //TODO: is the sub on osc1 because that's how it is on the real prophet? Should it be added to the noise below instead?
     osc1.process (osc1Context);
 
     //process osc2
-    auto block2 { osc2Output.getSubBlock (pos, curBlockSize) };
+    auto block2 { osc2Output.getSubBlock (pos, subBlockSize) };
     juce::dsp::ProcessContextReplacing<float> osc2Context (block2);
     osc2.process (osc2Context);
 
     //process noise
-    auto blockAll { noiseOutput.getSubBlock (pos, curBlockSize) };
+    auto blockAll { noiseOutput.getSubBlock (pos, subBlockSize) };
     juce::dsp::ProcessContextReplacing<float> noiseContext (blockAll);
     noise.process (noiseContext);
 
@@ -128,6 +128,7 @@ juce::dsp::AudioBlock<float> PhatOscillators::process (int pos, int curBlockSize
     blockAll.add (block1);
     blockAll.add (block2);
 
+    //and return that to the voice so it can render what's after the oscillators
     return blockAll;
 }
 

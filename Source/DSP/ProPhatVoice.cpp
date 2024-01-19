@@ -306,13 +306,13 @@ void ProPhatVoice::updateLfo()
     }
 }
 
-inline void ProPhatVoice::setFilterCutoffInternal (float curCutOff)
+void ProPhatVoice::setFilterCutoffInternal (float curCutOff)
 {
     const auto limitedCutOff { juce::jlimit (Constants::cutOffRange.start, Constants::cutOffRange.end, curCutOff) };
     processorChain.get<(int) ProcessorId::filterIndex> ().setCutoffFrequencyHz (limitedCutOff);
 }
 
-inline void ProPhatVoice::setFilterResonanceInternal (float curResonance)
+void ProPhatVoice::setFilterResonanceInternal (float curResonance)
 {
     const auto limitedResonance { juce::jlimit (0.f, 1.f, curResonance) };
     processorChain.get<(int) ProcessorId::filterIndex> ().setResonance (limitedResonance);
@@ -519,15 +519,17 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
     if (! currentlyKillingVoice && ! isVoiceActive())
         return;
 
-    //TODO: BIG BIG if here lol
-    auto totalBlockQuestionMark = oscillators.prepareRender (numSamples);
+    //reserve an audio block of size numSamples
+    auto currentAudioBlock { oscillators.prepareRender (numSamples) };
 
     for (int pos = 0; pos < numSamples;)
     {
-        const auto curBlockSize = juce::jmin (numSamples - pos, lfoUpdateCounter);
+        const auto subBlockSize = juce::jmin (numSamples - pos, lfoUpdateCounter);
 
-        auto oscBlock { oscillators.process (pos, curBlockSize) };
+        //render the oscillators
+        auto oscBlock { oscillators.process (pos, subBlockSize) };
 
+        //render our effects
         juce::dsp::ProcessContextReplacing<float> oscContext (oscBlock);
         processorChain.process (oscContext);
 
@@ -535,13 +537,13 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
         processEnvelope (oscBlock);
 
         if (rampingUp)
-            processRampUp (oscBlock, (int) curBlockSize);
+            processRampUp (oscBlock, (int) subBlockSize);
 
         if (overlapIndex > -1)
-            processKillOverlap (oscBlock, (int) curBlockSize);
+            processKillOverlap (oscBlock, (int) subBlockSize);
 
-        pos += curBlockSize;
-        lfoUpdateCounter -= curBlockSize;
+        pos += subBlockSize;
+        lfoUpdateCounter -= subBlockSize;
 
         if (lfoUpdateCounter == 0)
         {
@@ -550,7 +552,8 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
         }
     }
 
-    juce::dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (totalBlockQuestionMark);
+    //add everything to the output buffer
+    juce::dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (currentAudioBlock);
 
     if (currentlyKillingVoice)
         applyKillRamp (outputBuffer, startSample, numSamples);
@@ -560,8 +563,6 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
 #endif
 }
 
-//TODO: I think we need to catch this controller moved business somewhere higher up, like in the processor, where we have access to the state
-//and then we can set the paramId right in the state and have both the audio and the UI change with the orba tilt
 void ProPhatVoice::controllerMoved (int controllerNumber, int newValue)
 {
     //DBG ("controllerNumber: " + juce::String (controllerNumber) + ", newValue: " + juce::String (newValue));
