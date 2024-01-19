@@ -17,7 +17,6 @@
 */
 
 #pragma once
-//#include "UI/ButtonGroupComponent.h"
 #include "GainedOscillator.h"
 #include "../Utility/Helpers.h"
 
@@ -37,7 +36,7 @@ class ProPhatVoice : public juce::SynthesiserVoice
 {
 public:
 
-    enum class processorId
+    enum class ProcessorId
     {
         filterIndex = 0,
         masterGainIndex,
@@ -50,11 +49,12 @@ public:
 
     void prepare (const juce::dsp::ProcessSpec& spec);
 
+    //TODO: all these OSC things should probably be a class?
     void updateOscFrequencies();
 
-    void setOscFreq (processorId oscNum, int newMidiNote);
-    void setOscShape (processorId oscNum, int newShape);
-    void setOscTuning (processorId oscNum, float newTuning);
+    void setOscFreq (ProcessorId oscNum, int newMidiNote);
+    void setOscShape (ProcessorId oscNum, int newShape);
+    void setOscTuning (ProcessorId oscNum, float newTuning);
     void setOscSub (float newSub);
     void setOscNoise (float noiseLevel);
     void setOscSlop (float slop);
@@ -94,7 +94,7 @@ private:
     void setFilterResonanceInternal (float curCutOff);
 
     /** Calculate LFO values. Called on the audio thread. */
-    void updateLfo();
+    inline void updateLfo();
     void processEnvelope (juce::dsp::AudioBlock<float>& block);
     void processRampUp (juce::dsp::AudioBlock<float>& block, int curBlockSize);
     void processKillOverlap (juce::dsp::AudioBlock<float>& block, int curBlockSize);

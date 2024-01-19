@@ -25,7 +25,7 @@ ProPhatVoice::ProPhatVoice (int vId, std::set<int>* activeVoiceSet)
     , voicesBeingKilled (activeVoiceSet)
     , distribution (-1.f, 1.f)
 {
-    processorChain.get<(int)processorId::masterGainIndex>().setGainLinear (defaultOscLevel);
+    processorChain.get<(int)ProcessorId::masterGainIndex>().setGainLinear (defaultOscLevel);
     setFilterCutoffInternal (defaultFilterCutoff);
     setFilterResonanceInternal (defaultFilterResonance);
 
@@ -87,16 +87,16 @@ void ProPhatVoice::updateOscFrequencies()
     osc2.setFrequency ((float) osc2Freq, true);
 }
 
-void ProPhatVoice::setOscFreq (processorId oscNum, int newMidiNote)
+void ProPhatVoice::setOscFreq (ProcessorId oscNum, int newMidiNote)
 {
     jassert (Helpers::valueContainedInRange (newMidiNote, midiNoteRange));
 
     switch (oscNum)
     {
-        case processorId::osc1Index:
+        case ProcessorId::osc1Index:
             osc1NoteOffset = middleCMidiNote - (float) newMidiNote;
             break;
-        case processorId::osc2Index:
+        case ProcessorId::osc2Index:
             osc2NoteOffset = middleCMidiNote - (float) newMidiNote;
             break;
         default:
@@ -107,14 +107,14 @@ void ProPhatVoice::setOscFreq (processorId oscNum, int newMidiNote)
     updateOscFrequencies ();
 }
 
-void ProPhatVoice::setOscShape (processorId oscNum, int newShape)
+void ProPhatVoice::setOscShape (ProcessorId oscNum, int newShape)
 {
     switch (oscNum)
     {
-        case processorId::osc1Index:
+        case ProcessorId::osc1Index:
             osc1.setOscShape (newShape);
             break;
-        case processorId::osc2Index:
+        case ProcessorId::osc2Index:
             osc2.setOscShape (newShape);
             break;
         default:
@@ -123,16 +123,16 @@ void ProPhatVoice::setOscShape (processorId oscNum, int newShape)
     }
 }
 
-void ProPhatVoice::setOscTuning (processorId oscNum, float newTuning)
+void ProPhatVoice::setOscTuning (ProcessorId oscNum, float newTuning)
 {
     jassert (Helpers::valueContainedInRange (newTuning, tuningSliderRange));
 
     switch (oscNum)
     {
-        case processorId::osc1Index:
+        case ProcessorId::osc1Index:
             osc1TuningOffset = newTuning;
             break;
-        case processorId::osc2Index:
+        case ProcessorId::osc2Index:
             osc2TuningOffset = newTuning;
             break;
         default:
@@ -330,7 +330,7 @@ void ProPhatVoice::pitchWheelMoved (int newPitchWheelValue)
 }
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
-inline void ProPhatVoice::updateLfo()
+void ProPhatVoice::updateLfo()
 {
     //apply filter envelope
     //TODO make this into a slider
@@ -376,13 +376,13 @@ inline void ProPhatVoice::updateLfo()
 inline void ProPhatVoice::setFilterCutoffInternal (float curCutOff)
 {
     const auto limitedCutOff { juce::jlimit (cutOffRange.start, cutOffRange.end, curCutOff) };
-    processorChain.get<(int) processorId::filterIndex> ().setCutoffFrequencyHz (limitedCutOff);
+    processorChain.get<(int) ProcessorId::filterIndex> ().setCutoffFrequencyHz (limitedCutOff);
 }
 
 inline void ProPhatVoice::setFilterResonanceInternal (float curResonance)
 {
     const auto limitedResonance { juce::jlimit (0.f, 1.f, curResonance) };
-    processorChain.get<(int) processorId::filterIndex> ().setResonance (limitedResonance);
+    processorChain.get<(int) ProcessorId::filterIndex> ().setResonance (limitedResonance);
 }
 
 void ProPhatVoice::startNote (int /*midiNoteNumber*/, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
@@ -604,7 +604,7 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
 
     for (size_t pos = 0; pos < numSamples;)
     {
-        auto curBlockSize = juce::jmin (static_cast<size_t> (numSamples - pos), lfoUpdateCounter);
+        const auto curBlockSize = juce::jmin (static_cast<size_t> (numSamples - pos), lfoUpdateCounter);
 
         //process osc1
         auto block1 = osc1Output.getSubBlock (pos, curBlockSize);

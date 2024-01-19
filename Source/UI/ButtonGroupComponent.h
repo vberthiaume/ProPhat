@@ -60,6 +60,8 @@ public:
     ButtonGroupComponent (juce::AudioProcessorValueTreeState& state, const juce::String& parameterID, std::unique_ptr<Selection> theSelection,
                           juce::StringRef mainButtonName, juce::Array<juce::StringRef> selectionButtonNames, bool allowEmpty = false);
 
+    ~ButtonGroupComponent () { state.removeParameterListener (parameterID, this); }
+
     void buttonClicked (juce::Button* button) override;
 
     void paint (juce::Graphics& /*g*/) override {}
