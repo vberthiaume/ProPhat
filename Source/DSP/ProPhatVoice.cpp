@@ -28,21 +28,21 @@ ProPhatVoice::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, 
 {
     addParamListenersToState ();
 
-    processorChain.get<(int)ProcessorId::masterGainIndex>().setGainLinear (defaultOscLevel);
-    setFilterCutoffInternal (defaultFilterCutoff);
-    setFilterResonanceInternal (defaultFilterResonance);
+    processorChain.get<(int)ProcessorId::masterGainIndex>().setGainLinear (Constants::defaultOscLevel);
+    setFilterCutoffInternal (Constants::defaultFilterCutoff);
+    setFilterResonanceInternal (Constants::defaultFilterResonance);
 
     lfoDest.curSelection = (int) defaultLfoDest;
 
     setLfoShape (LfoShape::triangle);
-    lfo.setFrequency (defaultLfoFreq);
+    lfo.setFrequency (Constants::defaultLfoFreq);
 }
 
 void ProPhatVoice::prepare (const juce::dsp::ProcessSpec& spec)
 {
     oscillators.prepare (spec);
 
-    overlap = std::make_unique<juce::AudioSampleBuffer> (juce::AudioSampleBuffer (spec.numChannels, killRampSamples));
+    overlap = std::make_unique<juce::AudioSampleBuffer> (juce::AudioSampleBuffer (spec.numChannels, Constants::killRampSamples));
     overlap->clear();
 
     processorChain.prepare (spec);
@@ -280,13 +280,13 @@ void ProPhatVoice::updateLfo()
         case LfoDest::osc1Freq:
             //lfoOsc1NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);
             //oscillators.updateOscFrequencies();
-            oscillators.setLfoOsc1NoteOffset (lfoNoteRange.convertFrom0to1 (lfoOut));
+            oscillators.setLfoOsc1NoteOffset (Constants::lfoNoteRange.convertFrom0to1 (lfoOut));
             break;
 
         case LfoDest::osc2Freq:
             /*lfoOsc2NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);
             oscillators.updateOscFrequencies();*/
-            oscillators.setLfoOsc2NoteOffset (lfoNoteRange.convertFrom0to1 (lfoOut));
+            oscillators.setLfoOsc2NoteOffset (Constants::lfoNoteRange.convertFrom0to1 (lfoOut));
             break;
 
         case LfoDest::filterCutOff:
@@ -308,7 +308,7 @@ void ProPhatVoice::updateLfo()
 
 inline void ProPhatVoice::setFilterCutoffInternal (float curCutOff)
 {
-    const auto limitedCutOff { juce::jlimit (cutOffRange.start, cutOffRange.end, curCutOff) };
+    const auto limitedCutOff { juce::jlimit (Constants::cutOffRange.start, Constants::cutOffRange.end, curCutOff) };
     processorChain.get<(int) ProcessorId::filterIndex> ().setCutoffFrequencyHz (limitedCutOff);
 }
 
@@ -335,7 +335,7 @@ void ProPhatVoice::startNote (int midiNoteNumber, float velocity, juce::Synthesi
     oscillators.updateOscFrequencies (midiNoteNumber, velocity, currentPitchWheelPosition);
 
     rampingUp = true;
-    rampUpSamplesLeft = rampUpSamples;
+    rampUpSamplesLeft = Constants::rampUpSamples;
 
     oscillators.updateOscLevels();
 }
@@ -361,7 +361,7 @@ void ProPhatVoice::stopNote (float /*velocity*/, bool allowTailOff)
             overlap->clear();
             voicesBeingKilled->insert (voiceId);
             currentlyKillingVoice = true;
-            renderNextBlock (*overlap, 0, killRampSamples);
+            renderNextBlock (*overlap, 0, Constants::killRampSamples);
             overlapIndex = 0;
         }
 
@@ -406,8 +406,8 @@ void ProPhatVoice::processRampUp (juce::dsp::AudioBlock<float>& block, int curBl
     DBG ("\tDEBUG RAMP UP " + juce::String (rampUpSamples - rampUpSamplesLeft));
 #endif
     auto curRampUpLenght = juce::jmin ((int) curBlockSize, rampUpSamplesLeft);
-    auto prevRampUpValue = (rampUpSamples - rampUpSamplesLeft) / (float) rampUpSamples;
-    auto nextRampUpValue = prevRampUpValue + curRampUpLenght / (float) rampUpSamples;
+    auto prevRampUpValue = (Constants::rampUpSamples - rampUpSamplesLeft) / (float) Constants::rampUpSamples;
+    auto nextRampUpValue = prevRampUpValue + curRampUpLenght / (float) Constants::rampUpSamples;
     auto incr = (nextRampUpValue - prevRampUpValue) / (curRampUpLenght);
 
     jassert (nextRampUpValue >= 0.f && nextRampUpValue <= 1.0001f);
@@ -439,7 +439,7 @@ void ProPhatVoice::processKillOverlap (juce::dsp::AudioBlock<float>& block, int 
     DBG ("\tDEBUG ADD OVERLAP" + juce::String (overlapIndex));
 #endif
 
-    auto curSamples = juce::jmin (killRampSamples - overlapIndex, (int) curBlockSize);
+    auto curSamples = juce::jmin (Constants::killRampSamples - overlapIndex, (int) curBlockSize);
 
     for (int c = 0; c < block.getNumChannels(); ++c)
     {
@@ -462,7 +462,7 @@ void ProPhatVoice::processKillOverlap (juce::dsp::AudioBlock<float>& block, int 
 
     overlapIndex += curSamples;
 
-    if (overlapIndex >= killRampSamples)
+    if (overlapIndex >= Constants::killRampSamples)
     {
         overlapIndex = -1;
         voicesBeingKilled->erase (voiceId);
@@ -568,5 +568,5 @@ void ProPhatVoice::controllerMoved (int controllerNumber, int newValue)
 
     //1 == orba tilt. The newValue range [0-127] is converted to [curFilterCutoff, cutOffRange.end]
     if (controllerNumber == 1)
-        setFilterTiltCutoff (juce::jmap (static_cast<float> (newValue), 0.f, 127.f, curFilterCutoff, cutOffRange.end));
+        setFilterTiltCutoff (juce::jmap (static_cast<float> (newValue), 0.f, 127.f, curFilterCutoff, Constants::cutOffRange.end));
 }

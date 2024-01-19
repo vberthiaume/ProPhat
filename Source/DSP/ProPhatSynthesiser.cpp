@@ -21,14 +21,14 @@
 ProPhatSynthesiser::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& processorState)
     : state (processorState)
 {
-    for (auto i = 0; i < numVoices; ++i)
+    for (auto i = 0; i < Constants::numVoices; ++i)
         addVoice (new ProPhatVoice (state, i, &voicesBeingKilled));
 
     addSound (new ProPhatSound ());
 
     addParamListenersToState ();
 
-    setMasterGain (defaultMasterGain);
+    setMasterGain (Constants::defaultMasterGain);
     fxChain.get<masterGainIndex> ().setRampDurationSeconds (0.1);
 
     //we need to manually override the default reverb params to make sure 0 values are set if needed
@@ -94,7 +94,7 @@ void ProPhatSynthesiser::noteOn (const int midiChannel, const int midiNoteNumber
 
         //don't start new voices in current buffer call if we have filled all voices already.
         //voicesBeingKilled should be reset after each renderNextBlock call
-        if (voicesBeingKilled.size () >= numVoices)
+        if (voicesBeingKilled.size () >= Constants::numVoices)
             return;
     }
 

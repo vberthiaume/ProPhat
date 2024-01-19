@@ -31,6 +31,7 @@ ProPhatProcessor::ProPhatProcessor()
 
 juce::AudioProcessorValueTreeState ProPhatProcessor::constructState ()
 {
+    using namespace Constants;
     using namespace ProPhatParameterIds;
     using namespace ProPhatAudioProcessorChoices;
 

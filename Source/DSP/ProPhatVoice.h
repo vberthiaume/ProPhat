@@ -31,7 +31,6 @@ struct ProPhatSound : public juce::SynthesiserSound
 
 //==============================================================================
 
-using namespace Constants;
 class ProPhatVoice : public juce::SynthesiserVoice
                    , public juce::AudioProcessorValueTreeState::Listener
 {
@@ -104,15 +103,15 @@ private:
     juce::ADSR::Parameters ampParams, filterEnvParams;
     bool currentlyReleasingNote = false, justDoneReleaseEnvelope = false;
 
-    float curFilterCutoff = defaultFilterCutoff;
-    float curFilterResonance = defaultFilterResonance;
+    float curFilterCutoff = Constants::defaultFilterCutoff;
+    float curFilterResonance = Constants::defaultFilterResonance;
 
     //lfo stuff
     static constexpr auto lfoUpdateRate = 100;
     int lfoUpdateCounter = lfoUpdateRate;
     juce::dsp::Oscillator<float> lfo;
     std::mutex lfoMutex;
-    float lfoAmount = defaultLfoAmount;
+    float lfoAmount = Constants::defaultLfoAmount;
     LfoDest lfoDest;
 
     //for the random lfo
