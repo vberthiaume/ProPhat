@@ -61,7 +61,7 @@ public:
     void setFilterTiltCutoff (float newValue);
     void setFilterResonance (float newAmount);
 
-    void pitchWheelMoved (int newPitchWheelValue) override;
+    void pitchWheelMoved (int newPitchWheelValue) override { oscillators.pitchWheelMoved (newPitchWheelValue); }
 
     void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition) override;
     void stopNote (float /*velocity*/, bool allowTailOff) override;

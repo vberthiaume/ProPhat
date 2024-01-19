@@ -260,11 +260,6 @@ void ProPhatVoice::setFilterResonance (float newAmount)
     setFilterResonanceInternal (curFilterResonance);
 }
 
-void ProPhatVoice::pitchWheelMoved (int newPitchWheelValue)
-{
-    oscillators.pitchWheelMoved (newPitchWheelValue);
-}
-
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
 void ProPhatVoice::updateLfo()
 {

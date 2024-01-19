@@ -204,7 +204,7 @@ struct Selection
     Selection (int selection) : curSelection (selection) {}
     virtual ~Selection () = default;
 
-    int curSelection;
+    int curSelection = 0;
 
     virtual int getLastSelectionIndex () = 0;
     virtual bool isNullSelectionAllowed () = 0;

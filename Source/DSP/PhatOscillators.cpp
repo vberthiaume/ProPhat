@@ -145,6 +145,7 @@ void PhatOscillators::setLfoOsc1NoteOffset (float theLfoOsc1NoteOffset)
 void PhatOscillators::setLfoOsc2NoteOffset (float theLfoOsc2NoteOffset)
 {
     lfoOsc2NoteOffset = theLfoOsc2NoteOffset;
+    updateOscFrequenciesInternal ();
 }
 
 void PhatOscillators::resetLfoOscNoteOffsets ()
