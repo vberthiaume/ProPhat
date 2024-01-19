@@ -19,13 +19,62 @@
 #include "PhatOscillators.h"
 #include "../Utility/Helpers.h"
 
-PhatOscillators::PhatOscillators ()
-    : osc1NoteOffset { static_cast<float> (Constants::middleCMidiNote - Constants::defaultOscMidiNote) }
+PhatOscillators::PhatOscillators (juce::AudioProcessorValueTreeState& processorState)
+    : state (processorState)
+    , osc1NoteOffset { static_cast<float> (Constants::middleCMidiNote - Constants::defaultOscMidiNote) }
     , osc2NoteOffset { osc1NoteOffset }
     , distribution (-1.f, 1.f)
 {
+    addParamListenersToState ();
+
     sub.setOscShape (OscShape::pulse);
     noise.setOscShape (OscShape::noise);
+}
+
+void PhatOscillators::addParamListenersToState ()
+{
+    using namespace ProPhatParameterIds;
+
+    //add our synth as listener to all parameters so we can do automations
+    state.addParameterListener (osc1FreqID.getParamID (), this);
+    state.addParameterListener (osc2FreqID.getParamID (), this);
+
+    state.addParameterListener (osc1TuningID.getParamID (), this);
+    state.addParameterListener (osc2TuningID.getParamID (), this);
+
+    state.addParameterListener (osc1ShapeID.getParamID (), this);
+    state.addParameterListener (osc2ShapeID.getParamID (), this);
+
+    state.addParameterListener (oscSubID.getParamID (), this);
+    state.addParameterListener (oscMixID.getParamID (), this);
+    state.addParameterListener (oscNoiseID.getParamID (), this);
+    state.addParameterListener (oscSlopID.getParamID (), this);
+}
+
+void PhatOscillators::parameterChanged (const juce::String& parameterID, float newValue)
+{
+    using namespace ProPhatParameterIds;
+
+    if (parameterID == osc1FreqID.getParamID ())
+        setOscFreq (OscId::osc1Index, (int) newValue);
+    else if (parameterID == osc2FreqID.getParamID ())
+        setOscFreq (OscId::osc2Index, (int) newValue);
+    else if (parameterID == osc1TuningID.getParamID ())
+        setOscTuning (OscId::osc1Index, newValue);
+    else if (parameterID == osc2TuningID.getParamID ())
+        setOscTuning (OscId::osc2Index, newValue);
+    else if (parameterID == osc1ShapeID.getParamID ())
+        setOscShape (OscId::osc1Index, (int) newValue);
+    else if (parameterID == osc2ShapeID.getParamID ())
+        setOscShape (OscId::osc2Index, (int) newValue);
+    else if (parameterID == oscSubID.getParamID ())
+        setOscSub (newValue);
+    else if (parameterID == oscMixID.getParamID ())
+        setOscMix (newValue);
+    else if (parameterID == oscNoiseID.getParamID ())
+        setOscNoise (newValue);
+    else if (parameterID == oscSlopID.getParamID ())
+        setOscSlop (newValue);
 }
 
 void PhatOscillators::prepare (const juce::dsp::ProcessSpec& spec)

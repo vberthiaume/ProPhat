@@ -18,16 +18,15 @@
 
 #include "ProPhatProcessor.h"
 #include "../UI/ProPhatEditor.h"
-#include <limits>
 
 ProPhatProcessor::ProPhatProcessor()
     : juce::AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true))
     , state { constructState () }
+    , proPhatSynth (state)
 #if CPU_USAGE
     , perfCounter ("ProcessBlock")
 #endif
 {
-    addParamListenersToState ();
 }
 
 juce::AudioProcessorValueTreeState ProPhatProcessor::constructState ()
@@ -75,48 +74,6 @@ juce::AudioProcessorValueTreeState ProPhatProcessor::constructState ()
 
         std::make_unique<juce::AudioParameterFloat>  (masterGainID, masterGainID.getParamID (), sliderRange, defaultMasterGain)
     }};
-}
-
-void ProPhatProcessor::addParamListenersToState ()
-{
-    using namespace ProPhatParameterIds;
-
-    //add our synth as listener to all parameters so we can do automations
-    state.addParameterListener (osc1FreqID.getParamID (), &proPhatSynth);
-    state.addParameterListener (osc2FreqID.getParamID (), &proPhatSynth);
-
-    state.addParameterListener (osc1TuningID.getParamID (), &proPhatSynth);
-    state.addParameterListener (osc2TuningID.getParamID (), &proPhatSynth);
-
-    state.addParameterListener (osc1ShapeID.getParamID (), &proPhatSynth);
-    state.addParameterListener (osc2ShapeID.getParamID (), &proPhatSynth);
-
-    state.addParameterListener (oscSubID.getParamID (), &proPhatSynth);
-    state.addParameterListener (oscMixID.getParamID (), &proPhatSynth);
-    state.addParameterListener (oscNoiseID.getParamID (), &proPhatSynth);
-    state.addParameterListener (oscSlopID.getParamID (), &proPhatSynth);
-
-    state.addParameterListener (filterCutoffID.getParamID (), &proPhatSynth);
-    state.addParameterListener (filterResonanceID.getParamID (), &proPhatSynth);
-    state.addParameterListener (filterEnvAttackID.getParamID (), &proPhatSynth);
-    state.addParameterListener (filterEnvDecayID.getParamID (), &proPhatSynth);
-    state.addParameterListener (filterEnvSustainID.getParamID (), &proPhatSynth);
-    state.addParameterListener (filterEnvReleaseID.getParamID (), &proPhatSynth);
-
-    state.addParameterListener (ampAttackID.getParamID (), &proPhatSynth);
-    state.addParameterListener (ampDecayID.getParamID (), &proPhatSynth);
-    state.addParameterListener (ampSustainID.getParamID (), &proPhatSynth);
-    state.addParameterListener (ampReleaseID.getParamID (), &proPhatSynth);
-
-    state.addParameterListener (lfoShapeID.getParamID (), &proPhatSynth);
-    state.addParameterListener (lfoDestID.getParamID (), &proPhatSynth);
-    state.addParameterListener (lfoFreqID.getParamID (), &proPhatSynth);
-    state.addParameterListener (lfoAmountID.getParamID (), &proPhatSynth);
-
-    state.addParameterListener (effectParam1ID.getParamID (), &proPhatSynth);
-    state.addParameterListener (effectParam2ID.getParamID (), &proPhatSynth);
-
-    state.addParameterListener (masterGainID.getParamID (), &proPhatSynth);
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations

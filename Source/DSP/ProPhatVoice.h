@@ -35,14 +35,13 @@ using namespace Constants;
 class ProPhatVoice : public juce::SynthesiserVoice
 {
 public:
-
     enum class ProcessorId
     {
         filterIndex = 0,
         masterGainIndex,
     };
 
-    ProPhatVoice (int voiceId, std::set<int>* activeVoiceSet);
+    ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int voiceId, std::set<int>* activeVoiceSet);
 
     void prepare (const juce::dsp::ProcessSpec& spec);
 

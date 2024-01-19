@@ -20,8 +20,9 @@
 #include "../UI/ButtonGroupComponent.h"
 #include "../Utility/Macros.h"
 
-ProPhatVoice::ProPhatVoice (int vId, std::set<int>* activeVoiceSet)
-    : voiceId (vId)
+ProPhatVoice::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet)
+    : oscillators (processorState)
+    , voiceId (vId)
     , voicesBeingKilled (activeVoiceSet)
 {
     processorChain.get<(int)ProcessorId::masterGainIndex>().setGainLinear (defaultOscLevel);

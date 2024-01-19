@@ -22,10 +22,14 @@
 /**
  * @brief A container for all our oscillators.
 */
-class PhatOscillators
+class PhatOscillators : public juce::AudioProcessorValueTreeState::Listener
 {
 public:
-    PhatOscillators ();
+    PhatOscillators (juce::AudioProcessorValueTreeState& processorState);
+
+    void addParamListenersToState ();
+
+    void parameterChanged (const juce::String& parameterID, float newValue) override;
 
     void prepare (const juce::dsp::ProcessSpec& spec);
 
@@ -60,6 +64,8 @@ public:
 
 private:
     void updateOscFrequenciesInternal ();
+
+    juce::AudioProcessorValueTreeState& state;
 
     juce::HeapBlock<char> heapBlock1, heapBlock2, heapBlockNoise;
 

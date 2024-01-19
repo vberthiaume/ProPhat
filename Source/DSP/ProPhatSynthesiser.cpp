@@ -18,18 +18,49 @@
 
 #include "ProPhatSynthesiser.h"
 
-ProPhatSynthesiser::ProPhatSynthesiser ()
+ProPhatSynthesiser::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& processorState)
+    : state (processorState)
 {
     for (auto i = 0; i < numVoices; ++i)
-        addVoice (new ProPhatVoice (i, &voicesBeingKilled));
+        addVoice (new ProPhatVoice (state, i, &voicesBeingKilled));
 
     addSound (new ProPhatSound ());
+
+    addParamListenersToState ();
 
     setMasterGain (defaultMasterGain);
     fxChain.get<masterGainIndex> ().setRampDurationSeconds (0.1);
 
     //we need to manually override the default reverb params to make sure 0 values are set if needed
     fxChain.get<reverbIndex> ().setParameters (reverbParams);
+}
+
+void ProPhatSynthesiser::addParamListenersToState ()
+{
+    using namespace ProPhatParameterIds;
+
+    //add our synth as listener to all parameters so we can do automations
+    state.addParameterListener (filterCutoffID.getParamID (), this);
+    state.addParameterListener (filterResonanceID.getParamID (), this);
+    state.addParameterListener (filterEnvAttackID.getParamID (), this);
+    state.addParameterListener (filterEnvDecayID.getParamID (), this);
+    state.addParameterListener (filterEnvSustainID.getParamID (), this);
+    state.addParameterListener (filterEnvReleaseID.getParamID (), this);
+
+    state.addParameterListener (ampAttackID.getParamID (), this);
+    state.addParameterListener (ampDecayID.getParamID (), this);
+    state.addParameterListener (ampSustainID.getParamID (), this);
+    state.addParameterListener (ampReleaseID.getParamID (), this);
+
+    state.addParameterListener (lfoShapeID.getParamID (), this);
+    state.addParameterListener (lfoDestID.getParamID (), this);
+    state.addParameterListener (lfoFreqID.getParamID (), this);
+    state.addParameterListener (lfoAmountID.getParamID (), this);
+
+    state.addParameterListener (effectParam1ID.getParamID (), this);
+    state.addParameterListener (effectParam2ID.getParamID (), this);
+
+    state.addParameterListener (masterGainID.getParamID (), this);
 }
 
 void ProPhatSynthesiser::prepare (const juce::dsp::ProcessSpec& spec) noexcept
@@ -53,30 +84,7 @@ void ProPhatSynthesiser::parameterChanged (const juce::String& parameterID, floa
 
     //DBG ("ProPhatSynthesiser::parameterChanged (" + parameterID + ", " + juce::String (newValue));
 
-    //TODO: make the voices or the osc listeners instead?
-    //if (parameterID == osc1FreqID.getParamID ())
-    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscFreq (ProPhatVoice::OscId::osc1Index, (int) newValue); }, newValue);
-    //else if (parameterID == osc2FreqID.getParamID ())
-    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscFreq (ProPhatVoice::OscId::osc2Index, (int) newValue); }, newValue);
-    //else if (parameterID == osc1TuningID.getParamID ())
-    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscTuning (ProPhatVoice::OscId::osc1Index, newValue); }, newValue);
-    //else if (parameterID == osc2TuningID.getParamID ())
-    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscTuning (ProPhatVoice::OscId::osc2Index, newValue); }, newValue);
-    //else if (parameterID == osc1ShapeID.getParamID ())
-    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscShape (ProPhatVoice::OscId::osc1Index, (int) newValue); }, newValue);
-    //else if (parameterID == osc2ShapeID.getParamID ())
-    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscShape (ProPhatVoice::OscId::osc2Index, (int) newValue); }, newValue);
-    //else if (parameterID == oscSubID.getParamID ())
-    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscSub (newValue); }, newValue);
-    //else if (parameterID == oscMixID.getParamID ())
-    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscMix (newValue); }, newValue);
-    //else if (parameterID == oscNoiseID.getParamID ())
-    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscNoise (newValue); }, newValue);
-    //else if (parameterID == oscSlopID.getParamID ())
-    //    applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscSlop (newValue); }, newValue);
-
-    //else 
-        if (parameterID == ampAttackID.getParamID ()
+    if (parameterID == ampAttackID.getParamID ()
              || parameterID == ampDecayID.getParamID ()
              || parameterID == ampSustainID.getParamID ()
              || parameterID == ampReleaseID.getParamID ())
@@ -106,8 +114,8 @@ void ProPhatSynthesiser::parameterChanged (const juce::String& parameterID, floa
         setEffectParam (parameterID, newValue);
     else if (parameterID == masterGainID.getParamID ())
         setMasterGain (newValue);
-    //else
-    //    jassertfalse;
+    else
+        jassertfalse;
 }
 
 void ProPhatSynthesiser::setEffectParam (juce::StringRef parameterID, float newValue)
