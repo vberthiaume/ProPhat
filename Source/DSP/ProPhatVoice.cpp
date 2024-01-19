@@ -87,16 +87,16 @@ void ProPhatVoice::updateOscFrequencies()
     osc2.setFrequency ((float) osc2Freq, true);
 }
 
-void ProPhatVoice::setOscFreq (ProcessorId oscNum, int newMidiNote)
+void ProPhatVoice::setOscFreq (OscId oscNum, int newMidiNote)
 {
     jassert (Helpers::valueContainedInRange (newMidiNote, midiNoteRange));
 
     switch (oscNum)
     {
-        case ProcessorId::osc1Index:
+        case OscId::osc1Index:
             osc1NoteOffset = middleCMidiNote - (float) newMidiNote;
             break;
-        case ProcessorId::osc2Index:
+        case OscId::osc2Index:
             osc2NoteOffset = middleCMidiNote - (float) newMidiNote;
             break;
         default:
@@ -107,14 +107,14 @@ void ProPhatVoice::setOscFreq (ProcessorId oscNum, int newMidiNote)
     updateOscFrequencies ();
 }
 
-void ProPhatVoice::setOscShape (ProcessorId oscNum, int newShape)
+void ProPhatVoice::setOscShape (OscId oscNum, int newShape)
 {
     switch (oscNum)
     {
-        case ProcessorId::osc1Index:
+        case OscId::osc1Index:
             osc1.setOscShape (newShape);
             break;
-        case ProcessorId::osc2Index:
+        case OscId::osc2Index:
             osc2.setOscShape (newShape);
             break;
         default:
@@ -123,16 +123,16 @@ void ProPhatVoice::setOscShape (ProcessorId oscNum, int newShape)
     }
 }
 
-void ProPhatVoice::setOscTuning (ProcessorId oscNum, float newTuning)
+void ProPhatVoice::setOscTuning (OscId oscNum, float newTuning)
 {
     jassert (Helpers::valueContainedInRange (newTuning, tuningSliderRange));
 
     switch (oscNum)
     {
-        case ProcessorId::osc1Index:
+        case OscId::osc1Index:
             osc1TuningOffset = newTuning;
             break;
-        case ProcessorId::osc2Index:
+        case OscId::osc2Index:
             osc2TuningOffset = newTuning;
             break;
         default:

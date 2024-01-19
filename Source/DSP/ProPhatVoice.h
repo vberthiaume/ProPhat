@@ -40,7 +40,10 @@ public:
     {
         filterIndex = 0,
         masterGainIndex,
+    };
 
+    enum class OscId
+    {
         osc1Index = 0,
         osc2Index,
     };
@@ -52,9 +55,9 @@ public:
     //TODO: all these OSC things should probably be a class?
     void updateOscFrequencies();
 
-    void setOscFreq (ProcessorId oscNum, int newMidiNote);
-    void setOscShape (ProcessorId oscNum, int newShape);
-    void setOscTuning (ProcessorId oscNum, float newTuning);
+    void setOscFreq (OscId oscNum, int newMidiNote);
+    void setOscShape (OscId oscNum, int newShape);
+    void setOscTuning (OscId oscNum, float newTuning);
     void setOscSub (float newSub);
     void setOscNoise (float noiseLevel);
     void setOscSlop (float slop);

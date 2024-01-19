@@ -54,17 +54,17 @@ void ProPhatSynthesiser::parameterChanged (const juce::String& parameterID, floa
     //DBG ("ProPhatSynthesiser::parameterChanged (" + parameterID + ", " + juce::String (newValue));
 
     if (parameterID == osc1FreqID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscFreq (ProPhatVoice::ProcessorId::osc1Index, (int) newValue); }, newValue);
+        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscFreq (ProPhatVoice::OscId::osc1Index, (int) newValue); }, newValue);
     else if (parameterID == osc2FreqID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscFreq (ProPhatVoice::ProcessorId::osc2Index, (int) newValue); }, newValue);
+        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscFreq (ProPhatVoice::OscId::osc2Index, (int) newValue); }, newValue);
     else if (parameterID == osc1TuningID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscTuning (ProPhatVoice::ProcessorId::osc1Index, newValue); }, newValue);
+        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscTuning (ProPhatVoice::OscId::osc1Index, newValue); }, newValue);
     else if (parameterID == osc2TuningID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscTuning (ProPhatVoice::ProcessorId::osc2Index, newValue); }, newValue);
+        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscTuning (ProPhatVoice::OscId::osc2Index, newValue); }, newValue);
     else if (parameterID == osc1ShapeID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscShape (ProPhatVoice::ProcessorId::osc1Index, (int) newValue); }, newValue);
+        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscShape (ProPhatVoice::OscId::osc1Index, (int) newValue); }, newValue);
     else if (parameterID == osc2ShapeID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscShape (ProPhatVoice::ProcessorId::osc2Index, (int) newValue); }, newValue);
+        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscShape (ProPhatVoice::OscId::osc2Index, (int) newValue); }, newValue);
     else if (parameterID == oscSubID.getParamID ())
         applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setOscSub (newValue); }, newValue);
     else if (parameterID == oscMixID.getParamID ())
