@@ -28,7 +28,6 @@ public:
     PhatOscillators (juce::AudioProcessorValueTreeState& processorState);
 
     void addParamListenersToState ();
-
     void parameterChanged (const juce::String& parameterID, float newValue) override;
 
     void prepare (const juce::dsp::ProcessSpec& spec);

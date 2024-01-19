@@ -33,6 +33,7 @@ struct ProPhatSound : public juce::SynthesiserSound
 
 using namespace Constants;
 class ProPhatVoice : public juce::SynthesiserVoice
+                   , public juce::AudioProcessorValueTreeState::Listener
 {
 public:
     enum class ProcessorId
@@ -42,6 +43,9 @@ public:
     };
 
     ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int voiceId, std::set<int>* activeVoiceSet);
+
+    void addParamListenersToState ();
+    void parameterChanged (const juce::String& parameterID, float newValue) override;
 
     void prepare (const juce::dsp::ProcessSpec& spec);
 
@@ -71,6 +75,8 @@ public:
     int getVoiceId() { return voiceId; }
 
 private:
+    juce::AudioProcessorValueTreeState& state;
+
     int voiceId;
 
     void setFilterCutoffInternal (float curCutOff);

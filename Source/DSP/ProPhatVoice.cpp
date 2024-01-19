@@ -21,10 +21,13 @@
 #include "../Utility/Macros.h"
 
 ProPhatVoice::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet)
-    : oscillators (processorState)
+    : state (processorState)
+    , oscillators (state)
     , voiceId (vId)
     , voicesBeingKilled (activeVoiceSet)
 {
+    addParamListenersToState ();
+
     processorChain.get<(int)ProcessorId::masterGainIndex>().setGainLinear (defaultOscLevel);
     setFilterCutoffInternal (defaultFilterCutoff);
     setFilterResonanceInternal (defaultFilterResonance);
@@ -53,6 +56,65 @@ void ProPhatVoice::prepare (const juce::dsp::ProcessSpec& spec)
     //seems like auval doesn't initalize spec properly and we need to instantiate more memory than it's asking
     const auto auvalMultiplier = juce::PluginHostType ().getHostPath ().contains ("auval") ? 5 : 1;
     lfo.prepare ({spec.sampleRate / lfoUpdateRate, auvalMultiplier * spec.maximumBlockSize, spec.numChannels});
+}
+
+void ProPhatVoice::addParamListenersToState ()
+{
+    using namespace ProPhatParameterIds;
+
+    //add our synth as listener to all parameters so we can do automations
+    state.addParameterListener (filterCutoffID.getParamID (), this);
+    state.addParameterListener (filterResonanceID.getParamID (), this);
+    state.addParameterListener (filterEnvAttackID.getParamID (), this);
+    state.addParameterListener (filterEnvDecayID.getParamID (), this);
+    state.addParameterListener (filterEnvSustainID.getParamID (), this);
+    state.addParameterListener (filterEnvReleaseID.getParamID (), this);
+
+    state.addParameterListener (ampAttackID.getParamID (), this);
+    state.addParameterListener (ampDecayID.getParamID (), this);
+    state.addParameterListener (ampSustainID.getParamID (), this);
+    state.addParameterListener (ampReleaseID.getParamID (), this);
+
+    state.addParameterListener (lfoShapeID.getParamID (), this);
+    state.addParameterListener (lfoDestID.getParamID (), this);
+    state.addParameterListener (lfoFreqID.getParamID (), this);
+    state.addParameterListener (lfoAmountID.getParamID (), this);
+}
+
+void ProPhatVoice::parameterChanged (const juce::String& parameterID, float newValue)
+{
+    using namespace ProPhatParameterIds;
+
+    //DBG ("ProPhatVoice::parameterChanged (" + parameterID + ", " + juce::String (newValue));
+
+    if (parameterID == ampAttackID.getParamID ()
+             || parameterID == ampDecayID.getParamID ()
+             || parameterID == ampSustainID.getParamID ()
+             || parameterID == ampReleaseID.getParamID ())
+        setAmpParam (parameterID, newValue);
+
+    else if (parameterID == filterEnvAttackID.getParamID ()
+             || parameterID == filterEnvDecayID.getParamID ()
+             || parameterID == filterEnvSustainID.getParamID ()
+             || parameterID == filterEnvReleaseID.getParamID ())
+        setFilterEnvParam (parameterID, newValue);
+
+    else if (parameterID == lfoShapeID.getParamID ())
+        setLfoShape ((int) newValue);
+    else if (parameterID == lfoDestID.getParamID ())
+        setLfoDest ((int) newValue);
+    else if (parameterID == lfoFreqID.getParamID ())
+        setLfoFreq (newValue);
+    else if (parameterID == lfoAmountID.getParamID ())
+        setLfoAmount (newValue);
+
+    else if (parameterID == filterCutoffID.getParamID ())
+        setFilterCutoff (newValue);
+    else if (parameterID == filterResonanceID.getParamID ())
+        setFilterResonance (newValue);
+
+    else
+        jassertfalse;
 }
 
 void ProPhatVoice::setAmpParam (juce::StringRef parameterID, float newValue)

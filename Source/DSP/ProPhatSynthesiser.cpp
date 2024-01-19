@@ -39,24 +39,6 @@ void ProPhatSynthesiser::addParamListenersToState ()
 {
     using namespace ProPhatParameterIds;
 
-    //add our synth as listener to all parameters so we can do automations
-    state.addParameterListener (filterCutoffID.getParamID (), this);
-    state.addParameterListener (filterResonanceID.getParamID (), this);
-    state.addParameterListener (filterEnvAttackID.getParamID (), this);
-    state.addParameterListener (filterEnvDecayID.getParamID (), this);
-    state.addParameterListener (filterEnvSustainID.getParamID (), this);
-    state.addParameterListener (filterEnvReleaseID.getParamID (), this);
-
-    state.addParameterListener (ampAttackID.getParamID (), this);
-    state.addParameterListener (ampDecayID.getParamID (), this);
-    state.addParameterListener (ampSustainID.getParamID (), this);
-    state.addParameterListener (ampReleaseID.getParamID (), this);
-
-    state.addParameterListener (lfoShapeID.getParamID (), this);
-    state.addParameterListener (lfoDestID.getParamID (), this);
-    state.addParameterListener (lfoFreqID.getParamID (), this);
-    state.addParameterListener (lfoAmountID.getParamID (), this);
-
     state.addParameterListener (effectParam1ID.getParamID (), this);
     state.addParameterListener (effectParam2ID.getParamID (), this);
 
@@ -84,33 +66,7 @@ void ProPhatSynthesiser::parameterChanged (const juce::String& parameterID, floa
 
     //DBG ("ProPhatSynthesiser::parameterChanged (" + parameterID + ", " + juce::String (newValue));
 
-    if (parameterID == ampAttackID.getParamID ()
-             || parameterID == ampDecayID.getParamID ()
-             || parameterID == ampSustainID.getParamID ()
-             || parameterID == ampReleaseID.getParamID ())
-        applyToAllVoices ([parameterID] (ProPhatVoice* voice, float newValue) { voice->setAmpParam (parameterID, newValue); }, newValue);
-
-    else if (parameterID == filterEnvAttackID.getParamID ()
-             || parameterID == filterEnvDecayID.getParamID ()
-             || parameterID == filterEnvSustainID.getParamID ()
-             || parameterID == filterEnvReleaseID.getParamID ())
-        applyToAllVoices ([parameterID] (ProPhatVoice* voice, float newValue) { voice->setFilterEnvParam (parameterID, newValue); }, newValue);
-
-    else if (parameterID == lfoShapeID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setLfoShape ((int) newValue); }, newValue);
-    else if (parameterID == lfoDestID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setLfoDest ((int) newValue); }, newValue);
-    else if (parameterID == lfoFreqID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setLfoFreq (newValue); }, newValue);
-    else if (parameterID == lfoAmountID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setLfoAmount (newValue); }, newValue);
-
-    else if (parameterID == filterCutoffID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setFilterCutoff (newValue); }, newValue);
-    else if (parameterID == filterResonanceID.getParamID ())
-        applyToAllVoices ([] (ProPhatVoice* voice, float newValue) { voice->setFilterResonance (newValue); }, newValue);
-
-    else if (parameterID == effectParam1ID.getParamID () || parameterID == effectParam2ID.getParamID ())
+    if (parameterID == effectParam1ID.getParamID () || parameterID == effectParam2ID.getParamID ())
         setEffectParam (parameterID, newValue);
     else if (parameterID == masterGainID.getParamID ())
         setMasterGain (newValue);
