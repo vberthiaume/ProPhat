@@ -20,11 +20,6 @@
 #include "../UI/ProPhatEditor.h"
 #include <limits>
 
-using namespace ProPhatAudioProcessorIDs;
-using namespace ProPhatAudioProcessorNames;
-using namespace ProPhatAudioProcessorChoices;
-using namespace Constants;
-
 ProPhatProcessor::ProPhatProcessor()
     : juce::AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true))
     , state { constructState () }
@@ -37,50 +32,55 @@ ProPhatProcessor::ProPhatProcessor()
 
 juce::AudioProcessorValueTreeState ProPhatProcessor::constructState ()
 {
+    using namespace ProPhatParameterIds;
+    using namespace ProPhatAudioProcessorChoices;
+
     //TODO: add undo manager!
     return { *this, nullptr, "state",
     {
-        std::make_unique<juce::AudioParameterInt>    (osc1FreqID, osc1FreqDesc, midiNoteRange.getRange ().getStart (), midiNoteRange.getRange ().getEnd (), defaultOscMidiNote),
-        std::make_unique<juce::AudioParameterInt>    (osc2FreqID, osc2FreqDesc, midiNoteRange.getRange ().getStart (), midiNoteRange.getRange ().getEnd (), defaultOscMidiNote),
+        std::make_unique<juce::AudioParameterInt>    (osc1FreqID, osc1FreqID.getParamID (), midiNoteRange.getRange ().getStart (), midiNoteRange.getRange ().getEnd (), defaultOscMidiNote),
+        std::make_unique<juce::AudioParameterInt>    (osc2FreqID, osc2FreqID.getParamID (), midiNoteRange.getRange ().getStart (), midiNoteRange.getRange ().getEnd (), defaultOscMidiNote),
 
-        std::make_unique<juce::AudioParameterFloat>  (osc1TuningID, osc1TuningDesc, tuningSliderRange, (float) defaultOscTuning),
-        std::make_unique<juce::AudioParameterFloat>  (osc2TuningID, osc2TuningDesc, tuningSliderRange, (float) defaultOscTuning),
+        std::make_unique<juce::AudioParameterFloat>  (osc1TuningID, osc1TuningID.getParamID (), tuningSliderRange, (float) defaultOscTuning),
+        std::make_unique<juce::AudioParameterFloat>  (osc2TuningID, osc2TuningID.getParamID (), tuningSliderRange, (float) defaultOscTuning),
 
-        std::make_unique<juce::AudioParameterFloat>  (oscSubID, oscSubOctDesc, sliderRange, (float) defaultSubOsc),
-        std::make_unique<juce::AudioParameterFloat>  (oscMixID, oscMixDesc, sliderRange, (float) defaultOscMix),
-        std::make_unique<juce::AudioParameterFloat>  (oscNoiseID, oscNoiseDesc, sliderRange, (float) defaultOscNoise),
-        std::make_unique<juce::AudioParameterFloat>  (oscSlopID, oscSlopDesc, slopSliderRange, (float) defaultOscSlop),
+        std::make_unique<juce::AudioParameterFloat>  (oscSubID, oscSubID.getParamID (), sliderRange, (float) defaultSubOsc),
+        std::make_unique<juce::AudioParameterFloat>  (oscMixID, oscMixID.getParamID (), sliderRange, (float) defaultOscMix),
+        std::make_unique<juce::AudioParameterFloat>  (oscNoiseID, oscNoiseID.getParamID (), sliderRange, (float) defaultOscNoise),
+        std::make_unique<juce::AudioParameterFloat>  (oscSlopID, oscSlopID.getParamID (), slopSliderRange, (float) defaultOscSlop),
 
-        std::make_unique<juce::AudioParameterChoice> (osc1ShapeID, osc1ShapeDesc,  juce::StringArray { oscShape0, oscShape1, oscShape2, oscShape3, oscShape4 }, defaultOscShape),
-        std::make_unique<juce::AudioParameterChoice> (osc2ShapeID, osc2ShapeDesc,  juce::StringArray { oscShape0, oscShape1, oscShape2, oscShape3, oscShape4 }, defaultOscShape),
+        std::make_unique<juce::AudioParameterChoice> (osc1ShapeID, osc1ShapeID.getParamID (), juce::StringArray { oscShape0, oscShape1, oscShape2, oscShape3, oscShape4 }, defaultOscShape),
+        std::make_unique<juce::AudioParameterChoice> (osc2ShapeID, osc2ShapeID.getParamID (), juce::StringArray { oscShape0, oscShape1, oscShape2, oscShape3, oscShape4 }, defaultOscShape),
 
-        std::make_unique<juce::AudioParameterFloat>  (filterCutoffID, filterCutoffSliderDesc, cutOffRange, defaultFilterCutoff),
-        std::make_unique<juce::AudioParameterFloat>  (filterResonanceID, filterResonanceSliderDesc, sliderRange, defaultFilterResonance),
+        std::make_unique<juce::AudioParameterFloat>  (filterCutoffID, filterCutoffID.getParamID (), cutOffRange, defaultFilterCutoff),
+        std::make_unique<juce::AudioParameterFloat>  (filterResonanceID, filterResonanceID.getParamID (), sliderRange, defaultFilterResonance),
 
-        std::make_unique<juce::AudioParameterFloat>  (ampAttackID, ampAttackSliderDesc, attackRange, defaultAmpA),
-        std::make_unique<juce::AudioParameterFloat>  (ampDecayID, ampDecaySliderDesc, decayRange, defaultAmpD),
-        std::make_unique<juce::AudioParameterFloat>  (ampSustainID, ampSustainSliderDesc, sustainRange, defaultAmpS),
-        std::make_unique<juce::AudioParameterFloat>  (ampReleaseID, ampReleaseSliderDesc, releaseRange, defaultAmpR),
+        std::make_unique<juce::AudioParameterFloat>  (ampAttackID, ampAttackID.getParamID (), attackRange, defaultAmpA),
+        std::make_unique<juce::AudioParameterFloat>  (ampDecayID, ampDecayID.getParamID (), decayRange, defaultAmpD),
+        std::make_unique<juce::AudioParameterFloat>  (ampSustainID, ampSustainID.getParamID (), sustainRange, defaultAmpS),
+        std::make_unique<juce::AudioParameterFloat>  (ampReleaseID, ampReleaseID.getParamID (), releaseRange, defaultAmpR),
 
-        std::make_unique<juce::AudioParameterFloat>  (filterEnvAttackID, ampAttackSliderDesc, attackRange, defaultAmpA),
-        std::make_unique<juce::AudioParameterFloat>  (filterEnvDecayID, ampDecaySliderDesc, decayRange, defaultAmpD),
-        std::make_unique<juce::AudioParameterFloat>  (filterEnvSustainID, ampSustainSliderDesc, sustainRange, defaultAmpS),
-        std::make_unique<juce::AudioParameterFloat>  (filterEnvReleaseID, ampReleaseSliderDesc, releaseRange, defaultAmpR),
+        std::make_unique<juce::AudioParameterFloat>  (filterEnvAttackID, filterEnvAttackID.getParamID (), attackRange, defaultAmpA),
+        std::make_unique<juce::AudioParameterFloat>  (filterEnvDecayID, filterEnvDecayID.getParamID (), decayRange, defaultAmpD),
+        std::make_unique<juce::AudioParameterFloat>  (filterEnvSustainID, filterEnvSustainID.getParamID (), sustainRange, defaultAmpS),
+        std::make_unique<juce::AudioParameterFloat>  (filterEnvReleaseID, filterEnvReleaseID.getParamID (), releaseRange, defaultAmpR),
 
-        std::make_unique<juce::AudioParameterFloat>  (lfoFreqID, lfoFreqSliderDesc, lfoRange, defaultLfoFreq),
-        std::make_unique<juce::AudioParameterChoice> (lfoShapeID, lfoShapeDesc, juce::StringArray { lfoShape0, lfoShape1, /*lfoShape2,*/ lfoShape3, lfoShape4 }, defaultLfoShape),
-        std::make_unique<juce::AudioParameterChoice> (lfoDestID, lfoDestDesc, juce::StringArray { lfoDest0, lfoDest1, lfoDest2, lfoDest3 }, defaultLfoDest),
-        std::make_unique<juce::AudioParameterFloat>  (lfoAmountID, lfoAmountSliderDesc, sliderRange, defaultLfoAmount),
+        std::make_unique<juce::AudioParameterFloat>  (lfoFreqID, lfoFreqID.getParamID (), lfoRange, defaultLfoFreq),
+        std::make_unique<juce::AudioParameterChoice> (lfoShapeID, lfoShapeID.getParamID (), juce::StringArray { lfoShape0, lfoShape1, /*lfoShape2,*/ lfoShape3, lfoShape4 }, defaultLfoShape),
+        std::make_unique<juce::AudioParameterChoice> (lfoDestID, lfoDestID.getParamID (), juce::StringArray { lfoDest0, lfoDest1, lfoDest2, lfoDest3 }, defaultLfoDest),
+        std::make_unique<juce::AudioParameterFloat>  (lfoAmountID, lfoAmountID.getParamID (), sliderRange, defaultLfoAmount),
 
-        std::make_unique<juce::AudioParameterFloat>  (effectParam1ID, effectParam1Desc, sliderRange, defaultEffectParam1),
-        std::make_unique<juce::AudioParameterFloat>  (effectParam2ID, effectParam2Desc, sliderRange, defaultEffectParam2),
+        std::make_unique<juce::AudioParameterFloat>  (effectParam1ID, effectParam1ID.getParamID (), sliderRange, defaultEffectParam1),
+        std::make_unique<juce::AudioParameterFloat>  (effectParam2ID, effectParam2ID.getParamID (), sliderRange, defaultEffectParam2),
 
-        std::make_unique<juce::AudioParameterFloat>  (masterGainID, masterGainDesc, sliderRange, defaultMasterGain)
+        std::make_unique<juce::AudioParameterFloat>  (masterGainID, masterGainID.getParamID (), sliderRange, defaultMasterGain)
     }};
 }
 
 void ProPhatProcessor::addParamListenersToState ()
 {
+    using namespace ProPhatParameterIds;
+
     //add our synth as listener to all parameters so we can do automations
     state.addParameterListener (osc1FreqID.getParamID (), &proPhatSynth);
     state.addParameterListener (osc2FreqID.getParamID (), &proPhatSynth);

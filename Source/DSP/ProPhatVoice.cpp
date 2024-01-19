@@ -62,13 +62,13 @@ void ProPhatVoice::setAmpParam (juce::StringRef parameterID, float newValue)
         newValue = std::numeric_limits<float>::epsilon();
     }
 
-    if (parameterID == ProPhatAudioProcessorIDs::ampAttackID.getParamID())
+    if (parameterID == ProPhatParameterIds::ampAttackID.getParamID())
         ampParams.attack = newValue;
-    else if (parameterID == ProPhatAudioProcessorIDs::ampDecayID.getParamID())
+    else if (parameterID == ProPhatParameterIds::ampDecayID.getParamID())
         ampParams.decay = newValue;
-    else if (parameterID == ProPhatAudioProcessorIDs::ampSustainID.getParamID())
+    else if (parameterID == ProPhatParameterIds::ampSustainID.getParamID())
         ampParams.sustain = newValue;
-    else if (parameterID == ProPhatAudioProcessorIDs::ampReleaseID.getParamID())
+    else if (parameterID == ProPhatParameterIds::ampReleaseID.getParamID())
         ampParams.release = newValue;
 
     ampADSR.setParameters (ampParams);
@@ -82,13 +82,13 @@ void ProPhatVoice::setFilterEnvParam (juce::StringRef parameterID, float newValu
         newValue = std::numeric_limits<float>::epsilon();
     }
 
-    if (parameterID == ProPhatAudioProcessorIDs::filterEnvAttackID.getParamID())
+    if (parameterID == ProPhatParameterIds::filterEnvAttackID.getParamID())
         filterEnvParams.attack = newValue;
-    else if (parameterID == ProPhatAudioProcessorIDs::filterEnvDecayID.getParamID())
+    else if (parameterID == ProPhatParameterIds::filterEnvDecayID.getParamID())
         filterEnvParams.decay = newValue;
-    else if (parameterID == ProPhatAudioProcessorIDs::filterEnvSustainID.getParamID())
+    else if (parameterID == ProPhatParameterIds::filterEnvSustainID.getParamID())
         filterEnvParams.sustain = newValue;
-    else if (parameterID == ProPhatAudioProcessorIDs::filterEnvReleaseID.getParamID())
+    else if (parameterID == ProPhatParameterIds::filterEnvReleaseID.getParamID())
         filterEnvParams.release = newValue;
 
     filterEnvADSR.setParameters (filterEnvParams);

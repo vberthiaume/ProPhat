@@ -49,7 +49,7 @@ void ProPhatSynthesiser::prepare (const juce::dsp::ProcessSpec& spec) noexcept
 
 void ProPhatSynthesiser::parameterChanged (const juce::String& parameterID, float newValue)
 {
-    using namespace ProPhatAudioProcessorIDs;
+    using namespace ProPhatParameterIds;
 
     //DBG ("ProPhatSynthesiser::parameterChanged (" + parameterID + ", " + juce::String (newValue));
 
@@ -112,9 +112,9 @@ void ProPhatSynthesiser::parameterChanged (const juce::String& parameterID, floa
 
 void ProPhatSynthesiser::setEffectParam (juce::StringRef parameterID, float newValue)
 {
-    if (parameterID == ProPhatAudioProcessorIDs::effectParam1ID.getParamID ())
+    if (parameterID == ProPhatParameterIds::effectParam1ID.getParamID ())
         reverbParams.roomSize = newValue;
-    else if (parameterID == ProPhatAudioProcessorIDs::effectParam2ID.getParamID ())
+    else if (parameterID == ProPhatParameterIds::effectParam2ID.getParamID ())
         reverbParams.wetLevel = newValue;
     else
         jassertfalse;   //unknown effect parameter!

@@ -91,48 +91,48 @@ const juce::NormalisableRange<float> pitchWheelNoteRange{ -7.f, 7.f };
 
 //====================================================================================================
 
-namespace ProPhatAudioProcessorIDs
+namespace ProPhatParameterIds
 {
-const juce::ParameterID osc1ShapeID        { "osc1ShapeID", 1 };
-const juce::ParameterID osc1FreqID         { "osc1FreqID", 1 };
-const juce::ParameterID osc1TuningID       { "osc1TuningID", 1 };
+const juce::ParameterID osc1ShapeID        { "Osc 1 Shape", 1 };
+const juce::ParameterID osc1FreqID         { "Osc 1 Freq", 1 };
+const juce::ParameterID osc1TuningID       { "Osc 1 Tuning", 1 };
 
-const juce::ParameterID osc2ShapeID        { "osc2ShapeID", 1 };
-const juce::ParameterID osc2FreqID         { "osc2FreqID", 1 };
-const juce::ParameterID osc2TuningID       { "osc2TuningID", 1 };
+const juce::ParameterID osc2ShapeID        { "Osc 2 Shape", 1 };
+const juce::ParameterID osc2FreqID         { "Osc 2 Freq", 1 };
+const juce::ParameterID osc2TuningID       { "Osc 2 Tuning", 1 };
 
-const juce::ParameterID oscSubID           { "oscSubID", 1 };
-const juce::ParameterID oscMixID           { "oscMixID", 1 };
-const juce::ParameterID oscNoiseID         { "oscNoiseID", 1 };
-const juce::ParameterID oscSlopID          { "oscSlopID", 1 };
+const juce::ParameterID oscSubID           { "Osc Sub", 1 };
+const juce::ParameterID oscMixID           { "Osc Mix", 1 };
+const juce::ParameterID oscNoiseID         { "Osc Noise", 1 };
+const juce::ParameterID oscSlopID          { "Osc Slop", 1 };
 
-const juce::ParameterID filterCutoffID     { "filterCutoffID", 1 };
-const juce::ParameterID filterResonanceID  { "filterResonanceID", 1 };
+const juce::ParameterID filterCutoffID     { "Filter Cutoff", 1 };
+const juce::ParameterID filterResonanceID  { "Filter Reso", 1 };
 
-const juce::ParameterID ampAttackID        { "ampAttackID", 1 };
-const juce::ParameterID ampDecayID         { "ampDecayID", 1 };
-const juce::ParameterID ampSustainID       { "ampSustainID", 1 };
-const juce::ParameterID ampReleaseID       { "ampReleaseID", 1 };
+const juce::ParameterID ampAttackID        { "Amp Attack", 1 };
+const juce::ParameterID ampDecayID         { "Amp Decay", 1 };
+const juce::ParameterID ampSustainID       { "Amp Sustain", 1 };
+const juce::ParameterID ampReleaseID       { "Amp Release", 1 };
 
-const juce::ParameterID filterEnvAttackID  { "filterEnvAttackID", 1 };
-const juce::ParameterID filterEnvDecayID   { "filterEnvDecayID", 1 };
-const juce::ParameterID filterEnvSustainID { "filterEnvSustainID", 1 };
-const juce::ParameterID filterEnvReleaseID { "filterEnvReleaseID", 1 };
+const juce::ParameterID filterEnvAttackID  { "Filter Attack", 1 };
+const juce::ParameterID filterEnvDecayID   { "Filter Decay", 1 };
+const juce::ParameterID filterEnvSustainID { "Filter Sustain", 1 };
+const juce::ParameterID filterEnvReleaseID { "Filter Release", 1 };
 
-const juce::ParameterID lfoShapeID         { "lfoShapeID", 1 };
-const juce::ParameterID lfoDestID          { "lfoDestID", 1 };
-const juce::ParameterID lfoFreqID          { "lfoFreqID", 1 };
-const juce::ParameterID lfoAmountID        { "lfoAmountID", 1 };
+const juce::ParameterID lfoShapeID         { "Lfo Shape", 1 };
+const juce::ParameterID lfoDestID          { "Lfo Dest", 1 };
+const juce::ParameterID lfoFreqID          { "Lfo Freq", 1 };
+const juce::ParameterID lfoAmountID        { "Lfo Amount", 1 };
 
-const juce::ParameterID effectParam1ID     { "effectParam1ID", 1 };
-const juce::ParameterID effectParam2ID     { "effectParam2ID", 1 };
+const juce::ParameterID effectParam1ID     { "Effect Param1", 1 };
+const juce::ParameterID effectParam2ID     { "Effect Param2", 1 };
 
-const juce::ParameterID masterGainID       { "masterGainID", 1 };
+const juce::ParameterID masterGainID       { "Master Gain", 1 };
 }
 
 //====================================================================================================
 
-namespace ProPhatAudioProcessorNames
+namespace ProPhatParameterLabels
 {
 constexpr auto oscGroupDesc                 { "OSCILLATORS" };
 constexpr auto osc1ShapeDesc                { "SHAPE" };
