@@ -81,7 +81,7 @@ juce::AudioProcessorValueTreeState ProPhatProcessor::constructState ()
 
 void ProPhatProcessor::addParamListenersToState ()
 {
-    //NOW HERE: WHAT DOES THIS ACTUALLY DO?
+    //add our synth as listener to all parameters so we can do automations
     state.addParameterListener (osc1FreqID.getParamID (), &proPhatSynth);
     state.addParameterListener (osc2FreqID.getParamID (), &proPhatSynth);
 

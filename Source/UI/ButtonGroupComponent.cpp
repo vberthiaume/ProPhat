@@ -138,22 +138,25 @@ void ButtonGroupComponent::selectNext()
 
 void ButtonGroupComponent::parameterChanged (const juce::String& theParameterID, float newValue)
 {
-    if (parameterID != theParameterID)
-        return;
+    jassert (parameterID == theParameterID);
 
-    auto newSelection = (int) newValue;
-
-    //@TODO instead of looping here, we could simply cache whichever button was selected and toggle it off
-    if (selection->isNullSelectionAllowed())
+    juce::Component::SafePointer safePtr { this };
+    juce::MessageManager::callAsync ([safePtr, newSelection = static_cast<int> (newValue)] ()
     {
+        if (! safePtr)
+            return;
+
+        //@TODO instead of looping here, we could simply cache whichever button was selected and toggle it off
+        if (! safePtr->selection->isNullSelectionAllowed ())
+        {
+            safePtr->selectionButtons[newSelection]->setToggleState (true, juce::dontSendNotification);
+            return;
+        }
+
         if (newSelection == 0)
-            for (auto button : selectionButtons)
+            for (auto button : safePtr->selectionButtons)
                 button->setToggleState (false, juce::dontSendNotification);
         else
-            selectionButtons[newSelection - 1]->setToggleState (true, juce::dontSendNotification);
-    }
-    else
-    {
-        selectionButtons[newSelection]->setToggleState (true, juce::dontSendNotification);
-    }
+            safePtr->selectionButtons[newSelection - 1]->setToggleState (true, juce::dontSendNotification);
+    });
 }
