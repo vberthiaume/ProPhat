@@ -29,8 +29,6 @@ class ProPhatProcessor : public juce::AudioProcessor
 public:
     ProPhatProcessor();
 
-    void addParamListenersToState ();
-
     void prepareToPlay (double sampleRate, int samplesPerBlock) override
     {
         proPhatSynth.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });

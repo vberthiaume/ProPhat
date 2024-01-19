@@ -25,10 +25,13 @@
 *   and one ProPhatSound, which applies to all midi notes. It responds to paramater changes in the
 *   state via juce::AudioProcessorValueTreeState::Listener().
 */
-class ProPhatSynthesiser : public juce::Synthesiser, public juce::AudioProcessorValueTreeState::Listener
+class ProPhatSynthesiser : public juce::Synthesiser
+                         , public juce::AudioProcessorValueTreeState::Listener
 {
 public:
-    ProPhatSynthesiser();
+    ProPhatSynthesiser(juce::AudioProcessorValueTreeState& processorState);
+
+    void addParamListenersToState ();
 
     void prepare (const juce::dsp::ProcessSpec& spec) noexcept;
 
@@ -73,6 +76,8 @@ private:
         1.0f, //< Reverb width, 0 to 1.0, where 1.0 is very wide.
         0.0f  //< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop.
     };
+
+    juce::AudioProcessorValueTreeState& state;
 
     juce::dsp::ProcessSpec curSpecs;
 };

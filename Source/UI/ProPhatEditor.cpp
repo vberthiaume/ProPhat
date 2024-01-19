@@ -19,8 +19,8 @@
 #include "ProPhatEditor.h"
 #include "ProPhatApplication.h"
 
-using namespace ProPhatAudioProcessorIDs;
-using namespace ProPhatAudioProcessorNames;
+using namespace ProPhatParameterIds;
+using namespace ProPhatParameterLabels;
 using namespace ProPhatAudioProcessorChoices;
 
 namespace
@@ -130,17 +130,17 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
 #endif
 
     //set up everything else
-    auto addGroup = [this](juce::GroupComponent& group, std::vector<SliderLabel*> labels, std::vector<juce::StringRef> labelTexts, std::vector<juce::Component*> components)
+    auto addGroup = [this] (juce::GroupComponent& group, std::vector<SliderLabel*> labels, std::vector<juce::StringRef> labelTexts, std::vector<juce::Component*> components)
     {
         //these sizes need to match. If a component doesn't have a label, use nullptr for it
-        jassert (labels.size() == components.size());
+        jassert (labels.size () == components.size ());
 
         //setup group
         group.setTextLabelPosition (juce::Justification::centred);
         addAndMakeVisible (group);
 
         //setup components and labels
-        for (int i = 0; i < components.size(); ++i)
+        for (int i = 0; i < components.size (); ++i)
         {
             if (labels[i] != nullptr)
             {
