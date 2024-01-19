@@ -75,6 +75,8 @@ void PhatOscillators::parameterChanged (const juce::String& parameterID, float n
         setOscNoise (newValue);
     else if (parameterID == oscSlopID.getParamID ())
         setOscSlop (newValue);
+    else
+        jassertfalse;
 }
 
 void PhatOscillators::prepare (const juce::dsp::ProcessSpec& spec)
