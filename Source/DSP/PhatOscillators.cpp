@@ -92,11 +92,6 @@ void PhatOscillators::prepare (const juce::dsp::ProcessSpec& spec)
     osc2.prepare (spec);
 }
 
-//void PhatOscillators::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
-//{
-//
-//}
-
 juce::dsp::AudioBlock<float>& PhatOscillators::prepareRender (int numSamples)
 {
     osc1Output = osc1Block.getSubBlock (0, (size_t) numSamples);

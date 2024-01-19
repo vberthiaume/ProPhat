@@ -31,6 +31,9 @@ struct ProPhatSound : public juce::SynthesiserSound
 
 //==============================================================================
 
+/**
+ * @brief The main voice for our synthesizer.
+*/
 class ProPhatVoice : public juce::SynthesiserVoice
                    , public juce::AudioProcessorValueTreeState::Listener
 {

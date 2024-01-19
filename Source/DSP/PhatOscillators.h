@@ -32,8 +32,6 @@ public:
 
     void prepare (const juce::dsp::ProcessSpec& spec);
 
-    //void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples);
-
     juce::dsp::AudioBlock<float>& prepareRender (int numSamples);
     juce::dsp::AudioBlock<float> process (int pos, int curBlockSize);
 

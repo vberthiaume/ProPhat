@@ -89,7 +89,7 @@ void ProPhatSynthesiser::setEffectParam (juce::StringRef parameterID, float newV
 void ProPhatSynthesiser::noteOn (const int midiChannel, const int midiNoteNumber, const float velocity)
 {
     {
-        //this is lock in the audio thread??
+        //TODO lock in the audio thread??
         const juce::ScopedLock sl (lock);
 
         //don't start new voices in current buffer call if we have filled all voices already.
@@ -106,8 +106,7 @@ void ProPhatSynthesiser::renderVoices (juce::AudioBuffer<float>& outputAudio, in
     for (auto* voice : voices)
         voice->renderNextBlock (outputAudio, startSample, numSamples);
 
-    auto block = juce::dsp::AudioBlock<float> (outputAudio);
-    auto blockToUse = block.getSubBlock ((size_t) startSample, (size_t) numSamples);
-    auto contextToUse = juce::dsp::ProcessContextReplacing<float> (blockToUse);
-    fxChain.process (contextToUse);
+    auto audioBlock { juce::dsp::AudioBlock<float> (outputAudio).getSubBlock ((size_t) startSample, (size_t) numSamples) };
+    const auto context { juce::dsp::ProcessContextReplacing<float> (audioBlock) };
+    fxChain.process (context);
 }
