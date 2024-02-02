@@ -111,7 +111,6 @@ void ProPhatProcessor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& 
 
     if (midiMessages.getNumEvents () > 0)
         midiListeners.call ([&midiMessages] (MidiMessageListener& l) { l.receivedMidiMessage (midiMessages); });
-        //DBG ('.');
 
     //render the block
     proPhatSynth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
