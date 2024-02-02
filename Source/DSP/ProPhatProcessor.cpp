@@ -109,6 +109,9 @@ void ProPhatProcessor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& 
     //we're not dealing with any inputs here, so clear the buffer
     buffer.clear();
 
+    if (midiMessages.getNumEvents () > 0)
+        DBG ('.');
+
     //render the block
     proPhatSynth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
