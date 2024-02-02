@@ -28,20 +28,23 @@
 /** The main editor for the plugin.
 */
 class ProPhatEditor : public juce::AudioProcessorEditor
+                    , public juce::AsyncUpdater
+                    , public ProPhatProcessor::MidiMessageListener
 #if USE_NATIVE_TITLE_BAR
     , private juce::Button::Listener
 #endif
 #if CPU_USAGE
     , public Timer
 #endif
-
 {
 public:
     ProPhatEditor (ProPhatProcessor&);
-    ~ProPhatEditor () { setLookAndFeel (nullptr); }
+    ~ProPhatEditor ();
 
     void paint (juce::Graphics&) override;
     void resized() override;
+    void receivedMidiMessage (juce::MidiBuffer& midiMessages) override;
+    void handleAsyncUpdate () override;
 
 #if CPU_USAGE
     void timerCallback() override
@@ -82,6 +85,7 @@ private:
     juce::AttributedString logoText;
     juce::TextLayout logoTextLayout;
     juce::Rectangle<float> logoBounds;
+    juce::Rectangle<float> midiInputBounds;
 
     //OSCILLATORS
     SliderLabel osc1FreqSliderLabel, osc1TuningSliderLabel, osc2FreqSliderLabel, osc2TuningSliderLabel, oscSubSliderLabel, oscMixSliderLabel, oscNoiseSliderLabel, oscSlopSliderLabel;
@@ -125,6 +129,8 @@ private:
     juce::Label cpuUsageLabel;
     juce::Label cpuUsageText;
 #endif
+
+    bool gotMidi { false };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProPhatEditor)
 };
