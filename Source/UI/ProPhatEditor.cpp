@@ -191,7 +191,7 @@ void ProPhatEditor::handleAsyncUpdate ()
     repaint ();
 
     juce::Component::SafePointer safePtr { this };
-    juce::Timer::callAfterDelay (200,
+    juce::Timer::callAfterDelay (500,
         [safePtr]
         {
             if (safePtr)
