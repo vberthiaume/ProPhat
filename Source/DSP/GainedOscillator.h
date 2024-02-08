@@ -155,7 +155,7 @@ public:
     template <typename ProcessContext>
     void process (const ProcessContext& context) noexcept
     {
-        //TODO: lock in audio thread!!!
+        //TODO: lock in audio thread!!! This should/could be a try lcok and the other one a lock, so we only lock in the other place. Are they different threads though?
         std::lock_guard<std::mutex> lock (processMutex);
 
         processorChain.process (context);
