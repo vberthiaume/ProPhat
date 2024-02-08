@@ -128,4 +128,6 @@ private:
     float filterEnvelope{};
 
     float tiltCutoff { 0.f };
+
+    int curPreparedSamples = 0;
 };

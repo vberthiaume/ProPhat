@@ -103,14 +103,20 @@ void ProPhatProcessor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& 
     juce::ScopedNoDenormals noDenormals;
 
 #if CPU_USAGE
-    perfCounter.start();
+    perfCounter.start ();
 #endif
 
     //we're not dealing with any inputs here, so clear the buffer
-    buffer.clear();
+    buffer.clear ();
 
-    if (midiMessages.getNumEvents () > 0)
-        midiListeners.call ([&midiMessages] (MidiMessageListener& l) { l.receivedMidiMessage (midiMessages); });
+    for (const auto metadata : midiMessages)
+    {
+        if (metadata.getMessage ().isNoteOn ())
+        {
+            midiListeners.call ([&midiMessages] (MidiMessageListener& l) { l.receivedMidiMessage (midiMessages); });
+            break;
+        }
+    }
 
     //render the block
     proPhatSynth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());

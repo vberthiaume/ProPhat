@@ -40,6 +40,7 @@ ProPhatVoice::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, 
 
 void ProPhatVoice::prepare (const juce::dsp::ProcessSpec& spec)
 {
+    curPreparedSamples = spec.maximumBlockSize;
     oscillators.prepare (spec);
 
     overlap = std::make_unique<juce::AudioSampleBuffer> (juce::AudioSampleBuffer (spec.numChannels, Constants::killRampSamples));
@@ -53,9 +54,7 @@ void ProPhatVoice::prepare (const juce::dsp::ProcessSpec& spec)
     filterEnvADSR.setSampleRate (spec.sampleRate);
     filterEnvADSR.setParameters (filterEnvParams);
 
-    //seems like auval doesn't initalize spec properly and we need to instantiate more memory than it's asking
-    const auto auvalMultiplier = juce::PluginHostType ().getHostPath ().contains ("auval") ? 5 : 1;
-    lfo.prepare ({spec.sampleRate / lfoUpdateRate, auvalMultiplier * spec.maximumBlockSize, spec.numChannels});
+    lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
 }
 
 void ProPhatVoice::addParamListenersToState ()
@@ -519,7 +518,9 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
     if (! currentlyKillingVoice && ! isVoiceActive())
         return;
 
-    //reserve an audio block of size numSamples
+    //reserve an audio block of size numSamples. Auvaltool has a tendency to _not_ call prepare before rendering
+    //with new buffer sizes, so just making sure we're not taking more samples than the audio block was prepared with.
+    numSamples = juce::jmin (numSamples, curPreparedSamples);
     auto currentAudioBlock { oscillators.prepareRender (numSamples) };
 
     for (int pos = 0; pos < numSamples;)
