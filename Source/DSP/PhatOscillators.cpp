@@ -81,12 +81,9 @@ void PhatOscillators::parameterChanged (const juce::String& parameterID, float n
 
 void PhatOscillators::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    //seems like auval doesn't initalize spec properly and we need to instantiate more memory than it's asking
-    const auto auvalMultiplier = juce::PluginHostType ().getHostPath ().contains ("auval") ? 5 : 1;
-
-    osc1Block = juce::dsp::AudioBlock<float> (heapBlock1, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
-    osc2Block = juce::dsp::AudioBlock<float> (heapBlock2, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
-    noiseBlock = juce::dsp::AudioBlock<float> (heapBlockNoise, spec.numChannels, auvalMultiplier * spec.maximumBlockSize);
+    osc1Block = juce::dsp::AudioBlock<float> (heapBlock1, spec.numChannels, spec.maximumBlockSize);
+    osc2Block = juce::dsp::AudioBlock<float> (heapBlock2, spec.numChannels, spec.maximumBlockSize);
+    noiseBlock = juce::dsp::AudioBlock<float> (heapBlockNoise, spec.numChannels, spec.maximumBlockSize);
 
     sub.prepare (spec);
     noise.prepare (spec);

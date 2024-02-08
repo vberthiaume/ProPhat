@@ -131,15 +131,21 @@ public:
         }
     }
 
-    void setGain (Type newValue)
+    /**
+     * @brief Sets the gain for the oscillator in the processorChain.
+        This ends up calling juce::dsp::Gain::setGainLinear(), which will ramp the change.
+        The newGain is also cached in lastActiveGain, so we can recall that value if the
+        oscillator is deactivated and reactivated.
+    */
+    void setGain (Type newGain)
     {
         if (! isActive)
-            newValue = 0;
+            newGain = 0;
         else
-            lastActiveGain = newValue;
+            lastActiveGain = newGain;
 
         auto& gain = processorChain.template get<gainIndex> ();
-        gain.setGainLinear (newValue);
+        gain.setGainLinear (newGain);
     }
 
     Type getGain () { return lastActiveGain; }

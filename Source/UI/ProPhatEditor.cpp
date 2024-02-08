@@ -99,6 +99,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     //OTHER
     , masterGainAttachment (p.state, masterGainID.getParamID(), masterGainSlider)
 {
+    processor.midiListeners.add (this);
 #if CPU_USAGE
     setSize (width, height + 50);
 
@@ -178,6 +179,29 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
 }
 
+ProPhatEditor::~ProPhatEditor ()
+{
+    cancelPendingUpdate ();
+    setLookAndFeel (nullptr);
+}
+
+void ProPhatEditor::handleAsyncUpdate ()
+{
+    gotMidi = true;
+    repaint ();
+
+    juce::Component::SafePointer safePtr { this };
+    juce::Timer::callAfterDelay (500,
+        [safePtr]
+        {
+            if (safePtr)
+            {
+                safePtr->gotMidi = false;
+                safePtr->repaint ();
+            }
+        });
+}
+
 #if USE_NATIVE_TITLE_BAR
 void ProPhatEditor::buttonClicked (juce::Button*)
 {
@@ -224,6 +248,12 @@ void ProPhatEditor::paint (juce::Graphics& g)
 #endif
 
     logoTextLayout.draw (g, logoBounds);
+
+    if (gotMidi)
+    {
+        g.setColour (juce::Colours::green);
+        g.fillRect (midiInputBounds);
+    }
 }
 
 void ProPhatEditor::resized()
@@ -231,10 +261,13 @@ void ProPhatEditor::resized()
     auto bounds = getLocalBounds().toFloat().reduced (overallGap);
 
     auto logoRow { bounds.removeFromTop (logoHeight) };
+    auto rightSection { logoRow.removeFromRight (70.f) };
+    const auto optionButtonBounds { rightSection.removeFromTop (25.f) };
 #if USE_NATIVE_TITLE_BAR && ! JUCE_ANDROID && ! JUCE_IOS
     if (processor.wrapperType == juce::AudioProcessor::WrapperType::wrapperType_Standalone)
-        optionsButton.setBounds (logoRow.removeFromRight (70.f).withHeight (25.f).toNearestInt());
+        optionsButton.setBounds (optionButtonBounds.toNearestInt ());
 #endif
+    midiInputBounds = rightSection;
     logoBounds = logoRow;
 
     //set up sections
@@ -294,4 +327,9 @@ void ProPhatEditor::resized()
     cpuUsageLabel.setBounds (10, getHeight() - 50, cpuSectionH, 50);
     cpuUsageText.setBounds (10 + cpuSectionH, getHeight() - 50, getWidth() - 10 - cpuSectionH, 50);
 #endif
+}
+
+void ProPhatEditor::receivedMidiMessage (juce::MidiBuffer& /*midiMessages*/)
+{
+    triggerAsyncUpdate ();
 }

@@ -76,6 +76,13 @@ public:
     PerformanceCounter perfCounter;
 #endif
 
+    struct MidiMessageListener
+    {
+        virtual void receivedMidiMessage (juce::MidiBuffer& midiMessages) = 0;
+    };
+
+    juce::ListenerList<MidiMessageListener> midiListeners;
+
 private:
     ProPhatSynthesiser proPhatSynth;
 
