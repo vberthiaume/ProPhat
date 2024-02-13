@@ -97,7 +97,7 @@ void ProPhatProcessor::processBlock (juce::AudioBuffer<double>& buffer, juce::Mi
     process (buffer, midiMessages);
 }
 
-template <typename T>
+template <std::floating_point T>
 void ProPhatProcessor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;

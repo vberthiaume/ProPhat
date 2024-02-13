@@ -44,7 +44,7 @@ public:
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     void processBlock (juce::AudioBuffer<double>&, juce::MidiBuffer&) override;
 
-    template <typename T>
+    template <std::floating_point T>
     void process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages);
 
     juce::AudioProcessorEditor* createEditor() override;

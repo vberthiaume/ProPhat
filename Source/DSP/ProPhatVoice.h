@@ -71,6 +71,59 @@ public:
     bool canPlaySound (juce::SynthesiserSound* sound) override { return dynamic_cast<ProPhatSound*> (sound) != nullptr; }
 
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
+    void renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples) override;
+
+    template <std::floating_point T>
+    void renderNextBlock(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
+    {
+        if (!currentlyKillingVoice && !isVoiceActive())
+            return;
+
+        //reserve an audio block of size numSamples. Auvaltool has a tendency to _not_ call prepare before rendering
+        //with new buffer sizes, so just making sure we're not taking more samples than the audio block was prepared with.
+        numSamples = juce::jmin(numSamples, curPreparedSamples);
+        auto currentAudioBlock{ oscillators.prepareRender(numSamples) };
+
+        for (int pos = 0; pos < numSamples;)
+        {
+            const auto subBlockSize = juce::jmin(numSamples - pos, lfoUpdateCounter);
+
+            //render the oscillators
+            auto oscBlock{ oscillators.process(pos, subBlockSize) };
+
+            //render our effects
+            juce::dsp::ProcessContextReplacing<float> oscContext(oscBlock);
+            processorChain.process(oscContext);
+
+            //during this call, the voice may become inactive, but we still have to finish this loop to ensure the voice stays muted for the rest of the buffer
+            processEnvelope(oscBlock);
+
+            if (rampingUp)
+                processRampUp(oscBlock, (int)subBlockSize);
+
+            if (overlapIndex > -1)
+                processKillOverlap(oscBlock, (int)subBlockSize);
+
+            pos += subBlockSize;
+            lfoUpdateCounter -= subBlockSize;
+
+            if (lfoUpdateCounter == 0)
+            {
+                lfoUpdateCounter = lfoUpdateRate;
+                updateLfo();
+            }
+        }
+
+        //add everything to the output buffer
+        juce::dsp::AudioBlock<float>(outputBuffer).getSubBlock((size_t)startSample, (size_t)numSamples).add(currentAudioBlock);
+
+        if (currentlyKillingVoice)
+            applyKillRamp(outputBuffer, startSample, numSamples);
+#if DEBUG_VOICES
+        else
+            assertForDiscontinuities(outputBuffer, startSample, numSamples, {});
+#endif
+    }
 
     void controllerMoved (int controllerNumber, int newValue) override;
 
