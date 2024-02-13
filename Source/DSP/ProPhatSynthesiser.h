@@ -38,12 +38,12 @@ public:
 
     void parameterChanged (const juce::String& parameterID, float newValue) override;
 
-    using VoiceOperation = std::function<void (ProPhatVoice<T>*, float)>;
-    inline void applyToAllVoices (VoiceOperation operation, float newValue)
-    {
-        for (auto voice : voices)
-            operation (dynamic_cast<ProPhatVoice<T>*> (voice), newValue);
-    }
+    //using VoiceOperation = std::function<void (ProPhatVoice<T>*, float)>;
+    //void applyToAllVoices (VoiceOperation operation, float newValue)
+    //{
+    //    for (auto voice : voices)
+    //        operation (dynamic_cast<ProPhatVoice<T>*> (voice), newValue);
+    //}
 
     void setMasterGain (float gain) { fxChain.get<masterGainIndex>().setGainLinear (gain); }
 
@@ -75,7 +75,7 @@ private:
     //@TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
-    juce::dsp::ProcessorChain<juce::dsp::Reverb, juce::dsp::Gain<T>> fxChain;
+    juce::dsp::ProcessorChain<juce::dsp::Reverb, juce::dsp::Gain<float>> fxChain;
 
     juce::dsp::Reverb::Parameters reverbParams
     {

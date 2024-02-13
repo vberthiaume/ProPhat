@@ -123,7 +123,7 @@ void ProPhatProcessor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& 
     if (isUsingDoublePrecision())
         proPhatSynthDouble.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
     else
-        proPhatSynthFloat.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+        proPhatSynthFloat.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
 #if CPU_USAGE
     perfCounter.stop();
