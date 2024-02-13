@@ -174,17 +174,17 @@ void ProPhatVoice<T>::setLfoShape (int shape)
         case LfoShape::triangle:
         {
             std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([](float x) { return (std::sin (x) + 1) / 2; }, 128);
+            lfo.initialise ([](T x) { return (std::sin (x) + 1) / 2; }, 128);
         }
             break;
 
         case LfoShape::saw:
         {
             std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([](float x)
+            lfo.initialise ([](T x)
             {
                 //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-                return juce::jmap (x, -juce::MathConstants<float>::pi, juce::MathConstants<float>::pi, 0.f, 1.f);
+                return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T { 0 }, T { 1 });
             }, 2);
         }
             break;
@@ -205,12 +205,12 @@ void ProPhatVoice<T>::setLfoShape (int shape)
         case LfoShape::square:
         {
             std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([](float x)
+            lfo.initialise ([](T x)
             {
-                if (x < 0.f)
-                    return 0.f;
+                if (x < 0)
+                    return T { 0 };
                 else
-                    return 1.f;
+                    return T { 1 };
             });
         }
             break;
@@ -218,7 +218,7 @@ void ProPhatVoice<T>::setLfoShape (int shape)
         case LfoShape::random:
         {
             std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([this](float x)
+            lfo.initialise ([this](T x)
             {
                 if (x <= 0.f && valueWasBig)
                 {

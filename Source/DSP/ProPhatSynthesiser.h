@@ -75,7 +75,7 @@ private:
     //@TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
-    juce::dsp::ProcessorChain<juce::dsp::Reverb, juce::dsp::Gain<float>> fxChain;
+    juce::dsp::ProcessorChain<juce::dsp::Reverb, juce::dsp::Gain<T>> fxChain;
 
     juce::dsp::Reverb::Parameters reverbParams
     {
