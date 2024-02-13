@@ -22,7 +22,8 @@
 ProPhatProcessor::ProPhatProcessor()
     : juce::AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true))
     , state { constructState () }
-    , proPhatSynth (state)
+    , proPhatSynthFloat (state)
+    , proPhatSynthDouble (state)
 #if CPU_USAGE
     , perfCounter ("ProcessBlock")
 #endif
@@ -119,7 +120,10 @@ void ProPhatProcessor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& 
     }
 
     //render the block
-    proPhatSynth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
+    if (isUsingDoublePrecision())
+        proPhatSynthDouble.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
+    else
+        proPhatSynthFloat.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
 #if CPU_USAGE
     perfCounter.stop();

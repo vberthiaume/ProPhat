@@ -31,7 +31,10 @@ public:
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override
     {
-        proPhatSynth.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
+        if (isUsingDoublePrecision())
+            proPhatSynthDouble.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
+        else
+            proPhatSynthFloat.prepare({ sampleRate, (juce::uint32)samplesPerBlock, 2 });
     }
 
     void reset () override {}
@@ -84,7 +87,8 @@ public:
     juce::ListenerList<MidiMessageListener> midiListeners;
 
 private:
-    ProPhatSynthesiser proPhatSynth;
+    ProPhatSynthesiser<float> proPhatSynthFloat;
+    ProPhatSynthesiser<double> proPhatSynthDouble;
 
     juce::AudioProcessorValueTreeState constructState ();
 

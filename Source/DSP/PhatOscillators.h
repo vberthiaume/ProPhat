@@ -22,6 +22,7 @@
 /**
  * @brief A container for all our oscillators.
 */
+template <std::floating_point T>
 class PhatOscillators : public juce::AudioProcessorValueTreeState::Listener
 {
 public:
@@ -32,8 +33,8 @@ public:
 
     void prepare (const juce::dsp::ProcessSpec& spec);
 
-    juce::dsp::AudioBlock<float>& prepareRender (int numSamples);
-    juce::dsp::AudioBlock<float> process (int pos, int curBlockSize);
+    juce::dsp::AudioBlock<T>& prepareRender (int numSamples);
+    juce::dsp::AudioBlock<T> process (int pos, int curBlockSize);
 
     void setLfoOsc1NoteOffset (float theLfoOsc1NoteOffset);
     void setLfoOsc2NoteOffset (float theLfoOsc2NoteOffset);
@@ -67,12 +68,12 @@ private:
     juce::HeapBlock<char> heapBlock1, heapBlock2, heapBlockNoise;
 
     //TODO: make both these templates
-    juce::dsp::AudioBlock<float> osc1Block, osc2Block, noiseBlock, osc1Output, osc2Output, noiseOutput;
-    GainedOscillator<float> sub, osc1, osc2, noise;
+    juce::dsp::AudioBlock<T> osc1Block, osc2Block, noiseBlock, osc1Output, osc2Output, noiseOutput;
+    GainedOscillator<T> sub, osc1, osc2, noise;
 
     float osc1NoteOffset, osc2NoteOffset;
 
-    std::uniform_real_distribution<float> distribution;
+    std::uniform_real_distribution<T> distribution;
     std::default_random_engine generator;
 
     float osc1TuningOffset = 0.f;
@@ -83,7 +84,7 @@ private:
     float oscMix = 0.f;
     float curNoiseLevel = 0.f;
 
-    float slopOsc1 = 0.f, slopOsc2 = 0.f, slopMod = 0.f;
+    T slopOsc1{ 0 }, slopOsc2{ 0 }, slopMod{ 0 };
 
     int pitchWheelPosition = 0;
 

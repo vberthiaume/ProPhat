@@ -25,6 +25,7 @@
 *   and one ProPhatSound, which applies to all midi notes. It responds to paramater changes in the
 *   state via juce::AudioProcessorValueTreeState::Listener().
 */
+template <std::floating_point T>
 class ProPhatSynthesiser : public juce::Synthesiser
                          , public juce::AudioProcessorValueTreeState::Listener
 {
@@ -37,11 +38,11 @@ public:
 
     void parameterChanged (const juce::String& parameterID, float newValue) override;
 
-    using VoiceOperation = std::function<void (ProPhatVoice*, float)>;
+    using VoiceOperation = std::function<void (ProPhatVoice<T>*, float)>;
     inline void applyToAllVoices (VoiceOperation operation, float newValue)
     {
         for (auto voice : voices)
-            operation (dynamic_cast<ProPhatVoice*> (voice), newValue);
+            operation (dynamic_cast<ProPhatVoice<T>*> (voice), newValue);
     }
 
     void setMasterGain (float gain) { fxChain.get<masterGainIndex>().setGainLinear (gain); }
@@ -59,10 +60,11 @@ private:
 
         auto audioBlock { juce::dsp::AudioBlock<T>(outputAudio).getSubBlock((size_t)startSample, (size_t)numSamples) };
         const auto context{ juce::dsp::ProcessContextReplacing<T>(audioBlock) };
-        fxChain.process(context);
+        //TODO PUT BACK
+        //fxChain.process(context);
     }
-    void renderVoices(juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples);
-    void renderVoices(juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples);
+    void renderVoices(juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples) override;
+    void renderVoices(juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples) override;
 
     enum
     {
@@ -73,7 +75,7 @@ private:
     //@TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
-    juce::dsp::ProcessorChain<juce::dsp::Reverb, juce::dsp::Gain<float>> fxChain;
+    juce::dsp::ProcessorChain<juce::dsp::Reverb, juce::dsp::Gain<T>> fxChain;
 
     juce::dsp::Reverb::Parameters reverbParams
     {

@@ -18,11 +18,15 @@
 
 #include "ProPhatSynthesiser.h"
 
-ProPhatSynthesiser::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& processorState)
+template class ProPhatSynthesiser<float>;
+template class ProPhatSynthesiser<double>;
+
+template <std::floating_point T>
+ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& processorState)
     : state (processorState)
 {
     for (auto i = 0; i < Constants::numVoices; ++i)
-        addVoice (new ProPhatVoice (state, i, &voicesBeingKilled));
+        addVoice (new ProPhatVoice<T> (state, i, &voicesBeingKilled));
 
     addSound (new ProPhatSound ());
 
@@ -35,7 +39,8 @@ ProPhatSynthesiser::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& proc
     fxChain.get<reverbIndex> ().setParameters (reverbParams);
 }
 
-void ProPhatSynthesiser::addParamListenersToState ()
+template <std::floating_point T>
+void ProPhatSynthesiser<T>::addParamListenersToState ()
 {
     using namespace ProPhatParameterIds;
 
@@ -45,7 +50,8 @@ void ProPhatSynthesiser::addParamListenersToState ()
     state.addParameterListener (masterGainID.getParamID (), this);
 }
 
-void ProPhatSynthesiser::prepare (const juce::dsp::ProcessSpec& spec) noexcept
+template <std::floating_point T>
+void ProPhatSynthesiser<T>::prepare (const juce::dsp::ProcessSpec& spec) noexcept
 {
     if (Helpers::areSameSpecs (curSpecs, spec))
         return;
@@ -55,12 +61,13 @@ void ProPhatSynthesiser::prepare (const juce::dsp::ProcessSpec& spec) noexcept
     setCurrentPlaybackSampleRate (spec.sampleRate);
 
     for (auto* v : voices)
-        dynamic_cast<ProPhatVoice*> (v)->prepare (spec);
+        dynamic_cast<ProPhatVoice<T>*> (v)->prepare (spec);
 
     fxChain.prepare (spec);
 }
 
-void ProPhatSynthesiser::parameterChanged (const juce::String& parameterID, float newValue)
+template <std::floating_point T>
+void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, float newValue)
 {
     using namespace ProPhatParameterIds;
 
@@ -74,7 +81,8 @@ void ProPhatSynthesiser::parameterChanged (const juce::String& parameterID, floa
         jassertfalse;
 }
 
-void ProPhatSynthesiser::setEffectParam (juce::StringRef parameterID, float newValue)
+template <std::floating_point T>
+void ProPhatSynthesiser<T>::setEffectParam (juce::StringRef parameterID, float newValue)
 {
     if (parameterID == ProPhatParameterIds::effectParam1ID.getParamID ())
         reverbParams.roomSize = newValue;
@@ -86,7 +94,8 @@ void ProPhatSynthesiser::setEffectParam (juce::StringRef parameterID, float newV
     fxChain.get<reverbIndex> ().setParameters (reverbParams);
 }
 
-void ProPhatSynthesiser::noteOn (const int midiChannel, const int midiNoteNumber, const float velocity)
+template <std::floating_point T>
+void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNumber, const float velocity)
 {
     {
         //TODO lock in the audio thread??
@@ -101,12 +110,14 @@ void ProPhatSynthesiser::noteOn (const int midiChannel, const int midiNoteNumber
     Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
 }
 
-void ProPhatSynthesiser::renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples)
+template <std::floating_point T>
+void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples)
 {
     renderVoices<float>(outputAudio, startSample, numSamples);
 }
 
-void ProPhatSynthesiser::renderVoices (juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples)
+template <std::floating_point T>
+void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples)
 {
     renderVoices<double> (outputAudio, startSample, numSamples);
 }

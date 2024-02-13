@@ -34,6 +34,7 @@ struct ProPhatSound : public juce::SynthesiserSound
 /**
  * @brief The main voice for our synthesizer.
 */
+template <std::floating_point T>
 class ProPhatVoice : public juce::SynthesiserVoice
                    , public juce::AudioProcessorValueTreeState::Listener
 {
@@ -71,7 +72,7 @@ public:
     bool canPlaySound (juce::SynthesiserSound* sound) override { return dynamic_cast<ProPhatSound*> (sound) != nullptr; }
 
     template <std::floating_point T>
-    void renderNextBlock(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
+    void renderNextBlockTemplate(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
     {
         if (! currentlyKillingVoice && !isVoiceActive())
             return;
@@ -86,7 +87,8 @@ public:
             const auto subBlockSize = juce::jmin(numSamples - pos, lfoUpdateCounter);
 
             //render the oscillators
-            auto oscBlock{ oscillators.process(pos, subBlockSize) };
+            //TODO CANNOT FIGURE THIS OUT
+            juce::dsp::AudioBlock<T> oscBlock;// = oscillators.process(pos, subBlockSize);
 
             //render our effects
             juce::dsp::ProcessContextReplacing<T> oscContext(oscBlock);
@@ -112,7 +114,8 @@ public:
         }
 
         //add everything to the output buffer
-        juce::dsp::AudioBlock<T>(outputBuffer).getSubBlock((size_t)startSample, (size_t)numSamples).add(currentAudioBlock);
+        //TODO PUT BACK
+        //juce::dsp::AudioBlock<T>(outputBuffer).getSubBlock((size_t)startSample, (size_t)numSamples).add(currentAudioBlock);
 
         if (currentlyKillingVoice)
             applyKillRamp(outputBuffer, startSample, numSamples);
@@ -121,8 +124,17 @@ public:
             assertForDiscontinuities(outputBuffer, startSample, numSamples, {});
 #endif
     }
-    void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
-    void renderNextBlock(juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples) override;
+    void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override
+    {
+        //PUT BACK
+        //renderNextBlockTemplate<float>(outputBuffer, startSample, numSamples);
+    }
+
+    void renderNextBlock(juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples) override
+    {
+        //PUT BACK
+        //renderNextBlockTemplate<double>(outputBuffer, startSample, numSamples);
+    }
 
     void controllerMoved (int controllerNumber, int newValue) override;
 
@@ -296,15 +308,15 @@ private:
     }
 
 
-    PhatOscillators oscillators;
+    PhatOscillators<T> oscillators;
 
-    std::unique_ptr<juce::AudioBuffer<double>> overlap;
+    std::unique_ptr<juce::AudioBuffer<T>> overlap;
     int overlapIndex = -1;
     //@TODO replace this currentlyKillingVoice bool with a check in the bitfield that voicesBeingKilled will become
     bool currentlyKillingVoice = false;
     std::set<int>* voicesBeingKilled;
 
-    juce::dsp::ProcessorChain<juce::dsp::LadderFilter<double>, juce::dsp::Gain<double>> processorChain;
+    juce::dsp::ProcessorChain<juce::dsp::LadderFilter<T>, juce::dsp::Gain<T>> processorChain;
 
     juce::ADSR ampADSR, filterEnvADSR;
     juce::ADSR::Parameters ampParams, filterEnvParams;
@@ -316,9 +328,9 @@ private:
     //lfo stuff
     static constexpr auto lfoUpdateRate = 100;
     int lfoUpdateCounter = lfoUpdateRate;
-    juce::dsp::Oscillator<double> lfo;
+    juce::dsp::Oscillator<T> lfo;
     std::mutex lfoMutex;
-    float lfoAmount = Constants::defaultLfoAmount;
+    T lfoAmount = static_cast<T> (Constants::defaultLfoAmount);
     LfoDest lfoDest;
 
     //for the random lfo

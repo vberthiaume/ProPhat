@@ -20,7 +20,11 @@
 #include "../UI/ButtonGroupComponent.h"
 #include "../Utility/Macros.h"
 
-ProPhatVoice::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet)
+template class ProPhatVoice<float>;
+template class ProPhatVoice<double>;
+
+template <std::floating_point T>
+ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet)
     : state (processorState)
     , oscillators (state)
     , voiceId (vId)
@@ -28,7 +32,7 @@ ProPhatVoice::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, 
 {
     addParamListenersToState ();
 
-    processorChain.get<(int)ProcessorId::masterGainIndex>().setGainLinear (Constants::defaultOscLevel);
+    processorChain.get<(int)ProcessorId::masterGainIndex>().setGainLinear (static_cast<T> (Constants::defaultOscLevel));
     setFilterCutoffInternal (Constants::defaultFilterCutoff);
     setFilterResonanceInternal (Constants::defaultFilterResonance);
 
@@ -38,12 +42,13 @@ ProPhatVoice::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, 
     lfo.setFrequency (Constants::defaultLfoFreq);
 }
 
-void ProPhatVoice::prepare (const juce::dsp::ProcessSpec& spec)
+template <std::floating_point T>
+void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
 {
     curPreparedSamples = spec.maximumBlockSize;
     oscillators.prepare (spec);
 
-    overlap = std::make_unique<juce::AudioBuffer<double>> (spec.numChannels, Constants::killRampSamples);
+    overlap = std::make_unique<juce::AudioBuffer<T>> (spec.numChannels, Constants::killRampSamples);
     overlap->clear();
 
     processorChain.prepare (spec);
@@ -57,7 +62,8 @@ void ProPhatVoice::prepare (const juce::dsp::ProcessSpec& spec)
     lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
 }
 
-void ProPhatVoice::addParamListenersToState ()
+template <std::floating_point T>
+void ProPhatVoice<T>::addParamListenersToState ()
 {
     using namespace ProPhatParameterIds;
 
@@ -80,7 +86,8 @@ void ProPhatVoice::addParamListenersToState ()
     state.addParameterListener (lfoAmountID.getParamID (), this);
 }
 
-void ProPhatVoice::parameterChanged (const juce::String& parameterID, float newValue)
+template <std::floating_point T>
+void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float newValue)
 {
     using namespace ProPhatParameterIds;
 
@@ -116,7 +123,8 @@ void ProPhatVoice::parameterChanged (const juce::String& parameterID, float newV
         jassertfalse;
 }
 
-void ProPhatVoice::setAmpParam (juce::StringRef parameterID, float newValue)
+template <std::floating_point T>
+void ProPhatVoice<T>::setAmpParam (juce::StringRef parameterID, float newValue)
 {
     if (newValue <= 0)
     {
@@ -136,7 +144,8 @@ void ProPhatVoice::setAmpParam (juce::StringRef parameterID, float newValue)
     ampADSR.setParameters (ampParams);
 }
 
-void ProPhatVoice::setFilterEnvParam (juce::StringRef parameterID, float newValue)
+template <std::floating_point T>
+void ProPhatVoice<T>::setFilterEnvParam (juce::StringRef parameterID, float newValue)
 {
     if (newValue <= 0)
     {
@@ -157,7 +166,8 @@ void ProPhatVoice::setFilterEnvParam (juce::StringRef parameterID, float newValu
 }
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscilate between [-1, 1]
-void ProPhatVoice::setLfoShape (int shape)
+template <std::floating_point T>
+void ProPhatVoice<T>::setLfoShape (int shape)
 {
     switch (shape)
     {
@@ -174,7 +184,7 @@ void ProPhatVoice::setLfoShape (int shape)
             lfo.initialise ([](float x)
             {
                 //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-                return (float) juce::jmap (x, -juce::MathConstants<float>::pi, juce::MathConstants<float>::pi, 0.f, 1.f);
+                return juce::jmap (x, -juce::MathConstants<float>::pi, juce::MathConstants<float>::pi, 0.f, 1.f);
             }, 2);
         }
             break;
@@ -186,7 +196,7 @@ void ProPhatVoice::setLfoShape (int shape)
             std::lock_guard<std::mutex> lock (lfoMutex);
             lfo.initialise ([](float x)
             {
-                return (float) juce::jmap (x, -juce::MathConstants<float>::pi, juce::MathConstants<float>::pi, 1.f, 0.f);
+                return (float) juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, 1.f, 0.f);
             }, 2);
         }
             break;
@@ -232,7 +242,8 @@ void ProPhatVoice::setLfoShape (int shape)
     }
 }
 
-void ProPhatVoice::setLfoDest (int dest)
+template <std::floating_point T>
+void ProPhatVoice<T>::setLfoDest (int dest)
 {
     //reset everything
     oscillators.resetLfoOscNoteOffsets ();
@@ -241,36 +252,40 @@ void ProPhatVoice::setLfoDest (int dest)
     lfoDest.curSelection = dest;
 }
 
-void ProPhatVoice::setFilterCutoff (float newValue)
+template <std::floating_point T>
+void ProPhatVoice<T>::setFilterCutoff (float newValue)
 {
     curFilterCutoff = newValue;
     setFilterCutoffInternal (curFilterCutoff + tiltCutoff);
 }
 
-void ProPhatVoice::setFilterTiltCutoff (float newValue)
+template <std::floating_point T>
+void ProPhatVoice<T>::setFilterTiltCutoff (float newValue)
 {
     tiltCutoff = newValue;
     setFilterCutoffInternal (curFilterCutoff + tiltCutoff);
 }
 
-void ProPhatVoice::setFilterResonance (float newAmount)
+template <std::floating_point T>
+void ProPhatVoice<T>::setFilterResonance (float newAmount)
 {
     curFilterResonance = newAmount;
     setFilterResonanceInternal (curFilterResonance);
 }
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
-void ProPhatVoice::updateLfo()
+template <std::floating_point T>
+void ProPhatVoice<T>::updateLfo()
 {
     //apply filter envelope
     //TODO make this into a slider
     const auto envelopeAmount = 2;
 
-    float lfoOut;
+    T lfoOut;
     {
         //TODO: LOCK IN AUDIO THREAD
         std::lock_guard<std::mutex> lock (lfoMutex);
-        lfoOut = lfo.processSample (0.0f) * lfoAmount;
+        lfoOut = lfo.processSample (T (0)) * lfoAmount;
     }
 
     //TODO get this switch out of here, this is awful for performances
@@ -279,25 +294,25 @@ void ProPhatVoice::updateLfo()
         case LfoDest::osc1Freq:
             //lfoOsc1NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);
             //oscillators.updateOscFrequencies();
-            oscillators.setLfoOsc1NoteOffset (Constants::lfoNoteRange.convertFrom0to1 (lfoOut));
+            oscillators.setLfoOsc1NoteOffset (Constants::lfoNoteRange.convertFrom0to1 (static_cast<float> (lfoOut)));
             break;
 
         case LfoDest::osc2Freq:
             /*lfoOsc2NoteOffset = lfoNoteRange.convertFrom0to1 (lfoOut);
             oscillators.updateOscFrequencies();*/
-            oscillators.setLfoOsc2NoteOffset (Constants::lfoNoteRange.convertFrom0to1 (lfoOut));
+            oscillators.setLfoOsc2NoteOffset (Constants::lfoNoteRange.convertFrom0to1 (static_cast<float> (lfoOut)));
             break;
 
         case LfoDest::filterCutOff:
         {
-            const auto lfoCutOffContributionHz { juce::jmap (lfoOut, 0.0f, 1.0f, 10.0f, 10000.0f) };
+            const auto lfoCutOffContributionHz { juce::jmap (static_cast<float> (lfoOut), 0.0f, 1.0f, 10.0f, 10000.0f) };
             const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
             setFilterCutoffInternal (curCutOff);
         }
         break;
 
         case LfoDest::filterResonance:
-            setFilterResonanceInternal (curFilterResonance * (1 + envelopeAmount * lfoOut));
+            setFilterResonanceInternal (curFilterResonance * (1 + envelopeAmount * static_cast<float> (lfoOut)));
             break;
 
         default:
@@ -305,19 +320,22 @@ void ProPhatVoice::updateLfo()
     }
 }
 
-void ProPhatVoice::setFilterCutoffInternal (float curCutOff)
+template <std::floating_point T>
+void ProPhatVoice<T>::setFilterCutoffInternal (float curCutOff)
 {
     const auto limitedCutOff { juce::jlimit (Constants::cutOffRange.start, Constants::cutOffRange.end, curCutOff) };
     processorChain.get<(int) ProcessorId::filterIndex> ().setCutoffFrequencyHz (limitedCutOff);
 }
 
-void ProPhatVoice::setFilterResonanceInternal (float curResonance)
+template <std::floating_point T>
+void ProPhatVoice<T>::setFilterResonanceInternal (float curResonance)
 {
     const auto limitedResonance { juce::jlimit (0.f, 1.f, curResonance) };
     processorChain.get<(int) ProcessorId::filterIndex> ().setResonance (limitedResonance);
 }
 
-void ProPhatVoice::startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
+template <std::floating_point T>
+void ProPhatVoice<T>::startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
 {
 #if DEBUG_VOICES
     DBG ("\tDEBUG start: " + juce::String (voiceId));
@@ -339,7 +357,8 @@ void ProPhatVoice::startNote (int midiNoteNumber, float velocity, juce::Synthesi
     oscillators.updateOscLevels();
 }
 
-void ProPhatVoice::stopNote (float /*velocity*/, bool allowTailOff)
+template <std::floating_point T>
+void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
 {
     if (allowTailOff)
     {
@@ -373,157 +392,20 @@ void ProPhatVoice::stopNote (float /*velocity*/, bool allowTailOff)
     }
 }
 
-//void ProPhatVoice::processEnvelope (juce::dsp::AudioBlock<float>& block)
+//template <>
+//void ProPhatVoice<float>::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 //{
-//    auto samples = block.getNumSamples();
-//    auto numChannels = block.getNumChannels();
-//
-//    for (auto i = 0; i < samples; ++i)
-//    {
-//        filterEnvelope = filterEnvADSR.getNextSample();
-//        auto env = ampADSR.getNextSample();
-//
-//        for (int c = 0; c < numChannels; ++c)
-//            block.getChannelPointer (c)[i] *= env;
-//    }
-//
-//    if (currentlyReleasingNote && !ampADSR.isActive())
-//    {
-//        currentlyReleasingNote = false;
-//        justDoneReleaseEnvelope = true;
-//        stopNote (0.f, false);
-//
-//#if DEBUG_VOICES
-//        DBG ("\tDEBUG ENVELOPPE DONE");
-//#endif
-//    }
+//    renderNextBlockTemplate<float> (outputBuffer, startSample, numSamples);
 //}
 //
-//void ProPhatVoice::processRampUp (juce::dsp::AudioBlock<float>& block, int curBlockSize)
+//template <>
+//void ProPhatVoice<double>::renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples)
 //{
-//#if DEBUG_VOICES
-//    DBG ("\tDEBUG RAMP UP " + juce::String (rampUpSamples - rampUpSamplesLeft));
-//#endif
-//    auto curRampUpLenght = juce::jmin ((int) curBlockSize, rampUpSamplesLeft);
-//    auto prevRampUpValue = (Constants::rampUpSamples - rampUpSamplesLeft) / (float) Constants::rampUpSamples;
-//    auto nextRampUpValue = prevRampUpValue + curRampUpLenght / (float) Constants::rampUpSamples;
-//    auto incr = (nextRampUpValue - prevRampUpValue) / (curRampUpLenght);
-//
-//    jassert (nextRampUpValue >= 0.f && nextRampUpValue <= 1.0001f);
-//
-//    for (int c = 0; c < block.getNumChannels(); ++c)
-//    {
-//        for (int i = 0; i < curRampUpLenght; ++i)
-//        {
-//            auto value = block.getSample (c, i);
-//            auto ramp = prevRampUpValue + i * incr;
-//            block.setSample (c, i, value * ramp);
-//        }
-//    }
-//
-//    rampUpSamplesLeft -= curRampUpLenght;
-//
-//    if (rampUpSamplesLeft <= 0)
-//    {
-//        rampingUp = false;
-//#if DEBUG_VOICES
-//        DBG ("\tDEBUG RAMP UP DONE");
-//#endif
-//    }
-//}
-//
-//void ProPhatVoice::processKillOverlap (juce::dsp::AudioBlock<float>& block, int curBlockSize)
-//{
-//#if DEBUG_VOICES
-//    DBG ("\tDEBUG ADD OVERLAP" + juce::String (overlapIndex));
-//#endif
-//
-//    auto curSamples = juce::jmin (Constants::killRampSamples - overlapIndex, (int) curBlockSize);
-//
-//    for (int c = 0; c < block.getNumChannels(); ++c)
-//    {
-//        for (int i = 0; i < curSamples; ++i)
-//        {
-//            auto prev = block.getSample (c, i);
-//            auto overl = overlap->getSample (c, overlapIndex + i);
-//            auto total = prev + overl;
-//
-//            jassert (total > -1 && total < 1);
-//
-//            block.setSample (c, i, total);
-//
-//#if PRINT_ALL_SAMPLES
-//            if (c == 0)
-//                DBG ("\tADD\t" + juce::String (prev) + "\t" + juce::String (overl) + "\t" + juce::String (total));
-//#endif
-//        }
-//    }
-//
-//    overlapIndex += curSamples;
-//
-//    if (overlapIndex >= Constants::killRampSamples)
-//    {
-//        overlapIndex = -1;
-//        voicesBeingKilled->erase (voiceId);
-//#if DEBUG_VOICES
-//        DBG ("\tDEBUG OVERLAP DONE");
-//#endif
-//    }
-//}
-//
-//void ProPhatVoice::assertForDiscontinuities (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix)
-//{
-//    auto prev = outputBuffer.getSample (0, startSample);
-//    auto prevDiff = abs (outputBuffer.getSample (0, startSample + 1) - prev);
-//
-//    for (int c = 0; c < outputBuffer.getNumChannels(); ++c)
-//    {
-//        for (int i = startSample; i < startSample + numSamples; ++i)
-//        {
-//            //@TODO need some kind of compression to avoid values above 1.f...
-//            jassert (abs (outputBuffer.getSample (c, i)) < 1.5f);
-//
-//            if (c == 0)
-//            {
-//#if PRINT_ALL_SAMPLES
-//                DBG (dbgPrefix + juce::String (outputBuffer.getSample (0, i)));
-//#endif
-//                auto cur = outputBuffer.getSample (0, i);
-//                jassert (abs (cur - prev) < .2f);
-//
-//                auto curDiff = abs (cur - prev);
-//                jassert (curDiff - prevDiff < .08f);
-//
-//                prev = cur;
-//                prevDiff = curDiff;
-//            }
-//        }
-//    }
-//}
-//
-//void ProPhatVoice::applyKillRamp (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
-//{
-//    outputBuffer.applyGainRamp (startSample, numSamples, 1.f, 0.f);
-//    currentlyKillingVoice = false;
-//
-//#if DEBUG_VOICES
-//    DBG ("\tDEBUG START KILLRAMP");
-//    assertForDiscontinuities (outputBuffer, startSample, numSamples, "\tBUILDING KILLRAMP\t");
-//    DBG ("\tDEBUG stop KILLRAMP");
-//#endif
+//    renderNextBlockTemplate<double>(outputBuffer, startSample, numSamples);
 //}
 
-void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
-{
-    renderNextBlock<float> (outputBuffer, startSample, numSamples);
-}
-
-void ProPhatVoice::renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples)
-{
-    renderNextBlock<double>(outputBuffer, startSample, numSamples);
-}
-
-void ProPhatVoice::controllerMoved (int controllerNumber, int newValue)
+template <std::floating_point T>
+void ProPhatVoice<T>::controllerMoved (int controllerNumber, int newValue)
 {
     //DBG ("controllerNumber: " + juce::String (controllerNumber) + ", newValue: " + juce::String (newValue));
 

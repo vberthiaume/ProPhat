@@ -19,7 +19,11 @@
 #include "PhatOscillators.h"
 #include "../Utility/Helpers.h"
 
-PhatOscillators::PhatOscillators (juce::AudioProcessorValueTreeState& processorState)
+template class PhatOscillators<float>;
+template class PhatOscillators<double>;
+
+template <std::floating_point T>
+PhatOscillators<T>::PhatOscillators (juce::AudioProcessorValueTreeState& processorState)
     : state (processorState)
     , osc1NoteOffset { static_cast<float> (Constants::middleCMidiNote - Constants::defaultOscMidiNote) }
     , osc2NoteOffset { osc1NoteOffset }
@@ -31,7 +35,8 @@ PhatOscillators::PhatOscillators (juce::AudioProcessorValueTreeState& processorS
     noise.setOscShape (OscShape::noise);
 }
 
-void PhatOscillators::addParamListenersToState ()
+template <std::floating_point T>
+void PhatOscillators<T>::addParamListenersToState ()
 {
     using namespace ProPhatParameterIds;
 
@@ -51,7 +56,8 @@ void PhatOscillators::addParamListenersToState ()
     state.addParameterListener (oscSlopID.getParamID (), this);
 }
 
-void PhatOscillators::parameterChanged (const juce::String& parameterID, float newValue)
+template <std::floating_point T>
+void PhatOscillators<T>::parameterChanged (const juce::String& parameterID, float newValue)
 {
     using namespace ProPhatParameterIds;
 
@@ -79,11 +85,12 @@ void PhatOscillators::parameterChanged (const juce::String& parameterID, float n
         jassertfalse;
 }
 
-void PhatOscillators::prepare (const juce::dsp::ProcessSpec& spec)
+template <std::floating_point T>
+void PhatOscillators<T>::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    osc1Block = juce::dsp::AudioBlock<float> (heapBlock1, spec.numChannels, spec.maximumBlockSize);
-    osc2Block = juce::dsp::AudioBlock<float> (heapBlock2, spec.numChannels, spec.maximumBlockSize);
-    noiseBlock = juce::dsp::AudioBlock<float> (heapBlockNoise, spec.numChannels, spec.maximumBlockSize);
+    osc1Block = juce::dsp::AudioBlock<T> (heapBlock1, spec.numChannels, spec.maximumBlockSize);
+    osc2Block = juce::dsp::AudioBlock<T> (heapBlock2, spec.numChannels, spec.maximumBlockSize);
+    noiseBlock = juce::dsp::AudioBlock<T> (heapBlockNoise, spec.numChannels, spec.maximumBlockSize);
 
     sub.prepare (spec);
     noise.prepare (spec);
@@ -91,7 +98,8 @@ void PhatOscillators::prepare (const juce::dsp::ProcessSpec& spec)
     osc2.prepare (spec);
 }
 
-juce::dsp::AudioBlock<float>& PhatOscillators::prepareRender (int numSamples)
+template <std::floating_point T>
+juce::dsp::AudioBlock<T>& PhatOscillators<T>::prepareRender (int numSamples)
 {
     osc1Output = osc1Block.getSubBlock (0, (size_t) numSamples);
     osc1Output.clear ();
@@ -105,57 +113,63 @@ juce::dsp::AudioBlock<float>& PhatOscillators::prepareRender (int numSamples)
     return noiseBlock;
 }
 
-juce::dsp::AudioBlock<float> PhatOscillators::process (int pos, int subBlockSize)
+template <std::floating_point T>
+juce::dsp::AudioBlock<T> PhatOscillators<T>::process (int pos, int subBlockSize)
 {
     //process osc1
     auto block1 { osc1Output.getSubBlock (pos, subBlockSize) };
-    juce::dsp::ProcessContextReplacing<float> osc1Context (block1);
+    juce::dsp::ProcessContextReplacing<T> osc1Context (block1);
     sub.process (osc1Context); //TODO: is the sub on osc1 because that's how it is on the real prophet? Should it be added to the noise below instead?
     osc1.process (osc1Context);
 
     //process osc2
     auto block2 { osc2Output.getSubBlock (pos, subBlockSize) };
-    juce::dsp::ProcessContextReplacing<float> osc2Context (block2);
+    juce::dsp::ProcessContextReplacing<T> osc2Context (block2);
     osc2.process (osc2Context);
 
     //process noise
     auto blockAll { noiseOutput.getSubBlock (pos, subBlockSize) };
-    juce::dsp::ProcessContextReplacing<float> noiseContext (blockAll);
+    juce::dsp::ProcessContextReplacing<T> noiseContext (blockAll);
     noise.process (noiseContext);
 
     //process the sum of osc1 and osc2
-    blockAll.add (block1);
-    blockAll.add (block2);
+    //blockAll.add (block1);
+    //blockAll.add (block2);
 
     //and return that to the voice so it can render what's after the oscillators
     return blockAll;
 }
 
-void PhatOscillators::setLfoOsc1NoteOffset (float theLfoOsc1NoteOffset)
+template <std::floating_point T>
+void PhatOscillators<T>::setLfoOsc1NoteOffset (float theLfoOsc1NoteOffset)
 {
     lfoOsc1NoteOffset = theLfoOsc1NoteOffset;
     updateOscFrequenciesInternal ();
 }
 
-void PhatOscillators::setLfoOsc2NoteOffset (float theLfoOsc2NoteOffset)
+template <std::floating_point T>
+void PhatOscillators<T>::setLfoOsc2NoteOffset (float theLfoOsc2NoteOffset)
 {
     lfoOsc2NoteOffset = theLfoOsc2NoteOffset;
     updateOscFrequenciesInternal ();
 }
 
-void PhatOscillators::resetLfoOscNoteOffsets ()
+template <std::floating_point T>
+void PhatOscillators<T>::resetLfoOscNoteOffsets ()
 {
     lfoOsc1NoteOffset = 0.f;
     lfoOsc2NoteOffset = 0.f;
 }
 
-void PhatOscillators::pitchWheelMoved (int newPitchWheelValue)
+template <std::floating_point T>
+void PhatOscillators<T>::pitchWheelMoved (int newPitchWheelValue)
 {
     pitchWheelPosition = newPitchWheelValue;
     updateOscFrequenciesInternal ();
 }
 
-void PhatOscillators::updateOscFrequencies (int theMidiNote, float velocity, int currentPitchWheelPosition)
+template <std::floating_point T>
+void PhatOscillators<T>::updateOscFrequencies (int theMidiNote, float velocity, int currentPitchWheelPosition)
 {
     pitchWheelPosition = currentPitchWheelPosition;
     curVelocity = velocity;
@@ -164,7 +178,8 @@ void PhatOscillators::updateOscFrequencies (int theMidiNote, float velocity, int
     updateOscFrequenciesInternal ();
 }
 
-void PhatOscillators::updateOscFrequenciesInternal ()
+template <std::floating_point T>
+void PhatOscillators<T>::updateOscFrequenciesInternal ()
 {
     if (curMidiNote < 0)
         return;
@@ -178,15 +193,16 @@ void PhatOscillators::updateOscFrequenciesInternal ()
     const auto curOsc2Slop = slopOsc2 * slopMod;
 
     const auto osc1FloatNote = curMidiNote - osc1NoteOffset + osc1TuningOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote + curOsc1Slop;
-    sub.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote - 12), true);
-    noise.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote), true);
-    osc1.setFrequency ((float) Helpers::getFloatMidiNoteInHertz (osc1FloatNote), true);
+    sub.setFrequency (Helpers::getMidiNoteInHertz(osc1FloatNote - 12), true);
+    noise.setFrequency (Helpers::getMidiNoteInHertz (osc1FloatNote), true);
+    osc1.setFrequency (Helpers::getMidiNoteInHertz (osc1FloatNote), true);
 
-    const auto osc2Freq = Helpers::getFloatMidiNoteInHertz (curMidiNote - osc2NoteOffset + osc2TuningOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote + curOsc2Slop);
-    osc2.setFrequency ((float) osc2Freq, true);
+    const auto osc2Freq = Helpers::getMidiNoteInHertz (curMidiNote - osc2NoteOffset + osc2TuningOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote + curOsc2Slop);
+    osc2.setFrequency (osc2Freq, true);
 }
 
-void PhatOscillators::setOscFreq (OscId oscNum, int newMidiNote)
+template <std::floating_point T>
+void PhatOscillators<T>::setOscFreq (OscId oscNum, int newMidiNote)
 {
     jassert (Helpers::valueContainedInRange (newMidiNote, Constants::midiNoteRange));
 
@@ -206,7 +222,8 @@ void PhatOscillators::setOscFreq (OscId oscNum, int newMidiNote)
     updateOscFrequenciesInternal ();
 }
 
-void PhatOscillators::setOscShape (OscId oscNum, int newShape)
+template <std::floating_point T>
+void PhatOscillators<T>::setOscShape (OscId oscNum, int newShape)
 {
     switch (oscNum)
     {
@@ -222,7 +239,8 @@ void PhatOscillators::setOscShape (OscId oscNum, int newShape)
     }
 }
 
-void PhatOscillators::setOscTuning (OscId oscNum, float newTuning)
+template <std::floating_point T>
+void PhatOscillators<T>::setOscTuning (OscId oscNum, float newTuning)
 {
     jassert (Helpers::valueContainedInRange (newTuning, Constants::tuningSliderRange));
 
@@ -241,28 +259,32 @@ void PhatOscillators::setOscTuning (OscId oscNum, float newTuning)
     updateOscFrequenciesInternal ();
 }
 
-void PhatOscillators::setOscSub (float newSub)
+template <std::floating_point T>
+void PhatOscillators<T>::setOscSub (float newSub)
 {
     jassert (Helpers::valueContainedInRange (newSub, Constants::sliderRange));
     curSubLevel = newSub;
     updateOscLevels ();
 }
 
-void PhatOscillators::setOscNoise (float noiseLevel)
+template <std::floating_point T>
+void PhatOscillators<T>::setOscNoise (float noiseLevel)
 {
     jassert (Helpers::valueContainedInRange (noiseLevel, Constants::sliderRange));
     curNoiseLevel = noiseLevel;
     updateOscLevels ();
 }
 
-void PhatOscillators::setOscSlop (float slop)
+template <std::floating_point T>
+void PhatOscillators<T>::setOscSlop (float slop)
 {
     jassert (Helpers::valueContainedInRange (slop, Constants::slopSliderRange));
     slopMod = slop;
     updateOscFrequenciesInternal ();
 }
 
-void PhatOscillators::setOscMix (float newMix)
+template <std::floating_point T>
+void PhatOscillators<T>::setOscMix (float newMix)
 {
     jassert (Helpers::valueContainedInRange (newMix, Constants::sliderRange));
 
@@ -270,7 +292,8 @@ void PhatOscillators::setOscMix (float newMix)
     updateOscLevels ();
 }
 
-void PhatOscillators::updateOscLevels ()
+template <std::floating_point T>
+void PhatOscillators<T>::updateOscLevels ()
 {
     sub.setGain (curVelocity * curSubLevel);
     noise.setGain (curVelocity * curNoiseLevel);
