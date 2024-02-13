@@ -103,10 +103,10 @@ void ProPhatSynthesiser::noteOn (const int midiChannel, const int midiNoteNumber
 
 void ProPhatSynthesiser::renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples)
 {
-    for (auto* voice : voices)
-        voice->renderNextBlock (outputAudio, startSample, numSamples);
+    renderVoices<float>(outputAudio, startSample, numSamples);
+}
 
-    auto audioBlock { juce::dsp::AudioBlock<float> (outputAudio).getSubBlock ((size_t) startSample, (size_t) numSamples) };
-    const auto context { juce::dsp::ProcessContextReplacing<float> (audioBlock) };
-    fxChain.process (context);
+void ProPhatSynthesiser::renderVoices (juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples)
+{
+    renderVoices<double> (outputAudio, startSample, numSamples);
 }

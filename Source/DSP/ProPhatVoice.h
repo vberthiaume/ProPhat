@@ -70,13 +70,10 @@ public:
 
     bool canPlaySound (juce::SynthesiserSound* sound) override { return dynamic_cast<ProPhatSound*> (sound) != nullptr; }
 
-    void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
-    void renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples) override;
-
     template <std::floating_point T>
     void renderNextBlock(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
     {
-        if (!currentlyKillingVoice && !isVoiceActive())
+        if (! currentlyKillingVoice && !isVoiceActive())
             return;
 
         //reserve an audio block of size numSamples. Auvaltool has a tendency to _not_ call prepare before rendering
@@ -92,7 +89,7 @@ public:
             auto oscBlock{ oscillators.process(pos, subBlockSize) };
 
             //render our effects
-            juce::dsp::ProcessContextReplacing<float> oscContext(oscBlock);
+            juce::dsp::ProcessContextReplacing<T> oscContext(oscBlock);
             processorChain.process(oscContext);
 
             //during this call, the voice may become inactive, but we still have to finish this loop to ensure the voice stays muted for the rest of the buffer
@@ -115,7 +112,7 @@ public:
         }
 
         //add everything to the output buffer
-        juce::dsp::AudioBlock<float>(outputBuffer).getSubBlock((size_t)startSample, (size_t)numSamples).add(currentAudioBlock);
+        juce::dsp::AudioBlock<T>(outputBuffer).getSubBlock((size_t)startSample, (size_t)numSamples).add(currentAudioBlock);
 
         if (currentlyKillingVoice)
             applyKillRamp(outputBuffer, startSample, numSamples);
@@ -124,6 +121,8 @@ public:
             assertForDiscontinuities(outputBuffer, startSample, numSamples, {});
 #endif
     }
+    void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
+    void renderNextBlock(juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples) override;
 
     void controllerMoved (int controllerNumber, int newValue) override;
 
@@ -139,21 +138,173 @@ private:
 
     /** Calculate LFO values. Called on the audio thread. */
     inline void updateLfo();
-    void processEnvelope (juce::dsp::AudioBlock<float>& block);
-    void processRampUp (juce::dsp::AudioBlock<float>& block, int curBlockSize);
-    void processKillOverlap (juce::dsp::AudioBlock<float>& block, int curBlockSize);
-    void applyKillRamp (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples);
-    void assertForDiscontinuities (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix);
+
+    //template <std::floating_point T>
+    //void processEnvelope (juce::dsp::AudioBlock<T>& block);
+    //template <std::floating_point T>
+    //void processRampUp (juce::dsp::AudioBlock<T>& block, int curBlockSize);
+    //template <std::floating_point T>
+    //void processKillOverlap (juce::dsp::AudioBlock<T>& block, int curBlockSize);
+    //template <std::floating_point T>
+    //void applyKillRamp (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples);
+    //template <std::floating_point T>
+    //void assertForDiscontinuities (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix);
+
+    template <std::floating_point T>
+    void processEnvelope(juce::dsp::AudioBlock<T>& block)
+    {
+        auto samples = block.getNumSamples();
+        auto numChannels = block.getNumChannels();
+
+        for (auto i = 0; i < samples; ++i)
+        {
+            filterEnvelope = filterEnvADSR.getNextSample();
+            auto env = ampADSR.getNextSample();
+
+            for (int c = 0; c < numChannels; ++c)
+                block.getChannelPointer(c)[i] *= env;
+        }
+
+        if (currentlyReleasingNote && !ampADSR.isActive())
+        {
+            currentlyReleasingNote = false;
+            justDoneReleaseEnvelope = true;
+            stopNote(0.f, false);
+
+#if DEBUG_VOICES
+            DBG("\tDEBUG ENVELOPPE DONE");
+#endif
+        }
+    }
+
+    template <std::floating_point T>
+    void processRampUp(juce::dsp::AudioBlock<T>& block, int curBlockSize)
+    {
+#if DEBUG_VOICES
+        DBG("\tDEBUG RAMP UP " + juce::String(rampUpSamples - rampUpSamplesLeft));
+#endif
+        auto curRampUpLenght = juce::jmin((int)curBlockSize, rampUpSamplesLeft);
+        auto prevRampUpValue = (Constants::rampUpSamples - rampUpSamplesLeft) / (float)Constants::rampUpSamples;
+        auto nextRampUpValue = prevRampUpValue + curRampUpLenght / (float)Constants::rampUpSamples;
+        auto incr = (nextRampUpValue - prevRampUpValue) / (curRampUpLenght);
+
+        jassert(nextRampUpValue >= 0.f && nextRampUpValue <= 1.0001f);
+
+        for (int c = 0; c < block.getNumChannels(); ++c)
+        {
+            for (int i = 0; i < curRampUpLenght; ++i)
+            {
+                auto value = block.getSample(c, i);
+                auto ramp = prevRampUpValue + i * incr;
+                block.setSample(c, i, value * ramp);
+            }
+        }
+
+        rampUpSamplesLeft -= curRampUpLenght;
+
+        if (rampUpSamplesLeft <= 0)
+        {
+            rampingUp = false;
+#if DEBUG_VOICES
+            DBG("\tDEBUG RAMP UP DONE");
+#endif
+        }
+    }
+
+    template <std::floating_point T>
+    void processKillOverlap(juce::dsp::AudioBlock<T>& block, int curBlockSize)
+    {
+#if DEBUG_VOICES
+        DBG("\tDEBUG ADD OVERLAP" + juce::String(overlapIndex));
+#endif
+
+        auto curSamples = juce::jmin(Constants::killRampSamples - overlapIndex, (int)curBlockSize);
+
+        for (int c = 0; c < block.getNumChannels(); ++c)
+        {
+            for (int i = 0; i < curSamples; ++i)
+            {
+                auto prev = block.getSample(c, i);
+                auto overl = static_cast<T> (overlap->getSample(c, overlapIndex + i));
+                auto total = prev + overl;
+
+                jassert(total > -1 && total < 1);
+
+                block.setSample(c, i, total);
+
+#if PRINT_ALL_SAMPLES
+                if (c == 0)
+                    DBG("\tADD\t" + juce::String(prev) + "\t" + juce::String(overl) + "\t" + juce::String(total));
+#endif
+            }
+        }
+
+        overlapIndex += curSamples;
+
+        if (overlapIndex >= Constants::killRampSamples)
+        {
+            overlapIndex = -1;
+            voicesBeingKilled->erase(voiceId);
+#if DEBUG_VOICES
+            DBG("\tDEBUG OVERLAP DONE");
+#endif
+        }
+    }
+
+    template <std::floating_point T>
+    void assertForDiscontinuities(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix)
+    {
+        auto prev = outputBuffer.getSample(0, startSample);
+        auto prevDiff = abs(outputBuffer.getSample(0, startSample + 1) - prev);
+
+        for (int c = 0; c < outputBuffer.getNumChannels(); ++c)
+        {
+            for (int i = startSample; i < startSample + numSamples; ++i)
+            {
+                //@TODO need some kind of compression to avoid values above 1.f...
+                jassert(abs(outputBuffer.getSample(c, i)) < 1.5f);
+
+                if (c == 0)
+                {
+#if PRINT_ALL_SAMPLES
+                    DBG(dbgPrefix + juce::String(outputBuffer.getSample(0, i)));
+#endif
+                    auto cur = outputBuffer.getSample(0, i);
+                    jassert(abs(cur - prev) < .2f);
+
+                    auto curDiff = abs(cur - prev);
+                    jassert(curDiff - prevDiff < .08f);
+
+                    prev = cur;
+                    prevDiff = curDiff;
+                }
+            }
+        }
+    }
+
+    template <std::floating_point T>
+    void applyKillRamp(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
+    {
+        outputBuffer.applyGainRamp(startSample, numSamples, 1.f, 0.f);
+        currentlyKillingVoice = false;
+
+#if DEBUG_VOICES
+        DBG("\tDEBUG START KILLRAMP");
+        assertForDiscontinuities(outputBuffer, startSample, numSamples, "\tBUILDING KILLRAMP\t");
+        DBG("\tDEBUG stop KILLRAMP");
+#endif
+    }
+
 
     PhatOscillators oscillators;
 
-    std::unique_ptr<juce::AudioBuffer<float>> overlap;
+    std::unique_ptr<juce::AudioBuffer<double>> overlap;
     int overlapIndex = -1;
     //@TODO replace this currentlyKillingVoice bool with a check in the bitfield that voicesBeingKilled will become
     bool currentlyKillingVoice = false;
     std::set<int>* voicesBeingKilled;
 
-    juce::dsp::ProcessorChain<juce::dsp::LadderFilter<float>, juce::dsp::Gain<float>> processorChain;
+    juce::dsp::ProcessorChain<juce::dsp::LadderFilter<double>, juce::dsp::Gain<double>> processorChain;
 
     juce::ADSR ampADSR, filterEnvADSR;
     juce::ADSR::Parameters ampParams, filterEnvParams;
@@ -165,7 +316,7 @@ private:
     //lfo stuff
     static constexpr auto lfoUpdateRate = 100;
     int lfoUpdateCounter = lfoUpdateRate;
-    juce::dsp::Oscillator<float> lfo;
+    juce::dsp::Oscillator<double> lfo;
     std::mutex lfoMutex;
     float lfoAmount = Constants::defaultLfoAmount;
     LfoDest lfoDest;

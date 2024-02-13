@@ -51,7 +51,18 @@ public:
 private:
     void setEffectParam (juce::StringRef parameterID, float newValue);
 
-    void renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples) override;
+    template <std::floating_point T>
+    void renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples)
+    {
+        for (auto* voice : voices)
+            voice->renderNextBlock(outputAudio, startSample, numSamples);
+
+        auto audioBlock { juce::dsp::AudioBlock<T>(outputAudio).getSubBlock((size_t)startSample, (size_t)numSamples) };
+        const auto context{ juce::dsp::ProcessContextReplacing<T>(audioBlock) };
+        fxChain.process(context);
+    }
+    void renderVoices(juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples);
+    void renderVoices(juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples);
 
     enum
     {
