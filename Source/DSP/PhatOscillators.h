@@ -67,7 +67,6 @@ private:
 
     juce::HeapBlock<char> heapBlock1, heapBlock2, heapBlockNoise;
 
-    //TODO: make both these templates
     juce::dsp::AudioBlock<T> osc1Block, osc2Block, noiseBlock, osc1Output, osc2Output, noiseOutput;
     GainedOscillator<T> sub, osc1, osc2, noise;
 

@@ -87,8 +87,7 @@ public:
             const auto subBlockSize = juce::jmin(numSamples - pos, lfoUpdateCounter);
 
             //render the oscillators
-            //TODO CANNOT FIGURE THIS OUT
-            juce::dsp::AudioBlock<T> oscBlock;// = oscillators.process(pos, subBlockSize);
+            juce::dsp::AudioBlock<T> oscBlock = oscillators.process(pos, subBlockSize);
 
             //render our effects
             juce::dsp::ProcessContextReplacing<T> oscContext(oscBlock);
@@ -114,8 +113,7 @@ public:
         }
 
         //add everything to the output buffer
-        //TODO PUT BACK
-        //juce::dsp::AudioBlock<T>(outputBuffer).getSubBlock((size_t)startSample, (size_t)numSamples).add(currentAudioBlock);
+        juce::dsp::AudioBlock<T> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (currentAudioBlock);
 
         if (currentlyKillingVoice)
             applyKillRamp(outputBuffer, startSample, numSamples);
@@ -142,17 +140,6 @@ private:
 
     /** Calculate LFO values. Called on the audio thread. */
     inline void updateLfo();
-
-    //template <std::floating_point T>
-    //void processEnvelope (juce::dsp::AudioBlock<T>& block);
-    //template <std::floating_point T>
-    //void processRampUp (juce::dsp::AudioBlock<T>& block, int curBlockSize);
-    //template <std::floating_point T>
-    //void processKillOverlap (juce::dsp::AudioBlock<T>& block, int curBlockSize);
-    //template <std::floating_point T>
-    //void applyKillRamp (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples);
-    //template <std::floating_point T>
-    //void assertForDiscontinuities (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix);
 
     template <std::floating_point T>
     void processEnvelope(juce::dsp::AudioBlock<T>& block)
@@ -298,7 +285,6 @@ private:
         DBG("\tDEBUG stop KILLRAMP");
 #endif
     }
-
 
     PhatOscillators<T> oscillators;
 

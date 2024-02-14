@@ -297,7 +297,7 @@ inline float getRangedParamValue (juce::AudioProcessorValueTreeState& state, juc
 template <std::floating_point T>
 T getMidiNoteInHertz (const T noteNumber, const T frequencyOfA = 440) noexcept
 {
-    return frequencyOfA * std::pow (2, (noteNumber - 69) / 12);
+    return static_cast<T> (frequencyOfA * std::pow (2, (noteNumber - 69) / 12));
 }
 
 template <typename Type>
