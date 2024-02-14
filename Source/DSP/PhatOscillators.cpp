@@ -133,8 +133,8 @@ juce::dsp::AudioBlock<T> PhatOscillators<T>::process (int pos, int subBlockSize)
     noise.process (noiseContext);
 
     //process the sum of osc1 and osc2
-    //blockAll.add (block1);
-    //blockAll.add (block2);
+    blockAll.add (block1);
+    blockAll.add (block2);
 
     //and return that to the voice so it can render what's after the oscillators
     return blockAll;
