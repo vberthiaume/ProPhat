@@ -21,6 +21,11 @@
 #include "ProPhatVoice.h"
 #include "../Utility/Helpers.h"
 
+//adding this for now because there's no double processing for reverb, so it's causing issues with rendering doubles
+#ifndef USE_REVERB
+ #define USE_REVERB 0
+#endif
+
 /** The main Synthesiser for the plugin. It uses Constants::numVoices voices (of type ProPhatVoice),
 *   and one ProPhatSound, which applies to all midi notes. It responds to paramater changes in the
 *   state via juce::AudioProcessorValueTreeState::Listener().
@@ -37,13 +42,6 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec) noexcept;
 
     void parameterChanged (const juce::String& parameterID, float newValue) override;
-
-    //using VoiceOperation = std::function<void (ProPhatVoice<T>*, float)>;
-    //void applyToAllVoices (VoiceOperation operation, float newValue)
-    //{
-    //    for (auto voice : voices)
-    //        operation (dynamic_cast<ProPhatVoice<T>*> (voice), newValue);
-    //}
 
     void setMasterGain (float gain) { fxChain.get<masterGainIndex>().setGainLinear (static_cast<T> (gain)); }
 
@@ -67,14 +65,19 @@ private:
 
     enum
     {
-        //reverbIndex = 0,
+#if USE_REVERB
+        reverbIndex = 0,
+        masterGainIndex,
+#else
         masterGainIndex = 0,
+#endif
     };
 
-    //@TODO: make this into a bit mask thing?
+    //@TODO: make this into a bit field thing?
     std::set<int> voicesBeingKilled;
 
-    juce::dsp::ProcessorChain</*juce::dsp::Reverb,*/ juce::dsp::Gain<T>> fxChain;
+#if USE_REVERB
+    juce::dsp::ProcessorChain<juce::dsp::Reverb, juce::dsp::Gain<T>> fxChain;
 
     juce::dsp::Reverb::Parameters reverbParams
     {
@@ -88,6 +91,9 @@ private:
         1.0f, //< Reverb width, 0 to 1.0, where 1.0 is very wide.
         0.0f  //< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop.
     };
+#else
+    juce::dsp::ProcessorChain<juce::dsp::Gain<T>> fxChain;
+#endif
 
     juce::AudioProcessorValueTreeState& state;
 

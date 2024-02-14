@@ -35,8 +35,10 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
     setMasterGain (Constants::defaultMasterGain);
     fxChain.get<masterGainIndex> ().setRampDurationSeconds (0.1);
 
+#if USE_REVERB
     //we need to manually override the default reverb params to make sure 0 values are set if needed
-    //fxChain.get<reverbIndex> ().setParameters (reverbParams);
+    fxChain.get<reverbIndex> ().setParameters (reverbParams);
+#endif
 }
 
 template <std::floating_point T>
@@ -82,8 +84,9 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
 }
 
 template <std::floating_point T>
-void ProPhatSynthesiser<T>::setEffectParam (juce::StringRef parameterID, float newValue)
+void ProPhatSynthesiser<T>::setEffectParam ([[maybe_unused]] juce::StringRef parameterID, [[maybe_unused]] float newValue)
 {
+#if USE_REVERB
     if (parameterID == ProPhatParameterIds::effectParam1ID.getParamID ())
         reverbParams.roomSize = newValue;
     else if (parameterID == ProPhatParameterIds::effectParam2ID.getParamID ())
@@ -91,7 +94,9 @@ void ProPhatSynthesiser<T>::setEffectParam (juce::StringRef parameterID, float n
     else
         jassertfalse;   //unknown effect parameter!
 
-    //fxChain.get<reverbIndex> ().setParameters (reverbParams);
+
+    fxChain.get<reverbIndex> ().setParameters (reverbParams);
+#endif
 }
 
 template <std::floating_point T>
@@ -109,21 +114,6 @@ void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNum
 
     Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
 }
-
-#if 0
-template <std::floating_point T>
-void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples)
-{
-    //renderVoices<float>(outputAudio, startSample, numSamples);
-}
-
-template <std::floating_point T>
-void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples)
-{
-    //renderVoices<double> (outputAudio, startSample, numSamples);
-}
-
-#else
 
 template <>
 void ProPhatSynthesiser<float>::renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples)
@@ -150,5 +140,3 @@ void ProPhatSynthesiser<float>::renderVoices (juce::AudioBuffer<double>&, int, i
     //trying to render a double voice with a float synth doesn't make sense!
     jassertfalse;
 }
-
-#endif
