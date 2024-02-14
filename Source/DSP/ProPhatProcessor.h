@@ -29,14 +29,7 @@ class ProPhatProcessor : public juce::AudioProcessor
 public:
     ProPhatProcessor();
 
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override
-    {
-        if (isUsingDoublePrecision())
-            proPhatSynthDouble.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
-        else
-            proPhatSynthFloat.prepare({ sampleRate, (juce::uint32)samplesPerBlock, 2 });
-    }
-
+    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void reset () override {}
     void releaseResources () override {}
 

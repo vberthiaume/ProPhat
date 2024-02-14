@@ -30,6 +30,14 @@ ProPhatProcessor::ProPhatProcessor()
 {
 }
 
+void ProPhatProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+{
+    if (isUsingDoublePrecision ())
+        proPhatSynthDouble.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
+    else
+        proPhatSynthFloat.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
+}
+
 juce::AudioProcessorValueTreeState ProPhatProcessor::constructState ()
 {
     using namespace Constants;
