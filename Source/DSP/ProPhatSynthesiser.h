@@ -45,7 +45,7 @@ public:
     //        operation (dynamic_cast<ProPhatVoice<T>*> (voice), newValue);
     //}
 
-    void setMasterGain (float gain) { fxChain.get<masterGainIndex>().setGainLinear (gain); }
+    void setMasterGain (float gain) { fxChain.get<masterGainIndex>().setGainLinear (static_cast<T> (gain)); }
 
     void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override;
 
@@ -56,26 +56,25 @@ private:
     void renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples)
     {
         for (auto* voice : voices)
-            voice->renderNextBlock(outputAudio, startSample, numSamples);
+            voice->renderNextBlock (outputAudio, startSample, numSamples);
 
-        auto audioBlock { juce::dsp::AudioBlock<T>(outputAudio).getSubBlock((size_t)startSample, (size_t)numSamples) };
-        const auto context{ juce::dsp::ProcessContextReplacing<T>(audioBlock) };
-        //TODO PUT BACK
-        //fxChain.process(context);
+        auto audioBlock { juce::dsp::AudioBlock<T> (outputAudio).getSubBlock((size_t)startSample, (size_t)numSamples) };
+        const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
+        fxChain.process (context);
     }
-    void renderVoices(juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples) override;
-    void renderVoices(juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples) override;
+    void renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples) override;
+    void renderVoices (juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples) override;
 
     enum
     {
-        reverbIndex = 0,
-        masterGainIndex
+        //reverbIndex = 0,
+        masterGainIndex = 0,
     };
 
     //@TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
-    juce::dsp::ProcessorChain<juce::dsp::Reverb, juce::dsp::Gain<T>> fxChain;
+    juce::dsp::ProcessorChain</*juce::dsp::Reverb,*/ juce::dsp::Gain<T>> fxChain;
 
     juce::dsp::Reverb::Parameters reverbParams
     {

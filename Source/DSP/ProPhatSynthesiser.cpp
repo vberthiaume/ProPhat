@@ -36,7 +36,7 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
     fxChain.get<masterGainIndex> ().setRampDurationSeconds (0.1);
 
     //we need to manually override the default reverb params to make sure 0 values are set if needed
-    fxChain.get<reverbIndex> ().setParameters (reverbParams);
+    //fxChain.get<reverbIndex> ().setParameters (reverbParams);
 }
 
 template <std::floating_point T>
@@ -91,7 +91,7 @@ void ProPhatSynthesiser<T>::setEffectParam (juce::StringRef parameterID, float n
     else
         jassertfalse;   //unknown effect parameter!
 
-    fxChain.get<reverbIndex> ().setParameters (reverbParams);
+    //fxChain.get<reverbIndex> ().setParameters (reverbParams);
 }
 
 template <std::floating_point T>
@@ -110,14 +110,45 @@ void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNum
     Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
 }
 
+#if 0
 template <std::floating_point T>
 void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples)
 {
-    renderVoices<float>(outputAudio, startSample, numSamples);
+    //renderVoices<float>(outputAudio, startSample, numSamples);
 }
 
 template <std::floating_point T>
 void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples)
 {
+    //renderVoices<double> (outputAudio, startSample, numSamples);
+}
+
+#else
+
+template <>
+void ProPhatSynthesiser<float>::renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples)
+{
+    renderVoices<float> (outputAudio, startSample, numSamples);
+}
+
+template <>
+void ProPhatSynthesiser<double>::renderVoices (juce::AudioBuffer<float>&, int, int)
+{
+    //trying to render a float voice with a double synth doesn't make sense!
+    jassertfalse;
+}
+
+template <>
+void ProPhatSynthesiser<double>::renderVoices (juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples)
+{
     renderVoices<double> (outputAudio, startSample, numSamples);
 }
+
+template <>
+void ProPhatSynthesiser<float>::renderVoices (juce::AudioBuffer<double>&, int, int)
+{
+    //trying to render a double voice with a float synth doesn't make sense!
+    jassertfalse;
+}
+
+#endif

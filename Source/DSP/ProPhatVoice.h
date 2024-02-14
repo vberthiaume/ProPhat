@@ -74,13 +74,13 @@ public:
     template <std::floating_point T>
     void renderNextBlockTemplate(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
     {
-        if (! currentlyKillingVoice && !isVoiceActive())
+        if (! currentlyKillingVoice && ! isVoiceActive())
             return;
 
         //reserve an audio block of size numSamples. Auvaltool has a tendency to _not_ call prepare before rendering
         //with new buffer sizes, so just making sure we're not taking more samples than the audio block was prepared with.
-        numSamples = juce::jmin(numSamples, curPreparedSamples);
-        auto currentAudioBlock{ oscillators.prepareRender(numSamples) };
+        numSamples = juce::jmin (numSamples, curPreparedSamples);
+        auto currentAudioBlock { oscillators.prepareRender (numSamples) };
 
         for (int pos = 0; pos < numSamples;)
         {
@@ -124,13 +124,14 @@ public:
             assertForDiscontinuities(outputBuffer, startSample, numSamples, {});
 #endif
     }
-    void renderNextBlock(juce::AudioBuffer<float>& /*outputBuffer*/, int /*startSample*/, int /*numSamples*/) override
+
+    void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override
     {
         //PUT BACK
         //renderNextBlockTemplate<float>(outputBuffer, startSample, numSamples);
     }
 
-    void renderNextBlock(juce::AudioBuffer<double>& /*outputBuffer*/, int /*startSample*/, int /*numSamples*/) override
+    void renderNextBlock(juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples) override
     {
         //PUT BACK
         //renderNextBlockTemplate<double>(outputBuffer, startSample, numSamples);
