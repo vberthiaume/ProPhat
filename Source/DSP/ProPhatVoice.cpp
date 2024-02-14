@@ -392,17 +392,31 @@ void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
     }
 }
 
-//template <>
-//void ProPhatVoice<float>::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
-//{
-//    renderNextBlockTemplate<float> (outputBuffer, startSample, numSamples);
-//}
-//
-//template <>
-//void ProPhatVoice<double>::renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples)
-//{
-//    renderNextBlockTemplate<double>(outputBuffer, startSample, numSamples);
-//}
+template <>
+void ProPhatVoice<float>::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
+{
+    renderNextBlockTemplate<float> (outputBuffer, startSample, numSamples);
+}
+
+template <>
+void ProPhatVoice<float>::renderNextBlock (juce::AudioBuffer<double>&, int, int)
+{
+    //trying to render doubles with a float voice!
+    jassertfalse;
+}
+
+template <>
+void ProPhatVoice<double>::renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples)
+{
+    renderNextBlockTemplate<double>(outputBuffer, startSample, numSamples);
+}
+
+template <>
+void ProPhatVoice<double>::renderNextBlock (juce::AudioBuffer<float>&, int, int)
+{
+    //trying to render floats with a double voice!
+    jassertfalse;
+}
 
 template <std::floating_point T>
 void ProPhatVoice<T>::controllerMoved (int controllerNumber, int newValue)

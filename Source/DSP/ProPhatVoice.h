@@ -125,17 +125,8 @@ public:
 #endif
     }
 
-    void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override
-    {
-        //PUT BACK
-        //renderNextBlockTemplate<float>(outputBuffer, startSample, numSamples);
-    }
-
-    void renderNextBlock(juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples) override
-    {
-        //PUT BACK
-        //renderNextBlockTemplate<double>(outputBuffer, startSample, numSamples);
-    }
+    void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
+    void renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples) override;
 
     void controllerMoved (int controllerNumber, int newValue) override;
 
