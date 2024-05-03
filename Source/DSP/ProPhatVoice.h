@@ -102,7 +102,7 @@ private:
 
     juce::dsp::ProcessorChain<juce::dsp::LadderFilter<float>, juce::dsp::Gain<float>> processorChain;
 
-    juce::ADSR ampADSR, filterEnvADSR;
+    juce::ADSR ampADSR, filterADSR;
     juce::ADSR::Parameters ampParams, filterEnvParams;
     bool currentlyReleasingNote = false, justDoneReleaseEnvelope = false;
 
@@ -125,8 +125,7 @@ private:
     bool rampingUp = false;
     int rampUpSamplesLeft = 0;
 
-    float filterEnvelope{};
-
+    float filterEnvelope { 0.f };
     float tiltCutoff { 0.f };
 
     int curPreparedSamples = 0;

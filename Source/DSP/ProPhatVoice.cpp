@@ -22,8 +22,8 @@
 
 ProPhatVoice::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet)
     : state (processorState)
-    , oscillators (state)
     , voiceId (vId)
+    , oscillators (state)
     , voicesBeingKilled (activeVoiceSet)
 {
     addParamListenersToState ();
@@ -51,8 +51,8 @@ void ProPhatVoice::prepare (const juce::dsp::ProcessSpec& spec)
     ampADSR.setSampleRate (spec.sampleRate);
     ampADSR.setParameters (ampParams);
 
-    filterEnvADSR.setSampleRate (spec.sampleRate);
-    filterEnvADSR.setParameters (filterEnvParams);
+    filterADSR.setSampleRate (spec.sampleRate);
+    filterADSR.setParameters (filterEnvParams);
 
     lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
 }
@@ -153,7 +153,7 @@ void ProPhatVoice::setFilterEnvParam (juce::StringRef parameterID, float newValu
     else if (parameterID == ProPhatParameterIds::filterEnvReleaseID.getParamID())
         filterEnvParams.release = newValue;
 
-    filterEnvADSR.setParameters (filterEnvParams);
+    filterADSR.setParameters (filterEnvParams);
 }
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscilate between [-1, 1]
@@ -291,6 +291,7 @@ void ProPhatVoice::updateLfo()
         case LfoDest::filterCutOff:
         {
             const auto lfoCutOffContributionHz { juce::jmap (lfoOut, 0.0f, 1.0f, 10.0f, 10000.0f) };
+//            const auto filterEnvelope = filterADSR.getNextSample();
             const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
             setFilterCutoffInternal (curCutOff);
         }
@@ -327,9 +328,9 @@ void ProPhatVoice::startNote (int midiNoteNumber, float velocity, juce::Synthesi
     ampADSR.reset();
     ampADSR.noteOn();
 
-    filterEnvADSR.setParameters (filterEnvParams);
-    filterEnvADSR.reset();
-    filterEnvADSR.noteOn();
+    filterADSR.setParameters (filterEnvParams);
+    filterADSR.reset();
+    filterADSR.noteOn();
 
     oscillators.updateOscFrequencies (midiNoteNumber, velocity, currentPitchWheelPosition);
 
@@ -345,7 +346,7 @@ void ProPhatVoice::stopNote (float /*velocity*/, bool allowTailOff)
     {
         currentlyReleasingNote = true;
         ampADSR.noteOff();
-        filterEnvADSR.noteOff();
+        filterADSR.noteOff();
 
 #if DEBUG_VOICES
         DBG ("\tDEBUG tailoff voice: " + juce::String (voiceId));
@@ -378,16 +379,29 @@ void ProPhatVoice::processEnvelope (juce::dsp::AudioBlock<float>& block)
     auto samples = block.getNumSamples();
     auto numChannels = block.getNumChannels();
 
+    //surely I could use applyEnvelopeToBuffer, but apparently not. Xcode is being insanely stupid rn so try again somewhere else
+#if 0
+    for (int c = 0; c < numChannels; ++c)
+    {
+        auto buffer { block.getChannelPointer (c) };
+        ampADSR.applyEnvelopeToBuffer (buffer, 0, samples);
+    }
+
+    for (auto i = 0; i < samples; ++i)
+        filterEnvelope = filterADSR.getNextSample();
+
+#else
     for (auto i = 0; i < samples; ++i)
     {
-        filterEnvelope = filterEnvADSR.getNextSample();
+        filterEnvelope = filterADSR.getNextSample();
         auto env = ampADSR.getNextSample();
 
         for (int c = 0; c < numChannels; ++c)
             block.getChannelPointer (c)[i] *= env;
     }
+#endif
 
-    if (currentlyReleasingNote && !ampADSR.isActive())
+    if (currentlyReleasingNote && ! ampADSR.isActive())
     {
         currentlyReleasingNote = false;
         justDoneReleaseEnvelope = true;
