@@ -285,17 +285,8 @@ void ProPhatVoice::updateLfo()
             break;
 
         case LfoDest::filterCutOff:
-        {
             lfoCutOffContributionHz  = juce::jmap (lfoOut, 0.0f, 1.0f, 10.0f, 10000.0f);
-
-            //apply filter envelope
-            //TODO make this into a slider
-//            const auto envelopeAmount = 2;
-//            const auto /*filterEnvelope*/ = filterADSR.getNextSample();
-//            const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
-//            setFilterCutoffInternal (curCutOff);
-        }
-        break;
+            break;
 
         case LfoDest::filterResonance:
         {
@@ -512,18 +503,18 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
         juce::dsp::ProcessContextReplacing<float> oscContext (oscBlock);
         processorChain.process (oscContext);
 
-        //apply the enveloppes
+        //apply the enveloppes. We calculate and apply the amp envelope on a sample basis,
+        //but for the filter env we increment it on a sample basis but only apply it
+        //once per buffer, just like the LFO -- see below.
+        auto filterEnvelope { 0.f };
         {
             const auto numChannels { oscBlock.getNumChannels() };
             for (auto i = 0; i < subBlockSize; ++i)
             {
-                //filter envelope
-                const auto envelopeAmount = 2;
-                const auto filterEnvelope = filterADSR.getNextSample();
-                const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
-                setFilterCutoffInternal (curCutOff);
+                //calculate and atore filter envelope
+                filterEnvelope = filterADSR.getNextSample();
 
-                //amp envelope
+                //calculate and apply amp envelope
                 const auto ampEnv = ampADSR.getNextSample();
                 for (int c = 0; c < numChannels; ++c)
                     oscBlock.getChannelPointer (c)[i] *= ampEnv;
@@ -547,14 +538,21 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
         if (overlapIndex > -1)
             processKillOverlap (oscBlock, (int) subBlockSize);
 
-        pos += subBlockSize;
+        //update our lfos at the end of the block
         lfoUpdateCounter -= subBlockSize;
-
         if (lfoUpdateCounter == 0)
         {
             lfoUpdateCounter = lfoUpdateRate;
             updateLfo();
         }
+
+        //apply our filter envelope once per buffer
+        const auto envelopeAmount = 2;
+        const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
+        setFilterCutoffInternal (curCutOff);
+
+        //increment our position
+        pos += subBlockSize;
     }
 
     //add everything to the output buffer
