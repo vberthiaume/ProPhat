@@ -262,10 +262,6 @@ void ProPhatVoice::setFilterResonance (float newAmount)
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
 void ProPhatVoice::updateLfo()
 {
-    //apply filter envelope
-    //TODO make this into a slider
-    const auto envelopeAmount = 2;
-
     float lfoOut;
     {
         //TODO: LOCK IN AUDIO THREAD
@@ -290,15 +286,22 @@ void ProPhatVoice::updateLfo()
 
         case LfoDest::filterCutOff:
         {
-            const auto lfoCutOffContributionHz { juce::jmap (lfoOut, 0.0f, 1.0f, 10.0f, 10000.0f) };
-//            const auto filterEnvelope = filterADSR.getNextSample();
-            const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
-            setFilterCutoffInternal (curCutOff);
+            lfoCutOffContributionHz  = juce::jmap (lfoOut, 0.0f, 1.0f, 10.0f, 10000.0f);
+
+            //apply filter envelope
+            //TODO make this into a slider
+//            const auto envelopeAmount = 2;
+//            const auto /*filterEnvelope*/ = filterADSR.getNextSample();
+//            const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
+//            setFilterCutoffInternal (curCutOff);
         }
         break;
 
         case LfoDest::filterResonance:
+        {
+            const auto envelopeAmount = 2;
             setFilterResonanceInternal (curFilterResonance * (1 + envelopeAmount * lfoOut));
+        }
             break;
 
         default:
@@ -374,44 +377,44 @@ void ProPhatVoice::stopNote (float /*velocity*/, bool allowTailOff)
     }
 }
 
-void ProPhatVoice::processEnvelope (juce::dsp::AudioBlock<float>& block)
-{
-    auto samples = block.getNumSamples();
-    auto numChannels = block.getNumChannels();
-
-    //surely I could use applyEnvelopeToBuffer, but apparently not. Xcode is being insanely stupid rn so try again somewhere else
-#if 0
-    for (int c = 0; c < numChannels; ++c)
-    {
-        auto buffer { block.getChannelPointer (c) };
-        ampADSR.applyEnvelopeToBuffer (buffer, 0, samples);
-    }
-
-    for (auto i = 0; i < samples; ++i)
-        filterEnvelope = filterADSR.getNextSample();
-
-#else
-    for (auto i = 0; i < samples; ++i)
-    {
-        filterEnvelope = filterADSR.getNextSample();
-        auto env = ampADSR.getNextSample();
-
-        for (int c = 0; c < numChannels; ++c)
-            block.getChannelPointer (c)[i] *= env;
-    }
-#endif
-
-    if (currentlyReleasingNote && ! ampADSR.isActive())
-    {
-        currentlyReleasingNote = false;
-        justDoneReleaseEnvelope = true;
-        stopNote (0.f, false);
-
-#if DEBUG_VOICES
-        DBG ("\tDEBUG ENVELOPPE DONE");
-#endif
-    }
-}
+//void ProPhatVoice::processEnvelope (juce::dsp::AudioBlock<float>& block)
+//{
+//    auto samples = block.getNumSamples();
+//    auto numChannels = block.getNumChannels();
+//
+//    //surely I could use applyEnvelopeToBuffer, but apparently not. Xcode is being insanely stupid rn so try again somewhere else
+//#if 0
+//    for (int c = 0; c < numChannels; ++c)
+//    {
+//        auto buffer { block.getChannelPointer (c) };
+//        ampADSR.applyEnvelopeToBuffer (buffer, 0, samples);
+//    }
+//
+////    for (auto i = 0; i < samples; ++i)
+////        filterEnvelope = filterADSR.getNextSample();
+//
+//#else
+//    for (auto i = 0; i < samples; ++i)
+//    {
+////        filterEnvelope = filterADSR.getNextSample();
+//        auto env = ampADSR.getNextSample();
+//
+//        for (int c = 0; c < numChannels; ++c)
+//            block.getChannelPointer (c)[i] *= env;
+//    }
+//#endif
+//
+//    if (currentlyReleasingNote && ! ampADSR.isActive())
+//    {
+//        currentlyReleasingNote = false;
+//        justDoneReleaseEnvelope = true;
+//        stopNote (0.f, false);
+//
+//#if DEBUG_VOICES
+//        DBG ("\tDEBUG ENVELOPPE DONE");
+//#endif
+//    }
+//}
 
 void ProPhatVoice::processRampUp (juce::dsp::AudioBlock<float>& block, int curBlockSize)
 {
@@ -549,7 +552,34 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
         processorChain.process (oscContext);
 
         //during this call, the voice may become inactive, but we still have to finish this loop to ensure the voice stays muted for the rest of the buffer
-        processEnvelope (oscBlock);
+//        processEnvelope (oscBlock);
+        {
+            const auto numChannels { oscBlock.getNumChannels() };
+            for (auto i = 0; i < subBlockSize; ++i)
+            {
+                const auto env = ampADSR.getNextSample();
+
+                //need to do this after the lfos are updated, in case the lfo changes the cutoff
+                const auto envelopeAmount = 2;
+                const auto filterEnvelope = filterADSR.getNextSample();
+                const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
+                setFilterCutoffInternal (curCutOff);
+
+                for (int c = 0; c < numChannels; ++c)
+                    oscBlock.getChannelPointer (c)[i] *= env;
+            }
+
+            if (currentlyReleasingNote && ! ampADSR.isActive())
+            {
+                currentlyReleasingNote = false;
+                justDoneReleaseEnvelope = true;
+                stopNote (0.f, false);
+
+#if DEBUG_VOICES
+                DBG ("\tDEBUG ENVELOPPE DONE");
+#endif
+            }
+        }
 
         if (rampingUp)
             processRampUp (oscBlock, (int) subBlockSize);

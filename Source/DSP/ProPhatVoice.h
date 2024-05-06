@@ -81,6 +81,7 @@ private:
 
     int voiceId;
 
+    float lfoCutOffContributionHz { 0.f };
     void setFilterCutoffInternal (float curCutOff);
     void setFilterResonanceInternal (float curCutOff);
 
@@ -125,7 +126,7 @@ private:
     bool rampingUp = false;
     int rampUpSamplesLeft = 0;
 
-    float filterEnvelope { 0.f };
+//    float filterEnvelope { 0.f };
     float tiltCutoff { 0.f };
 
     int curPreparedSamples = 0;
