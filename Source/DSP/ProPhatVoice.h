@@ -126,7 +126,6 @@ private:
     bool rampingUp = false;
     int rampUpSamplesLeft = 0;
 
-//    float filterEnvelope { 0.f };
     float tiltCutoff { 0.f };
 
     int curPreparedSamples = 0;

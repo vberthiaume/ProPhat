@@ -377,45 +377,6 @@ void ProPhatVoice::stopNote (float /*velocity*/, bool allowTailOff)
     }
 }
 
-//void ProPhatVoice::processEnvelope (juce::dsp::AudioBlock<float>& block)
-//{
-//    auto samples = block.getNumSamples();
-//    auto numChannels = block.getNumChannels();
-//
-//    //surely I could use applyEnvelopeToBuffer, but apparently not. Xcode is being insanely stupid rn so try again somewhere else
-//#if 0
-//    for (int c = 0; c < numChannels; ++c)
-//    {
-//        auto buffer { block.getChannelPointer (c) };
-//        ampADSR.applyEnvelopeToBuffer (buffer, 0, samples);
-//    }
-//
-////    for (auto i = 0; i < samples; ++i)
-////        filterEnvelope = filterADSR.getNextSample();
-//
-//#else
-//    for (auto i = 0; i < samples; ++i)
-//    {
-////        filterEnvelope = filterADSR.getNextSample();
-//        auto env = ampADSR.getNextSample();
-//
-//        for (int c = 0; c < numChannels; ++c)
-//            block.getChannelPointer (c)[i] *= env;
-//    }
-//#endif
-//
-//    if (currentlyReleasingNote && ! ampADSR.isActive())
-//    {
-//        currentlyReleasingNote = false;
-//        justDoneReleaseEnvelope = true;
-//        stopNote (0.f, false);
-//
-//#if DEBUG_VOICES
-//        DBG ("\tDEBUG ENVELOPPE DONE");
-//#endif
-//    }
-//}
-
 void ProPhatVoice::processRampUp (juce::dsp::AudioBlock<float>& block, int curBlockSize)
 {
 #if DEBUG_VOICES
@@ -551,22 +512,21 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
         juce::dsp::ProcessContextReplacing<float> oscContext (oscBlock);
         processorChain.process (oscContext);
 
-        //during this call, the voice may become inactive, but we still have to finish this loop to ensure the voice stays muted for the rest of the buffer
-//        processEnvelope (oscBlock);
+        //apply the enveloppes
         {
             const auto numChannels { oscBlock.getNumChannels() };
             for (auto i = 0; i < subBlockSize; ++i)
             {
-                const auto env = ampADSR.getNextSample();
-
-                //need to do this after the lfos are updated, in case the lfo changes the cutoff
+                //filter envelope
                 const auto envelopeAmount = 2;
                 const auto filterEnvelope = filterADSR.getNextSample();
                 const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
                 setFilterCutoffInternal (curCutOff);
 
+                //amp envelope
+                const auto ampEnv = ampADSR.getNextSample();
                 for (int c = 0; c < numChannels; ++c)
-                    oscBlock.getChannelPointer (c)[i] *= env;
+                    oscBlock.getChannelPointer (c)[i] *= ampEnv;
             }
 
             if (currentlyReleasingNote && ! ampADSR.isActive())
