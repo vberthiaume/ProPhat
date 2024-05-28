@@ -74,55 +74,6 @@ public:
     template <std::floating_point T>
     void renderNextBlockTemplate(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
     {
-#if 0
-        if (! currentlyKillingVoice && ! isVoiceActive())
-            return;
-
-        //reserve an audio block of size numSamples. Auvaltool has a tendency to _not_ call prepare before rendering
-        //with new buffer sizes, so just making sure we're not taking more samples than the audio block was prepared with.
-        numSamples = juce::jmin (numSamples, curPreparedSamples);
-        auto currentAudioBlock { oscillators.prepareRender (numSamples) };
-
-        for (int pos = 0; pos < numSamples;)
-        {
-            const auto subBlockSize = juce::jmin(numSamples - pos, lfoUpdateCounter);
-
-            //render the oscillators
-            juce::dsp::AudioBlock<T> oscBlock = oscillators.process(pos, subBlockSize);
-
-            //render our effects
-            juce::dsp::ProcessContextReplacing<T> oscContext(oscBlock);
-            processorChain.process(oscContext);
-
-            //during this call, the voice may become inactive, but we still have to finish this loop to ensure the voice stays muted for the rest of the buffer
-            processEnvelope(oscBlock);
-
-            if (rampingUp)
-                processRampUp(oscBlock, (int)subBlockSize);
-
-            if (overlapIndex > -1)
-                processKillOverlap(oscBlock, (int)subBlockSize);
-
-            pos += subBlockSize;
-            lfoUpdateCounter -= subBlockSize;
-
-            if (lfoUpdateCounter == 0)
-            {
-                lfoUpdateCounter = lfoUpdateRate;
-                updateLfo();
-            }
-        }
-
-        //add everything to the output buffer
-        juce::dsp::AudioBlock<T> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (currentAudioBlock);
-
-        if (currentlyKillingVoice)
-            applyKillRamp(outputBuffer, startSample, numSamples);
-#if DEBUG_VOICES
-        else
-            assertForDiscontinuities(outputBuffer, startSample, numSamples, {});
-#endif
-#else
         if (! currentlyKillingVoice && ! isVoiceActive ())
             return;
 
@@ -202,7 +153,6 @@ public:
         else
             assertForDiscontinuities (outputBuffer, startSample, numSamples, {});
 #endif
-#endif
     }
 
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
@@ -223,33 +173,6 @@ private:
 
     /** Calculate LFO values. Called on the audio thread. */
     inline void updateLfo();
-
-//    template <std::floating_point T>
-//    void processEnvelope(juce::dsp::AudioBlock<T>& block)
-//    {
-//        auto samples = block.getNumSamples();
-//        auto numChannels = block.getNumChannels();
-//
-//        for (auto i = 0; i < samples; ++i)
-//        {
-//            filterEnvelope = filterEnvADSR.getNextSample();
-//            auto env = ampADSR.getNextSample();
-//
-//            for (int c = 0; c < numChannels; ++c)
-//                block.getChannelPointer(c)[i] *= env;
-//        }
-//
-//        if (currentlyReleasingNote && !ampADSR.isActive())
-//        {
-//            currentlyReleasingNote = false;
-//            justDoneReleaseEnvelope = true;
-//            stopNote(0.f, false);
-//
-//#if DEBUG_VOICES
-//            DBG("\tDEBUG ENVELOPPE DONE");
-//#endif
-//        }
-//    }
 
     template <std::floating_point T>
     void processRampUp(juce::dsp::AudioBlock<T>& block, int curBlockSize)
