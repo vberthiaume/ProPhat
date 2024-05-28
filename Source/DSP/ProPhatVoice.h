@@ -74,6 +74,7 @@ public:
     template <std::floating_point T>
     void renderNextBlockTemplate(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
     {
+#if 0
         if (! currentlyKillingVoice && ! isVoiceActive())
             return;
 
@@ -121,6 +122,87 @@ public:
         else
             assertForDiscontinuities(outputBuffer, startSample, numSamples, {});
 #endif
+#else
+        if (! currentlyKillingVoice && ! isVoiceActive ())
+            return;
+
+        //reserve an audio block of size numSamples. Auvaltool has a tendency to _not_ call prepare before rendering
+        //with new buffer sizes, so just making sure we're not taking more samples than the audio block was prepared with.
+        numSamples = juce::jmin (numSamples, curPreparedSamples);
+        auto currentAudioBlock { oscillators.prepareRender (numSamples) };
+
+        for (int pos = 0; pos < numSamples;)
+        {
+            const auto subBlockSize = juce::jmin (numSamples - pos, lfoUpdateCounter);
+
+            //render the oscillators
+            auto oscBlock { oscillators.process (pos, subBlockSize) };
+
+            //render our effects
+            juce::dsp::ProcessContextReplacing<T> oscContext (oscBlock);
+            processorChain.process (oscContext);
+
+            //apply the enveloppes. We calculate and apply the amp envelope on a sample basis,
+            //but for the filter env we increment it on a sample basis but only apply it
+            //once per buffer, just like the LFO -- see below.
+            auto filterEnvelope { 0.f };
+            {
+                const auto numChannels { oscBlock.getNumChannels () };
+                for (auto i = 0; i < subBlockSize; ++i)
+                {
+                    //calculate and atore filter envelope
+                    filterEnvelope = filterADSR.getNextSample ();
+
+                    //calculate and apply amp envelope
+                    const auto ampEnv = ampADSR.getNextSample ();
+                    for (int c = 0; c < numChannels; ++c)
+                        oscBlock.getChannelPointer (c)[i] *= ampEnv;
+                }
+
+                if (currentlyReleasingNote && ! ampADSR.isActive ())
+                {
+                    currentlyReleasingNote = false;
+                    justDoneReleaseEnvelope = true;
+                    stopNote (0.f, false);
+
+#if DEBUG_VOICES
+                    DBG ("\tDEBUG ENVELOPPE DONE");
+#endif
+                }
+            }
+
+            if (rampingUp)
+                processRampUp (oscBlock, (int) subBlockSize);
+
+            if (overlapIndex > -1)
+                processKillOverlap (oscBlock, (int) subBlockSize);
+
+            //update our lfos at the end of the block
+            lfoUpdateCounter -= subBlockSize;
+            if (lfoUpdateCounter == 0)
+            {
+                lfoUpdateCounter = lfoUpdateRate;
+                updateLfo ();
+            }
+
+            //apply our filter envelope once per buffer
+            const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
+            setFilterCutoffInternal (curCutOff);
+
+            //increment our position
+            pos += subBlockSize;
+        }
+
+        //add everything to the output buffer
+        juce::dsp::AudioBlock<T> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (currentAudioBlock);
+
+        if (currentlyKillingVoice)
+            applyKillRamp (outputBuffer, startSample, numSamples);
+#if DEBUG_VOICES
+        else
+            assertForDiscontinuities (outputBuffer, startSample, numSamples, {});
+#endif
+#endif
     }
 
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
@@ -135,38 +217,39 @@ private:
 
     int voiceId;
 
+    float lfoCutOffContributionHz { 0.f };
     void setFilterCutoffInternal (float curCutOff);
     void setFilterResonanceInternal (float curCutOff);
 
     /** Calculate LFO values. Called on the audio thread. */
     inline void updateLfo();
 
-    template <std::floating_point T>
-    void processEnvelope(juce::dsp::AudioBlock<T>& block)
-    {
-        auto samples = block.getNumSamples();
-        auto numChannels = block.getNumChannels();
-
-        for (auto i = 0; i < samples; ++i)
-        {
-            filterEnvelope = filterEnvADSR.getNextSample();
-            auto env = ampADSR.getNextSample();
-
-            for (int c = 0; c < numChannels; ++c)
-                block.getChannelPointer(c)[i] *= env;
-        }
-
-        if (currentlyReleasingNote && !ampADSR.isActive())
-        {
-            currentlyReleasingNote = false;
-            justDoneReleaseEnvelope = true;
-            stopNote(0.f, false);
-
-#if DEBUG_VOICES
-            DBG("\tDEBUG ENVELOPPE DONE");
-#endif
-        }
-    }
+//    template <std::floating_point T>
+//    void processEnvelope(juce::dsp::AudioBlock<T>& block)
+//    {
+//        auto samples = block.getNumSamples();
+//        auto numChannels = block.getNumChannels();
+//
+//        for (auto i = 0; i < samples; ++i)
+//        {
+//            filterEnvelope = filterEnvADSR.getNextSample();
+//            auto env = ampADSR.getNextSample();
+//
+//            for (int c = 0; c < numChannels; ++c)
+//                block.getChannelPointer(c)[i] *= env;
+//        }
+//
+//        if (currentlyReleasingNote && !ampADSR.isActive())
+//        {
+//            currentlyReleasingNote = false;
+//            justDoneReleaseEnvelope = true;
+//            stopNote(0.f, false);
+//
+//#if DEBUG_VOICES
+//            DBG("\tDEBUG ENVELOPPE DONE");
+//#endif
+//        }
+//    }
 
     template <std::floating_point T>
     void processRampUp(juce::dsp::AudioBlock<T>& block, int curBlockSize)
@@ -243,28 +326,28 @@ private:
     }
 
     template <std::floating_point T>
-    void assertForDiscontinuities(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix)
+    void assertForDiscontinuities (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix)
     {
-        auto prev = outputBuffer.getSample(0, startSample);
-        auto prevDiff = abs(outputBuffer.getSample(0, startSample + 1) - prev);
+        auto prev = outputBuffer.getSample (0, startSample);
+        auto prevDiff = abs (outputBuffer.getSample (0, startSample + 1) - prev);
 
-        for (int c = 0; c < outputBuffer.getNumChannels(); ++c)
+        for (int c = 0; c < outputBuffer.getNumChannels (); ++c)
         {
             for (int i = startSample; i < startSample + numSamples; ++i)
             {
                 //@TODO need some kind of compression to avoid values above 1.f...
-                jassert(abs(outputBuffer.getSample(c, i)) < 1.5f);
+                jassert (abs (outputBuffer.getSample (c, i)) < 1.5f);
 
                 if (c == 0)
                 {
 #if PRINT_ALL_SAMPLES
-                    DBG(dbgPrefix + juce::String(outputBuffer.getSample(0, i)));
+                    DBG (dbgPrefix + juce::String (outputBuffer.getSample (0, i)));
 #endif
-                    auto cur = outputBuffer.getSample(0, i);
-                    jassert(abs(cur - prev) < .2f);
+                    auto cur = outputBuffer.getSample (0, i);
+                    jassert (abs (cur - prev) < .2f);
 
-                    auto curDiff = abs(cur - prev);
-                    jassert(curDiff - prevDiff < .08f);
+                    auto curDiff = abs (cur - prev);
+                    jassert (curDiff - prevDiff < .08f);
 
                     prev = cur;
                     prevDiff = curDiff;
@@ -274,15 +357,15 @@ private:
     }
 
     template <std::floating_point T>
-    void applyKillRamp(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
+    void applyKillRamp (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
     {
-        outputBuffer.applyGainRamp(startSample, numSamples, 1.f, 0.f);
+        outputBuffer.applyGainRamp (startSample, numSamples, 1.f, 0.f);
         currentlyKillingVoice = false;
 
 #if DEBUG_VOICES
-        DBG("\tDEBUG START KILLRAMP");
-        assertForDiscontinuities(outputBuffer, startSample, numSamples, "\tBUILDING KILLRAMP\t");
-        DBG("\tDEBUG stop KILLRAMP");
+        DBG ("\tDEBUG START KILLRAMP");
+        assertForDiscontinuities (outputBuffer, startSample, numSamples, "\tBUILDING KILLRAMP\t");
+        DBG ("\tDEBUG stop KILLRAMP");
 #endif
     }
 
@@ -290,13 +373,15 @@ private:
 
     std::unique_ptr<juce::AudioBuffer<T>> overlap;
     int overlapIndex = -1;
-    //@TODO replace this currentlyKillingVoice bool with a check in the bitfield that voicesBeingKilled will become
+    //TODO replace this currentlyKillingVoice bool with a check in the bitfield that voicesBeingKilled will become
     bool currentlyKillingVoice = false;
     std::set<int>* voicesBeingKilled;
 
     juce::dsp::ProcessorChain<juce::dsp::LadderFilter<T>, juce::dsp::Gain<T>> processorChain;
+    //TODO: use a slider for this
+    static constexpr auto envelopeAmount { 2 };
 
-    juce::ADSR ampADSR, filterEnvADSR;
+    juce::ADSR ampADSR, filterADSR;
     juce::ADSR::Parameters ampParams, filterEnvParams;
     bool currentlyReleasingNote = false, justDoneReleaseEnvelope = false;
 
@@ -318,8 +403,6 @@ private:
 
     bool rampingUp = false;
     int rampUpSamplesLeft = 0;
-
-    float filterEnvelope{};
 
     float tiltCutoff { 0.f };
 

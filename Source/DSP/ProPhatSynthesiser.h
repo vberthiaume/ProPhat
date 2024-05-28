@@ -73,7 +73,7 @@ private:
 #endif
     };
 
-    //@TODO: make this into a bit field thing?
+    //TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
 #if USE_REVERB

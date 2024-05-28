@@ -26,8 +26,8 @@ template class ProPhatVoice<double>;
 template <std::floating_point T>
 ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet)
     : state (processorState)
-    , oscillators (state)
     , voiceId (vId)
+    , oscillators (state)
     , voicesBeingKilled (activeVoiceSet)
 {
     addParamListenersToState ();
@@ -56,8 +56,8 @@ void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
     ampADSR.setSampleRate (spec.sampleRate);
     ampADSR.setParameters (ampParams);
 
-    filterEnvADSR.setSampleRate (spec.sampleRate);
-    filterEnvADSR.setParameters (filterEnvParams);
+    filterADSR.setSampleRate (spec.sampleRate);
+    filterADSR.setParameters (filterEnvParams);
 
     lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
 }
@@ -162,7 +162,7 @@ void ProPhatVoice<T>::setFilterEnvParam (juce::StringRef parameterID, float newV
     else if (parameterID == ProPhatParameterIds::filterEnvReleaseID.getParamID())
         filterEnvParams.release = newValue;
 
-    filterEnvADSR.setParameters (filterEnvParams);
+    filterADSR.setParameters (filterEnvParams);
 }
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscilate between [-1, 1]
@@ -189,7 +189,7 @@ void ProPhatVoice<T>::setLfoShape (int shape)
         }
             break;
 
-        //@TODO add this once we have more room in the UI for lfo destinations
+        //TODO add this once we have more room in the UI for lfo destinations
         /*
         case LfoShape::revSaw:
         {
@@ -273,14 +273,10 @@ void ProPhatVoice<T>::setFilterResonance (float newAmount)
     setFilterResonanceInternal (curFilterResonance);
 }
 
-//@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
+//TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
 template <std::floating_point T>
 void ProPhatVoice<T>::updateLfo()
 {
-    //apply filter envelope
-    //TODO make this into a slider
-    const auto envelopeAmount = 2;
-
     T lfoOut;
     {
         //TODO: LOCK IN AUDIO THREAD
@@ -304,12 +300,8 @@ void ProPhatVoice<T>::updateLfo()
             break;
 
         case LfoDest::filterCutOff:
-        {
-            const auto lfoCutOffContributionHz { juce::jmap (static_cast<float> (lfoOut), 0.0f, 1.0f, 10.0f, 10000.0f) };
-            const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
-            setFilterCutoffInternal (curCutOff);
-        }
-        break;
+            lfoCutOffContributionHz  = juce::jmap (lfoOut, T (0.0f), T (1.0f), T (10.0f), T (10000.0f));
+            break;
 
         case LfoDest::filterResonance:
             setFilterResonanceInternal (curFilterResonance * (1 + envelopeAmount * static_cast<float> (lfoOut)));
@@ -345,9 +337,9 @@ void ProPhatVoice<T>::startNote (int midiNoteNumber, float velocity, juce::Synth
     ampADSR.reset();
     ampADSR.noteOn();
 
-    filterEnvADSR.setParameters (filterEnvParams);
-    filterEnvADSR.reset();
-    filterEnvADSR.noteOn();
+    filterADSR.setParameters (filterEnvParams);
+    filterADSR.reset();
+    filterADSR.noteOn();
 
     oscillators.updateOscFrequencies (midiNoteNumber, velocity, currentPitchWheelPosition);
 
@@ -364,7 +356,7 @@ void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
     {
         currentlyReleasingNote = true;
         ampADSR.noteOff();
-        filterEnvADSR.noteOff();
+        filterADSR.noteOff();
 
 #if DEBUG_VOICES
         DBG ("\tDEBUG tailoff voice: " + juce::String (voiceId));
@@ -427,3 +419,87 @@ void ProPhatVoice<T>::controllerMoved (int controllerNumber, int newValue)
     if (controllerNumber == 1)
         setFilterTiltCutoff (juce::jmap (static_cast<float> (newValue), 0.f, 127.f, curFilterCutoff, Constants::cutOffRange.end));
 }
+
+//void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
+//{
+//    if (! currentlyKillingVoice && ! isVoiceActive())
+//        return;
+//
+//    //reserve an audio block of size numSamples. Auvaltool has a tendency to _not_ call prepare before rendering
+//    //with new buffer sizes, so just making sure we're not taking more samples than the audio block was prepared with.
+//    numSamples = juce::jmin (numSamples, curPreparedSamples);
+//    auto currentAudioBlock { oscillators.prepareRender (numSamples) };
+//
+//    for (int pos = 0; pos < numSamples;)
+//    {
+//        const auto subBlockSize = juce::jmin (numSamples - pos, lfoUpdateCounter);
+//
+//        //render the oscillators
+//        auto oscBlock { oscillators.process (pos, subBlockSize) };
+//
+//        //render our effects
+//        juce::dsp::ProcessContextReplacing<float> oscContext (oscBlock);
+//        processorChain.process (oscContext);
+//
+//        //apply the enveloppes. We calculate and apply the amp envelope on a sample basis,
+//        //but for the filter env we increment it on a sample basis but only apply it
+//        //once per buffer, just like the LFO -- see below.
+//        auto filterEnvelope { 0.f };
+//        {
+//            const auto numChannels { oscBlock.getNumChannels() };
+//            for (auto i = 0; i < subBlockSize; ++i)
+//            {
+//                //calculate and atore filter envelope
+//                filterEnvelope = filterADSR.getNextSample();
+//
+//                //calculate and apply amp envelope
+//                const auto ampEnv = ampADSR.getNextSample();
+//                for (int c = 0; c < numChannels; ++c)
+//                    oscBlock.getChannelPointer (c)[i] *= ampEnv;
+//            }
+//
+//            if (currentlyReleasingNote && ! ampADSR.isActive())
+//            {
+//                currentlyReleasingNote = false;
+//                justDoneReleaseEnvelope = true;
+//                stopNote (0.f, false);
+//
+//#if DEBUG_VOICES
+//                DBG ("\tDEBUG ENVELOPPE DONE");
+//#endif
+//            }
+//        }
+//
+//        if (rampingUp)
+//            processRampUp (oscBlock, (int) subBlockSize);
+//
+//        if (overlapIndex > -1)
+//            processKillOverlap (oscBlock, (int) subBlockSize);
+//
+//        //update our lfos at the end of the block
+//        lfoUpdateCounter -= subBlockSize;
+//        if (lfoUpdateCounter == 0)
+//        {
+//            lfoUpdateCounter = lfoUpdateRate;
+//            updateLfo();
+//        }
+//
+//        //apply our filter envelope once per buffer
+//        const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
+//        setFilterCutoffInternal (curCutOff);
+//
+//        //increment our position
+//        pos += subBlockSize;
+//    }
+//
+//    //add everything to the output buffer
+//    juce::dsp::AudioBlock<float> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (currentAudioBlock);
+//
+//    if (currentlyKillingVoice)
+//        applyKillRamp (outputBuffer, startSample, numSamples);
+//#if DEBUG_VOICES
+//    else
+//        assertForDiscontinuities (outputBuffer, startSample, numSamples, {});
+//#endif
+//}
+//>>>>>>> main

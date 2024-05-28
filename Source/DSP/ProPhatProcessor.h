@@ -75,6 +75,7 @@ public:
     struct MidiMessageListener
     {
         virtual void receivedMidiMessage (juce::MidiBuffer& midiMessages) = 0;
+        virtual ~MidiMessageListener() = default;
     };
 
     juce::ListenerList<MidiMessageListener> midiListeners;

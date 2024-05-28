@@ -1,6 +1,6 @@
 [submodule "submodules/JUCE"]
 	path = submodules/JUCE
-	url = https://github.com/WeAreROLI/JUCE.git
+	url = git@github.com:juce-framework/JUCE.git
 [submodule "submodules/VST2_SDK"]
 	path = submodules/VST2_SDK
-	url = https://github.com/vberthiaume/VST2_SDK.git
+	url = git@github.com:vberthiaume/VST2_SDK.git
