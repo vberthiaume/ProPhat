@@ -173,13 +173,9 @@ private:
 
     /** Calculate LFO values. Called on the audio thread. */
     inline void updateLfo();
-
-    void processRampUp(juce::dsp::AudioBlock<T>& block, int curBlockSize);
-
-    void processKillOverlap(juce::dsp::AudioBlock<T>& block, int curBlockSize);
-
+    void processRampUp (juce::dsp::AudioBlock<T>& block, int curBlockSize);
+    void processKillOverlap (juce::dsp::AudioBlock<T>& block, int curBlockSize);
     void assertForDiscontinuities (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix);
-
     void applyKillRamp (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples);
 
     PhatOscillators<T> oscillators;
