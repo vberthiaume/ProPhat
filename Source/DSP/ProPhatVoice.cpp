@@ -156,7 +156,7 @@ void ProPhatVoice::setFilterEnvParam (juce::StringRef parameterID, float newValu
     filterADSR.setParameters (filterEnvParams);
 }
 
-//@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscilate between [-1, 1]
+//TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscilate between [-1, 1]
 void ProPhatVoice::setLfoShape (int shape)
 {
     switch (shape)
@@ -179,7 +179,7 @@ void ProPhatVoice::setLfoShape (int shape)
         }
             break;
 
-        //@TODO add this once we have more room in the UI for lfo destinations
+        //TODO add this once we have more room in the UI for lfo destinations
         /*
         case LfoShape::revSaw:
         {
@@ -259,7 +259,7 @@ void ProPhatVoice::setFilterResonance (float newAmount)
     setFilterResonanceInternal (curFilterResonance);
 }
 
-//@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
+//TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
 void ProPhatVoice::updateLfo()
 {
     float lfoOut;
@@ -289,10 +289,7 @@ void ProPhatVoice::updateLfo()
             break;
 
         case LfoDest::filterResonance:
-        {
-            const auto envelopeAmount = 2;
             setFilterResonanceInternal (curFilterResonance * (1 + envelopeAmount * lfoOut));
-        }
             break;
 
         default:
@@ -449,7 +446,7 @@ void ProPhatVoice::assertForDiscontinuities (juce::AudioBuffer<float>& outputBuf
     {
         for (int i = startSample; i < startSample + numSamples; ++i)
         {
-            //@TODO need some kind of compression to avoid values above 1.f...
+            //TODO need some kind of compression to avoid values above 1.f...
             jassert (abs (outputBuffer.getSample (c, i)) < 1.5f);
 
             if (c == 0)
@@ -547,7 +544,6 @@ void ProPhatVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int 
         }
 
         //apply our filter envelope once per buffer
-        const auto envelopeAmount = 2;
         const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
         setFilterCutoffInternal (curCutOff);
 

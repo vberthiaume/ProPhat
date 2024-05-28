@@ -97,9 +97,12 @@ private:
 
     std::unique_ptr<juce::AudioBuffer<float>> overlap;
     int overlapIndex = -1;
-    //@TODO replace this currentlyKillingVoice bool with a check in the bitfield that voicesBeingKilled will become
+    //TODO replace this currentlyKillingVoice bool with a check in the bitfield that voicesBeingKilled will become
     bool currentlyKillingVoice = false;
     std::set<int>* voicesBeingKilled;
+
+    //TODO: use a slider for this
+    static constexpr auto envelopeAmount { 2 };
 
     juce::dsp::ProcessorChain<juce::dsp::LadderFilter<float>, juce::dsp::Gain<float>> processorChain;
 
