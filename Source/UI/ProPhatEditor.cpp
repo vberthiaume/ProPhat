@@ -181,6 +181,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
 
 ProPhatEditor::~ProPhatEditor ()
 {
+    processor.midiListeners.remove (this);
     cancelPendingUpdate ();
     setLookAndFeel (nullptr);
 }

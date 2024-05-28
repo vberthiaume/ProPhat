@@ -59,7 +59,7 @@ private:
         masterGainIndex
     };
 
-    //@TODO: make this into a bit mask thing?
+    //TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
     juce::dsp::ProcessorChain<juce::dsp::Reverb, juce::dsp::Gain<float>> fxChain;

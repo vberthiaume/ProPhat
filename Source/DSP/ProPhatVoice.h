@@ -81,6 +81,7 @@ private:
 
     int voiceId;
 
+    float lfoCutOffContributionHz { 0.f };
     void setFilterCutoffInternal (float curCutOff);
     void setFilterResonanceInternal (float curCutOff);
 
@@ -96,13 +97,16 @@ private:
 
     std::unique_ptr<juce::AudioBuffer<float>> overlap;
     int overlapIndex = -1;
-    //@TODO replace this currentlyKillingVoice bool with a check in the bitfield that voicesBeingKilled will become
+    //TODO replace this currentlyKillingVoice bool with a check in the bitfield that voicesBeingKilled will become
     bool currentlyKillingVoice = false;
     std::set<int>* voicesBeingKilled;
 
+    //TODO: use a slider for this
+    static constexpr auto envelopeAmount { 2 };
+
     juce::dsp::ProcessorChain<juce::dsp::LadderFilter<float>, juce::dsp::Gain<float>> processorChain;
 
-    juce::ADSR ampADSR, filterEnvADSR;
+    juce::ADSR ampADSR, filterADSR;
     juce::ADSR::Parameters ampParams, filterEnvParams;
     bool currentlyReleasingNote = false, justDoneReleaseEnvelope = false;
 
@@ -124,8 +128,6 @@ private:
 
     bool rampingUp = false;
     int rampUpSamplesLeft = 0;
-
-    float filterEnvelope{};
 
     float tiltCutoff { 0.f };
 
