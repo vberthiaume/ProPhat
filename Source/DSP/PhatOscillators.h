@@ -93,8 +93,8 @@ private:
     int curMidiNote;
 };
 
-template class PhatOscillators<float>;
-template class PhatOscillators<double>;
+//template class PhatOscillators<float>;
+//template class PhatOscillators<double>;
 
 template <std::floating_point T>
 PhatOscillators<T>::PhatOscillators (juce::AudioProcessorValueTreeState& processorState)

@@ -43,25 +43,14 @@ public:
 
     void parameterChanged (const juce::String& parameterID, float newValue) override;
 
-    void setMasterGain (float gain) { /*fxChain.get<masterGainIndex>().setGainLinear (static_cast<T> (gain));*/ }
+    void setMasterGain (float gain) { fxChain.template get<masterGainIndex>().setGainLinear (static_cast<T> (gain)); }
 
     void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override;
 
 private:
     void setEffectParam (juce::StringRef parameterID, float newValue);
 
-
     void renderVoicesTemplate (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples);
-//    template <std::floating_point T>
-//    void renderVoicesTemplate (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples)
-//    {
-//        for (auto* voice : voices)
-//            voice->renderNextBlock (outputAudio, startSample, numSamples);
-//
-//        auto audioBlock { juce::dsp::AudioBlock<T> (outputAudio).getSubBlock((size_t)startSample, (size_t)numSamples) };
-//        const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
-//        fxChain.process (context);
-//    }
     void renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples) override;
     void renderVoices (juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples) override;
 
@@ -127,7 +116,6 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
 
     setMasterGain (Constants::defaultMasterGain);
     fxChain.template get<masterGainIndex> ().setRampDurationSeconds (0.1);
-//    auto& osc = processorChain/*.template get*/<oscIndex> ();
 
 #if USE_REVERB
     //we need to manually override the default reverb params to make sure 0 values are set if needed
