@@ -48,7 +48,7 @@ public:
                   const juce::String& preferredDefaultDeviceName = juce::String (),
                   const juce::AudioDeviceManager::AudioDeviceSetup* preferredSetupOptions = nullptr,
                   const juce::Array<PluginInOuts>& constrainToConfiguration = {},
-#if JUCE_ANDROID || JUCE_IOS
+#if 1 //JUCE_ANDROID || JUCE_IOS
                   bool autoOpenMidiDevices = true
 #else
                   bool autoOpenMidiDevices = false

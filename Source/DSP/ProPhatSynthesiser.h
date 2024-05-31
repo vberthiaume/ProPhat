@@ -21,13 +21,6 @@
 #include "ProPhatVoice.h"
 #include "../Utility/Helpers.h"
 
-//adding this for now because there's no double processing for reverb, so it's causing issues with rendering doubles
-#ifndef USE_REVERB
- #define USE_REVERB 1
-#endif
-
-#if USE_REVERB
-
 class PhatReverb
 {
 public:
@@ -131,11 +124,11 @@ public:
         for (int i = 0; i < numSamples; ++i)
         {
             // NOLINTNEXTLINE(clang-analyzer-core.NullDereference)
-            const float input = (left[i] + right[i]) * gain;
-            float outL = 0, outR = 0;
+            const T input = (left[i] + right[i]) * gain;
+            T outL = 0, outR = 0;
 
-            const float damp = damping.getNextValue ();
-            const float feedbck = feedback.getNextValue ();
+            const T damp = damping.getNextValue ();
+            const T feedbck = feedback.getNextValue ();
 
             for (int j = 0; j < numCombs; ++j)  // accumulate the comb filters in parallel
             {
@@ -149,9 +142,9 @@ public:
                 outR = allPass[1][j].process (outR);
             }
 
-            const float dry = dryGain.getNextValue ();
-            const float wet1 = wetGain1.getNextValue ();
-            const float wet2 = wetGain2.getNextValue ();
+            const T dry = dryGain.getNextValue ();
+            const T wet1 = wetGain1.getNextValue ();
+            const T wet2 = wetGain2.getNextValue ();
 
             left[i] = outL * wet1 + outR * wet2 + left[i] * dry;
             right[i] = outR * wet1 + outL * wet2 + right[i] * dry;
@@ -312,12 +305,12 @@ private:
 
 //==========================================================
 
-class ReverbWrapper
+class PhatReverbWrapper
 {
 public:
     //==============================================================================
     /** Creates an uninitialised Reverb processor. Call prepare() before first use. */
-    ReverbWrapper () = default;
+    PhatReverbWrapper () = default;
 
     //==============================================================================
     using Parameters = PhatReverb::Parameters;
@@ -390,8 +383,7 @@ private:
     bool enabled = true;
 };
 
-
-#endif
+//==========================================================
 
 /** The main Synthesiser for the plugin. It uses Constants::numVoices voices (of type ProPhatVoice),
 *   and one ProPhatSound, which applies to all midi notes. It responds to paramater changes in the
@@ -423,21 +415,15 @@ private:
 
     enum
     {
-#if USE_REVERB
         reverbIndex = 0,
         masterGainIndex,
-#else
-        masterGainIndex = 0,
-#endif
     };
 
     //TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
-#if USE_REVERB
-    juce::dsp::ProcessorChain<ReverbWrapper, juce::dsp::Gain<T>> fxChain;
-
-    ReverbWrapper::Parameters reverbParams
+    juce::dsp::ProcessorChain<PhatReverbWrapper, juce::dsp::Gain<T>> fxChain;
+    PhatReverbWrapper::Parameters reverbParams
     {
         //manually setting all these because we need to set the default room size and wet level to 0 if we want to be able to retrieve
         //these values from a saved state. If they are saved as 0 in the state, the event callback will not be propagated because
@@ -449,9 +435,6 @@ private:
         1.0f, //< Reverb width, 0 to 1.0, where 1.0 is very wide.
         0.0f  //< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop.
     };
-#else
-    juce::dsp::ProcessorChain<juce::dsp::Gain<T>> fxChain;
-#endif
 
     juce::AudioProcessorValueTreeState& state;
 
@@ -484,10 +467,8 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
     setMasterGain (Constants::defaultMasterGain);
     fxChain.template get<masterGainIndex> ().setRampDurationSeconds (0.1);
 
-#if USE_REVERB
     //we need to manually override the default reverb params to make sure 0 values are set if needed
     fxChain.template get<reverbIndex> ().setParameters (reverbParams);
-#endif
 }
 
 template <std::floating_point T>
@@ -535,7 +516,6 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
 template <std::floating_point T>
 void ProPhatSynthesiser<T>::setEffectParam ([[maybe_unused]] juce::StringRef parameterID, [[maybe_unused]] float newValue)
 {
-#if USE_REVERB
     if (parameterID == ProPhatParameterIds::effectParam1ID.getParamID ())
         reverbParams.roomSize = newValue;
     else if (parameterID == ProPhatParameterIds::effectParam2ID.getParamID ())
@@ -545,7 +525,6 @@ void ProPhatSynthesiser<T>::setEffectParam ([[maybe_unused]] juce::StringRef par
 
 
     fxChain.template get<reverbIndex> ().setParameters (reverbParams);
-#endif
 }
 
 template <std::floating_point T>

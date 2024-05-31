@@ -29,6 +29,8 @@ class ProPhatProcessor : public juce::AudioProcessor
 public:
     ProPhatProcessor();
 
+    bool supportsDoublePrecisionProcessing () const override { return true; }
+
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void reset () override {}
     void releaseResources () override {}
