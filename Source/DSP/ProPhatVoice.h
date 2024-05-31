@@ -71,7 +71,6 @@ public:
 
     bool canPlaySound (juce::SynthesiserSound* sound) override { return dynamic_cast<ProPhatSound*> (sound) != nullptr; }
 
-    //template <std::floating_point T>
     void renderNextBlockTemplate(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples);
 
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
