@@ -387,7 +387,7 @@ void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
 template <>
 void ProPhatVoice<float>::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
-    renderNextBlockTemplate<float> (outputBuffer, startSample, numSamples);
+    renderNextBlockTemplate (outputBuffer, startSample, numSamples);
 }
 
 template <>
@@ -400,7 +400,7 @@ void ProPhatVoice<float>::renderNextBlock (juce::AudioBuffer<double>&, int, int)
 template <>
 void ProPhatVoice<double>::renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples)
 {
-    renderNextBlockTemplate<double>(outputBuffer, startSample, numSamples);
+    renderNextBlockTemplate(outputBuffer, startSample, numSamples);
 }
 
 template <>

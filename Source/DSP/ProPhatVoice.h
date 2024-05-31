@@ -71,89 +71,8 @@ public:
 
     bool canPlaySound (juce::SynthesiserSound* sound) override { return dynamic_cast<ProPhatSound*> (sound) != nullptr; }
 
-    template <std::floating_point T>
-    void renderNextBlockTemplate(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
-    {
-        if (! currentlyKillingVoice && ! isVoiceActive ())
-            return;
-
-        //reserve an audio block of size numSamples. Auvaltool has a tendency to _not_ call prepare before rendering
-        //with new buffer sizes, so just making sure we're not taking more samples than the audio block was prepared with.
-        numSamples = juce::jmin (numSamples, curPreparedSamples);
-        auto currentAudioBlock { oscillators.prepareRender (numSamples) };
-
-        for (int pos = 0; pos < numSamples;)
-        {
-            const auto subBlockSize = juce::jmin (numSamples - pos, lfoUpdateCounter);
-
-            //render the oscillators
-            auto oscBlock { oscillators.process (pos, subBlockSize) };
-
-            //render our effects
-            juce::dsp::ProcessContextReplacing<T> oscContext (oscBlock);
-            processorChain.process (oscContext);
-
-            //apply the enveloppes. We calculate and apply the amp envelope on a sample basis,
-            //but for the filter env we increment it on a sample basis but only apply it
-            //once per buffer, just like the LFO -- see below.
-            auto filterEnvelope { 0.f };
-            {
-                const auto numChannels { oscBlock.getNumChannels () };
-                for (auto i = 0; i < subBlockSize; ++i)
-                {
-                    //calculate and atore filter envelope
-                    filterEnvelope = filterADSR.getNextSample ();
-
-                    //calculate and apply amp envelope
-                    const auto ampEnv = ampADSR.getNextSample ();
-                    for (int c = 0; c < numChannels; ++c)
-                        oscBlock.getChannelPointer (c)[i] *= ampEnv;
-                }
-
-                if (currentlyReleasingNote && ! ampADSR.isActive ())
-                {
-                    currentlyReleasingNote = false;
-                    justDoneReleaseEnvelope = true;
-                    stopNote (0.f, false);
-
-#if DEBUG_VOICES
-                    DBG ("\tDEBUG ENVELOPPE DONE");
-#endif
-                }
-            }
-
-            if (rampingUp)
-                processRampUp (oscBlock, (int) subBlockSize);
-
-            if (overlapIndex > -1)
-                processKillOverlap (oscBlock, (int) subBlockSize);
-
-            //update our lfos at the end of the block
-            lfoUpdateCounter -= subBlockSize;
-            if (lfoUpdateCounter == 0)
-            {
-                lfoUpdateCounter = lfoUpdateRate;
-                updateLfo ();
-            }
-
-            //apply our filter envelope once per buffer
-            const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
-            setFilterCutoffInternal (curCutOff);
-
-            //increment our position
-            pos += subBlockSize;
-        }
-
-        //add everything to the output buffer
-        juce::dsp::AudioBlock<T> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (currentAudioBlock);
-
-        if (currentlyKillingVoice)
-            applyKillRamp (outputBuffer, startSample, numSamples);
-#if DEBUG_VOICES
-        else
-            assertForDiscontinuities (outputBuffer, startSample, numSamples, {});
-#endif
-    }
+    //template <std::floating_point T>
+    void renderNextBlockTemplate(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples);
 
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
     void renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples) override;
@@ -217,3 +136,87 @@ private:
 
     int curPreparedSamples = 0;
 };
+
+template<std::floating_point T>
+void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
+{
+    if (! currentlyKillingVoice && ! isVoiceActive ())
+        return;
+
+    //reserve an audio block of size numSamples. Auvaltool has a tendency to _not_ call prepare before rendering
+    //with new buffer sizes, so just making sure we're not taking more samples than the audio block was prepared with.
+    numSamples = juce::jmin (numSamples, curPreparedSamples);
+    auto currentAudioBlock { oscillators.prepareRender (numSamples) };
+
+    for (int pos = 0; pos < numSamples;)
+    {
+        const auto subBlockSize = juce::jmin (numSamples - pos, lfoUpdateCounter);
+
+        //render the oscillators
+        auto oscBlock { oscillators.process (pos, subBlockSize) };
+
+        //render our effects
+        juce::dsp::ProcessContextReplacing<T> oscContext (oscBlock);
+        processorChain.process (oscContext);
+
+        //apply the enveloppes. We calculate and apply the amp envelope on a sample basis,
+        //but for the filter env we increment it on a sample basis but only apply it
+        //once per buffer, just like the LFO -- see below.
+        auto filterEnvelope { 0.f };
+        {
+            const auto numChannels { oscBlock.getNumChannels () };
+            for (auto i = 0; i < subBlockSize; ++i)
+            {
+                //calculate and atore filter envelope
+                filterEnvelope = filterADSR.getNextSample ();
+
+                //calculate and apply amp envelope
+                const auto ampEnv = ampADSR.getNextSample ();
+                for (int c = 0; c < numChannels; ++c)
+                    oscBlock.getChannelPointer (c)[i] *= ampEnv;
+            }
+
+            if (currentlyReleasingNote && ! ampADSR.isActive ())
+            {
+                currentlyReleasingNote = false;
+                justDoneReleaseEnvelope = true;
+                stopNote (0.f, false);
+
+#if DEBUG_VOICES
+                DBG ("\tDEBUG ENVELOPPE DONE");
+#endif
+            }
+        }
+
+        if (rampingUp)
+            processRampUp (oscBlock, (int) subBlockSize);
+
+        if (overlapIndex > -1)
+            processKillOverlap (oscBlock, (int) subBlockSize);
+
+        //update our lfos at the end of the block
+        lfoUpdateCounter -= subBlockSize;
+        if (lfoUpdateCounter == 0)
+        {
+            lfoUpdateCounter = lfoUpdateRate;
+            updateLfo ();
+        }
+
+        //apply our filter envelope once per buffer
+        const auto curCutOff { (curFilterCutoff + tiltCutoff) * (1 + envelopeAmount * filterEnvelope) + lfoCutOffContributionHz };
+        setFilterCutoffInternal (curCutOff);
+
+        //increment our position
+        pos += subBlockSize;
+    }
+
+    //add everything to the output buffer
+    juce::dsp::AudioBlock<T> (outputBuffer).getSubBlock ((size_t) startSample, (size_t) numSamples).add (currentAudioBlock);
+
+    if (currentlyKillingVoice)
+        applyKillRamp (outputBuffer, startSample, numSamples);
+#if DEBUG_VOICES
+    else
+        assertForDiscontinuities (outputBuffer, startSample, numSamples, {});
+#endif
+}
