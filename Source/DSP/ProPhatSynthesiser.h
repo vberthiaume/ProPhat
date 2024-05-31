@@ -119,7 +119,7 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
 
 #if USE_REVERB
     //we need to manually override the default reverb params to make sure 0 values are set if needed
-    fxChain.get<reverbIndex> ().setParameters (reverbParams);
+    fxChain.template get<reverbIndex> ().setParameters (reverbParams);
 #endif
 }
 
@@ -177,7 +177,7 @@ void ProPhatSynthesiser<T>::setEffectParam ([[maybe_unused]] juce::StringRef par
         jassertfalse;   //unknown effect parameter!
 
 
-    fxChain.get<reverbIndex> ().setParameters (reverbParams);
+    fxChain.template get<reverbIndex> ().setParameters (reverbParams);
 #endif
 }
 
