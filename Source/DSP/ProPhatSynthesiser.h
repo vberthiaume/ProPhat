@@ -116,7 +116,6 @@ public:
 
     //==============================================================================
     /** Applies the reverb to two stereo channels of audio data. */
-    //template <std::floating_point T>
     void processStereo (T* const left, T* const right, const int numSamples) noexcept
     {
         JUCE_BEGIN_IGNORE_WARNINGS_MSVC (6011)
@@ -154,7 +153,6 @@ public:
     }
 
     /** Applies the reverb to a single mono channel of audio data. */
-    template <std::floating_point T>
     void processMono (T* const samples, const int numSamples) noexcept
     {
         JUCE_BEGIN_IGNORE_WARNINGS_MSVC (6011)
@@ -206,7 +204,7 @@ private:
     }
 
     //==============================================================================
-    template <std::floating_point T>
+    template <std::floating_point C>
     class CombFilter
     {
     public:
@@ -230,13 +228,13 @@ private:
             buffer.clear ((size_t) bufferSize);
         }
 
-        T process (const T input, const T damp, const T feedbackLevel) noexcept
+        C process (const C input, const C damp, const C feedbackLevel) noexcept
         {
-            const T output = buffer[bufferIndex];
+            const C output = buffer[bufferIndex];
             last = (output * (1.0f - damp)) + (last * damp);
             JUCE_UNDENORMALISE (last);
 
-            T temp = input + (last * feedbackLevel);
+            C temp = input + (last * feedbackLevel);
             JUCE_UNDENORMALISE (temp);
             buffer[bufferIndex] = temp;
             bufferIndex = (bufferIndex + 1) % bufferSize;
@@ -244,15 +242,15 @@ private:
         }
 
     private:
-        juce::HeapBlock<T> buffer;
+        juce::HeapBlock<C> buffer;
         int bufferSize = 0, bufferIndex = 0;
-        T last = 0.0f;
+        C last = 0.0f;
 
         JUCE_DECLARE_NON_COPYABLE (CombFilter)
     };
 
     //==============================================================================
-    template <std::floating_point T>
+    template <std::floating_point A>
     class AllPassFilter
     {
     public:
@@ -275,10 +273,10 @@ private:
             buffer.clear ((size_t) bufferSize);
         }
 
-        T process (const T input) noexcept
+        T process (const A input) noexcept
         {
-            const T bufferedValue = buffer[bufferIndex];
-            T temp = input + (bufferedValue * 0.5f);
+            const A bufferedValue = buffer[bufferIndex];
+            A temp = input + (bufferedValue * 0.5f);
             JUCE_UNDENORMALISE (temp);
             buffer[bufferIndex] = temp;
             bufferIndex = (bufferIndex + 1) % bufferSize;
@@ -286,7 +284,7 @@ private:
         }
 
     private:
-        juce::HeapBlock<T> buffer;
+        juce::HeapBlock<A> buffer;
         int bufferSize = 0, bufferIndex = 0;
 
         JUCE_DECLARE_NON_COPYABLE (AllPassFilter)
