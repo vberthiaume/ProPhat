@@ -204,7 +204,6 @@ private:
     }
 
     //==============================================================================
-    template <std::floating_point C>
     class CombFilter
     {
     public:
@@ -228,13 +227,13 @@ private:
             buffer.clear ((size_t) bufferSize);
         }
 
-        C process (const C input, const C damp, const C feedbackLevel) noexcept
+        T process (const T input, const T damp, const T feedbackLevel) noexcept
         {
-            const C output = buffer[bufferIndex];
+            const T output = buffer[bufferIndex];
             last = (output * (1.0f - damp)) + (last * damp);
             JUCE_UNDENORMALISE (last);
 
-            C temp = input + (last * feedbackLevel);
+            T temp = input + (last * feedbackLevel);
             JUCE_UNDENORMALISE (temp);
             buffer[bufferIndex] = temp;
             bufferIndex = (bufferIndex + 1) % bufferSize;
@@ -242,15 +241,14 @@ private:
         }
 
     private:
-        juce::HeapBlock<C> buffer;
+        juce::HeapBlock<T> buffer;
         int bufferSize = 0, bufferIndex = 0;
-        C last = 0.0f;
+        T last = 0.0f;
 
         JUCE_DECLARE_NON_COPYABLE (CombFilter)
     };
 
     //==============================================================================
-    template <std::floating_point A>
     class AllPassFilter
     {
     public:
@@ -273,10 +271,10 @@ private:
             buffer.clear ((size_t) bufferSize);
         }
 
-        T process (const A input) noexcept
+        T process (const T input) noexcept
         {
-            const A bufferedValue = buffer[bufferIndex];
-            A temp = input + (bufferedValue * 0.5f);
+            const T bufferedValue = buffer[bufferIndex];
+            T temp = input + (bufferedValue * 0.5f);
             JUCE_UNDENORMALISE (temp);
             buffer[bufferIndex] = temp;
             bufferIndex = (bufferIndex + 1) % bufferSize;
@@ -284,7 +282,7 @@ private:
         }
 
     private:
-        juce::HeapBlock<A> buffer;
+        juce::HeapBlock<T> buffer;
         int bufferSize = 0, bufferIndex = 0;
 
         JUCE_DECLARE_NON_COPYABLE (AllPassFilter)
@@ -296,8 +294,8 @@ private:
     Parameters parameters;
     float gain;
 
-    CombFilter<T> comb[numChannels][numCombs];
-    AllPassFilter<T> allPass[numChannels][numAllPasses];
+    CombFilter comb[numChannels][numCombs];
+    AllPassFilter allPass[numChannels][numAllPasses];
 
     juce::SmoothedValue<T> damping, feedback, dryGain, wetGain1, wetGain2;
 
