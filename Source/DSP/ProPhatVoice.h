@@ -60,9 +60,9 @@ public:
     void setLfoFreq (float newFreq) { lfo.setFrequency (newFreq); }
     void setLfoAmount (float newAmount) { lfoAmount = newAmount; }
 
-    void setFilterCutoff (float newValue);
-    void setFilterTiltCutoff (float newValue);
-    void setFilterResonance (float newAmount);
+    void setFilterCutoff (T newValue);
+    void setFilterTiltCutoff (T newValue);
+    void setFilterResonance (T newAmount);
 
     void pitchWheelMoved (int newPitchWheelValue) override { oscillators.pitchWheelMoved (newPitchWheelValue); }
 
@@ -85,9 +85,9 @@ private:
 
     int voiceId;
 
-    float lfoCutOffContributionHz { 0.f };
-    void setFilterCutoffInternal (float curCutOff);
-    void setFilterResonanceInternal (float curCutOff);
+    T lfoCutOffContributionHz { 0 };
+    void setFilterCutoffInternal (T curCutOff);
+    void setFilterResonanceInternal (T curCutOff);
 
     /** Calculate LFO values. Called on the audio thread. */
     inline void updateLfo();
@@ -112,8 +112,8 @@ private:
     juce::ADSR::Parameters ampParams, filterEnvParams;
     bool currentlyReleasingNote = false, justDoneReleaseEnvelope = false;
 
-    float curFilterCutoff = Constants::defaultFilterCutoff;
-    float curFilterResonance = Constants::defaultFilterResonance;
+    T curFilterCutoff { Constants::defaultFilterCutoff };
+    T curFilterResonance { Constants::defaultFilterResonance };
 
     //lfo stuff
     static constexpr auto lfoUpdateRate = 100;
@@ -131,7 +131,7 @@ private:
     bool rampingUp = false;
     int rampUpSamplesLeft = 0;
 
-    float tiltCutoff { 0.f };
+    T tiltCutoff { 0.f };
 
     int curPreparedSamples = 0;
 };
@@ -223,8 +223,8 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
 #include "../UI/ButtonGroupComponent.h"
 #include "../Utility/Macros.h"
 
-template class ProPhatVoice<float>;
-template class ProPhatVoice<double>;
+//template class ProPhatVoice<float>;
+//template class ProPhatVoice<double>;
 
 template <std::floating_point T>
 ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet)
@@ -457,21 +457,21 @@ void ProPhatVoice<T>::setLfoDest (int dest)
 }
 
 template <std::floating_point T>
-void ProPhatVoice<T>::setFilterCutoff (float newValue)
+void ProPhatVoice<T>::setFilterCutoff (T newValue)
 {
     curFilterCutoff = newValue;
     setFilterCutoffInternal (curFilterCutoff + tiltCutoff);
 }
 
 template <std::floating_point T>
-void ProPhatVoice<T>::setFilterTiltCutoff (float newValue)
+void ProPhatVoice<T>::setFilterTiltCutoff (T newValue)
 {
     tiltCutoff = newValue;
     setFilterCutoffInternal (curFilterCutoff + tiltCutoff);
 }
 
 template <std::floating_point T>
-void ProPhatVoice<T>::setFilterResonance (float newAmount)
+void ProPhatVoice<T>::setFilterResonance (T newAmount)
 {
     curFilterResonance = newAmount;
     setFilterResonanceInternal (curFilterResonance);
@@ -504,7 +504,7 @@ void ProPhatVoice<T>::updateLfo()
             break;
 
         case LfoDest::filterCutOff:
-            lfoCutOffContributionHz  = juce::jmap (lfoOut, T (0.0f), T (1.0f), T (10.0f), T (10000.0f));
+            lfoCutOffContributionHz  = juce::jmap (lfoOut, T (0), T (1), T (10), T (10000));
             break;
 
         case LfoDest::filterResonance:
@@ -517,16 +517,16 @@ void ProPhatVoice<T>::updateLfo()
 }
 
 template <std::floating_point T>
-void ProPhatVoice<T>::setFilterCutoffInternal (float curCutOff)
+void ProPhatVoice<T>::setFilterCutoffInternal (T curCutOff)
 {
-    const auto limitedCutOff { juce::jlimit (Constants::cutOffRange.start, Constants::cutOffRange.end, curCutOff) };
+    const auto limitedCutOff { juce::jlimit (T (Constants::cutOffRange.start), T (Constants::cutOffRange.end), curCutOff) };
     processorChain.template get<(int) ProcessorId::filterIndex> ().setCutoffFrequencyHz (limitedCutOff);
 }
 
 template <std::floating_point T>
-void ProPhatVoice<T>::setFilterResonanceInternal (float curResonance)
+void ProPhatVoice<T>::setFilterResonanceInternal (T curResonance)
 {
-    const auto limitedResonance { juce::jlimit (0.f, 1.f, curResonance) };
+    const auto limitedResonance { juce::jlimit (T (0), T (1), curResonance) };
     processorChain.template get<(int) ProcessorId::filterIndex> ().setResonance (limitedResonance);
 }
 
@@ -621,7 +621,7 @@ void ProPhatVoice<T>::controllerMoved (int controllerNumber, int newValue)
 
     //1 == orba tilt. The newValue range [0-127] is converted to [curFilterCutoff, cutOffRange.end]
     if (controllerNumber == 1)
-        setFilterTiltCutoff (juce::jmap (static_cast<float> (newValue), 0.f, 127.f, curFilterCutoff, Constants::cutOffRange.end));
+        setFilterTiltCutoff (juce::jmap (T (newValue), T (0), T (127), T (curFilterCutoff), T(Constants::cutOffRange.end)));
 }
 
 template <std::floating_point T>

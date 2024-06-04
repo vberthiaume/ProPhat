@@ -7,7 +7,7 @@
               pluginCode="Bvql" pluginAUMainType="'aumu'" companyName="BMP4"
               bundleIdentifier="com.BMP4.ProPhat" companyWebsite="https://github.com/vberthiaume"
               companyEmail="vberthiaume@gmail.com" pluginManufacturerCode="Bmp4"
-              version="1.0.0" pluginName="ProPhat" defines="JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1"
+              version="1.0.0" pluginName="ProPhat" defines="JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1&#10;_SILENCE_ALL_CXX23_DEPRECATION_WARNINGS=1&#10;"
               addUsingNamespaceToJuceHeader="0" cppLanguageStandard="latest">
   <MAINGROUP id="M1KKAR" name="ProPhat">
     <GROUP id="{F09A54D2-9168-8E51-F638-B70D48E09C9D}" name="Source">

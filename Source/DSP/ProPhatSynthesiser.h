@@ -21,6 +21,7 @@
 #include "ProPhatVoice.h"
 #include "../Utility/Helpers.h"
 
+template <std::floating_point T>
 class PhatReverb
 {
 public:
@@ -115,7 +116,7 @@ public:
 
     //==============================================================================
     /** Applies the reverb to two stereo channels of audio data. */
-    template <std::floating_point T>
+    //template <std::floating_point T>
     void processStereo (T* const left, T* const right, const int numSamples) noexcept
     {
         JUCE_BEGIN_IGNORE_WARNINGS_MSVC (6011)
@@ -161,11 +162,11 @@ public:
 
         for (int i = 0; i < numSamples; ++i)
         {
-            const float input = samples[i] * gain;
-            float output = 0;
+            const T input = samples[i] * gain;
+            T output = 0;
 
-            const float damp = damping.getNextValue ();
-            const float feedbck = feedback.getNextValue ();
+            const T damp = damping.getNextValue ();
+            const T feedbck = feedback.getNextValue ();
 
             for (int j = 0; j < numCombs; ++j)  // accumulate the comb filters in parallel
                 output += comb[0][j].process (input, damp, feedbck);
@@ -173,8 +174,8 @@ public:
             for (int j = 0; j < numAllPasses; ++j)  // run the allpass filters in series
                 output = allPass[0][j].process (output);
 
-            const float dry = dryGain.getNextValue ();
-            const float wet1 = wetGain1.getNextValue ();
+            const T dry = dryGain.getNextValue ();
+            const T wet1 = wetGain1.getNextValue ();
 
             samples[i] = output * wet1 + samples[i] * dry;
         }
@@ -205,6 +206,7 @@ private:
     }
 
     //==============================================================================
+    template <std::floating_point T>
     class CombFilter
     {
     public:
@@ -228,13 +230,13 @@ private:
             buffer.clear ((size_t) bufferSize);
         }
 
-        float process (const float input, const float damp, const float feedbackLevel) noexcept
+        T process (const T input, const T damp, const T feedbackLevel) noexcept
         {
-            const float output = buffer[bufferIndex];
+            const T output = buffer[bufferIndex];
             last = (output * (1.0f - damp)) + (last * damp);
             JUCE_UNDENORMALISE (last);
 
-            float temp = input + (last * feedbackLevel);
+            T temp = input + (last * feedbackLevel);
             JUCE_UNDENORMALISE (temp);
             buffer[bufferIndex] = temp;
             bufferIndex = (bufferIndex + 1) % bufferSize;
@@ -242,14 +244,15 @@ private:
         }
 
     private:
-        juce::HeapBlock<float> buffer;
+        juce::HeapBlock<T> buffer;
         int bufferSize = 0, bufferIndex = 0;
-        float last = 0.0f;
+        T last = 0.0f;
 
         JUCE_DECLARE_NON_COPYABLE (CombFilter)
     };
 
     //==============================================================================
+    template <std::floating_point T>
     class AllPassFilter
     {
     public:
@@ -272,10 +275,10 @@ private:
             buffer.clear ((size_t) bufferSize);
         }
 
-        float process (const float input) noexcept
+        T process (const T input) noexcept
         {
-            const float bufferedValue = buffer[bufferIndex];
-            float temp = input + (bufferedValue * 0.5f);
+            const T bufferedValue = buffer[bufferIndex];
+            T temp = input + (bufferedValue * 0.5f);
             JUCE_UNDENORMALISE (temp);
             buffer[bufferIndex] = temp;
             bufferIndex = (bufferIndex + 1) % bufferSize;
@@ -283,7 +286,7 @@ private:
         }
 
     private:
-        juce::HeapBlock<float> buffer;
+        juce::HeapBlock<T> buffer;
         int bufferSize = 0, bufferIndex = 0;
 
         JUCE_DECLARE_NON_COPYABLE (AllPassFilter)
@@ -295,16 +298,17 @@ private:
     Parameters parameters;
     float gain;
 
-    CombFilter comb[numChannels][numCombs];
-    AllPassFilter allPass[numChannels][numAllPasses];
+    CombFilter<T> comb[numChannels][numCombs];
+    AllPassFilter<T> allPass[numChannels][numAllPasses];
 
-    juce::SmoothedValue<float> damping, feedback, dryGain, wetGain1, wetGain2;
+    juce::SmoothedValue<T> damping, feedback, dryGain, wetGain1, wetGain2;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhatReverb)
 };
 
 //==========================================================
 
+template <std::floating_point T>
 class PhatReverbWrapper
 {
 public:
@@ -313,7 +317,7 @@ public:
     PhatReverbWrapper () = default;
 
     //==============================================================================
-    using Parameters = PhatReverb::Parameters;
+    using Parameters = PhatReverb<T>::Parameters;
 
     /** Returns the reverb's current parameters. */
     const Parameters& getParameters () const noexcept { return reverb.getParameters (); }
@@ -379,7 +383,7 @@ public:
 
 private:
     //==============================================================================
-    PhatReverb reverb;
+    PhatReverb<T> reverb;
     bool enabled = true;
 };
 
@@ -422,8 +426,8 @@ private:
     //TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
-    juce::dsp::ProcessorChain<PhatReverbWrapper, juce::dsp::Gain<T>> fxChain;
-    PhatReverbWrapper::Parameters reverbParams
+    juce::dsp::ProcessorChain<PhatReverbWrapper<T>, juce::dsp::Gain<T>> fxChain;
+    PhatReverbWrapper<T>::Parameters reverbParams
     {
         //manually setting all these because we need to set the default room size and wet level to 0 if we want to be able to retrieve
         //these values from a saved state. If they are saved as 0 in the state, the event callback will not be propagated because
