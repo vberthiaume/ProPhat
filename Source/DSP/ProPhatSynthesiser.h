@@ -542,5 +542,3 @@ void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNum
 
     Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
 }
-
-

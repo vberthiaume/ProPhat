@@ -713,4 +713,3 @@ void ProPhatVoice<T>::applyKillRamp (juce::AudioBuffer<T>& outputBuffer, int sta
     DBG ("\tDEBUG stop KILLRAMP");
 #endif
 }
-

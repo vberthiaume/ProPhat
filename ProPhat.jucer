@@ -22,8 +22,6 @@
               file="Source/DSP/ProPhatProcessor.cpp"/>
         <FILE id="xtf5aq" name="ProPhatProcessor.h" compile="0" resource="0"
               file="Source/DSP/ProPhatProcessor.h"/>
-        <FILE id="MpOJvm" name="ProPhatSynthesiser.cpp" compile="1" resource="0"
-              file="Source/DSP/ProPhatSynthesiser.cpp"/>
         <FILE id="FF94oD" name="ProPhatSynthesiser.h" compile="0" resource="0"
               file="Source/DSP/ProPhatSynthesiser.h"/>
         <FILE id="V2L4ZF" name="ProPhatVoice.cpp" compile="1" resource="0"
