@@ -22,11 +22,20 @@
 ProPhatProcessor::ProPhatProcessor()
     : juce::AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true))
     , state { constructState () }
-    , proPhatSynth (state)
+    , proPhatSynthFloat (state)
+    , proPhatSynthDouble (state)
 #if CPU_USAGE
     , perfCounter ("ProcessBlock")
 #endif
 {
+}
+
+void ProPhatProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+{
+    if (isUsingDoublePrecision ())
+        proPhatSynthDouble.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
+    else
+        proPhatSynthFloat.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
 }
 
 juce::AudioProcessorValueTreeState ProPhatProcessor::constructState ()
@@ -97,7 +106,7 @@ void ProPhatProcessor::processBlock (juce::AudioBuffer<double>& buffer, juce::Mi
     process (buffer, midiMessages);
 }
 
-template <typename T>
+template <std::floating_point T>
 void ProPhatProcessor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
@@ -119,7 +128,10 @@ void ProPhatProcessor::process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& 
     }
 
     //render the block
-    proPhatSynth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
+    if (isUsingDoublePrecision())
+        proPhatSynthDouble.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
+    else
+        proPhatSynthFloat.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
 #if CPU_USAGE
     perfCounter.stop();

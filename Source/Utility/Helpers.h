@@ -294,14 +294,10 @@ inline float getRangedParamValue (juce::AudioProcessorValueTreeState& state, juc
     return param == nullptr ? 0.f : param->convertFrom0to1 (param->getValue());
 }
 
-inline double getDoubleMidiNoteInHertz (const double noteNumber, const double frequencyOfA = 440.0) noexcept
+template <std::floating_point T>
+T getMidiNoteInHertz (const T noteNumber, const T frequencyOfA = 440) noexcept
 {
-    return frequencyOfA * std::pow (2.0, (noteNumber - 69.0) / 12.0);
-}
-
-inline float getFloatMidiNoteInHertz (const float noteNumber, const float frequencyOfA = 440.0) noexcept
-{
-    return frequencyOfA * (float) std::pow (2.0, (noteNumber - 69.0) / 12.0);
+    return static_cast<T> (frequencyOfA * std::pow (2, (noteNumber - 69) / 12));
 }
 
 template <typename Type>

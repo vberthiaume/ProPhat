@@ -29,11 +29,9 @@ class ProPhatProcessor : public juce::AudioProcessor
 public:
     ProPhatProcessor();
 
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override
-    {
-        proPhatSynth.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
-    }
+    bool supportsDoublePrecisionProcessing () const override { return true; }
 
+    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void reset () override {}
     void releaseResources () override {}
 
@@ -44,7 +42,7 @@ public:
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     void processBlock (juce::AudioBuffer<double>&, juce::MidiBuffer&) override;
 
-    template <typename T>
+    template <std::floating_point T>
     void process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages);
 
     juce::AudioProcessorEditor* createEditor() override;
@@ -85,7 +83,8 @@ public:
     juce::ListenerList<MidiMessageListener> midiListeners;
 
 private:
-    ProPhatSynthesiser proPhatSynth;
+    ProPhatSynthesiser<float> proPhatSynthFloat;
+    ProPhatSynthesiser<double> proPhatSynthDouble;
 
     juce::AudioProcessorValueTreeState constructState ();
 
