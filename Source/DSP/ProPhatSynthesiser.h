@@ -21,6 +21,7 @@
 #include "ProPhatVoice.h"
 #include "../Utility/Helpers.h"
 
+//these are copied over from juce in order to support double-precision processing.
 template <std::floating_point T>
 class PhatReverb
 {
@@ -36,13 +37,12 @@ public:
     /** Holds the parameters being used by a Reverb object. */
     struct Parameters
     {
-        float roomSize = 0.5f;     /**< Room size, 0 to 1.0, where 1.0 is big, 0 is small. */
-        float damping = 0.5f;     /**< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped. */
-        float wetLevel = 0.33f;    /**< Wet level, 0 to 1.0 */
-        float dryLevel = 0.4f;     /**< Dry level, 0 to 1.0 */
-        float width = 1.0f;     /**< Reverb width, 0 to 1.0, where 1.0 is very wide. */
-        float freezeMode = 0.0f;     /**< Freeze mode - values < 0.5 are "normal" mode, values > 0.5
-                                          put the reverb into a continuous feedback loop. */
+        float roomSize = 0.5f;      /**< Room size, 0 to 1.0, where 1.0 is big, 0 is small. */
+        float damping = 0.5f;       /**< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped. */
+        float wetLevel = 0.33f;     /**< Wet level, 0 to 1.0 */
+        float dryLevel = 0.4f;      /**< Dry level, 0 to 1.0 */
+        float width = 1.0f;         /**< Reverb width, 0 to 1.0, where 1.0 is very wide. */
+        float freezeMode = 0.0f;    /**< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop. */
     };
 
     //==============================================================================
@@ -409,9 +409,6 @@ public:
 private:
     void setEffectParam (juce::StringRef parameterID, float newValue);
 
-//    void renderVoicesTemplate (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples);
-//    void renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples) override;
-//    void renderVoices (juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples) override;
     void renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples) override;
     enum
     {
@@ -441,6 +438,8 @@ private:
     juce::dsp::ProcessSpec curSpecs;
 };
 
+//=====================================================================================================================
+
 template <std::floating_point T>
 void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples)
 {
@@ -451,7 +450,6 @@ void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int
     const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
     fxChain.process (context);
 }
-
 
 template <std::floating_point T>
 ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& processorState)

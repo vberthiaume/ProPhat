@@ -20,18 +20,18 @@
 #include "../Utility/Helpers.h"
 #include <random>
 
-template <typename Type>
+template <std::floating_point T>
 class GainedOscillator
 {
 public:
     GainedOscillator () :
-        distribution ((Type) -1, (Type) 1)
+        distribution ((T) -1, (T) 1)
     {
         setOscShape (OscShape::saw);
         setGain (Constants::defaultOscLevel);
     }
 
-    void setFrequency (Type newValue, bool force = false)
+    void setFrequency (T newValue, bool force = false)
     {
         jassert (newValue > 0);
 
@@ -39,97 +39,7 @@ public:
         osc.setFrequency (newValue, force);
     }
 
-    void setOscShape (int newShape)
-    {
-        auto& osc = processorChain.template get<oscIndex> ();
-
-        bool wasActive = isActive;
-        isActive = true;
-
-        switch (newShape)
-        {
-            case OscShape::none:
-                isActive = false;
-                break;
-
-            case OscShape::saw:
-            {
-                std::lock_guard<std::mutex> lock (processMutex);
-                osc.initialise ([] (Type x)
-                {
-                    //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-                    return juce::jmap (x, Type (-juce::MathConstants<double>::pi), Type (juce::MathConstants<double>::pi), Type (-1), Type (1));
-                }, 2);
-            }
-            break;
-
-            case OscShape::sawTri:
-            {
-                std::lock_guard<std::mutex> lock (processMutex);
-                osc.initialise ([] (Type x)
-                {
-                    Type y = juce::jmap (x, Type (-juce::MathConstants<double>::pi), Type (juce::MathConstants<double>::pi), Type (-1), Type (1)) / 2;
-
-                    if (x < 0)
-                        return y += juce::jmap (x, Type (-juce::MathConstants<double>::pi), Type (0), Type (-1), Type (1)) / 2;
-                    else
-                        return y += juce::jmap (x, Type (0), Type (juce::MathConstants<double>::pi), Type (1), Type (-1)) / 2;
-
-                }, 128);
-            }
-            break;
-
-            case OscShape::triangle:
-            {
-                std::lock_guard<std::mutex> lock (processMutex);
-                osc.initialise ([] (Type x)
-                {
-                    if (x < 0)
-                        return juce::jmap (x, Type (-juce::MathConstants<double>::pi), Type (0), Type (-1), Type (1));
-                    else
-                        return juce::jmap (x, Type (0), Type (juce::MathConstants<double>::pi), Type (1), Type (-1));
-
-                }, 128);
-            }
-            break;
-
-            case OscShape::pulse:
-            {
-                std::lock_guard<std::mutex> lock (processMutex);
-                osc.initialise ([] (Type x)
-                {
-                    if (x < 0)
-                        return Type (-1);
-                    else
-                        return Type (1);
-                }, 128);
-            }
-            break;
-
-            case OscShape::noise:
-            {
-                std::lock_guard<std::mutex> lock (processMutex);
-
-                osc.initialise ([&] (Type /*x*/)
-                {
-                    return distribution (generator);
-                });
-            }
-            break;
-
-            default:
-                jassertfalse;
-                break;
-        }
-
-        if (wasActive != isActive)
-        {
-            if (isActive)
-                setGain (lastActiveGain);
-            else
-                setGain (0);
-        }
-    }
+    void setOscShape (int newShape);
 
     /**
      * @brief Sets the gain for the oscillator in the processorChain.
@@ -137,7 +47,7 @@ public:
         The newGain is also cached in lastActiveGain, so we can recall that value if the
         oscillator is deactivated and reactivated.
     */
-    void setGain (Type newGain)
+    void setGain (T newGain)
     {
         if (! isActive)
             newGain = 0;
@@ -148,7 +58,7 @@ public:
         gain.setGainLinear (newGain);
     }
 
-    Type getGain () { return lastActiveGain; }
+    T getGain () { return lastActiveGain; }
 
     void reset () noexcept { processorChain.reset (); }
 
@@ -175,10 +85,103 @@ private:
 
     bool isActive = true;
 
-    Type lastActiveGain {};
+    T lastActiveGain {};
 
-    juce::dsp::ProcessorChain<juce::dsp::Oscillator<Type>, juce::dsp::Gain<Type>> processorChain;
+    juce::dsp::ProcessorChain<juce::dsp::Oscillator<T>, juce::dsp::Gain<T>> processorChain;
 
-    std::uniform_real_distribution<Type> distribution;
+    std::uniform_real_distribution<T> distribution;
     std::default_random_engine generator;
 };
+
+template<std::floating_point T>
+void GainedOscillator<T>::setOscShape (int newShape)
+{
+    auto& osc = processorChain.template get<oscIndex> ();
+
+    bool wasActive = isActive;
+    isActive = true;
+
+    switch (newShape)
+    {
+    case OscShape::none:
+        isActive = false;
+        break;
+
+    case OscShape::saw:
+    {
+        std::lock_guard<std::mutex> lock (processMutex);
+        osc.initialise ([](T x)
+                        {
+                            //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
+                            return juce::jmap (x, T (-juce::MathConstants<double>::pi), T (juce::MathConstants<double>::pi), T (-1), T (1));
+                        }, 2);
+    }
+    break;
+
+    case OscShape::sawTri:
+    {
+        std::lock_guard<std::mutex> lock (processMutex);
+        osc.initialise ([](T x)
+                        {
+                            T y = juce::jmap (x, T (-juce::MathConstants<double>::pi), T (juce::MathConstants<double>::pi), T (-1), T (1)) / 2;
+
+                            if (x < 0)
+                                return y += juce::jmap (x, T (-juce::MathConstants<double>::pi), T (0), T (-1), T (1)) / 2;
+                            else
+                                return y += juce::jmap (x, T (0), T (juce::MathConstants<double>::pi), T (1), T (-1)) / 2;
+
+                        }, 128);
+    }
+    break;
+
+    case OscShape::triangle:
+    {
+        std::lock_guard<std::mutex> lock (processMutex);
+        osc.initialise ([](T x)
+                        {
+                            if (x < 0)
+                                return juce::jmap (x, T (-juce::MathConstants<double>::pi), T (0), T (-1), T (1));
+                            else
+                                return juce::jmap (x, T (0), T (juce::MathConstants<double>::pi), T (1), T (-1));
+
+                        }, 128);
+    }
+    break;
+
+    case OscShape::pulse:
+    {
+        std::lock_guard<std::mutex> lock (processMutex);
+        osc.initialise ([](T x)
+                        {
+                            if (x < 0)
+                                return T (-1);
+                            else
+                                return T (1);
+                        }, 128);
+    }
+    break;
+
+    case OscShape::noise:
+    {
+        std::lock_guard<std::mutex> lock (processMutex);
+
+        osc.initialise ([&](T /*x*/)
+                        {
+                            return distribution (generator);
+                        });
+    }
+    break;
+
+    default:
+        jassertfalse;
+        break;
+    }
+
+    if (wasActive != isActive)
+    {
+        if (isActive)
+            setGain (lastActiveGain);
+        else
+            setGain (0);
+    }
+}

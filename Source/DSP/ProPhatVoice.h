@@ -57,13 +57,36 @@ public:
     void setFilterEnvParam (juce::StringRef parameterID, float newValue);
 
     void setLfoShape (int shape);
-    void setLfoDest (int dest);
+
+    void setLfoDest (int dest)
+    {
+        //reset everything
+        oscillators.resetLfoOscNoteOffsets ();
+
+        //change the destination
+        lfoDest.curSelection = dest;
+    }
+
     void setLfoFreq (float newFreq) { lfo.setFrequency (newFreq); }
     void setLfoAmount (float newAmount) { lfoAmount = newAmount; }
 
-    void setFilterCutoff (T newValue);
-    void setFilterTiltCutoff (T newValue);
-    void setFilterResonance (T newAmount);
+    void setFilterCutoff (T newValue)
+    {
+        curFilterCutoff = newValue;
+        setFilterCutoffInternal (curFilterCutoff + tiltCutoff);
+    }
+
+    void setFilterTiltCutoff (T newValue)
+    {
+        tiltCutoff = newValue;
+        setFilterCutoffInternal (curFilterCutoff + tiltCutoff);
+    }
+
+    void setFilterResonance (T newAmount)
+    {
+        curFilterResonance = newAmount;
+        setFilterResonanceInternal (curFilterResonance);
+    }
 
     void pitchWheelMoved (int newPitchWheelValue) override { oscillators.pitchWheelMoved (newPitchWheelValue); }
 
@@ -80,7 +103,12 @@ public:
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
     void renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples) override;
 
-    void controllerMoved (int controllerNumber, int newValue) override;
+    void controllerMoved (int controllerNumber, int newValue) override
+    {
+        //1 == orba tilt. The newValue range [0-127] is converted to [curFilterCutoff, cutOffRange.end]
+        if (controllerNumber == 1)
+            setFilterTiltCutoff (juce::jmap (T (newValue), T (0), T (127), T (curFilterCutoff), T (Constants::cutOffRange.end)));
+    }
 
     int getVoiceId() { return voiceId; }
 
@@ -90,8 +118,18 @@ private:
     int voiceId;
 
     T lfoCutOffContributionHz { 0 };
-    void setFilterCutoffInternal (T curCutOff);
-    void setFilterResonanceInternal (T curCutOff);
+
+    void setFilterCutoffInternal (T curCutOff)
+    {
+        const auto limitedCutOff { juce::jlimit (T (Constants::cutOffRange.start), T (Constants::cutOffRange.end), curCutOff) };
+        processorChain.template get<(int) ProcessorId::filterIndex> ().setCutoffFrequencyHz (limitedCutOff);
+    }
+
+    void setFilterResonanceInternal (T curResonance)
+    {
+        const auto limitedResonance { juce::jlimit (T (0), T (1), curResonance) };
+        processorChain.template get<(int) ProcessorId::filterIndex> ().setResonance (limitedResonance);
+    }
 
     /** Calculate LFO values. Called on the audio thread. */
     inline void updateLfo();
@@ -139,6 +177,8 @@ private:
 
     int curPreparedSamples = 0;
 };
+
+//===========================================================================================================
 
 template<std::floating_point T>
 void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
@@ -444,37 +484,6 @@ void ProPhatVoice<T>::setLfoShape (int shape)
     }
 }
 
-template <std::floating_point T>
-void ProPhatVoice<T>::setLfoDest (int dest)
-{
-    //reset everything
-    oscillators.resetLfoOscNoteOffsets ();
-
-    //change the destination
-    lfoDest.curSelection = dest;
-}
-
-template <std::floating_point T>
-void ProPhatVoice<T>::setFilterCutoff (T newValue)
-{
-    curFilterCutoff = newValue;
-    setFilterCutoffInternal (curFilterCutoff + tiltCutoff);
-}
-
-template <std::floating_point T>
-void ProPhatVoice<T>::setFilterTiltCutoff (T newValue)
-{
-    tiltCutoff = newValue;
-    setFilterCutoffInternal (curFilterCutoff + tiltCutoff);
-}
-
-template <std::floating_point T>
-void ProPhatVoice<T>::setFilterResonance (T newAmount)
-{
-    curFilterResonance = newAmount;
-    setFilterResonanceInternal (curFilterResonance);
-}
-
 //TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
 template <std::floating_point T>
 void ProPhatVoice<T>::updateLfo()
@@ -512,20 +521,6 @@ void ProPhatVoice<T>::updateLfo()
         default:
             break;
     }
-}
-
-template <std::floating_point T>
-void ProPhatVoice<T>::setFilterCutoffInternal (T curCutOff)
-{
-    const auto limitedCutOff { juce::jlimit (T (Constants::cutOffRange.start), T (Constants::cutOffRange.end), curCutOff) };
-    processorChain.template get<(int) ProcessorId::filterIndex> ().setCutoffFrequencyHz (limitedCutOff);
-}
-
-template <std::floating_point T>
-void ProPhatVoice<T>::setFilterResonanceInternal (T curResonance)
-{
-    const auto limitedResonance { juce::jlimit (T (0), T (1), curResonance) };
-    processorChain.template get<(int) ProcessorId::filterIndex> ().setResonance (limitedResonance);
 }
 
 template <std::floating_point T>
@@ -584,16 +579,6 @@ void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
         DBG ("\tDEBUG kill voice: " + juce::String (voiceId));
 #endif
     }
-}
-
-template <std::floating_point T>
-void ProPhatVoice<T>::controllerMoved (int controllerNumber, int newValue)
-{
-    //DBG ("controllerNumber: " + juce::String (controllerNumber) + ", newValue: " + juce::String (newValue));
-
-    //1 == orba tilt. The newValue range [0-127] is converted to [curFilterCutoff, cutOffRange.end]
-    if (controllerNumber == 1)
-        setFilterTiltCutoff (juce::jmap (T (newValue), T (0), T (127), T (curFilterCutoff), T(Constants::cutOffRange.end)));
 }
 
 template <std::floating_point T>

@@ -36,29 +36,85 @@ public:
     juce::dsp::AudioBlock<T>& prepareRender (int numSamples);
     juce::dsp::AudioBlock<T> process (int pos, int curBlockSize);
 
-    void setLfoOsc1NoteOffset (float theLfoOsc1NoteOffset);
-    void setLfoOsc2NoteOffset (float theLfoOsc2NoteOffset);
+    void setLfoOsc1NoteOffset (float theLfoOsc1NoteOffset)
+    {
+        lfoOsc1NoteOffset = theLfoOsc1NoteOffset;
+        updateOscFrequenciesInternal ();
+    }
+
+    void setLfoOsc2NoteOffset (float theLfoOsc2NoteOffset)
+    {
+        lfoOsc2NoteOffset = theLfoOsc2NoteOffset;
+        updateOscFrequenciesInternal ();
+    }
 
     enum class OscId
     {
         osc1Index = 0,
         osc2Index,
     };
-    void updateOscFrequencies (int midiNote, float velocity, int currentPitchWheelPosition);
+
+    void updateOscFrequencies (int midiNote, float velocity, int currentPitchWheelPosition)
+    {
+        pitchWheelPosition = currentPitchWheelPosition;
+        curVelocity = velocity;
+        curMidiNote = midiNote;
+
+        updateOscFrequenciesInternal ();
+    }
 
     void setOscFreq (OscId oscNum, int newMidiNote);
     void setOscShape (OscId oscNum, int newShape);
     void setOscTuning (OscId oscNum, float newTuning);
-    void setOscSub (float newSub);
-    void setOscNoise (float noiseLevel);
-    void setOscSlop (float slop);
-    void setOscMix (float newMix);
 
-    void updateOscLevels ();
+    void setOscSub (float newSub)
+    {
+        jassert (Helpers::valueContainedInRange (newSub, Constants::sliderRange));
+        curSubLevel = newSub;
+        updateOscLevels ();
+    }
 
-    void resetLfoOscNoteOffsets ();
+    void setOscNoise (float noiseLevel)
+    {
+        jassert (Helpers::valueContainedInRange (noiseLevel, Constants::sliderRange));
+        curNoiseLevel = noiseLevel;
+        updateOscLevels ();
+    }
 
-    void pitchWheelMoved (int newPitchWheelValue);
+    void setOscSlop (float slop)
+    {
+        jassert (Helpers::valueContainedInRange (slop, Constants::slopSliderRange));
+        slopMod = slop;
+        updateOscFrequenciesInternal ();
+    }
+
+    void setOscMix (float newMix)
+    {
+        jassert (Helpers::valueContainedInRange (newMix, Constants::sliderRange));
+
+        oscMix = newMix;
+        updateOscLevels ();
+    }
+
+    void updateOscLevels ()
+    {
+        sub.setGain (curVelocity * curSubLevel);
+        noise.setGain (curVelocity * curNoiseLevel);
+        osc1.setGain (curVelocity * (1 - oscMix));
+        osc2.setGain (curVelocity * oscMix);
+    }
+
+    void resetLfoOscNoteOffsets ()
+    {
+        lfoOsc1NoteOffset = 0.f;
+        lfoOsc2NoteOffset = 0.f;
+    }
+
+    void pitchWheelMoved (int newPitchWheelValue)
+    {
+        pitchWheelPosition = newPitchWheelValue;
+        updateOscFrequenciesInternal ();
+    }
 
 private:
     void updateOscFrequenciesInternal ();
@@ -93,15 +149,14 @@ private:
     int curMidiNote;
 };
 
-//template class PhatOscillators<float>;
-//template class PhatOscillators<double>;
+//====================================================================================================
 
 template <std::floating_point T>
 PhatOscillators<T>::PhatOscillators (juce::AudioProcessorValueTreeState& processorState)
-: state (processorState)
-, osc1NoteOffset { static_cast<float> (Constants::middleCMidiNote - Constants::defaultOscMidiNote) }
-, osc2NoteOffset { osc1NoteOffset }
-, distribution (-1.f, 1.f)
+    : state (processorState)
+    , osc1NoteOffset { static_cast<float> (Constants::middleCMidiNote - Constants::defaultOscMidiNote) }
+    , osc2NoteOffset { osc1NoteOffset }
+    , distribution (-1.f, 1.f)
 {
     addParamListenersToState ();
 
@@ -215,44 +270,6 @@ juce::dsp::AudioBlock<T> PhatOscillators<T>::process (int pos, int subBlockSize)
 }
 
 template <std::floating_point T>
-void PhatOscillators<T>::setLfoOsc1NoteOffset (float theLfoOsc1NoteOffset)
-{
-    lfoOsc1NoteOffset = theLfoOsc1NoteOffset;
-    updateOscFrequenciesInternal ();
-}
-
-template <std::floating_point T>
-void PhatOscillators<T>::setLfoOsc2NoteOffset (float theLfoOsc2NoteOffset)
-{
-    lfoOsc2NoteOffset = theLfoOsc2NoteOffset;
-    updateOscFrequenciesInternal ();
-}
-
-template <std::floating_point T>
-void PhatOscillators<T>::resetLfoOscNoteOffsets ()
-{
-    lfoOsc1NoteOffset = 0.f;
-    lfoOsc2NoteOffset = 0.f;
-}
-
-template <std::floating_point T>
-void PhatOscillators<T>::pitchWheelMoved (int newPitchWheelValue)
-{
-    pitchWheelPosition = newPitchWheelValue;
-    updateOscFrequenciesInternal ();
-}
-
-template <std::floating_point T>
-void PhatOscillators<T>::updateOscFrequencies (int theMidiNote, float velocity, int currentPitchWheelPosition)
-{
-    pitchWheelPosition = currentPitchWheelPosition;
-    curVelocity = velocity;
-    curMidiNote = theMidiNote;
-
-    updateOscFrequenciesInternal ();
-}
-
-template <std::floating_point T>
 void PhatOscillators<T>::updateOscFrequenciesInternal ()
 {
     if (curMidiNote < 0)
@@ -332,46 +349,3 @@ void PhatOscillators<T>::setOscTuning (OscId oscNum, float newTuning)
     }
     updateOscFrequenciesInternal ();
 }
-
-template <std::floating_point T>
-void PhatOscillators<T>::setOscSub (float newSub)
-{
-    jassert (Helpers::valueContainedInRange (newSub, Constants::sliderRange));
-    curSubLevel = newSub;
-    updateOscLevels ();
-}
-
-template <std::floating_point T>
-void PhatOscillators<T>::setOscNoise (float noiseLevel)
-{
-    jassert (Helpers::valueContainedInRange (noiseLevel, Constants::sliderRange));
-    curNoiseLevel = noiseLevel;
-    updateOscLevels ();
-}
-
-template <std::floating_point T>
-void PhatOscillators<T>::setOscSlop (float slop)
-{
-    jassert (Helpers::valueContainedInRange (slop, Constants::slopSliderRange));
-    slopMod = slop;
-    updateOscFrequenciesInternal ();
-}
-
-template <std::floating_point T>
-void PhatOscillators<T>::setOscMix (float newMix)
-{
-    jassert (Helpers::valueContainedInRange (newMix, Constants::sliderRange));
-
-    oscMix = newMix;
-    updateOscLevels ();
-}
-
-template <std::floating_point T>
-void PhatOscillators<T>::updateOscLevels ()
-{
-    sub.setGain (curVelocity * curSubLevel);
-    noise.setGain (curVelocity * curNoiseLevel);
-    osc1.setGain (curVelocity * (1 - oscMix));
-    osc2.setGain (curVelocity * oscMix);
-}
-

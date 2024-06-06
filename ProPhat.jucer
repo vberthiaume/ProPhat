@@ -14,8 +14,6 @@
       <GROUP id="{C46181DF-9CB7-DFF8-29BC-F04A2626D6F2}" name="DSP">
         <FILE id="LtOhvg" name="GainedOscillator.h" compile="0" resource="0"
               file="Source/DSP/GainedOscillator.h"/>
-        <FILE id="PwAS2a" name="PhatOscillators.cpp" compile="1" resource="0"
-              file="Source/DSP/PhatOscillators.cpp"/>
         <FILE id="Fybrrf" name="PhatOscillators.h" compile="0" resource="0"
               file="Source/DSP/PhatOscillators.h"/>
         <FILE id="c7Oc8R" name="ProPhatProcessor.cpp" compile="1" resource="0"
