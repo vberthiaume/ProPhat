@@ -18,7 +18,6 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include <concepts>
 
 namespace Constants
 {
