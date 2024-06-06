@@ -17,11 +17,12 @@
 */
 
 #pragma once
-#include "../Utility/Helpers.h"
+
 #include "PhatOscillators.h"
 
-#include <mutex>
-#include <set>
+#include "../UI/ButtonGroupComponent.h"
+#include "../Utility/Helpers.h"
+#include "../Utility/Macros.h"
 
 struct ProPhatSound : public juce::SynthesiserSound
 {
@@ -219,12 +220,6 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
         assertForDiscontinuities (outputBuffer, startSample, numSamples, {});
 #endif
 }
-
-#include "../UI/ButtonGroupComponent.h"
-#include "../Utility/Macros.h"
-
-//template class ProPhatVoice<float>;
-//template class ProPhatVoice<double>;
 
 template <std::floating_point T>
 ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet)
