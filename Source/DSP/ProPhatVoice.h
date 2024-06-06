@@ -74,7 +74,8 @@ public:
 
     //Because renderNextBlock is defined as 2 different prototypes we can't just implement a
     //renderNextBlock (juce::AudioBuffer<T>& ...). Instead we need to wrap our templated function
-    //inside the specific float and double functions
+    //inside the specific float and double functions. What's weird though is that the juce::synthesiser
+    //class has similar prototypes, but just overriding both with a template works...
     void renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples);
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
     void renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples) override;
