@@ -409,10 +409,10 @@ public:
 private:
     void setEffectParam (juce::StringRef parameterID, float newValue);
 
-    void renderVoicesTemplate (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples);
-    void renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples) override;
-    void renderVoices (juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples) override;
-
+//    void renderVoicesTemplate (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples);
+//    void renderVoices (juce::AudioBuffer<float>& outputAudio, int startSample, int numSamples) override;
+//    void renderVoices (juce::AudioBuffer<double>& outputAudio, int startSample, int numSamples) override;
+    void renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples) override;
     enum
     {
         reverbIndex = 0,
@@ -442,7 +442,7 @@ private:
 };
 
 template <std::floating_point T>
-void ProPhatSynthesiser<T>::renderVoicesTemplate (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples)
+void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples)
 {
     for (auto* voice : voices)
         voice->renderNextBlock (outputAudio, startSample, numSamples);

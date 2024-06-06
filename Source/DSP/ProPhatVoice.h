@@ -72,8 +72,10 @@ public:
 
     bool canPlaySound (juce::SynthesiserSound* sound) override { return dynamic_cast<ProPhatSound*> (sound) != nullptr; }
 
-    void renderNextBlockTemplate(juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples);
-
+    //Because renderNextBlock is defined as 2 different prototypes we can't just implement a
+    //renderNextBlock (juce::AudioBuffer<T>& ...). Instead we need to wrap our templated function
+    //inside the specific float and double functions
+    void renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples);
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
     void renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples) override;
 
@@ -581,32 +583,6 @@ void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
         DBG ("\tDEBUG kill voice: " + juce::String (voiceId));
 #endif
     }
-}
-
-template <>
-inline void ProPhatVoice<float>::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
-{
-    renderNextBlockTemplate (outputBuffer, startSample, numSamples);
-}
-
-template <>
-inline void ProPhatVoice<float>::renderNextBlock (juce::AudioBuffer<double>&, int, int)
-{
-    //trying to render doubles with a float voice!
-    jassertfalse;
-}
-
-template <>
-inline void ProPhatVoice<double>::renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples)
-{
-    renderNextBlockTemplate(outputBuffer, startSample, numSamples);
-}
-
-template <>
-inline void ProPhatVoice<double>::renderNextBlock (juce::AudioBuffer<float>&, int, int)
-{
-    //trying to render floats with a double voice!
-    jassertfalse;
 }
 
 template <std::floating_point T>
