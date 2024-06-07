@@ -26,8 +26,9 @@
 #include "../Utility/Macros.h"
 
 #include "juce_audio_plugin_client/juce_audio_plugin_client.h"
+#include <juce_audio_utils/players/juce_AudioProcessorPlayer.h>
+#include <juce_audio_utils/gui/juce_AudioDeviceSelectorComponent.h>
 #include <juce_audio_plugin_client/Standalone/juce_StandaloneFilterWindow.h>
-//#include "juce_audio_plugin_client/
 
 /**
  * @brief The main window when running the plugin in standalone mode.
