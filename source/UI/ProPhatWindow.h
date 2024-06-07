@@ -18,9 +18,16 @@
 
 #pragma once
 
-#include <JuceHeader.h>
-#include "../submodules/JUCE/modules/juce_audio_plugin_client/Standalone/juce_StandaloneFilterWindow.h"
+#include "juce_audio_basics/juce_audio_basics.h"
+#include "juce_core/juce_core.h"
+
+#include "juce_audio_devices/juce_audio_devices.h"
+#include "juce_audio_processors/juce_audio_processors.h"
 #include "../Utility/Macros.h"
+
+#include "juce_audio_plugin_client/juce_audio_plugin_client.h"
+#include <juce_audio_plugin_client/Standalone/juce_StandaloneFilterWindow.h>
+//#include "juce_audio_plugin_client/
 
 /**
  * @brief The main window when running the plugin in standalone mode.

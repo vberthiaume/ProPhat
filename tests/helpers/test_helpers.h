@@ -1,5 +1,5 @@
 #pragma once
-#include <PluginProcessor.h>
+#include <DSP/ProPhatProcessor.h>
 
 /* This is a helper function to run tests within the context of a plugin editor.
  *
@@ -19,9 +19,9 @@
    });
 
  */
-[[maybe_unused]] void runWithinPluginEditor (const std::function<void (PluginProcessor& plugin)>& testCode)
+[[maybe_unused]] void runWithinPluginEditor (const std::function<void (ProPhatProcessor& plugin)>& testCode)
 {
-    PluginProcessor plugin;
+    ProPhatProcessor plugin;
     auto gui = juce::ScopedJuceInitialiser_GUI {};
     auto editor = plugin.createEditorIfNeeded();
 
