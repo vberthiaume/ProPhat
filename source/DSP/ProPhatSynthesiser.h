@@ -21,6 +21,17 @@
 #include "ProPhatVoice.h"
 #include "../Utility/Helpers.h"
 
+/** Holds the parameters being used by a Reverb object. */
+struct Parameters
+{
+    float roomSize = 0.5f; /**< Room size, 0 to 1.0, where 1.0 is big, 0 is small. */
+    float damping = 0.5f; /**< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped. */
+    float wetLevel = 0.33f; /**< Wet level, 0 to 1.0 */
+    float dryLevel = 0.4f; /**< Dry level, 0 to 1.0 */
+    float width = 1.0f; /**< Reverb width, 0 to 1.0, where 1.0 is very wide. */
+    float freezeMode = 0.0f; /**< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop. */
+};
+
 //these are copied over from juce in order to support double-precision processing.
 template <std::floating_point T>
 class PhatReverb
@@ -32,18 +43,6 @@ public:
         setParameters (Parameters ());
         setSampleRate (44100.0);
     }
-
-    //==============================================================================
-    /** Holds the parameters being used by a Reverb object. */
-    struct Parameters
-    {
-        float roomSize = 0.5f;      /**< Room size, 0 to 1.0, where 1.0 is big, 0 is small. */
-        float damping = 0.5f;       /**< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped. */
-        float wetLevel = 0.33f;     /**< Wet level, 0 to 1.0 */
-        float dryLevel = 0.4f;      /**< Dry level, 0 to 1.0 */
-        float width = 1.0f;         /**< Reverb width, 0 to 1.0, where 1.0 is very wide. */
-        float freezeMode = 0.0f;    /**< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop. */
-    };
 
     //==============================================================================
     /** Returns the reverb's current parameters. */
@@ -312,9 +311,6 @@ public:
     /** Creates an uninitialised Reverb processor. Call prepare() before first use. */
     PhatReverbWrapper () = default;
 
-    //==============================================================================
-    using Parameters = PhatReverb<T>::Parameters;
-
     /** Returns the reverb's current parameters. */
     const Parameters& getParameters () const noexcept { return reverb.getParameters (); }
 
@@ -420,7 +416,7 @@ private:
     std::set<int> voicesBeingKilled;
 
     juce::dsp::ProcessorChain<PhatReverbWrapper<T>, juce::dsp::Gain<T>> fxChain;
-    PhatReverbWrapper<T>::Parameters reverbParams
+    Parameters reverbParams
     {
         //manually setting all these because we need to set the default room size and wet level to 0 if we want to be able to retrieve
         //these values from a saved state. If they are saved as 0 in the state, the event callback will not be propagated because
