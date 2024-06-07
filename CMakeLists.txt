@@ -119,7 +119,9 @@ target_compile_definitions(SharedCode
     VERSION="${CURRENT_VERSION}"
 
     # JucePlugin_Name is for some reason doesn't use the nicer PRODUCT_NAME
-    PRODUCT_NAME_WITHOUT_VERSION="Pamplejuce"
+    PRODUCT_NAME_WITHOUT_VERSION="ProPhat"
+
+    JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1
 )
 
 # Link to any other modules you added (with juce_add_module) here!
@@ -138,7 +140,12 @@ target_link_libraries(SharedCode
     juce_gui_extra
     juce::juce_recommended_config_flags
     juce::juce_recommended_lto_flags
-    juce::juce_recommended_warning_flags)
+    juce::juce_recommended_warning_flags
+    Dwmapi.lib)
+
+# if(MSVC)
+#     target_link_libraries("${PROJECT_NAME}" PRIVATE Dwmapi.lib)
+# endif()
 
 # Link the JUCE plugin targets our SharedCode target
 target_link_libraries("${PROJECT_NAME}" PRIVATE SharedCode)
@@ -154,6 +161,3 @@ include(Benchmarks)
 
 # Pass some config to GA (like our PRODUCT_NAME)
 include(GitHubENV)
-
-# add_compile_definitions(_SILENCE_ALL_CXX23_DEPRECATION_WARNINGS=1) #This silences a bunch of warnings shown by MSVC when building juce with c++23
-add_compile_definitions(JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1)

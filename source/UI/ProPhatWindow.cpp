@@ -21,9 +21,8 @@
 */
 
 #include "ProPhatWindow.h"
-#define RESPOND_DARK_MODE JUCE_WINDOWS && 0
 
-#if USE_NATIVE_TITLE_BAR && RESPOND_DARK_MODE
+#if USE_NATIVE_TITLE_BAR && JUCE_WINDOWS
     #include "dwmapi.h"
 #endif
 
@@ -171,7 +170,7 @@ void ProPhatWindow::updateContent ()
 #if USE_NATIVE_TITLE_BAR
 void ProPhatWindow::darkModeSettingChanged ()
 {
-#if RESPOND_DARK_MODE
+#if JUCE_WINDOWS
     auto hwnd = getPeer ()->getNativeHandle ();
 
     BOOL USE_DARK_MODE = juce::Desktop::getInstance ().isDarkModeActive ();
