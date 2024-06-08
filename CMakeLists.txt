@@ -140,12 +140,11 @@ target_link_libraries(SharedCode
     juce_gui_extra
     juce::juce_recommended_config_flags
     juce::juce_recommended_lto_flags
-    juce::juce_recommended_warning_flags
-    Dwmapi.lib)
+    juce::juce_recommended_warning_flags)
 
-# if(MSVC)
-#     target_link_libraries("${PROJECT_NAME}" PRIVATE Dwmapi.lib)
-# endif()
+if(MSVC)
+    target_link_libraries(SharedCode INTERFACE Dwmapi.lib)
+endif()
 
 # Link the JUCE plugin targets our SharedCode target
 target_link_libraries("${PROJECT_NAME}" PRIVATE SharedCode)
