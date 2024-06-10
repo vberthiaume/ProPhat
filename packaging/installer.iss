@@ -26,7 +26,7 @@ DefaultDirName="{commoncf64}\VST3\{#ProductName}.vst3"
 DisableDirPage=yes
 
 ; MAKE SURE YOU READ THE FOLLOWING!
-LicenseFile="EULA"
+LicenseFile="EULA.md"
 UninstallFilesDir="{commonappdata}\{#ProductName}\uninstall"
 
 [UninstallDelete]
