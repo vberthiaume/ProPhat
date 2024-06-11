@@ -54,7 +54,7 @@ add_subdirectory (modules/melatonin_inspector)
 # See `docs/CMake API.md` in the JUCE repo for all config options
 juce_add_plugin("${PROJECT_NAME}"
     # Icons for the standalone app
-    ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/packaging/icon.png"
+    ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/packaging/Icon1024.png"
 
     # Change me!
     COMPANY_NAME "${COMPANY_NAME}"
@@ -112,7 +112,7 @@ target_compile_definitions(SharedCode
     JUCE_VST3_CAN_REPLACE_VST2=0
 
     # Uncomment if you are paying for a an Indie/Pro license or releasing under GPLv3
-    # JUCE_DISPLAY_SPLASH_SCREEN=0
+    JUCE_DISPLAY_SPLASH_SCREEN=0
 
     # lets the app known if we're Debug or Release
     CMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}"

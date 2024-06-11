@@ -1,7 +1,6 @@
 {
-  "title": "Pamplejuce",
-  "icon": "pamplejuce.icns",
-  "background": "background.jpg",
+  "title": "ProPhat",
+  "icon": "ProPhat.icns",
   "window": {
     "position": {
       "x": 100,
