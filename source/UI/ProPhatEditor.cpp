@@ -257,7 +257,7 @@ void ProPhatEditor::paint (juce::Graphics& g)
     if (gotMidi)
     {
         g.setColour (juce::Colours::green);
-        g.fillRect (midiInputBounds);
+        g.fillEllipse (midiInputBounds);
     }
 }
 
@@ -266,13 +266,17 @@ void ProPhatEditor::resized()
     auto bounds = getLocalBounds().toFloat().reduced (overallGap);
 
     auto logoRow { bounds.removeFromTop (logoHeight) };
-    auto rightSection { logoRow.removeFromRight (70.f) };
+    const auto r { 7.5f };
+    auto rightSection { logoRow.removeFromRight (70.f + 2 * r) };
+
+    midiInputBounds = rightSection.removeFromRight (r).withSize (r, r);
+    rightSection.removeFromRight (r);
+
     const auto optionButtonBounds { rightSection.removeFromTop (25.f) };
 #if USE_NATIVE_TITLE_BAR && ! JUCE_ANDROID && ! JUCE_IOS
     if (processor.wrapperType == juce::AudioProcessor::WrapperType::wrapperType_Standalone)
         optionsButton.setBounds (optionButtonBounds.toNearestInt ());
 #endif
-    midiInputBounds = rightSection;
     logoBounds = logoRow;
 
     //set up sections
