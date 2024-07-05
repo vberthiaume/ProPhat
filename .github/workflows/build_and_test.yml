@@ -26,6 +26,8 @@ defaults:
 # all steps run in series
 jobs:
   build_and_test:
+    # don't double run on PRs
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -35,7 +37,6 @@ jobs:
           - name: Linux
             os: ubuntu-22.04
             pluginval-binary: ./pluginval
-            extra-flags: ""
           - name: macOS
             os: macos-14
             pluginval-binary: pluginval.app/Contents/MacOS/pluginval
@@ -43,20 +44,17 @@ jobs:
           - name: Windows
             os: windows-latest
             pluginval-binary: ./pluginval.exe
-            # D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR is a temporary workaround for a Visual Studio+GA snafu
-            # check if resolved here: https://github.com/sudara/pamplejuce/issues/103
-            extra-flags: -DCMAKE_CXX_FLAGS=" /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"
 
     steps:
       # Setup MSVC toolchain and developer command prompt (Windows)
       - uses: ilammy/msvc-dev-cmd@v1
 
-      # This is just easier than debugging different compilers
+      # Use clang on Linux so we don't introduce a 3rd compiler (Windows and macOS use MSVC and Clang)
       - name: Set up Clang
         if: runner.os == 'Linux'
         uses: egor-tensin/setup-clang@v1
 
-      # This also starts up our "fake" display Xvfb, needed for pluginval
+      # This also starts up our "fake" display (Xvfb), needed for pluginval
       - name: Install JUCE's Linux Deps
         if: runner.os == 'Linux'
         # Thanks to McMartin & co https://forum.juce.com/t/list-of-juce-dependencies-under-linux/15121/44
@@ -69,13 +67,13 @@ jobs:
         id: cache-ipp
         uses: actions/cache@v4
         with:
-          key: ipp-v4
+          key: ipp-v5
           path: C:\Program Files (x86)\Intel
 
       - name: Install IPP (Windows)
         if: (runner.os == 'Windows') && (steps.cache-ipp.outputs.cache-hit != 'true')
         run: |
-          curl --output oneapi.exe https://registrationcenter-download.intel.com/akdlm/IRC_NAS/8d158661-ca8f-4e66-b5ea-3e0b3d00836a/w_ipp_oneapi_p_2021.10.1.15_offline.exe
+          curl --output oneapi.exe https://registrationcenter-download.intel.com/akdlm/IRC_NAS/b4adec02-353b-4144-aa21-f2087040f316/w_ipp_oneapi_p_2021.11.0.533_offline.exe
           ./oneapi.exe -s -x -f oneapi
           ./oneapi/bootstrapper.exe -s -c --action install --components=intel.oneapi.win.ipp.devel --eula=accept -p=NEED_VS2022_INTEGRATION=1 --log-dir=.
 
@@ -84,7 +82,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: C:\Program Files (x86)\Intel
-          key: ipp-v4
+          key: ipp-v5
 
       - name: Install Ninja (Windows)
         if: runner.os == 'Windows'
@@ -215,22 +213,22 @@ jobs:
       #   with:
       #     # The Azure Active Directory tenant (directory) ID.
       #     azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-      #
+
       #     # The client (application) ID of an App Registration in the tenant.
       #     azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-      #
+
       #     # A client secret that was generated for the App Registration.
       #     azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-      #
+
       #     # The Code Signing Account endpoint. The URI value must have a URI that aligns to the region your Code Signing Account and Certificate Profile you are specifying were created in during the setup of these resources.
       #     endpoint: ${{ secrets.AZURE_ENDPOINT }}
-      #
+
       #     # The Code Signing Account name.
       #     trusted-signing-account-name: ${{ secrets.AZURE_CODE_SIGNING_NAME }}
-      #
+
       #     # The Certificate Profile name.
       #     certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
-      #
+
       #     # This signs all exes inside the folder
       #     files-folder: ${{ env.ARTIFACTS_PATH }}
       #     files-folder-filter: exe
