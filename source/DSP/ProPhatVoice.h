@@ -155,7 +155,8 @@ private:
     static constexpr auto envelopeAmount { 2 };
 
     juce::ADSR ampADSR, filterADSR;
-    juce::ADSR::Parameters ampParams, filterEnvParams;
+    juce::ADSR::Parameters ampParams { Constants::defaultAmpA, Constants::defaultAmpD, Constants::defaultAmpS, Constants::defaultAmpR };
+    juce::ADSR::Parameters filterEnvParams { ampParams };
     bool currentlyReleasingNote = false, justDoneReleaseEnvelope = false;
 
     T curFilterCutoff { Constants::defaultFilterCutoff };
@@ -301,6 +302,7 @@ void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
 
     ampADSR.setSampleRate (spec.sampleRate);
     ampADSR.setParameters (ampParams);
+    //Helpers::printADSR ("prepare", ampADSR.getParameters());
 
     filterADSR.setSampleRate (spec.sampleRate);
     filterADSR.setParameters (filterEnvParams);
