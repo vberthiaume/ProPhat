@@ -302,7 +302,7 @@ void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
 
     ampADSR.setSampleRate (spec.sampleRate);
     ampADSR.setParameters (ampParams);
-    Helpers::printADSR ("prepare", ampADSR.getParameters());
+    //Helpers::printADSR ("prepare", ampADSR.getParameters());
 
     filterADSR.setSampleRate (spec.sampleRate);
     filterADSR.setParameters (filterEnvParams);
