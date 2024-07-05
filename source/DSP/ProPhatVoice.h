@@ -155,7 +155,8 @@ private:
     static constexpr auto envelopeAmount { 2 };
 
     juce::ADSR ampADSR, filterADSR;
-    juce::ADSR::Parameters ampParams, filterEnvParams;
+    juce::ADSR::Parameters ampParams { Constants::defaultAmpA, Constants::defaultAmpD, Constants::defaultAmpS, Constants::defaultAmpR };
+    juce::ADSR::Parameters filterEnvParams { ampParams };
     bool currentlyReleasingNote = false, justDoneReleaseEnvelope = false;
 
     T curFilterCutoff { Constants::defaultFilterCutoff };
@@ -183,16 +184,6 @@ private:
 };
 
 //===========================================================================================================
-
-inline void printADSR (juce::StringRef prefix, const juce::ADSR::Parameters& p)
-{
-    juce::String str { prefix };
-    str << " a: " << p.attack;
-    str << " d: " << p.decay;
-    str << " s: " << p.sustain;
-    str << " r: " << p.release << "\n";
-    DBG (str);
-}
 
 template<std::floating_point T>
 void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
@@ -311,7 +302,7 @@ void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
 
     ampADSR.setSampleRate (spec.sampleRate);
     ampADSR.setParameters (ampParams);
-    printADSR ("prepare", ampADSR.getParameters());
+    Helpers::printADSR ("prepare", ampADSR.getParameters());
 
     filterADSR.setSampleRate (spec.sampleRate);
     filterADSR.setParameters (filterEnvParams);
@@ -399,7 +390,6 @@ void ProPhatVoice<T>::setAmpParam (juce::StringRef parameterID, float newValue)
         ampParams.release = newValue;
 
     ampADSR.setParameters (ampParams);
-    printADSR ("setAmpParam", ampADSR.getParameters());
 }
 
 template <std::floating_point T>
@@ -547,7 +537,6 @@ void ProPhatVoice<T>::startNote (int midiNoteNumber, float velocity, juce::Synth
 #endif
 
     ampADSR.setParameters (ampParams);
-    printADSR ("startNote", ampADSR.getParameters());
     ampADSR.reset();
     ampADSR.noteOn();
 

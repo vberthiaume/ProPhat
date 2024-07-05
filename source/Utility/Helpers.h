@@ -63,10 +63,9 @@ constexpr float defaultEffectParam1     { 0.f };
 constexpr float defaultEffectParam2     { 0.f };
 
 //envelope stuff
-constexpr auto minA                     { .001f };
-constexpr auto minAmp                   { .01f };
+constexpr auto minAmp                   { .000001f };
 
-constexpr auto defaultAmpA              { minA };
+constexpr auto defaultAmpA              { minAmp };
 constexpr auto defaultAmpD              { minAmp };
 constexpr auto defaultAmpS              { 1.f };
 constexpr auto defaultAmpR              { .25f };
@@ -76,7 +75,7 @@ constexpr auto ampSkewFactor            { .5f };
 constexpr auto cutOffSkewFactor         { .5f };
 constexpr auto slopSkewFactor           { .5f };
 
-const juce::NormalisableRange<float> attackRange        { minA, 25.f, 0.f, ampSkewFactor };
+const juce::NormalisableRange<float> attackRange        { minAmp, 25.f, 0.f, ampSkewFactor };
 const juce::NormalisableRange<float> decayRange         { minAmp, 25.f, 0.f, ampSkewFactor };
 const juce::NormalisableRange<float> sustainRange       { minAmp, 1.f,  0.f, sustainSkewFactor };
 const juce::NormalisableRange<float> releaseRange       { minAmp, 25.f, 0.f, ampSkewFactor };
@@ -324,6 +323,16 @@ template <class T>
 inline bool areSame (T a, T b, T e = std::numeric_limits <T>::epsilon())
 {
     return fabs (a - b) <= e;
+}
+
+inline void printADSR (juce::StringRef prefix, const juce::ADSR::Parameters& p)
+{
+    juce::String str { prefix };
+    str << " a: " << p.attack;
+    str << " d: " << p.decay;
+    str << " s: " << p.sustain;
+    str << " r: " << p.release << "\n";
+    DBG (str);
 }
 }
 
