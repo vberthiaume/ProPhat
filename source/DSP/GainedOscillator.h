@@ -97,6 +97,8 @@ private:
     std::default_random_engine generator;
 };
 
+//====================================================================================================
+
 template<std::floating_point T>
 void GainedOscillator<T>::setOscShape (int newShape)
 {
