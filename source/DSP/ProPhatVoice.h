@@ -496,8 +496,10 @@ void ProPhatVoice<T>::updateLfo()
 {
     T lfoOut;
     {
-        //TODO: LOCK IN AUDIO THREAD
-        std::lock_guard<std::mutex> lock (lfoMutex);
+        std::unique_lock<std::mutex> lck (lfoMutex, std::defer_lock);
+        if (! lck.try_lock())
+            return;
+
         lfoOut = lfo.processSample (T (0)) * lfoAmount;
     }
 
