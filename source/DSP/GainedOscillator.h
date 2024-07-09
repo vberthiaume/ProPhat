@@ -43,7 +43,7 @@ public:
         osc.setFrequency (newValue, force);
     }
 
-    void setOscShape (int newShape) { nextOsc.store (newShape); }
+    void setOscShape (OscShape::Values newShape) { nextOsc.store (newShape); }
 
     /**
      * @brief Sets the gain for the oscillator in the processorChain.
@@ -83,8 +83,7 @@ private:
         gainIndex
     };
 
-    //TODO: these need to be enums, I need to use proper enums instead of ints
-    std::atomic<int> currentOsc { OscShape::none }, nextOsc { { OscShape::saw } };
+    std::atomic<OscShape::Values> currentOsc { OscShape::none }, nextOsc { { OscShape::saw } };
 
     void updateOscillators();
 

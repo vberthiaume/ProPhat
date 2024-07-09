@@ -68,7 +68,7 @@ public:
     }
 
     void setOscFreq (OscId oscNum, int newMidiNote);
-    void setOscShape (OscId oscNum, int newShape);
+    void setOscShape (OscId oscNum, OscShape::Values newShape);
     void setOscTuning (OscId oscNum, float newTuning);
 
     void setOscSub (float newSub)
@@ -203,9 +203,9 @@ void PhatOscillators<T>::parameterChanged (const juce::String& parameterID, floa
     else if (parameterID == osc2TuningID.getParamID ())
         setOscTuning (OscId::osc2Index, newValue);
     else if (parameterID == osc1ShapeID.getParamID ())
-        setOscShape (OscId::osc1Index, (int) newValue);
+        setOscShape (OscId::osc1Index, static_cast<OscShape::Values> (newValue));
     else if (parameterID == osc2ShapeID.getParamID ())
-        setOscShape (OscId::osc2Index, (int) newValue);
+        setOscShape (OscId::osc2Index, static_cast<OscShape::Values> (newValue));
     else if (parameterID == oscSubID.getParamID ())
         setOscSub (newValue);
     else if (parameterID == oscMixID.getParamID ())
@@ -318,7 +318,7 @@ void PhatOscillators<T>::setOscFreq (OscId oscNum, int newMidiNote)
 }
 
 template <std::floating_point T>
-void PhatOscillators<T>::setOscShape (OscId oscNum, int newShape)
+void PhatOscillators<T>::setOscShape (OscId oscNum, OscShape::Values newShape)
 {
     switch (oscNum)
     {

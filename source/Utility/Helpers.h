@@ -218,7 +218,7 @@ struct Selection
 
 struct OscShape : public Selection
 {
-    enum
+    enum Values
     {
         none = 0,
         saw,
