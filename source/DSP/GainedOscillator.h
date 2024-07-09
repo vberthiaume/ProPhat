@@ -43,7 +43,7 @@ public:
         osc.setFrequency (newValue, force);
     }
 
-    void setOscShape (int newShape);
+    void setOscShape (int newShape) { nextOsc.store (newShape); }
 
     /**
      * @brief Sets the gain for the oscillator in the processorChain.
@@ -69,9 +69,7 @@ public:
     template <typename ProcessContext>
     void process (const ProcessContext& context) noexcept
     {
-        //TODO: lock in audio thread!!! This should/could be a try lock and the other one a lock,
-        // so we only lock in the other place. But are these actuallty different threads though?
-        std::lock_guard<std::mutex> lock (processMutex);
+        updateOscillators();
 
         processorChain.process (context);
     }
@@ -85,7 +83,10 @@ private:
         gainIndex
     };
 
-    std::mutex processMutex;
+    //TODO: these need to be enums, I need to use proper enums instead of ints
+    std::atomic<int> currentOsc { OscShape::none }, nextOsc { { OscShape::saw } };
+
+    void updateOscillators();
 
     bool isActive = true;
 
@@ -99,23 +100,28 @@ private:
 
 //====================================================================================================
 
-template<std::floating_point T>
-void GainedOscillator<T>::setOscShape (int newShape)
+template <std::floating_point T>
+void GainedOscillator<T>::updateOscillators()
 {
-    auto& osc = processorChain.template get<oscIndex> ();
+    //compare the current osc type with the (buffered next osc type). Get outta here if they the same
+    const auto nextOscBuf { nextOsc.load() };
+    if (currentOsc == nextOscBuf)
+        return;
 
+    //this is to make sure we preserve the same gain after we re-init, right?
     bool wasActive = isActive;
     isActive = true;
 
-    switch (newShape)
+    auto& osc = processorChain.template get<oscIndex>();
+    switch (nextOscBuf)
     {
     case OscShape::none:
+        osc.initialise ([&] (T /*x*/) { return T (0); });
         isActive = false;
         break;
 
     case OscShape::saw:
     {
-        std::lock_guard<std::mutex> lock (processMutex);
         osc.initialise ([](T x)
                         {
                             //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
@@ -126,7 +132,6 @@ void GainedOscillator<T>::setOscShape (int newShape)
 
     case OscShape::sawTri:
     {
-        std::lock_guard<std::mutex> lock (processMutex);
         osc.initialise ([](T x)
                         {
                             T y = juce::jmap (x, T (-juce::MathConstants<double>::pi), T (juce::MathConstants<double>::pi), T (-1), T (1)) / 2;
@@ -142,7 +147,6 @@ void GainedOscillator<T>::setOscShape (int newShape)
 
     case OscShape::triangle:
     {
-        std::lock_guard<std::mutex> lock (processMutex);
         osc.initialise ([](T x)
                         {
                             if (x < 0)
@@ -156,7 +160,6 @@ void GainedOscillator<T>::setOscShape (int newShape)
 
     case OscShape::pulse:
     {
-        std::lock_guard<std::mutex> lock (processMutex);
         osc.initialise ([](T x)
                         {
                             if (x < 0)
@@ -169,8 +172,6 @@ void GainedOscillator<T>::setOscShape (int newShape)
 
     case OscShape::noise:
     {
-        std::lock_guard<std::mutex> lock (processMutex);
-
         osc.initialise ([&](T /*x*/)
                         {
                             return distribution (generator);
@@ -190,4 +191,6 @@ void GainedOscillator<T>::setOscShape (int newShape)
         else
             setGain (0);
     }
+
+    currentOsc.store (nextOscBuf);
 }
