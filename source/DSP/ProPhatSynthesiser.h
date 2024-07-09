@@ -169,15 +169,10 @@ void ProPhatSynthesiser<T>::setEffectParam ([[maybe_unused]] juce::StringRef par
 template <std::floating_point T>
 void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNumber, const float velocity)
 {
-    {
-        //TODO lock in the audio thread??
-        const juce::ScopedLock sl (lock);
-
-        //don't start new voices in current buffer call if we have filled all voices already.
-        //voicesBeingKilled should be reset after each renderNextBlock call
-        if (voicesBeingKilled.size () >= Constants::numVoices)
-            return;
-    }
+    //don't start new voices in current buffer call if we have filled all voices already.
+    //voicesBeingKilled should be reset after each renderNextBlock call
+    if (voicesBeingKilled.size() >= Constants::numVoices)
+        return;
 
     Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
 }
