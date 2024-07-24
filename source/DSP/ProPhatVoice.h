@@ -61,16 +61,7 @@ public:
     void setFilterEnvParam (juce::StringRef parameterID, float newValue);
 
     void setLfoShape (int shape);
-
-    void setLfoDest (int dest)
-    {
-        //reset everything
-        oscillators.resetLfoOscNoteOffsets ();
-
-        //change the destination
-        lfoDest.curSelection = dest;
-    }
-
+    void setLfoDest (int dest);
     void setLfoFreq (float newFreq) { lfo.setFrequency (newFreq); }
     void setLfoAmount (float newAmount) { lfoAmount = newAmount; }
 
@@ -488,6 +479,16 @@ void ProPhatVoice<T>::setLfoShape (int shape)
             jassertfalse;
             break;
     }
+}
+
+template <std::floating_point T>
+void ProPhatVoice<T>::setLfoDest (int dest)
+{
+    //reset everything
+    oscillators.resetLfoOscNoteOffsets();
+
+    //change the destination
+    lfoDest.curSelection = dest;
 }
 
 //TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscillate between [-1, 1]
