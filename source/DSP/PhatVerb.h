@@ -278,7 +278,7 @@ private:
 //====================================================================================================
 
 template <std::floating_point T>
-class PhatVerbWrapper
+class PhatVerbWrapper : juce::dsp::ProcessorBase
 {
 public:
     /** Creates an uninitialised Reverb processor. Call prepare() before first use. */
@@ -300,20 +300,21 @@ public:
     void setEnabled (bool newValue) noexcept { enabled = newValue; }
 
     /** Initialises the reverb. */
-    void prepare (const juce::dsp::ProcessSpec& spec)
+    void prepare (const juce::dsp::ProcessSpec& spec) override
     {
         reverb.setSampleRate (spec.sampleRate);
     }
 
     /** Resets the reverb's internal state. */
-    void reset() noexcept
+    void reset() noexcept override
     {
         reverb.reset();
     }
 
     /** Applies the reverb to a mono or stereo buffer. */
-    template <typename ProcessContext>
-    void process (const ProcessContext& context) noexcept
+    //template <typename ProcessContext>
+    //void process (const ProcessContext& context) noexcept override
+    void process (const juce::dsp::ProcessContextReplacing<T>& context) override
     {
         const auto& inputBlock = context.getInputBlock();
         auto& outputBlock = context.getOutputBlock();

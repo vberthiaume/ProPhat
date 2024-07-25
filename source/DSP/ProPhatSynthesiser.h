@@ -60,6 +60,10 @@ private:
     //TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
+    //juce::dsp::ProcessorChain<PhatVerbWrapper<T>, juce::dsp::Gain<T>> fxChain;
+    juce::dsp::ProcessorWrapper<juce::dsp::Gain<T>> gainWrapper;
+    std::vector<juce::dsp::ProcessorBase> fxChain2;
+
     juce::dsp::ProcessorChain<PhatVerbWrapper<T>, juce::dsp::Gain<T>> fxChain;
     PhatVerbParameters reverbParams
     {
