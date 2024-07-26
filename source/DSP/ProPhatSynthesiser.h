@@ -43,7 +43,7 @@ public:
 
     void parameterChanged (const juce::String& parameterID, float newValue) override;
 
-    void setMasterGain (float gain) { fxChain.template get<masterGainIndex>().setGainLinear (static_cast<T> (gain)); }
+    void setMasterGain (float gain);
 
     void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override;
 
@@ -63,9 +63,7 @@ private:
 
     std::unique_ptr<PhatProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
     std::unique_ptr<PhatProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
-    std::vector<PhatProcessorBase<T>*> fxChain3;
-
-    juce::dsp::ProcessorChain<PhatVerbProcessor<T>, juce::dsp::Gain<T>> fxChain;
+    std::vector<PhatProcessorBase<T>*> fxChain;
 
     PhatVerbParameters reverbParams
     {
@@ -100,17 +98,18 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
 
     setMasterGain (Constants::defaultMasterGain);
 
+    //init our effects
     verbWrapper = std::make_unique<PhatProcessorWrapper<PhatVerbProcessor<T>, T>>();
+    verbWrapper->processor.setParameters (reverbParams);
+
     gainWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Gain<T>, T>>();
+    gainWrapper->processor.setRampDurationSeconds (0.1);
+    gainWrapper->processor.setGainLinear (1);
 
     //TODO: make this dynamic
-    fxChain3.push_back (verbWrapper.get());
-    fxChain3.push_back (gainWrapper.get());
-
-    fxChain.template get<masterGainIndex> ().setRampDurationSeconds (0.1);
-
-    //we need to manually override the default reverb params to make sure 0 values are set if needed
-    fxChain.template get<reverbIndex> ().setParameters (reverbParams);
+    //add effects to processing chain
+    fxChain.push_back (verbWrapper.get());
+    fxChain.push_back (gainWrapper.get());
 }
 
 template <std::floating_point T>
@@ -137,7 +136,8 @@ void ProPhatSynthesiser<T>::prepare (const juce::dsp::ProcessSpec& spec) noexcep
     for (auto* v : voices)
         dynamic_cast<ProPhatVoice<T>*> (v)->prepare (spec);
 
-    fxChain.prepare (spec);
+    for (const auto& fx : fxChain)
+        fx->prepare (spec);
 }
 
 template <std::floating_point T>
@@ -156,6 +156,13 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
 }
 
 template <std::floating_point T>
+void ProPhatSynthesiser<T>::setMasterGain (float gain)
+{
+    //gainWrapper->processor.setGainLinear (static_cast<T> (gain));
+    //gainWrapper->processor.setRampDurationSeconds (0.1);
+}
+
+template <std::floating_point T>
 void ProPhatSynthesiser<T>::setEffectParam ([[maybe_unused]] juce::StringRef parameterID, [[maybe_unused]] float newValue)
 {
     if (parameterID == ProPhatParameterIds::effectParam1ID.getParamID ())
@@ -165,8 +172,7 @@ void ProPhatSynthesiser<T>::setEffectParam ([[maybe_unused]] juce::StringRef par
     else
         jassertfalse;   //unknown effect parameter!
 
-
-    fxChain.template get<reverbIndex> ().setParameters (reverbParams);
+    verbWrapper->processor.setParameters (reverbParams);
 }
 
 template <std::floating_point T>
@@ -188,5 +194,7 @@ void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int
 
     auto audioBlock { juce::dsp::AudioBlock<T> (outputAudio).getSubBlock ((size_t) startSample, (size_t) numSamples) };
     const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
-    fxChain.process (context);
+
+    for (const auto& fx : fxChain)
+        fx->process (context);
 }
