@@ -51,6 +51,7 @@ private:
     void setEffectParam (juce::StringRef parameterID, float newValue);
 
     void renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples) override;
+
     enum
     {
         reverbIndex = 0,
@@ -60,9 +61,9 @@ private:
     //TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
-    //juce::dsp::ProcessorChain<PhatVerbWrapper<T>, juce::dsp::Gain<T>> fxChain;
-    PhatProcessorWrapper<juce::dsp::Gain<T>, T> gainWrapper;
-    std::vector<PhatProcessorBase<T>> fxChain2;
+    std::unique_ptr<PhatVerbWrapper<T>> verbWrapper;
+    std::unique_ptr <PhatProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
+    std::vector<PhatProcessorBase<T>*> fxChain2;
 
     juce::dsp::ProcessorChain<PhatVerbWrapper<T>, juce::dsp::Gain<T>> fxChain;
     PhatVerbParameters reverbParams
@@ -86,17 +87,6 @@ private:
 //=====================================================================================================================
 
 template <std::floating_point T>
-void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples)
-{
-    for (auto* voice : voices)
-        voice->renderNextBlock (outputAudio, startSample, numSamples);
-
-    auto audioBlock { juce::dsp::AudioBlock<T> (outputAudio).getSubBlock((size_t)startSample, (size_t)numSamples) };
-    const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
-    fxChain.process (context);
-}
-
-template <std::floating_point T>
 ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& processorState)
 : state (processorState)
 {
@@ -108,6 +98,11 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
     addParamListenersToState ();
 
     setMasterGain (Constants::defaultMasterGain);
+
+    //fxChain2.push_back (&verbWrapper);
+    //fxChain2.push_back (&gainWrapper);
+
+
     fxChain.template get<masterGainIndex> ().setRampDurationSeconds (0.1);
 
     //we need to manually override the default reverb params to make sure 0 values are set if needed
@@ -179,4 +174,15 @@ void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNum
         return;
 
     Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
+}
+
+template <std::floating_point T>
+void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples)
+{
+    for (auto* voice : voices)
+        voice->renderNextBlock (outputAudio, startSample, numSamples);
+
+    auto audioBlock { juce::dsp::AudioBlock<T> (outputAudio).getSubBlock ((size_t) startSample, (size_t) numSamples) };
+    const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
+    fxChain.process (context);
 }
