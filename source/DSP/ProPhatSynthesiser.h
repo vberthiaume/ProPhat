@@ -61,7 +61,8 @@ private:
     //TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
-    std::unique_ptr<PhatVerbWrapper<T>> verbWrapper;
+    //std::unique_ptr<PhatVerbWrapper<T>> verbWrapper;
+    std::unique_ptr<PhatProcessorWrapper<PhatVerbWrapper<T>, T>> verbWrapper;
     std::vector<PhatVerbWrapper<T>*> fxChain2;
 
     std::unique_ptr<PhatProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
@@ -101,10 +102,11 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
 
     setMasterGain (Constants::defaultMasterGain);
 
-    verbWrapper = std::make_unique<PhatVerbWrapper<T>>();
-    fxChain2.push_back (verbWrapper.get());
+    verbWrapper = std::make_unique<PhatProcessorWrapper<PhatVerbWrapper<T>, T>>();
+    //fxChain2.push_back (verbWrapper.get());
 
     gainWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Gain<T>, T>>();
+    fxChain3.push_back (verbWrapper.get());
     fxChain3.push_back (gainWrapper.get());
 
 
