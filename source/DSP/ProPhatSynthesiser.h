@@ -158,6 +158,7 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
 template <std::floating_point T>
 void ProPhatSynthesiser<T>::setMasterGain (float gain)
 {
+    gainWrapper->processor.setGainLinear (1);
     //gainWrapper->processor.setGainLinear (static_cast<T> (gain));
     //gainWrapper->processor.setRampDurationSeconds (0.1);
 }
