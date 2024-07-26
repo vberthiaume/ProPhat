@@ -61,14 +61,12 @@ private:
     //TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
-    //std::unique_ptr<PhatVerbWrapper<T>> verbWrapper;
-    std::unique_ptr<PhatProcessorWrapper<PhatVerbWrapper<T>, T>> verbWrapper;
-    std::vector<PhatVerbWrapper<T>*> fxChain2;
-
+    std::unique_ptr<PhatProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
     std::unique_ptr<PhatProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
     std::vector<PhatProcessorBase<T>*> fxChain3;
 
-    juce::dsp::ProcessorChain<PhatVerbWrapper<T>, juce::dsp::Gain<T>> fxChain;
+    juce::dsp::ProcessorChain<PhatVerbProcessor<T>, juce::dsp::Gain<T>> fxChain;
+
     PhatVerbParameters reverbParams
     {
         //manually setting all these because we need to set the default room size and wet level to 0 if we want to be able to retrieve
@@ -90,8 +88,8 @@ private:
 //=====================================================================================================================
 
 template <std::floating_point T>
-ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& processorState)
-: state (processorState)
+ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& processorState) :
+    state (processorState)
 {
     for (auto i = 0; i < Constants::numVoices; ++i)
         addVoice (new ProPhatVoice<T> (state, i, &voicesBeingKilled));
@@ -102,13 +100,12 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
 
     setMasterGain (Constants::defaultMasterGain);
 
-    verbWrapper = std::make_unique<PhatProcessorWrapper<PhatVerbWrapper<T>, T>>();
-    //fxChain2.push_back (verbWrapper.get());
-
+    verbWrapper = std::make_unique<PhatProcessorWrapper<PhatVerbProcessor<T>, T>>();
     gainWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Gain<T>, T>>();
+
+    //TODO: make this dynamic
     fxChain3.push_back (verbWrapper.get());
     fxChain3.push_back (gainWrapper.get());
-
 
     fxChain.template get<masterGainIndex> ().setRampDurationSeconds (0.1);
 

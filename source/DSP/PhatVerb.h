@@ -314,11 +314,11 @@ struct PhatProcessorWrapper : public PhatProcessorBase<T>
 //====================================================================================================
 
 template <std::floating_point T>
-class PhatVerbWrapper : PhatProcessorBase<T>
+class PhatVerbProcessor : PhatProcessorBase<T>
 {
 public:
     /** Creates an uninitialised Reverb processor. Call prepare() before first use. */
-    PhatVerbWrapper() = default;
+    PhatVerbProcessor() = default;
 
     /** Returns the reverb's current parameters. */
     const PhatVerbParameters& getParameters() const noexcept { return reverb.getParameters(); }
