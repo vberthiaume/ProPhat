@@ -63,6 +63,7 @@ private:
 
     std::unique_ptr<PhatProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
     std::unique_ptr<PhatProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
+    std::unique_ptr<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
     std::vector<PhatProcessorBase<T>*> fxChain;
 
     PhatVerbParameters reverbParams
@@ -104,10 +105,13 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
     gainWrapper->processor.setRampDurationSeconds (0.1);
     setMasterGain (Constants::defaultMasterGain);
 
+    chorusWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>>();
+
     //TODO: make this dynamic
     //add effects to processing chain
     fxChain.push_back (verbWrapper.get());
     fxChain.push_back (gainWrapper.get());
+    fxChain.push_back (chorusWrapper.get());
 }
 
 template <std::floating_point T>
