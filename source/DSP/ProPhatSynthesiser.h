@@ -63,7 +63,7 @@ private:
 
     std::unique_ptr<PhatVerbWrapper<T>> verbWrapper;
     std::unique_ptr <PhatProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
-    std::vector<PhatProcessorBase<T>*> fxChain2;
+    std::vector<PhatVerbWrapper<T>*> fxChain2;
 
     juce::dsp::ProcessorChain<PhatVerbWrapper<T>, juce::dsp::Gain<T>> fxChain;
     PhatVerbParameters reverbParams
@@ -99,7 +99,8 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
 
     setMasterGain (Constants::defaultMasterGain);
 
-    //fxChain2.push_back (&verbWrapper);
+    verbWrapper = std::make_unique<PhatVerbWrapper<T>>();
+    fxChain2.push_back (verbWrapper.get());
     //fxChain2.push_back (&gainWrapper);
 
 
