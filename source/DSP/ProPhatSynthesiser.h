@@ -62,8 +62,10 @@ private:
     std::set<int> voicesBeingKilled;
 
     std::unique_ptr<PhatVerbWrapper<T>> verbWrapper;
-    std::unique_ptr <PhatProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
     std::vector<PhatVerbWrapper<T>*> fxChain2;
+
+    std::unique_ptr<PhatProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
+    std::vector<PhatProcessorBase<T>*> fxChain3;
 
     juce::dsp::ProcessorChain<PhatVerbWrapper<T>, juce::dsp::Gain<T>> fxChain;
     PhatVerbParameters reverbParams
@@ -101,7 +103,9 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
 
     verbWrapper = std::make_unique<PhatVerbWrapper<T>>();
     fxChain2.push_back (verbWrapper.get());
-    //fxChain2.push_back (&gainWrapper);
+
+    gainWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Gain<T>, T>>();
+    fxChain3.push_back (gainWrapper.get());
 
 
     fxChain.template get<masterGainIndex> ().setRampDurationSeconds (0.1);
