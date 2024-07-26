@@ -96,15 +96,13 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
 
     addParamListenersToState ();
 
-    setMasterGain (Constants::defaultMasterGain);
-
     //init our effects
     verbWrapper = std::make_unique<PhatProcessorWrapper<PhatVerbProcessor<T>, T>>();
     verbWrapper->processor.setParameters (reverbParams);
 
     gainWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Gain<T>, T>>();
     gainWrapper->processor.setRampDurationSeconds (0.1);
-    gainWrapper->processor.setGainLinear (1);
+    setMasterGain (Constants::defaultMasterGain);
 
     //TODO: make this dynamic
     //add effects to processing chain
@@ -158,9 +156,7 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
 template <std::floating_point T>
 void ProPhatSynthesiser<T>::setMasterGain (float gain)
 {
-    gainWrapper->processor.setGainLinear (1);
-    //gainWrapper->processor.setGainLinear (static_cast<T> (gain));
-    //gainWrapper->processor.setRampDurationSeconds (0.1);
+    gainWrapper->processor.setGainLinear (static_cast<T> (gain));
 }
 
 template <std::floating_point T>
