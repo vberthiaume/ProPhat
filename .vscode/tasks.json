@@ -1,0 +1,31 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "g++-13",
+            "args": [
+                "-std=c++20",
+                "-g",
+                "${workspaceFolder}/src/*.cpp",
+                "-o",
+                "${workspaceFolder}/bin/CppTests"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "run",
+            "type": "shell",
+            "command": "${workspaceFolder}/bin/CppTests",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        }
+    ]
+}
