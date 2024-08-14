@@ -10,7 +10,7 @@
                 "-g",
                 "${workspaceFolder}/src/*.cpp",
                 "-o",
-                "${workspaceFolder}/bin/CppTests"
+                "${workspaceFolder}/bin/CppTests" //I have no idea how this is working LOL, but it is working so I won't mess with it
             ],
             "group": {
                 "kind": "build",
