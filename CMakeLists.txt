@@ -2,8 +2,8 @@
 # 3.24.1 is also bundled in CLion as of 2023
 cmake_minimum_required(VERSION 3.24.1)
 
-set(CXX_FLAGS "-Wall")
-set(CMAKE_CXX_FLAGS "${CXX_FLAGS}")
+# set(CXX_FLAGS "-Wall")
+# set(CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES CXX_STANDARD 23)
 
 # This tells cmake we have goodies in the /cmake folder
