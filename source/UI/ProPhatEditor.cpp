@@ -46,7 +46,7 @@ constexpr auto sliderColumnW        { 98.f };
 
 constexpr auto totalHeight          { 2 * overallGap + logoHeight + 4 * panelGap + lineCount * lineH };
 constexpr auto totalWidth           { 2 * overallGap + 4 * panelGap + numButtonGroupColumn * buttonGroupColumnW + numSliderColumn * sliderColumnW };
-};
+}
 
 //==============================================================================
 
