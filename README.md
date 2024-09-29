@@ -8,10 +8,12 @@ A **phat** virtual synthesizer inspired by the Prophet REV2!
 
 To build:
 - With Visual Studio on Windows: `cmake -B Builds`
-- with Xcode on Mac: `cmake -B Builds -G Xcode`
-- with Visual Studio Code on Mac:
+- With Xcode on Mac: `cmake -B Builds -G Xcode`
+- With Visual Studio Code on Mac:
     - open the folder in Visual Studio Code
     - make sure your CMake extension is configured to use the `Builds` folder (`cmd/ctrl + ,`, then set `Cmake: Build Directory` to `${workspaceFolder}/Builds`)
     - cmd/ctrl + shift + P, then `CMake: Configure`
     - F7 to build
     - F5 to run
+- With Visual Studio Code on Ubuntu 24.04:
+    - same as for mac right above, but make sure to install all dependencies like this: `sudo apt-get update && sudo apt install libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev xvfb ninja-build`
