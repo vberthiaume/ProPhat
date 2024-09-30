@@ -16,4 +16,4 @@ To build:
     - F7 to build
     - F5 to run
 - With Visual Studio Code on Ubuntu 24.04:
-    - same as for mac right above, but make sure to install all dependencies like this: `sudo apt-get update && sudo apt install libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev xvfb ninja-build`
+    - same as for mac right above, but make sure to install all dependencies like this: `sudo apt-get update && sudo apt install libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev xvfb ninja-build ladspa-sdk libcurl4-openssl-dev libxcomposite-dev libxcursor-dev libxrandr-dev mesa-common-dev libjack-dev sccache`
