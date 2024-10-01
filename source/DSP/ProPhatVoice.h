@@ -497,8 +497,8 @@ void ProPhatVoice<T>::updateLfo()
 {
     T lfoOut;
     {
-        std::unique_lock<std::mutex> lck (lfoMutex, std::defer_lock);
-        if (! lck.try_lock())
+        std::unique_lock<std::mutex> lock (lfoMutex, std::defer_lock);
+        if (! lock.try_lock())
             return;
 
         lfoOut = lfo.processSample (T (0)) * lfoAmount;
