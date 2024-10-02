@@ -157,6 +157,41 @@ private:
     static constexpr auto lfoUpdateRate = 100;
     int lfoUpdateCounter = lfoUpdateRate;
     juce::dsp::Oscillator<T> lfo;
+
+    /** TODO RT: implement this pattern for all things that need to be try-locked. Can I abstract/wrap this into an object?
+        class WavetableSynthesizer
+        {
+        public:
+            void audioCallback()
+            {
+                if (std::unique_lock<spin_lock> tryLock (mutex, std::try_to_lock); tryLock.owns_lock())
+                {
+                    // Do something with wavetable
+                }
+                else
+                {
+                    // Do something else as wavetable is not available
+                }
+            }
+
+            void updateWavetable ()
+            {
+                // Create new Wavetable
+                auto newWavetable = std::make_unique<Wavetable>();
+                {
+                    std::lock_guard<spin_lock> lock (mutex);
+                    std::swap (wavetable, newWavetable);
+                }
+
+                // Delete old wavetable here to lock for least time possible
+            }
+
+        private:
+            spin_lock mutex;
+            std::unique_ptr<Wavetable> wavetable;
+        };
+        }
+    */
     std::mutex lfoMutex;
     T lfoAmount = static_cast<T> (Constants::defaultLfoAmount);
     LfoDest lfoDest;
@@ -332,6 +367,7 @@ void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float n
 
     //DBG ("ProPhatVoice::parameterChanged (" + parameterID + ", " + juce::String (newValue));
 
+    //TODO RT: I _think_ it's fine to just set the envelopes directly but I should make sure it's true
     if (parameterID == ampAttackID.getParamID ()
         || parameterID == ampDecayID.getParamID ()
         || parameterID == ampSustainID.getParamID ()
@@ -344,15 +380,17 @@ void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float n
              || parameterID == filterEnvReleaseID.getParamID ())
         setFilterEnvParam (parameterID, newValue);
 
+    //TODO RT: need to use try_locks for both of these
     else if (parameterID == lfoShapeID.getParamID ())
         setLfoShape ((int) newValue);
     else if (parameterID == lfoDestID.getParamID ())
         setLfoDest ((int) newValue);
-    else if (parameterID == lfoFreqID.getParamID ())
-        setLfoFreq (newValue);
-    else if (parameterID == lfoAmountID.getParamID ())
+    else if (parameterID == lfoAmountID.getParamID())
         setLfoAmount (newValue);
 
+    //TODO RT: I think because all of these end up setting smoothed values, it's fine to set them directly
+    else if (parameterID == lfoFreqID.getParamID())
+        setLfoFreq (newValue);
     else if (parameterID == filterCutoffID.getParamID ())
         setFilterCutoff (newValue);
     else if (parameterID == filterResonanceID.getParamID ())
@@ -487,6 +525,7 @@ void ProPhatVoice<T>::setLfoDest (int dest)
     //reset everything
     oscillators.resetLfoOscNoteOffsets();
 
+    //TODO RT: this should also be behind a lock/try_lock
     //change the destination
     lfoDest.curSelection = dest;
 }
@@ -497,9 +536,12 @@ void ProPhatVoice<T>::updateLfo()
 {
     T lfoOut;
     {
-        std::unique_lock<std::mutex> lock (lfoMutex, std::defer_lock);
-        if (! lock.try_lock())
+        std::unique_lock<std::mutex> tryLock (lfoMutex, std::defer_lock);
+        if (! tryLock.try_lock())
+        {
+            //TODO RT: I need to fade out or something when we can't acquire the lock
             return;
+        }
 
         lfoOut = lfo.processSample (T (0)) * lfoAmount;
     }
