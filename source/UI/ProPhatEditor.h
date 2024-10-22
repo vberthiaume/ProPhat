@@ -82,6 +82,8 @@ private:
 
     juce::GroupComponent oscGroup, filterGroup, ampGroup, lfoGroup, effectGroup;
 
+    juce::TextButton effectChangeButton;
+
 #if USE_BACKGROUND_IMAGE
     juce::Image backgroundTexture;
 #endif
@@ -120,7 +122,7 @@ private:
     juce::AudioProcessorValueTreeState::SliderAttachment lfoFreqAttachment, lfoAmountAttachment;
 
     //EFFECT
-    SliderLabel effectParam1Label, effectParam2Label;
+    SliderLabel effectParam1Label, effectParam2Label, tempLabel;
     SnappingSlider effectParam1Slider, effectParam2Slider;
     juce::AudioProcessorValueTreeState::SliderAttachment effectParam1Attachment, effectParam2Attachment;
 
@@ -135,6 +137,7 @@ private:
 #endif
 
     bool gotMidi { false };
+    void changeEffect();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProPhatEditor)
 };

@@ -99,6 +99,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     , effectGroup ("effectGroup", effectGroupDesc)
     , effectParam1Attachment (p.state, effectParam1ID.getParamID(), effectParam1Slider)
     , effectParam2Attachment (p.state, effectParam2ID.getParamID(), effectParam2Slider)
+    , effectChangeButton ("change effect!")
 
     //OTHER
     , masterGainAttachment (p.state, masterGainID.getParamID(), masterGainSlider)
@@ -173,14 +174,22 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
                         { {},               lfoFreqSliderDesc, juce::String (), lfoAmountSliderDesc },
                         { &lfoShapeButtons, &lfoFreqSlider,    &lfoDestButtons, &lfoAmountSlider });
 
-    addGroup (effectGroup, { &effectParam1Label,  &effectParam2Label},
-                           { effectParam1Desc,    effectParam2Desc },
-                           { &effectParam1Slider, &effectParam2Slider });
+    addGroup (effectGroup, { &effectParam1Label, &effectParam2Label, &tempLabel},
+                           { effectParam1Desc,    effectParam2Desc, "TAP DAT" },
+                           { &effectParam1Slider, &effectParam2Slider, &effectChangeButton });
 
     osc1ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID.getParamID()));
     osc2ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID.getParamID()));
     lfoShapeButtons.setSelectedButton  ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID.getParamID()));
     lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
+
+    //TODO: make this a button like the ones right above
+    effectChangeButton.onClick = std::bind (&ProPhatEditor::changeEffect, this);
+}
+
+void ProPhatEditor::changeEffect()
+{
+    DBG ("CHANGE DAT EFFECT BRO");
 }
 
 ProPhatEditor::~ProPhatEditor ()
@@ -327,7 +336,7 @@ void ProPhatEditor::resized()
 
     //second line
     positionGroup (lfoGroup, bottomSection.removeFromLeft (sliderColumnW + buttonGroupColumnW + panelGap), { &lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider }, 2, 2);
-    positionGroup (effectGroup, bottomSection.removeFromLeft (2 * sliderColumnW + panelGap), { &effectParam1Slider, &effectParam2Slider }, 2, 2);
+    positionGroup (effectGroup, bottomSection.removeFromLeft (2 * sliderColumnW + panelGap), { &effectParam1Slider, &effectParam2Slider, &effectChangeButton }, 2, 2);
     positionGroup (ampGroup, bottomSection, { &ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider, &masterGainSlider }, 1, 5);
 
 #if CPU_USAGE
