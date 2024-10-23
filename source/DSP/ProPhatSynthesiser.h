@@ -26,6 +26,141 @@
 #include "PhatVerb.h"
 #include "../Utility/Helpers.h"
 
+template <std::floating_point T>
+class Crossfade
+{
+public:
+    enum ActiveBuffer { leftBuffer, rightBuffer };
+
+    Crossfade() = default;
+
+    /**
+        Resets the crossfade, setting the sample rate and ramp length.
+
+        @param sampleRate           The current sample rate.
+        @param rampLengthInSeconds  The duration of the ramp in seconds.
+    */
+    void reset (double sampleRate, double rampLengthInSeconds)
+    {
+        smoothedGain.reset (sampleRate, rampLengthInSeconds);
+    }
+
+    /**
+        Sets the active buffer. I.e. which one should be written to the output.
+        @param buffer   An enum value indicating which buffer to output.
+    */
+    void setActiveBuffer (ActiveBuffer buffer)
+    {
+        if (buffer == leftBuffer)
+            setGain (1.0);
+        else
+            setGain (0.0);
+    }
+
+    /**
+        Applies the crossfade.
+
+        Output buffer can be the same buffer as either of the inputs.
+
+        All buffers should have the same number of channels and samples as each
+        other, but if not, then the minimum number of channels/samples will be
+        used.
+
+        @param leftBuffer   The left input buffer to read from.
+        @param rightBuffer  The right input buffer to read from.
+        @param outputBuffer The buffer in which to store the result of the crossfade.
+    */
+    void process (const juce::AudioBuffer<T>& leftBuffer,
+                  const juce::AudioBuffer<T>& rightBuffer,
+                  juce::AudioBuffer<T>& outputBuffer)
+    {
+        // find the lowest number of channels available across all buffers
+        const auto channels = std::min ({ leftBuffer.getNumChannels(),
+                                          rightBuffer.getNumChannels(),
+                                          outputBuffer.getNumChannels() });
+
+        // find the lowest number of samples available across all buffers
+        const auto samples = std::min ({ leftBuffer.getNumSamples(),
+                                         rightBuffer.getNumSamples(),
+                                         outputBuffer.getNumSamples() });
+
+        for (int channel = 0; channel < channels; ++channel)
+        {
+            for (int sample = 0; sample < samples; ++sample)
+            {
+                // obtain the input samples from their respective buffers
+                const auto left = leftBuffer.getSample (channel, sample);
+                const auto right = rightBuffer.getSample (channel, sample);
+
+                // get the next gain value in the smoothed ramp towards target
+                const auto gain = smoothedGain.getNextValue();
+
+                // calculate the output sample as a mix of left and right
+                auto output = left * gain + right * (1.0 - gain);
+
+                // store the output sample value
+                outputBuffer.setSample (channel, sample, static_cast<T> (output));
+            }
+        }
+    }
+
+private:
+    /**
+        Can be used to set a custom gain level to combine the two buffers.
+        @param gain     The gain level of the left buffer.
+    */
+    void setGain (double gain)
+    {
+        smoothedGain.setTargetValue (std::clamp (gain, 0.0, 1.0));
+    }
+
+    juce::SmoothedValue<double, juce::ValueSmoothingTypes::Linear> smoothedGain;
+};
+
+//==================================================
+
+template <std::floating_point T>
+struct Crossfade_Processor
+{
+    PhatProcessorBase<T> processor1;
+    PhatProcessorBase<T> processor2;
+    std::vector<float> fade_buffer;
+
+    Crossfade<T> effectCrossFader;
+
+    void prepare (size_t max_buffer_size) { fade_buffer.reserve (max_buffer_size); } // pre-allocate!
+
+    //NOW HERE: I'm not sure if jatin's code here is meant to be working on a copy of the audio or the audio itself
+    void process (juce::AudioBuffer<T>&buffer, int startSample, int numSamples)
+    {
+        auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
+        const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
+
+        if (use_processor1)
+        {
+            processor1.process (buffer);
+            return;
+        }
+        if (use_processor2)
+        {
+            processor2.process (buffer);
+            return;
+        }
+
+        fade_buffer.resize (buffer.size());
+        std::copy (buffer.begin(), buffer.end(), fade_buffer.begin());
+
+        processor1.process (fade_buffer);
+        processor2.process (buffer);
+        effectCrossFader.process (buffer, fade_buffer);
+
+        return;
+    }
+};
+
+
+//========================================================
+
 /** The main Synthesiser for the plugin. It uses Constants::numVoices voices (of type ProPhatVoice),
 *   and one ProPhatSound, which applies to all midi notes. It responds to paramater changes in the
 *   state via juce::AudioProcessorValueTreeState::Listener().
@@ -47,6 +182,8 @@ public:
 
     void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override;
 
+    void changeEffect();
+
 private:
     void setEffectParam (juce::StringRef parameterID, float newValue);
 
@@ -62,9 +199,11 @@ private:
     std::set<int> voicesBeingKilled;
 
     std::unique_ptr<PhatProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
-    std::unique_ptr<PhatProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
     std::unique_ptr<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
+    
     std::vector<PhatProcessorBase<T>*> fxChain;
+
+    std::unique_ptr<PhatProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
 
     PhatVerbParameters reverbParams
     {
@@ -110,8 +249,9 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
     //TODO: make this dynamic
     //add effects to processing chain
     fxChain.push_back (verbWrapper.get());
-    fxChain.push_back (gainWrapper.get());
     fxChain.push_back (chorusWrapper.get());
+
+    fxChain.push_back (gainWrapper.get());
 }
 
 template <std::floating_point T>
@@ -185,6 +325,12 @@ void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNum
         return;
 
     Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
+}
+
+template <std::floating_point T>
+void ProPhatSynthesiser<T>::changeEffect()
+{
+
 }
 
 template <std::floating_point T>

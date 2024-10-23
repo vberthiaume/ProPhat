@@ -137,7 +137,6 @@ private:
 #endif
 
     bool gotMidi { false };
-    void changeEffect();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProPhatEditor)
 };

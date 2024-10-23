@@ -184,12 +184,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
 
     //TODO: make this a button like the ones right above
-    effectChangeButton.onClick = std::bind (&ProPhatEditor::changeEffect, this);
-}
-
-void ProPhatEditor::changeEffect()
-{
-    DBG ("CHANGE DAT EFFECT BRO");
+    effectChangeButton.onClick = std::bind (&ProPhatProcessor::changeEffect, &processor);
 }
 
 ProPhatEditor::~ProPhatEditor ()
