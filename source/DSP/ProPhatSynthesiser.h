@@ -30,13 +30,18 @@ template <std::floating_point T>
 class Crossfade
 {
 public:
-    enum ActiveBuffer { leftBuffer, rightBuffer };
+    enum EffectType
+    {
+        verb = 0,
+        phaser,
+        transitioning
+    };
+    EffectType curEffect = EffectType::verb;
 
     Crossfade() = default;
 
     /**
         Resets the crossfade, setting the sample rate and ramp length.
-
         @param sampleRate           The current sample rate.
         @param rampLengthInSeconds  The duration of the ramp in seconds.
     */
@@ -45,17 +50,41 @@ public:
         smoothedGain.reset (sampleRate, rampLengthInSeconds);
     }
 
+    void changeEffect()
+    {
+        if (curEffect == EffectType::verb)
+            curEffect = EffectType::phaser;
+        else if (curEffect == EffectType::phaser)
+                curEffect = EffectType::verb;
+        else
+            jassertfalse;
+
+        if (curEffect == EffectType::verb)
+            setGain (1.0);
+        else
+            setGain (0.0);
+    };
+
+    EffectType getCurrentEffectType() const
+    {
+        //TODO: this isn't atomic. Try lock?
+        if (smoothedGain.isSmoothing())
+            return EffectType::transitioning;
+
+        return curEffect;
+    }
+
     /**
         Sets the active buffer. I.e. which one should be written to the output.
         @param buffer   An enum value indicating which buffer to output.
     */
-    void setActiveBuffer (ActiveBuffer buffer)
-    {
-        if (buffer == leftBuffer)
-            setGain (1.0);
-        else
-            setGain (0.0);
-    }
+    //void setActiveBuffer (ActiveBuffer buffer)
+    //{
+    //    if (buffer == leftBuffer)
+    //        setGain (1.0);
+    //    else
+    //        setGain (0.0);
+    //}
 
     /**
         Applies the crossfade.
@@ -120,44 +149,146 @@ private:
 //==================================================
 
 template <std::floating_point T>
-struct Crossfade_Processor
+class EffectsProcessor
 {
-    PhatProcessorBase<T> processor1;
-    PhatProcessorBase<T> processor2;
-    std::vector<float> fade_buffer;
+public:
+    EffectsProcessor()
+    {
+        verbWrapper = std::make_unique<PhatProcessorWrapper<PhatVerbProcessor<T>, T>>();
+        verbWrapper->processor.setParameters (reverbParams);
 
-    Crossfade<T> effectCrossFader;
+        chorusWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>>();
+    }
 
-    void prepare (size_t max_buffer_size) { fade_buffer.reserve (max_buffer_size); } // pre-allocate!
+    void prepare (const juce::dsp::ProcessSpec& spec)
+    {
+        // pre-allocate!
+        fade_buffer1.setSize (spec.numChannels, spec.maximumBlockSize);
+        fade_buffer2.setSize (spec.numChannels, spec.maximumBlockSize);
 
-    //NOW HERE: I'm not sure if jatin's code here is meant to be working on a copy of the audio or the audio itself
-    void process (juce::AudioBuffer<T>&buffer, int startSample, int numSamples)
+        verbWrapper->prepare(spec);
+        chorusWrapper->prepare (spec);
+    }
+
+    template <std::floating_point T>
+    void setEffectParam (juce::StringRef parameterID, T newValue) 
+    {
+        if (parameterID == ProPhatParameterIds::effectParam1ID.getParamID())
+            reverbParams.roomSize = newValue;
+        else if (parameterID == ProPhatParameterIds::effectParam2ID.getParamID())
+            reverbParams.wetLevel = newValue;
+        else
+            jassertfalse; //unknown effect parameter!
+
+        verbWrapper->processor.setParameters (reverbParams);
+    }
+
+   void changeEffect()
+    {
+        effectCrossFader.changeEffect();
+    };
+
+#if 1
+    void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
+    {
+        //TODO: surround with trylock or something
+        const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
+
+        if (currentEffectType == Crossfade<T>::EffectType::transitioning)
+        {
+            //copy the OG buffer into the individual processor ones
+            fade_buffer1 = buffer;
+            fade_buffer2 = buffer;
+
+            //make the individual blocks and process
+            auto audioBlock1 { juce::dsp::AudioBlock<T> (fade_buffer1).getSubBlock ((size_t) startSample, (size_t) numSamples) };
+            auto context1 { juce::dsp::ProcessContextReplacing<T> (audioBlock1) };
+            verbWrapper->process (context1);
+
+            auto audioBlock2 { juce::dsp::AudioBlock<T> (fade_buffer2).getSubBlock ((size_t) startSample, (size_t) numSamples) };
+            auto context2 { juce::dsp::ProcessContextReplacing<T> (audioBlock2) };
+            chorusWrapper->process (context2);
+
+            //crossfade the 2 effects
+            effectCrossFader.process (fade_buffer1, fade_buffer2, buffer);
+
+            return;
+        }
+
+        auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
+        auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
+
+        if (currentEffectType == Crossfade<T>::EffectType::verb)
+            verbWrapper->process (context);
+        else if (currentEffectType == Crossfade<T>::EffectType::phaser)
+            chorusWrapper->process (context);
+        else
+            jassertfalse;   //unknown effect!!
+    }
+#else
+    void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     {
         auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
         const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
-        if (use_processor1)
+        //TODO: surround with trylock or something
+        const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
+
+        switch (currentEffectType)
         {
-            processor1.process (buffer);
-            return;
+            case Crossfade<T>::EffectType::verb:
+                verbWrapper->process (context);
+                break;
+            case Crossfade<T>::EffectType::phaser:
+                chorusWrapper->process (context);
+                break;
+            case Crossfade<T>::EffectType::transitioning:
+
+                //for (auto& fadeBuf : { fade_buffer1, fade_buffer2 })
+                //{
+                //    fadeBuf.resize (numSamples);
+                //    std::copy (buffer.begin(), buffer.end(), fadeBuf.begin());
+                //}
+
+                //NOW HERE these take contexes. So I need to make copies of the context and/or audio block above
+
+                //verbWrapper->process (fade_buffer1);
+                //chorusWrapper->process (fade_buffer2);
+
+                ////this takes audio buffers
+                //effectCrossFader.process (fade_buffer1, fade_buffer2, buffer);
+                break;
+            default:
+                jassertfalse;
+                break;
         }
-        if (use_processor2)
-        {
-            processor2.process (buffer);
-            return;
-        }
-
-        fade_buffer.resize (buffer.size());
-        std::copy (buffer.begin(), buffer.end(), fade_buffer.begin());
-
-        processor1.process (fade_buffer);
-        processor2.process (buffer);
-        effectCrossFader.process (buffer, fade_buffer);
-
-        return;
     }
-};
+#endif
 
+private:
+    std::unique_ptr<PhatProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
+
+    PhatVerbParameters reverbParams
+    {
+        //manually setting all these because we need to set the default room size and wet level to 0 if we want to be able to retrieve
+        //these values from a saved state. If they are saved as 0 in the state, the event callback will not be propagated because
+        //the change isn't forced-pushed
+        0.0f, //< Room size, 0 to 1.0, where 1.0 is big, 0 is small.
+        0.5f, //< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped.
+        0.0f, //< Wet level, 0 to 1.0
+        0.4f, //< Dry level, 0 to 1.0
+        1.0f, //< Reverb width, 0 to 1.0, where 1.0 is very wide.
+        0.0f //< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop.
+    };
+
+
+    std::unique_ptr<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
+
+    //std::vector<T> fade_buffer1, fade_buffer2;
+    juce::AudioBuffer<T> fade_buffer1, fade_buffer2;
+
+    Crossfade<T> effectCrossFader;
+};
 
 //========================================================
 
@@ -185,7 +316,7 @@ public:
     void changeEffect();
 
 private:
-    void setEffectParam (juce::StringRef parameterID, float newValue);
+    //void setEffectParam (juce::StringRef parameterID, float newValue);
 
     void renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples) override;
 
@@ -198,25 +329,29 @@ private:
     //TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
-    std::unique_ptr<PhatProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
-    std::unique_ptr<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
-    
-    std::vector<PhatProcessorBase<T>*> fxChain;
+    //std::unique_ptr<PhatProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
+    //std::unique_ptr<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
 
+    //TODO: do i still need this or is is just the crossfade now?
+    //std::vector<PhatProcessorBase<T>*> fxChain;
+    EffectsProcessor<T> effectsProcessor;
+
+
+    //TODO: probably don't need the wrapper on this
     std::unique_ptr<PhatProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
 
-    PhatVerbParameters reverbParams
-    {
-        //manually setting all these because we need to set the default room size and wet level to 0 if we want to be able to retrieve
-        //these values from a saved state. If they are saved as 0 in the state, the event callback will not be propagated because
-        //the change isn't forced-pushed
-        0.0f, //< Room size, 0 to 1.0, where 1.0 is big, 0 is small.
-        0.5f, //< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped.
-        0.0f, //< Wet level, 0 to 1.0
-        0.4f, //< Dry level, 0 to 1.0
-        1.0f, //< Reverb width, 0 to 1.0, where 1.0 is very wide.
-        0.0f  //< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop.
-    };
+    //PhatVerbParameters reverbParams
+    //{
+    //    //manually setting all these because we need to set the default room size and wet level to 0 if we want to be able to retrieve
+    //    //these values from a saved state. If they are saved as 0 in the state, the event callback will not be propagated because
+    //    //the change isn't forced-pushed
+    //    0.0f, //< Room size, 0 to 1.0, where 1.0 is big, 0 is small.
+    //    0.5f, //< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped.
+    //    0.0f, //< Wet level, 0 to 1.0
+    //    0.4f, //< Dry level, 0 to 1.0
+    //    1.0f, //< Reverb width, 0 to 1.0, where 1.0 is very wide.
+    //    0.0f  //< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop.
+    //};
 
     juce::AudioProcessorValueTreeState& state;
 
@@ -236,22 +371,21 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
 
     addParamListenersToState ();
 
-    //init our effects
-    verbWrapper = std::make_unique<PhatProcessorWrapper<PhatVerbProcessor<T>, T>>();
-    verbWrapper->processor.setParameters (reverbParams);
+    ////init our effects
+    //verbWrapper = std::make_unique<PhatProcessorWrapper<PhatVerbProcessor<T>, T>>();
+    //verbWrapper->processor.setParameters (reverbParams);
+
+    //chorusWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>>();
+
+    ////TODO: make this dynamic
+    ////add effects to processing chain
+    //fxChain.push_back (verbWrapper.get());
+    //fxChain.push_back (chorusWrapper.get());
 
     gainWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Gain<T>, T>>();
     gainWrapper->processor.setRampDurationSeconds (0.1);
     setMasterGain (Constants::defaultMasterGain);
 
-    chorusWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>>();
-
-    //TODO: make this dynamic
-    //add effects to processing chain
-    fxChain.push_back (verbWrapper.get());
-    fxChain.push_back (chorusWrapper.get());
-
-    fxChain.push_back (gainWrapper.get());
 }
 
 template <std::floating_point T>
@@ -278,8 +412,11 @@ void ProPhatSynthesiser<T>::prepare (const juce::dsp::ProcessSpec& spec) noexcep
     for (auto* v : voices)
         dynamic_cast<ProPhatVoice<T>*> (v)->prepare (spec);
 
-    for (const auto& fx : fxChain)
-        fx->prepare (spec);
+    //for (const auto& fx : fxChain)
+    //    fx->prepare (spec);
+    effectsProcessor.prepare(spec);
+
+    gainWrapper->prepare (spec);
 }
 
 template <std::floating_point T>
@@ -290,7 +427,7 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
     //DBG ("ProPhatSynthesiser::parameterChanged (" + parameterID + ", " + juce::String (newValue));
 
     if (parameterID == effectParam1ID.getParamID () || parameterID == effectParam2ID.getParamID ())
-        setEffectParam (parameterID, newValue);
+        effectsProcessor.setEffectParam (parameterID, newValue);
     else if (parameterID == masterGainID.getParamID ())
         setMasterGain (newValue);
     else
@@ -303,18 +440,18 @@ void ProPhatSynthesiser<T>::setMasterGain (float gain)
     gainWrapper->processor.setGainLinear (static_cast<T> (gain));
 }
 
-template <std::floating_point T>
-void ProPhatSynthesiser<T>::setEffectParam ([[maybe_unused]] juce::StringRef parameterID, [[maybe_unused]] float newValue)
-{
-    if (parameterID == ProPhatParameterIds::effectParam1ID.getParamID ())
-        reverbParams.roomSize = newValue;
-    else if (parameterID == ProPhatParameterIds::effectParam2ID.getParamID ())
-        reverbParams.wetLevel = newValue;
-    else
-        jassertfalse;   //unknown effect parameter!
-
-    verbWrapper->processor.setParameters (reverbParams);
-}
+//template <std::floating_point T>
+//void ProPhatSynthesiser<T>::setEffectParam (juce::StringRef parameterID, float newValue)
+//{
+//    if (parameterID == ProPhatParameterIds::effectParam1ID.getParamID ())
+//        reverbParams.roomSize = newValue;
+//    else if (parameterID == ProPhatParameterIds::effectParam2ID.getParamID ())
+//        reverbParams.wetLevel = newValue;
+//    else
+//        jassertfalse;   //unknown effect parameter!
+//
+//    verbWrapper->processor.setParameters (reverbParams);
+//}
 
 template <std::floating_point T>
 void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNumber, const float velocity)
@@ -330,7 +467,7 @@ void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNum
 template <std::floating_point T>
 void ProPhatSynthesiser<T>::changeEffect()
 {
-
+    effectsProcessor.changeEffect();
 }
 
 template <std::floating_point T>
@@ -339,9 +476,14 @@ void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int
     for (auto* voice : voices)
         voice->renderNextBlock (outputAudio, startSample, numSamples);
 
+    //TODO: this converts the arguments internally to a context, exactly like below, so might as well use that directly as params
+    effectsProcessor.process (outputAudio, startSample, numSamples);
+    
     auto audioBlock { juce::dsp::AudioBlock<T> (outputAudio).getSubBlock ((size_t) startSample, (size_t) numSamples) };
     const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
-    for (const auto& fx : fxChain)
-        fx->process (context);
+    //for (const auto& fx : fxChain)
+    //    fx->process (context);
+
+    gainWrapper->process (context);
 }

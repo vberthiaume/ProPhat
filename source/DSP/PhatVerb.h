@@ -348,8 +348,6 @@ public:
     }
 
     /** Applies the reverb to a mono or stereo buffer. */
-    //template <typename ProcessContext>
-    //void process (const ProcessContext& context) noexcept override
     void process (const juce::dsp::ProcessContextReplacing<T>& context) override
     {
         const auto& inputBlock = context.getInputBlock();
@@ -362,7 +360,7 @@ public:
 
         outputBlock.copyFrom (inputBlock);
 
-        if (!enabled || context.isBypassed)
+        if (! enabled || context.isBypassed)
             return;
 
         if (numInChannels == 1 && numOutChannels == 1)
