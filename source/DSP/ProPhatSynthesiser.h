@@ -42,8 +42,7 @@ public:
 
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
-        //smoothedGain.reset (sampleRate, rampLengthInSeconds);
-        smoothedGain.reset (spec.maximumBlockSize);
+        smoothedGain.reset (spec.sampleRate, .1);
     }
 
     void changeEffect()
