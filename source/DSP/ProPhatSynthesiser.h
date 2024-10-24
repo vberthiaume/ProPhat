@@ -73,19 +73,7 @@ public:
 
         return curEffect;
     }
-
-    /**
-        Sets the active buffer. I.e. which one should be written to the output.
-        @param buffer   An enum value indicating which buffer to output.
-    */
-    //void setActiveBuffer (ActiveBuffer buffer)
-    //{
-    //    if (buffer == leftBuffer)
-    //        setGain (1.0);
-    //    else
-    //        setGain (0.0);
-    //}
-
+    
     /**
         Applies the crossfade.
 
@@ -103,15 +91,26 @@ public:
                   const juce::AudioBuffer<T>& rightBuffer,
                   juce::AudioBuffer<T>& outputBuffer)
     {
+#if 1
+        jassert (leftBuffer.getNumChannels() == rightBuffer.getNumChannels()
+                 && rightBuffer.getNumChannels() == outputBuffer.getNumChannels());
+        jassert (leftBuffer.getNumSamples() == rightBuffer.getNumSamples()
+                 && rightBuffer.getNumSamples() == outputBuffer.getNumSamples());
+
+        const auto channels = outputBuffer.getNumChannels();
+        const auto samples = outputBuffer.getNumSamples();
+
+#else
         // find the lowest number of channels available across all buffers
         const auto channels = std::min ({ leftBuffer.getNumChannels(),
-                                          rightBuffer.getNumChannels(),
-                                          outputBuffer.getNumChannels() });
+            rightBuffer.getNumChannels(),
+            outputBuffer.getNumChannels() });
 
         // find the lowest number of samples available across all buffers
         const auto samples = std::min ({ leftBuffer.getNumSamples(),
-                                         rightBuffer.getNumSamples(),
-                                         outputBuffer.getNumSamples() });
+            rightBuffer.getNumSamples(),
+            outputBuffer.getNumSamples() });
+#endif
 
         for (int channel = 0; channel < channels; ++channel)
         {
@@ -188,7 +187,6 @@ public:
         effectCrossFader.changeEffect();
     };
 
-#if 1
     void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     {
         //TODO: surround with trylock or something
@@ -225,45 +223,6 @@ public:
         else
             jassertfalse;   //unknown effect!!
     }
-#else
-    void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
-    {
-        auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
-        const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
-
-        //TODO: surround with trylock or something
-        const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
-
-        switch (currentEffectType)
-        {
-            case Crossfade<T>::EffectType::verb:
-                verbWrapper->process (context);
-                break;
-            case Crossfade<T>::EffectType::phaser:
-                chorusWrapper->process (context);
-                break;
-            case Crossfade<T>::EffectType::transitioning:
-
-                //for (auto& fadeBuf : { fade_buffer1, fade_buffer2 })
-                //{
-                //    fadeBuf.resize (numSamples);
-                //    std::copy (buffer.begin(), buffer.end(), fadeBuf.begin());
-                //}
-
-                //NOW HERE these take contexes. So I need to make copies of the context and/or audio block above
-
-                //verbWrapper->process (fade_buffer1);
-                //chorusWrapper->process (fade_buffer2);
-
-                ////this takes audio buffers
-                //effectCrossFader.process (fade_buffer1, fade_buffer2, buffer);
-                break;
-            default:
-                jassertfalse;
-                break;
-        }
-    }
-#endif
 
 private:
     std::unique_ptr<PhatProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
