@@ -27,7 +27,7 @@
 #include "../Utility/Helpers.h"
 
 template <std::floating_point T>
-class Crossfade
+class EffectsCrossfadeProcessor
 {
 public:
     enum EffectType
@@ -38,16 +38,12 @@ public:
     };
     EffectType curEffect = EffectType::verb;
 
-    Crossfade() = default;
+    EffectsCrossfadeProcessor() = default;
 
-    /**
-        Resets the crossfade, setting the sample rate and ramp length.
-        @param sampleRate           The current sample rate.
-        @param rampLengthInSeconds  The duration of the ramp in seconds.
-    */
-    void reset (double sampleRate, double rampLengthInSeconds)
+    void prepare (const juce::dsp::ProcessSpec& spec)
     {
-        smoothedGain.reset (sampleRate, rampLengthInSeconds);
+        //smoothedGain.reset (sampleRate, rampLengthInSeconds);
+        smoothedGain.reset (spec.maximumBlockSize);
     }
 
     void changeEffect()
@@ -167,6 +163,7 @@ public:
 
         verbWrapper->prepare(spec);
         chorusWrapper->prepare (spec);
+        effectCrossFader.prepare (spec);
     }
 
     template <std::floating_point T>
@@ -192,7 +189,7 @@ public:
         //TODO: surround with trylock or something
         const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
 
-        if (currentEffectType == Crossfade<T>::EffectType::transitioning)
+        if (currentEffectType == EffectsCrossfadeProcessor<T>::EffectType::transitioning)
         {
             //copy the OG buffer into the individual processor ones
             fade_buffer1 = buffer;
@@ -200,11 +197,11 @@ public:
 
             //make the individual blocks and process
             auto audioBlock1 { juce::dsp::AudioBlock<T> (fade_buffer1).getSubBlock ((size_t) startSample, (size_t) numSamples) };
-            auto context1 { juce::dsp::ProcessContextReplacing<T> (audioBlock1) };
+            auto context1    { juce::dsp::ProcessContextReplacing<T> (audioBlock1) };
             verbWrapper->process (context1);
 
             auto audioBlock2 { juce::dsp::AudioBlock<T> (fade_buffer2).getSubBlock ((size_t) startSample, (size_t) numSamples) };
-            auto context2 { juce::dsp::ProcessContextReplacing<T> (audioBlock2) };
+            auto context2    { juce::dsp::ProcessContextReplacing<T> (audioBlock2) };
             chorusWrapper->process (context2);
 
             //crossfade the 2 effects
@@ -214,17 +211,19 @@ public:
         }
 
         auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
-        auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
+        auto context    { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
-        if (currentEffectType == Crossfade<T>::EffectType::verb)
+        if (currentEffectType == EffectsCrossfadeProcessor<T>::EffectType::verb)
             verbWrapper->process (context);
-        else if (currentEffectType == Crossfade<T>::EffectType::phaser)
+        else if (currentEffectType == EffectsCrossfadeProcessor<T>::EffectType::phaser)
             chorusWrapper->process (context);
         else
             jassertfalse;   //unknown effect!!
     }
 
 private:
+    std::unique_ptr<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
+
     std::unique_ptr<PhatProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
 
     PhatVerbParameters reverbParams
@@ -241,12 +240,8 @@ private:
     };
 
 
-    std::unique_ptr<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
-
-    //std::vector<T> fade_buffer1, fade_buffer2;
     juce::AudioBuffer<T> fade_buffer1, fade_buffer2;
-
-    Crossfade<T> effectCrossFader;
+    EffectsCrossfadeProcessor<T> effectCrossFader;
 };
 
 //========================================================
@@ -275,42 +270,15 @@ public:
     void changeEffect();
 
 private:
-    //void setEffectParam (juce::StringRef parameterID, float newValue);
-
     void renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples) override;
-
-    enum
-    {
-        reverbIndex = 0,
-        masterGainIndex,
-    };
 
     //TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
-    //std::unique_ptr<PhatProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
-    //std::unique_ptr<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
-
-    //TODO: do i still need this or is is just the crossfade now?
-    //std::vector<PhatProcessorBase<T>*> fxChain;
     EffectsProcessor<T> effectsProcessor;
-
 
     //TODO: probably don't need the wrapper on this
     std::unique_ptr<PhatProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
-
-    //PhatVerbParameters reverbParams
-    //{
-    //    //manually setting all these because we need to set the default room size and wet level to 0 if we want to be able to retrieve
-    //    //these values from a saved state. If they are saved as 0 in the state, the event callback will not be propagated because
-    //    //the change isn't forced-pushed
-    //    0.0f, //< Room size, 0 to 1.0, where 1.0 is big, 0 is small.
-    //    0.5f, //< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped.
-    //    0.0f, //< Wet level, 0 to 1.0
-    //    0.4f, //< Dry level, 0 to 1.0
-    //    1.0f, //< Reverb width, 0 to 1.0, where 1.0 is very wide.
-    //    0.0f  //< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop.
-    //};
 
     juce::AudioProcessorValueTreeState& state;
 
@@ -330,21 +298,9 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
 
     addParamListenersToState ();
 
-    ////init our effects
-    //verbWrapper = std::make_unique<PhatProcessorWrapper<PhatVerbProcessor<T>, T>>();
-    //verbWrapper->processor.setParameters (reverbParams);
-
-    //chorusWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>>();
-
-    ////TODO: make this dynamic
-    ////add effects to processing chain
-    //fxChain.push_back (verbWrapper.get());
-    //fxChain.push_back (chorusWrapper.get());
-
     gainWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Gain<T>, T>>();
     gainWrapper->processor.setRampDurationSeconds (0.1);
     setMasterGain (Constants::defaultMasterGain);
-
 }
 
 template <std::floating_point T>
@@ -371,8 +327,6 @@ void ProPhatSynthesiser<T>::prepare (const juce::dsp::ProcessSpec& spec) noexcep
     for (auto* v : voices)
         dynamic_cast<ProPhatVoice<T>*> (v)->prepare (spec);
 
-    //for (const auto& fx : fxChain)
-    //    fx->prepare (spec);
     effectsProcessor.prepare(spec);
 
     gainWrapper->prepare (spec);
