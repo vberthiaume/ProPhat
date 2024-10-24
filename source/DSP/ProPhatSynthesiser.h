@@ -26,16 +26,18 @@
 #include "PhatVerb.h"
 #include "../Utility/Helpers.h"
 
+enum class EffectType
+{
+    verb = 0,
+    chorus,
+    transitioning
+};
+
 template <std::floating_point T>
 class EffectsCrossfadeProcessor
 {
 public:
-    enum EffectType
-    {
-        verb = 0,
-        chorus,
-        transitioning
-    };
+
 
     EffectsCrossfadeProcessor() = default;
 
@@ -170,14 +172,34 @@ public:
     template <std::floating_point T>
     void setEffectParam (juce::StringRef parameterID, T newValue) 
     {
-        if (parameterID == ProPhatParameterIds::effectParam1ID.getParamID())
-            reverbParams.roomSize = newValue;
+        const auto curEffect { effectCrossFader.getCurrentEffectType() };
+        if (parameterID == ProPhatParameterIds::effectParam1ID.getParamID ())
+        {
+            if (curEffect == EffectType::verb)
+            {
+                reverbParams.roomSize = newValue;
+                verbWrapper->processor.setParameters (reverbParams);
+            }
+            else if (curEffect == EffectType::chorus)
+            {
+                chorusWrapper->processor.setRate (static_cast<T> (99.9) * newValue);
+            }
+        }
         else if (parameterID == ProPhatParameterIds::effectParam2ID.getParamID())
-            reverbParams.wetLevel = newValue;
+        {
+            if (curEffect == EffectType::verb)
+            {
+                reverbParams.wetLevel = newValue;
+                verbWrapper->processor.setParameters (reverbParams);
+            }
+            else if (curEffect == EffectType::chorus)
+            {
+                chorusWrapper->processor.setDepth (newValue);
+                chorusWrapper->processor.setMix (newValue);
+            }
+        }
         else
             jassertfalse; //unknown effect parameter!
-
-        verbWrapper->processor.setParameters (reverbParams);
     }
 
    void changeEffect()
@@ -190,7 +212,7 @@ public:
         //TODO: surround with trylock or something
         const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
 
-        if (currentEffectType == EffectsCrossfadeProcessor<T>::EffectType::transitioning)
+        if (currentEffectType == EffectType::transitioning)
         {
             //copy the OG buffer into the individual processor ones
             fade_buffer1 = buffer;
@@ -214,9 +236,9 @@ public:
         auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
         auto context    { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
-        if (currentEffectType == EffectsCrossfadeProcessor<T>::EffectType::verb)
+        if (currentEffectType == EffectType::verb)
             verbWrapper->process (context);
-        else if (currentEffectType == EffectsCrossfadeProcessor<T>::EffectType::chorus)
+        else if (currentEffectType == EffectType::chorus)
             chorusWrapper->process (context);
         else
             jassertfalse;   //unknown effect!!
@@ -226,7 +248,6 @@ private:
     std::unique_ptr<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
 
     std::unique_ptr<PhatProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
-
     PhatVerbParameters reverbParams
     {
         //manually setting all these because we need to set the default room size and wet level to 0 if we want to be able to retrieve
@@ -239,7 +260,6 @@ private:
         1.0f, //< Reverb width, 0 to 1.0, where 1.0 is very wide.
         0.0f //< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop.
     };
-
 
     juce::AudioBuffer<T> fade_buffer1, fade_buffer2;
     EffectsCrossfadeProcessor<T> effectCrossFader;
