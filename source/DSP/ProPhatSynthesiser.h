@@ -33,10 +33,9 @@ public:
     enum EffectType
     {
         verb = 0,
-        phaser,
+        chorus,
         transitioning
     };
-    EffectType curEffect = EffectType::verb;
 
     EffectsCrossfadeProcessor() = default;
 
@@ -48,16 +47,22 @@ public:
     void changeEffect()
     {
         if (curEffect == EffectType::verb)
-            curEffect = EffectType::phaser;
-        else if (curEffect == EffectType::phaser)
+            curEffect = EffectType::chorus;
+        else if (curEffect == EffectType::chorus)
                 curEffect = EffectType::verb;
         else
             jassertfalse;
 
         if (curEffect == EffectType::verb)
-            setGain (1.0);
+            smoothedGain.setTargetValue (1.);
         else
-            setGain (0.0);
+            smoothedGain.setTargetValue (0.);
+
+        //this does not resolve the click we get on the first transition
+        //if (curEffect == EffectType::verb)
+        //    smoothedGain.setTargetValue (0.);
+        //else
+        //    smoothedGain.setTargetValue (1.);
     };
 
     EffectType getCurrentEffectType() const
@@ -128,16 +133,13 @@ public:
     }
 
 private:
-    /**
-        Can be used to set a custom gain level to combine the two buffers.
-        @param gain     The gain level of the left buffer.
-    */
-    void setGain (double gain)
-    {
-        smoothedGain.setTargetValue (std::clamp (gain, 0.0, 1.0));
-    }
-
     juce::SmoothedValue<double, juce::ValueSmoothingTypes::Linear> smoothedGain;
+
+    //TODO: this needs to be stored and retreived from the state
+    EffectType curEffect = EffectType::verb;
+
+    //changing the default curEffect to chorus DOES fix the click on first transition. Weird man
+    //EffectType curEffect = EffectType::chorus;
 };
 
 //==================================================
@@ -214,7 +216,7 @@ public:
 
         if (currentEffectType == EffectsCrossfadeProcessor<T>::EffectType::verb)
             verbWrapper->process (context);
-        else if (currentEffectType == EffectsCrossfadeProcessor<T>::EffectType::phaser)
+        else if (currentEffectType == EffectsCrossfadeProcessor<T>::EffectType::chorus)
             chorusWrapper->process (context);
         else
             jassertfalse;   //unknown effect!!
