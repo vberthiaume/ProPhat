@@ -46,23 +46,24 @@ public:
 
     void changeEffect()
     {
+        //TODO: probagate back the failure to change the effect
+        //first reverse the smoothedGain. If we're not at one of the extremes, we got a double click which we'll ignore
+        if (smoothedGain.getTargetValue() == 1.)
+            smoothedGain.setTargetValue (0.);
+        else if (smoothedGain.getTargetValue() == 0.)
+            smoothedGain.setTargetValue (1.);
+        else
+        {
+            jassertfalse;
+            return;
+        }
+
         if (curEffect == EffectType::verb)
             curEffect = EffectType::chorus;
         else if (curEffect == EffectType::chorus)
             curEffect = EffectType::verb;
         else
             jassertfalse;
-
-        if (curEffect == EffectType::verb)
-            smoothedGain.setTargetValue (1.);
-        else
-            smoothedGain.setTargetValue (0.);
-
-        //this does not resolve the click we get on the first transition
-        //if (curEffect == EffectType::verb)
-        //    smoothedGain.setTargetValue (0.);
-        //else
-        //    smoothedGain.setTargetValue (1.);
     };
 
     EffectType getCurrentEffectType() const
@@ -74,37 +75,44 @@ public:
         return curEffect;
     }
 
-    /** so this needs to be a previous and next buffer, and the smoothing needs to always be 1 -> 0.
-    *   I don' think this class should know anything about the processors... actually it should just get
-    *   references to the processors, or even just their processed outputs?
-    */
-    void process (const juce::AudioBuffer<T>& leftBuffer,
-        const juce::AudioBuffer<T>& rightBuffer,
-        juce::AudioBuffer<T>& outputBuffer)
+    void process (const juce::AudioBuffer<T>& previousEffectBuffer,
+                  const juce::AudioBuffer<T>& nextEffectBuffer,
+                  juce::AudioBuffer<T>& outputBuffer)
     {
-        jassert (leftBuffer.getNumChannels() == rightBuffer.getNumChannels() && rightBuffer.getNumChannels() == outputBuffer.getNumChannels());
-        jassert (leftBuffer.getNumSamples() == rightBuffer.getNumSamples() && rightBuffer.getNumSamples() == outputBuffer.getNumSamples());
+        jassert (previousEffectBuffer.getNumChannels() == nextEffectBuffer.getNumChannels() && nextEffectBuffer.getNumChannels() == outputBuffer.getNumChannels());
+        jassert (previousEffectBuffer.getNumSamples() == nextEffectBuffer.getNumSamples() && nextEffectBuffer.getNumSamples() == outputBuffer.getNumSamples());
 
         const auto channels = outputBuffer.getNumChannels();
         const auto samples = outputBuffer.getNumSamples();
+        const auto needToInverse = smoothedGain.getTargetValue() == 1;
 
         for (int channel = 0; channel < channels; ++channel)
         {
             for (int sample = 0; sample < samples; ++sample)
             {
-                // obtain the input samples from their respective buffers
-                const auto left = leftBuffer.getSample (channel, sample);
-                const auto right = rightBuffer.getSample (channel, sample);
+                //TODO: get this outta the loop lmao
+                if (needToInverse)
+                {
+                    //get individual samples
+                    const auto prev = previousEffectBuffer.getSample (channel, sample);
+                    const auto next = nextEffectBuffer.getSample (channel, sample);
 
-                // get the next gain value in the smoothed ramp towards target
-                const auto gain = smoothedGain.getNextValue();
-                DBG(gain);
+                    //mix and send to output
+                    const auto gain = 1 - smoothedGain.getNextValue();
+                    auto output = prev * gain + next * (1.0 - gain);
+                    outputBuffer.setSample (channel, sample, static_cast<T> (output));
+                }
+                else
+                {
+                    //get individual samples
+                    const auto prev = nextEffectBuffer.getSample (channel, sample);
+                    const auto next = previousEffectBuffer.getSample (channel, sample);
 
-                // calculate the output sample as a mix of left and right
-                auto output = left * gain + right * (1.0 - gain);
-
-                // store the output sample value
-                outputBuffer.setSample (channel, sample, static_cast<T> (output));
+                    //mix and send to output
+                    const auto gain = smoothedGain.getNextValue();
+                    auto output = prev * gain + next * (1.0 - gain);
+                    outputBuffer.setSample (channel, sample, static_cast<T> (output));
+                }
             }
         }
     }
@@ -114,9 +122,6 @@ private:
 
     //TODO: this needs to be stored and retreived from the state
     EffectType curEffect = EffectType::verb;
-
-    //changing the default curEffect to chorus DOES fix the click on first transition. Weird man
-    //EffectType curEffect = EffectType::chorus;
 };
 
 //==================================================
