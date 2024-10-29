@@ -22,7 +22,7 @@
 [[maybe_unused]] void runWithinPluginEditor (const std::function<void (ProPhatProcessor& plugin)>& testCode)
 {
     ProPhatProcessor plugin;
-    auto gui = juce::ScopedJuceInitialiser_GUI {};
+    // auto gui = juce::ScopedJuceInitialiser_GUI {};
     auto editor = plugin.createEditorIfNeeded();
 
     testCode (plugin);

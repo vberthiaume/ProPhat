@@ -15,7 +15,7 @@ TEST_CASE ("Plugin instance", "[instance]")
     // This lets us use JUCE's MessageManager without leaking.
     // PluginProcessor might need this if you use the APVTS for example.
     // You'll also need it for tests that rely on juce::Graphics, juce::Timer, etc.
-    auto gui = juce::ScopedJuceInitialiser_GUI {};
+    // auto gui = juce::ScopedJuceInitialiser_GUI {};
 
     SECTION ("name")
     {
