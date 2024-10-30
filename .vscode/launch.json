@@ -1,17 +1,43 @@
 {
-	"version": "0.2.0",
-	"configurations": [
-		{
-		"name": "(lldb) Launch",
-		"type": "cppdbg",
-		"request": "launch",
-		"program": "${workspaceFolder}/Builds/ProPhat_artefacts/Debug/Standalone/ProPhat.app",
-		"args": [],
-		"stopAtEntry": false,
-		"cwd": "${workspaceFolder}",
-		"environment": [],
-		"externalConsole": false,
-		"MIMode": "lldb"
-		}
-	]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch - Linux",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/Builds/ProPhat_artefacts/Debug/Standalone/ProPhat",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "(lldb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/Builds/ProPhat_artefacts/Debug/Standalone/ProPhat.app",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(gdb) Launch - Windows",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\Builds\\ProPhat_artefacts\\Debug\\Standalone\\ProPhat.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:\\path\\to\\gdb.exe"
+        }
+    ]
 }
