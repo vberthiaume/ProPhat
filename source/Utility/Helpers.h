@@ -208,7 +208,6 @@ struct Selection
 {
     Selection () = default;
     Selection (int selection) : curSelection (selection) {}
-    virtual ~Selection () = default;
 
     int curSelection = 0;
 

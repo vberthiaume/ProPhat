@@ -43,7 +43,7 @@ class ProPhatEditor : public juce::AudioProcessorEditor
 {
 public:
     ProPhatEditor (ProPhatProcessor&);
-    ~ProPhatEditor ();
+    ~ProPhatEditor () override;
 
     void paint (juce::Graphics&) override;
     void resized() override;

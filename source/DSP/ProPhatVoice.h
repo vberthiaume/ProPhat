@@ -246,7 +246,7 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
 
                 //calculate and apply amp envelope
                 const auto ampEnv = ampADSR.getNextSample ();
-                for (int c = 0; c < numChannels; ++c)
+                for (size_t c = 0; c < numChannels; ++c)
                     oscBlock.getChannelPointer (c)[i] *= ampEnv;
             }
 
@@ -318,7 +318,7 @@ ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorStat
 template <std::floating_point T>
 void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    curPreparedSamples = spec.maximumBlockSize;
+    curPreparedSamples = (int) spec.maximumBlockSize;
     oscillators.prepare (spec);
 
     overlap = std::make_unique<juce::AudioBuffer<T>> (spec.numChannels, Constants::killRampSamples);

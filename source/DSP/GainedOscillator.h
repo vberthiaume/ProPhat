@@ -83,7 +83,7 @@ private:
         gainIndex
     };
 
-    std::atomic<OscShape::Values> currentOsc { OscShape::none }, nextOsc { { OscShape::saw } };
+    std::atomic<OscShape::Values> currentOsc { OscShape::none }, nextOsc { OscShape::saw };
 
     void updateOscillators();
 
@@ -178,6 +178,7 @@ void GainedOscillator<T>::updateOscillators()
     }
     break;
 
+    case OscShape::totalSelectable:
     default:
         jassertfalse;
         break;

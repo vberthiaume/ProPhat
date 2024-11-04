@@ -250,18 +250,18 @@ template <std::floating_point T>
 juce::dsp::AudioBlock<T> PhatOscillators<T>::process (int pos, int subBlockSize)
 {
     //process osc1
-    auto block1 { osc1Output.getSubBlock (pos, subBlockSize) };
+    auto block1 { osc1Output.getSubBlock ((size_t) pos, (size_t) subBlockSize) };
     juce::dsp::ProcessContextReplacing<T> osc1Context (block1);
     sub.process (osc1Context); //TODO: is the sub on osc1 because that's how it is on the real prophet? Should it be added to the noise below instead?
     osc1.process (osc1Context);
 
     //process osc2
-    auto block2 { osc2Output.getSubBlock (pos, subBlockSize) };
+    auto block2 { osc2Output.getSubBlock ((size_t) pos, (size_t) subBlockSize) };
     juce::dsp::ProcessContextReplacing<T> osc2Context (block2);
     osc2.process (osc2Context);
 
     //process noise
-    auto blockAll { noiseOutput.getSubBlock (pos, subBlockSize) };
+    auto blockAll { noiseOutput.getSubBlock ((size_t) pos, (size_t) subBlockSize) };
     juce::dsp::ProcessContextReplacing<T> noiseContext (blockAll);
     noise.process (noiseContext);
 
@@ -279,7 +279,7 @@ void PhatOscillators<T>::updateOscFrequenciesInternal ()
     if (curMidiNote < 0)
         return;
 
-    auto pitchWheelDeltaNote = Constants::pitchWheelNoteRange.convertFrom0to1 (pitchWheelPosition / 16383.f);
+    auto pitchWheelDeltaNote = Constants::pitchWheelNoteRange.convertFrom0to1 ((float) pitchWheelPosition / 16383.f);
 
     slopOsc1 = distribution (generator);
     slopOsc2 = distribution (generator);

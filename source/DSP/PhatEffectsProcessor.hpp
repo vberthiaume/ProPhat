@@ -64,7 +64,7 @@ public:
             curEffect = EffectType::verb;
         else
             jassertfalse;
-    };
+    }
 
     EffectType getCurrentEffectType() const
     {
@@ -84,6 +84,7 @@ public:
 
         const auto channels = outputBuffer.getNumChannels();
         const auto samples = outputBuffer.getNumSamples();
+        //TODO: compare floating points bro?
         const auto needToInverse = smoothedGain.getTargetValue() == 1;
 
         for (int channel = 0; channel < channels; ++channel)
@@ -141,15 +142,14 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
         // pre-allocate!
-        fade_buffer1.setSize (spec.numChannels, spec.maximumBlockSize);
-        fade_buffer2.setSize (spec.numChannels, spec.maximumBlockSize);
+        fade_buffer1.setSize ((int) spec.numChannels, (int) spec.maximumBlockSize);
+        fade_buffer2.setSize ((int) spec.numChannels, (int) spec.maximumBlockSize);
 
         verbWrapper->prepare (spec);
         chorusWrapper->prepare (spec);
         effectCrossFader.prepare (spec);
     }
 
-    template <std::floating_point T>
     void setEffectParam (juce::StringRef parameterID, T newValue)
     {
         const auto curEffect { effectCrossFader.getCurrentEffectType() };
@@ -157,7 +157,7 @@ public:
         {
             if (curEffect == EffectType::verb)
             {
-                reverbParams.roomSize = newValue;
+                reverbParams.roomSize = (float) newValue;
                 verbWrapper->processor.setParameters (reverbParams);
             }
             else if (curEffect == EffectType::chorus)
@@ -185,7 +185,7 @@ public:
     void changeEffect()
     {
         effectCrossFader.changeEffect();
-    };
+    }
 
     void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     {
