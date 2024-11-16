@@ -673,18 +673,18 @@ void ProPhatVoice<T>::processKillOverlap (juce::dsp::AudioBlock<T>& block, int c
     DBG ("\tDEBUG ADD OVERLAP" + juce::String (overlapIndex));
 #endif
 
+    const T min { -1 };
+    const T max { 1 };
+
     auto curSamples = juce::jmin (Constants::killRampSamples - overlapIndex, (int) curBlockSize);
 
     for (int c = 0; c < block.getNumChannels (); ++c)
     {
         for (int i = 0; i < curSamples; ++i)
         {
-            auto prev = block.getSample (c, i);
-            auto overl = static_cast<T> (overlap->getSample (c, overlapIndex + i));
-            auto total = prev + overl;
-
-            // jassert (total > -1 && total < 1);
-            total = juce::jlimit (T (-1), T(1), total);
+            T prev  { block.getSample (c, i)};
+            T overl { overlap->getSample (c, overlapIndex + i)};
+            T total { juce::jlimit (min, max, prev + overl) };
 
             block.setSample (c, i, total);
 
