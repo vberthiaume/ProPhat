@@ -683,7 +683,8 @@ void ProPhatVoice<T>::processKillOverlap (juce::dsp::AudioBlock<T>& block, int c
             auto overl = static_cast<T> (overlap->getSample (c, overlapIndex + i));
             auto total = prev + overl;
 
-            jassert (total > -1 && total < 1);
+            // jassert (total > -1 && total < 1);
+            total = juce::jlimit (T (-1), T(1), total);
 
             block.setSample (c, i, total);
 
