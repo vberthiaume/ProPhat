@@ -59,7 +59,7 @@ private:
     EffectsProcessor<T> effectsProcessor;
 
     //TODO: probably don't need the wrapper on this
-    std::unique_ptr<PhatProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
+    std::unique_ptr<EffectProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
 
     juce::AudioProcessorValueTreeState& state;
 
@@ -79,7 +79,7 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
 
     addParamListenersToState ();
 
-    gainWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Gain<T>, T>>();
+    gainWrapper = std::make_unique<EffectProcessorWrapper<juce::dsp::Gain<T>, T>>();
     gainWrapper->processor.setRampDurationSeconds (0.1);
     setMasterGain (Constants::defaultMasterGain);
 }

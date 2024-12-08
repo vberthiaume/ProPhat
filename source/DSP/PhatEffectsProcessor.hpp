@@ -33,33 +33,22 @@ enum class EffectType
     transitioning
 };
 
-template <std::floating_point T>
-struct PhatProcessorBase
-{
-    PhatProcessorBase() = default;
-    virtual ~PhatProcessorBase() = default;
-
-    virtual void prepare (const juce::dsp::ProcessSpec&) = 0;
-    virtual void process (const juce::dsp::ProcessContextReplacing<T>&) = 0;
-    virtual void reset() = 0;
-};
-
 //==============================================================================
 
 template <typename ProcessorType, std::floating_point T>
-struct PhatProcessorWrapper : public PhatProcessorBase<T>
+struct EffectProcessorWrapper
 {
-    void prepare (const juce::dsp::ProcessSpec& spec) override
+    void prepare (const juce::dsp::ProcessSpec& spec)
     {
         processor.prepare (spec);
     }
 
-    void process (const juce::dsp::ProcessContextReplacing<T>& context) override
+    void process (const juce::dsp::ProcessContextReplacing<T>& context)
     {
         processor.process (context);
     }
 
-    void reset() override
+    void reset()
     {
         processor.reset();
     }
@@ -167,10 +156,10 @@ class EffectsProcessor
 public:
     EffectsProcessor()
     {
-        verbWrapper = std::make_unique<PhatProcessorWrapper<PhatVerbProcessor<T>, T>>();
+        verbWrapper = std::make_unique<EffectProcessorWrapper<PhatVerbProcessor<T>, T>>();
         verbWrapper->processor.setParameters (reverbParams);
 
-        chorusWrapper = std::make_unique<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>>();
+        chorusWrapper = std::make_unique<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>>();
     }
 
     void prepare (const juce::dsp::ProcessSpec& spec)
@@ -259,9 +248,9 @@ public:
     }
 
 private:
-    std::unique_ptr<PhatProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
+    std::unique_ptr<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
 
-    std::unique_ptr<PhatProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
+    std::unique_ptr<EffectProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
     PhatVerbParameters reverbParams {
         //manually setting all these because we need to set the default room size and wet level to 0 if we want to be able to retrieve
         //these values from a saved state. If they are saved as 0 in the state, the event callback will not be propagated because
