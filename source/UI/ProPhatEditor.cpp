@@ -146,7 +146,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
         addAndMakeVisible (group);
 
         //setup components and labels
-        for (int i = 0; i < components.size (); ++i)
+        for (size_t i = 0; i < components.size (); ++i)
         {
             if (labels[i] != nullptr)
             {

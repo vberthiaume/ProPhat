@@ -638,7 +638,7 @@ void ProPhatVoice<T>::processRampUp (juce::dsp::AudioBlock<T>& block, int curBlo
 #if DEBUG_VOICES
     DBG ("\tDEBUG RAMP UP " + juce::String (rampUpSamples - rampUpSamplesLeft));
 #endif
-    auto curRampUpLenght = juce::jmin ((int) curBlockSize, rampUpSamplesLeft);
+    auto curRampUpLenght = static_cast<float> (juce::jmin ((int) curBlockSize, rampUpSamplesLeft));
     auto prevRampUpValue = (Constants::rampUpSamples - rampUpSamplesLeft) / (float) Constants::rampUpSamples;
     auto nextRampUpValue = prevRampUpValue + curRampUpLenght / (float) Constants::rampUpSamples;
     auto incr = (nextRampUpValue - prevRampUpValue) / (curRampUpLenght);
