@@ -30,6 +30,7 @@ enum class EffectType
 {
     verb = 0,
     chorus,
+    // phaser,
     transitioning
 };
 
@@ -159,7 +160,10 @@ public:
         verbWrapper = std::make_unique<EffectProcessorWrapper<PhatVerbProcessor<T>, T>>();
         verbWrapper->processor.setParameters (reverbParams);
 
-        chorusWrapper = std::make_unique<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>>();
+        // chorusWrapper = std::make_unique<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>>();
+
+        phaserWrapper = std::make_unique<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>>();
+        chorusWrapper = std::make_unique<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>>();
     }
 
     void prepare (const juce::dsp::ProcessSpec& spec)
@@ -170,6 +174,7 @@ public:
 
         verbWrapper->prepare (spec);
         chorusWrapper->prepare (spec);
+        phaserWrapper->prepare (spec);
         effectCrossFader.prepare (spec);
     }
 
@@ -224,6 +229,7 @@ public:
             //make the individual blocks and process
             auto audioBlock1 { juce::dsp::AudioBlock<T> (fade_buffer1).getSubBlock ((size_t) startSample, (size_t) numSamples) };
             auto context1 { juce::dsp::ProcessContextReplacing<T> (audioBlock1) };
+            //TODO: this needs to use the current and the next effect
             verbWrapper->process (context1);
 
             auto audioBlock2 { juce::dsp::AudioBlock<T> (fade_buffer2).getSubBlock ((size_t) startSample, (size_t) numSamples) };
@@ -248,7 +254,10 @@ public:
     }
 
 private:
-    std::unique_ptr<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
+    // std::unique_ptr<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
+    std::unique_ptr<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>> chorusWrapper;
+
+    std::unique_ptr<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>> phaserWrapper;
 
     std::unique_ptr<EffectProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
     PhatVerbParameters reverbParams {

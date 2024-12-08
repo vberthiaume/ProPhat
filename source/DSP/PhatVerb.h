@@ -276,7 +276,7 @@ private:
 };
 
 template <std::floating_point T>
-class PhatVerbProcessor //: PhatProcessorBase<T>
+class PhatVerbProcessor
 {
 public:
     /** Creates an uninitialised Reverb processor. Call prepare() before first use. */
