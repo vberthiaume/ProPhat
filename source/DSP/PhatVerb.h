@@ -275,46 +275,8 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhatVerb)
 };
 
-//====================================================================================================
-
 template <std::floating_point T>
-struct PhatProcessorBase
-{
-    PhatProcessorBase() = default;
-    virtual ~PhatProcessorBase() = default;
-
-    virtual void prepare (const juce::dsp::ProcessSpec&) = 0;
-    virtual void process (const juce::dsp::ProcessContextReplacing<T>&) = 0;
-    virtual void reset() = 0;
-};
-
-//==============================================================================
-
-template <typename ProcessorType, std::floating_point T>
-struct PhatProcessorWrapper : public PhatProcessorBase<T>
-{
-    void prepare (const juce::dsp::ProcessSpec& spec) override
-    {
-        processor.prepare (spec);
-    }
-
-    void process (const juce::dsp::ProcessContextReplacing<T>& context) override
-    {
-        processor.process (context);
-    }
-
-    void reset() override
-    {
-        processor.reset();
-    }
-
-    ProcessorType processor;
-};
-
-//====================================================================================================
-
-template <std::floating_point T>
-class PhatVerbProcessor : PhatProcessorBase<T>
+class PhatVerbProcessor //: PhatProcessorBase<T>
 {
 public:
     /** Creates an uninitialised Reverb processor. Call prepare() before first use. */
@@ -336,19 +298,19 @@ public:
     void setEnabled (bool newValue) noexcept { enabled = newValue; }
 
     /** Initialises the reverb. */
-    void prepare (const juce::dsp::ProcessSpec& spec) override
+    void prepare (const juce::dsp::ProcessSpec& spec)
     {
         reverb.setSampleRate (spec.sampleRate);
     }
 
     /** Resets the reverb's internal state. */
-    void reset() noexcept override
+    void reset() noexcept
     {
         reverb.reset();
     }
 
     /** Applies the reverb to a mono or stereo buffer. */
-    void process (const juce::dsp::ProcessContextReplacing<T>& context) override
+    void process (const juce::dsp::ProcessContextReplacing<T>& context)
     {
         const auto& inputBlock = context.getInputBlock();
         auto& outputBlock = context.getOutputBlock();
