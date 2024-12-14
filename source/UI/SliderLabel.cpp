@@ -34,7 +34,7 @@ void SliderLabel::componentMovedOrResized (juce::Component& attachedSlider, bool
     const auto theFont    { getFont () };
     const auto borderSize { getBorderSize () };
 
-    const auto width      { theFont.getStringWidth (getText ()) + borderSize.getLeftAndRight () };
+    const auto width      { juce::GlyphArrangement::getStringWidthInt (theFont, getText()) + borderSize.getLeftAndRight() };
     const auto height     { theFont.getHeight() };
 
     //position the label to be the width of its text and centered below the slider
