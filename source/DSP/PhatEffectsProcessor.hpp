@@ -160,10 +160,8 @@ public:
         verbWrapper = std::make_unique<EffectProcessorWrapper<PhatVerbProcessor<T>, T>>();
         verbWrapper->processor.setParameters (reverbParams);
 
-        // chorusWrapper = std::make_unique<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>>();
-
+        chorusWrapper = std::make_unique<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>>();
         phaserWrapper = std::make_unique<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>>();
-        chorusWrapper = std::make_unique<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>>();
     }
 
     void prepare (const juce::dsp::ProcessSpec& spec)
@@ -254,8 +252,7 @@ public:
     }
 
 private:
-    // std::unique_ptr<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
-    std::unique_ptr<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>> chorusWrapper;
+     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
 
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>> phaserWrapper;
 
