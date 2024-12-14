@@ -30,7 +30,7 @@ enum class EffectType
 {
     verb = 0,
     chorus,
-    // phaser,
+    phaser,
     transitioning
 };
 
@@ -73,9 +73,13 @@ public:
         //TODO: probagate back the failure to change the effect
         //first reverse the smoothedGain. If we're not at one of the extremes, we got a double click which we'll ignore
         if (smoothedGain.getTargetValue() == 1.)
+        {
             smoothedGain.setTargetValue (0.);
+        }
         else if (smoothedGain.getTargetValue() == 0.)
+        {
             smoothedGain.setTargetValue (1.);
+        }
         else
         {
             jassertfalse;
@@ -85,6 +89,8 @@ public:
         if (curEffect == EffectType::verb)
             curEffect = EffectType::chorus;
         else if (curEffect == EffectType::chorus)
+            curEffect = EffectType::phaser;
+        else if (curEffect == EffectType::phaser)
             curEffect = EffectType::verb;
         else
             jassertfalse;
@@ -101,52 +107,57 @@ public:
 
     void process (const juce::AudioBuffer<T>& previousEffectBuffer,
                   const juce::AudioBuffer<T>& nextEffectBuffer,
-                  juce::AudioBuffer<T>& outputBuffer)
+                  juce::AudioBuffer<T>&       outputBuffer)
     {
         jassert (previousEffectBuffer.getNumChannels() == nextEffectBuffer.getNumChannels() && nextEffectBuffer.getNumChannels() == outputBuffer.getNumChannels());
         jassert (previousEffectBuffer.getNumSamples() == nextEffectBuffer.getNumSamples() && nextEffectBuffer.getNumSamples() == outputBuffer.getNumSamples());
 
         const auto channels = outputBuffer.getNumChannels();
-        const auto samples = outputBuffer.getNumSamples();
-        //TODO: compare floating points bro?
-        const auto needToInverse = smoothedGain.getTargetValue() == 1;
+        const auto samples  = outputBuffer.getNumSamples();
 
-        for (int channel = 0; channel < channels; ++channel)
+        if (const auto needToInverse = smoothedGain.getTargetValue() == 1; needToInverse)
         {
-            for (int sample = 0; sample < samples; ++sample)
+            for (int channel = 0; channel < channels; ++channel)
             {
-                //TODO: get this outta the loop lmao
-                if (needToInverse)
+                for (int sample = 0; sample < samples; ++sample)
                 {
-                    //get individual samples
+                    // Get individual samples
                     const auto prev = previousEffectBuffer.getSample (channel, sample);
                     const auto next = nextEffectBuffer.getSample (channel, sample);
 
-                    //mix and send to output
-                    const auto gain = 1 - smoothedGain.getNextValue();
-                    auto output = prev * gain + next * (1.0 - gain);
+                    // Mix and send to output
+                    const auto gain   = 1 - smoothedGain.getNextValue();
+                    const auto output = static_cast<T> (prev * gain + next * (1 - gain));
                     outputBuffer.setSample (channel, sample, static_cast<T> (output));
                 }
-                else
+            }
+        }
+        else
+        {
+            for (int channel = 0; channel < channels; ++channel)
+            {
+                for (int sample = 0; sample < samples; ++sample)
                 {
-                    //get individual samples
+                    // Get individual samples
                     const auto prev = nextEffectBuffer.getSample (channel, sample);
                     const auto next = previousEffectBuffer.getSample (channel, sample);
 
-                    //mix and send to output
-                    const auto gain = smoothedGain.getNextValue();
-                    auto output = prev * gain + next * (1.0 - gain);
+                    // Mix and send to output
+                    const auto gain   = smoothedGain.getNextValue();
+                    const auto output = static_cast<T> (prev * gain + next * (1 - gain));
                     outputBuffer.setSample (channel, sample, static_cast<T> (output));
                 }
             }
         }
     }
 
-private:
-    juce::SmoothedValue<double, juce::ValueSmoothingTypes::Linear> smoothedGain;
-
-    //TODO: this needs to be stored and retreived from the state
     EffectType curEffect = EffectType::verb;
+
+  private:
+    juce::SmoothedValue<T, juce::ValueSmoothingTypes::Linear> smoothedGain;
+
+    //TODO: this needs to be stored and retrieved from the state
+    //EffectType curEffect = EffectType::verb;
 };
 
 //==================================================
@@ -190,6 +201,14 @@ public:
             {
                 chorusWrapper->processor.setRate (static_cast<T> (99.9) * newValue);
             }
+            else if (curEffect == EffectType::phaser)
+            {
+                phaserWrapper->processor.setRate (static_cast<T> (99.9) * newValue);
+            }
+            else
+            {
+                jassertfalse;
+            }
         }
         else if (parameterID == ProPhatParameterIds::effectParam2ID.getParamID())
         {
@@ -202,6 +221,15 @@ public:
             {
                 chorusWrapper->processor.setDepth (newValue);
                 chorusWrapper->processor.setMix (newValue);
+            }
+            else if (curEffect == EffectType::phaser)
+            {
+                phaserWrapper->processor.setDepth (newValue);
+                phaserWrapper->processor.setMix (newValue);
+            }
+            else
+            {
+                jassertfalse;
             }
         }
         else
@@ -222,17 +250,34 @@ public:
         {
             //copy the OG buffer into the individual processor ones
             fade_buffer1 = buffer;
-            fade_buffer2 = buffer;
-
-            //make the individual blocks and process
             auto audioBlock1 { juce::dsp::AudioBlock<T> (fade_buffer1).getSubBlock ((size_t) startSample, (size_t) numSamples) };
             auto context1 { juce::dsp::ProcessContextReplacing<T> (audioBlock1) };
-            //TODO: this needs to use the current and the next effect
-            verbWrapper->process (context1);
 
+            fade_buffer2 = buffer;
             auto audioBlock2 { juce::dsp::AudioBlock<T> (fade_buffer2).getSubBlock ((size_t) startSample, (size_t) numSamples) };
             auto context2 { juce::dsp::ProcessContextReplacing<T> (audioBlock2) };
-            chorusWrapper->process (context2);
+
+            //do the crossfade based on the actual current effect -- which is actually now the NEXT effect lol
+            const auto nextEffect = effectCrossFader.curEffect;
+            switch (nextEffect)
+            {
+                case EffectType::verb:
+                    phaserWrapper->process (context1);
+                    verbWrapper->process (context2);
+                    break;
+                case EffectType::chorus:
+                    verbWrapper->process (context1);
+                    chorusWrapper->process (context2);
+                    break;
+                case EffectType::phaser:
+                    chorusWrapper->process (context1);
+                    phaserWrapper->process (context2);
+                    break;
+                case EffectType::transitioning:
+                default:
+                    jassertfalse;
+                    break;
+            }
 
             //crossfade the 2 effects
             effectCrossFader.process (fade_buffer1, fade_buffer2, buffer);
@@ -247,12 +292,14 @@ public:
             verbWrapper->process (context);
         else if (currentEffectType == EffectType::chorus)
             chorusWrapper->process (context);
+        else if (currentEffectType == EffectType::phaser)
+            phaserWrapper->process (context);
         else
             jassertfalse; //unknown effect!!
     }
 
 private:
-     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
+    std::unique_ptr<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
 
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>> phaserWrapper;
 
