@@ -1,14 +1,15 @@
 #pragma once
 
 /** Holds the parameters being used by a Reverb object. */
+template <std::floating_point T>
 struct PhatVerbParameters
 {
-    float roomSize = 0.5f; /**< Room size, 0 to 1.0, where 1.0 is big, 0 is small. */
-    float damping = 0.5f; /**< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped. */
-    float wetLevel = 0.33f; /**< Wet level, 0 to 1.0 */
-    float dryLevel = 0.4f; /**< Dry level, 0 to 1.0 */
-    float width = 1.0f; /**< Reverb width, 0 to 1.0, where 1.0 is very wide. */
-    float freezeMode = 0.0f; /**< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop. */
+    T roomSize   = static_cast<T> (0.5);  /**< Room size, 0 to 1.0, where 1.0 is big, 0 is small. */
+    T damping    = static_cast<T> (0.5);  /**< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped. */
+    T wetLevel   = static_cast<T> (0.33); /**< Wet level, 0 to 1.0 */
+    T dryLevel   = static_cast<T> (0.4);  /**< Dry level, 0 to 1.0 */
+    T width      = static_cast<T> (1);  /**< Reverb width, 0 to 1.0, where 1.0 is very wide. */
+    T freezeMode = static_cast<T> (0);  /**< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop. */
 };
 
 //these are copied over from juce in order to support double-precision processing.
@@ -18,28 +19,28 @@ class PhatVerb
 public:
     PhatVerb()
     {
-        setParameters (PhatVerbParameters());
+        setParameters (PhatVerbParameters<T>());
         setSampleRate (44100.0);
     }
 
     /** Returns the reverb's current parameters. */
-    const PhatVerbParameters& getParameters() const noexcept { return parameters; }
+    const PhatVerbParameters<T>& getParameters() const noexcept { return parameters; }
 
     /** Applies a new set of parameters to the reverb.
         Note that this doesn't attempt to lock the reverb, so if you call this in parallel with
         the process method, you may get artifacts.
     */
-    void setParameters (const PhatVerbParameters& newParams)
+    void setParameters (const PhatVerbParameters<T>& newParams)
     {
-        const float wetScaleFactor = 3.0f;
-        const float dryScaleFactor = 2.0f;
+        const T wetScaleFactor = 3.0;
+        const T dryScaleFactor = 2.0;
 
-        const float wet = newParams.wetLevel * wetScaleFactor;
+        const T wet = newParams.wetLevel * wetScaleFactor;
         dryGain.setTargetValue (newParams.dryLevel * dryScaleFactor);
-        wetGain1.setTargetValue (0.5f * wet * (1.0f + newParams.width));
-        wetGain2.setTargetValue (0.5f * wet * (1.0f - newParams.width));
+        wetGain1.setTargetValue (static_cast<T> (0.5 * wet * (1.0 + newParams.width)));
+        wetGain2.setTargetValue (static_cast<T> (0.5 * wet * (1.0 - newParams.width)));
 
-        gain = isFrozen (newParams.freezeMode) ? 0.0f : 0.015f;
+        gain = static_cast<T> (isFrozen (newParams.freezeMode) ? 0.0 : 0.015);
         parameters = newParams;
         updateDamping();
     }
@@ -156,22 +157,22 @@ public:
     }
 
 private:
-    static bool isFrozen (const float freezeMode) noexcept { return freezeMode >= 0.5f; }
+    static bool isFrozen (const T freezeMode) noexcept { return freezeMode >= 0.5; }
 
     void updateDamping() noexcept
     {
-        const float roomScaleFactor = 0.28f;
-        const float roomOffset = 0.7f;
-        const float dampScaleFactor = 0.4f;
+        const auto roomScaleFactor { static_cast<T> (0.28) };
+        const auto roomOffset { static_cast <T> (0.7) };
+        const auto dampScaleFactor { static_cast <T> (0.4) };
 
         if (isFrozen (parameters.freezeMode))
-            setDamping (0.0f, 1.0f);
+            setDamping (0.0, 1.0);
         else
             setDamping (parameters.damping * dampScaleFactor,
                 parameters.roomSize * roomScaleFactor + roomOffset);
     }
 
-    void setDamping (const float dampingToUse, const float roomSizeToUse) noexcept
+    void setDamping (const T dampingToUse, const T roomSizeToUse) noexcept
     {
         damping.setTargetValue (dampingToUse);
         feedback.setTargetValue (roomSizeToUse);
@@ -264,8 +265,8 @@ private:
         numAllPasses = 4,
         numChannels = 2 };
 
-    PhatVerbParameters parameters;
-    float gain;
+    PhatVerbParameters<T> parameters;
+    T gain;
 
     CombFilter comb[numChannels][numCombs];
     AllPassFilter allPass[numChannels][numAllPasses];
@@ -283,13 +284,13 @@ public:
     PhatVerbProcessor() = default;
 
     /** Returns the reverb's current parameters. */
-    const PhatVerbParameters& getParameters() const noexcept { return reverb.getParameters(); }
+    const PhatVerbParameters<T>& getParameters() const noexcept { return reverb.getParameters(); }
 
     /** Applies a new set of parameters to the reverb.
         Note that this doesn't attempt to lock the reverb, so if you call this in parallel with
         the process method, you may get artifacts.
     */
-    void setParameters (const PhatVerbParameters& newParams) { reverb.setParameters (newParams); }
+    void setParameters (const PhatVerbParameters<T>& newParams) { reverb.setParameters (newParams); }
 
     /** Returns true if the reverb is enabled. */
     bool isEnabled() const noexcept { return enabled; }

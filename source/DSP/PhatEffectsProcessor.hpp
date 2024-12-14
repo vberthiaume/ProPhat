@@ -185,7 +185,7 @@ public:
         {
             if (curEffect == EffectType::verb)
             {
-                reverbParams.roomSize = (float) newValue;
+                reverbParams.roomSize = static_cast<float> (newValue);
                 verbWrapper->processor.setParameters (reverbParams);
             }
             else if (curEffect == EffectType::chorus)
@@ -260,16 +260,16 @@ private:
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>> phaserWrapper;
 
     std::unique_ptr<EffectProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
-    PhatVerbParameters reverbParams {
+    PhatVerbParameters<T>                                            reverbParams {
         //manually setting all these because we need to set the default room size and wet level to 0 if we want to be able to retrieve
         //these values from a saved state. If they are saved as 0 in the state, the event callback will not be propagated because
         //the change isn't forced-pushed
-        0.0f, //< Room size, 0 to 1.0, where 1.0 is big, 0 is small.
-        0.5f, //< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped.
-        0.0f, //< Wet level, 0 to 1.0
-        0.4f, //< Dry level, 0 to 1.0
-        1.0f, //< Reverb width, 0 to 1.0, where 1.0 is very wide.
-        0.0f //< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop.
+        static_cast<T> (0),   //< Room size, 0 to 1.0, where 1.0 is big, 0 is small.
+        static_cast<T> (0.5), //< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped.
+        static_cast<T> (0),   //< Wet level, 0 to 1.0
+        static_cast<T> (0.4), //< Dry level, 0 to 1.0
+        static_cast<T> (1),   //< Reverb width, 0 to 1.0, where 1.0 is very wide.
+        static_cast<T> (0)    //< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop.
     };
 
     juce::AudioBuffer<T> fade_buffer1, fade_buffer2;
