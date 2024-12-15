@@ -243,6 +243,7 @@ public:
 
     void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     {
+        needToClearEffect = true;
         //TODO: surround with trylock or something
         const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
 
@@ -289,16 +290,38 @@ public:
         auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
         if (currentEffectType == EffectType::verb)
+        {
             verbWrapper->process (context);
+            if (needToClearEffect)
+            {
+                phaserWrapper->reset();
+                needToClearEffect = false;
+            }
+        }
         else if (currentEffectType == EffectType::chorus)
+        {
             chorusWrapper->process (context);
+            if (needToClearEffect)
+            {
+                verbWrapper->reset();
+                needToClearEffect = false;
+            }
+        }
         else if (currentEffectType == EffectType::phaser)
+        {
             phaserWrapper->process (context);
+            if (needToClearEffect)
+            {
+                chorusWrapper->reset();
+                needToClearEffect = false;
+            }
+        }
         else
             jassertfalse; //unknown effect!!
     }
 
 private:
+    bool needToClearEffect {false};
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
 
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>> phaserWrapper;
