@@ -65,7 +65,7 @@ public:
 
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
-        smoothedGain.reset (spec.sampleRate, .1);
+        smoothedGain.reset (spec.sampleRate, .5);
     }
 
     void changeEffect()
@@ -295,6 +295,7 @@ public:
             if (needToClearEffect)
             {
                 phaserWrapper->reset();
+                chorusWrapper->reset();
                 needToClearEffect = false;
             }
         }
@@ -304,6 +305,7 @@ public:
             if (needToClearEffect)
             {
                 verbWrapper->reset();
+                phaserWrapper->reset();
                 needToClearEffect = false;
             }
         }
@@ -313,6 +315,7 @@ public:
             if (needToClearEffect)
             {
                 chorusWrapper->reset();
+                verbWrapper->reset();
                 needToClearEffect = false;
             }
         }
