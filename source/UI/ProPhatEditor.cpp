@@ -310,7 +310,7 @@ void ProPhatEditor::resized()
                 if (components[curComponentIndex] != nullptr)
                 {
                     auto columnW { sliderColumnW };
-                    if (auto buttonGroup { dynamic_cast<ButtonGroupComponent*> (components[curComponentIndex]) })
+                    if ([[maybe_unused]] auto buttonGroup { dynamic_cast<ButtonGroupComponent*> (components[curComponentIndex]) })
                         columnW = buttonGroupColumnW;
 
                     components[curComponentIndex]->setBounds (lineBounds.removeFromLeft (columnW).toNearestInt());

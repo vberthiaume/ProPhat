@@ -43,6 +43,20 @@
             ]
         },
         {
+            "label": "ProPhat rebuild",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "cmake --build Builds --target clean && cmake --build Builds -j8 --config Debug"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
             "label": "CMake: Configure (Release)",
             "type": "shell",
             "command": "cmake",

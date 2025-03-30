@@ -612,7 +612,7 @@ void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
     }
     else
     {
-        if (getSampleRate() != 0.f && ! justDoneReleaseEnvelope)
+        if (! juce::approximatelyEqual (getSampleRate(), 0.) && ! justDoneReleaseEnvelope)
         {
             rampingUp = false;
 
@@ -645,7 +645,7 @@ void ProPhatVoice<T>::processRampUp (juce::dsp::AudioBlock<T>& block, int curBlo
 
     jassert (nextRampUpValue >= T(0) && nextRampUpValue <= T(1.0001));
 
-    for (int c = 0; c < block.getNumChannels (); ++c)
+    for (size_t c = 0; c < block.getNumChannels (); ++c)
     {
         for (int i = 0; i < curRampUpLenght; ++i)
         {
@@ -678,7 +678,7 @@ void ProPhatVoice<T>::processKillOverlap (juce::dsp::AudioBlock<T>& block, int c
 
     auto curSamples = juce::jmin (Constants::killRampSamples - overlapIndex, (int) curBlockSize);
 
-    for (int c = 0; c < block.getNumChannels (); ++c)
+    for (size_t c = 0; c < block.getNumChannels (); ++c)
     {
         for (int i = 0; i < curSamples; ++i)
         {

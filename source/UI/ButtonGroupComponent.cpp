@@ -100,7 +100,7 @@ void ButtonGroupComponent::setSelection (int selectionIndex)
     {
         const float newValue = state.getParameterRange (parameterID).convertTo0to1 ((float) selectionIndex);
 
-        if (p->getValue() != newValue)
+        if (! juce::approximatelyEqual (p->getValue(), newValue))
             p->setValueNotifyingHost (newValue);
     }
 }
