@@ -65,26 +65,18 @@ public:
 
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
-        smoothedGain.reset (spec.sampleRate, .5);
+        smoothedGain.reset (spec.sampleRate, .1);
     }
 
     void changeEffect()
     {
-        //TODO: probagate back the failure to change the effect
         //first reverse the smoothedGain. If we're not at one of the extremes, we got a double click which we'll ignore
-        if (smoothedGain.getTargetValue() == 1.)
-        {
+        jassert (juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (1))
+                 || juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (0)));
+        if (juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (1)))
             smoothedGain.setTargetValue (0.);
-        }
-        else if (smoothedGain.getTargetValue() == 0.)
-        {
-            smoothedGain.setTargetValue (1.);
-        }
         else
-        {
-            jassertfalse;
-            return;
-        }
+            smoothedGain.setTargetValue (1.);
 
         if (curEffect == EffectType::verb)
             curEffect = EffectType::chorus;

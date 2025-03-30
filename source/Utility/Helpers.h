@@ -288,7 +288,7 @@ inline juce::Image getImage (const void* imageData, const int dataSize)
     return juce::ImageCache::getFromMemory (imageData, dataSize);
 }
 
-inline std::unique_ptr<juce::Drawable> getDrawable (const void* imageData, const int dataSize)
+inline std::unique_ptr<juce::Drawable> getDrawable (const void* imageData, const size_t dataSize)
 {
     return juce::Drawable::createFromImageData (imageData, dataSize);
 }
@@ -315,7 +315,7 @@ inline bool areSameSpecs (const juce::dsp::ProcessSpec& spec1, const juce::dsp::
 {
     return spec1.maximumBlockSize == spec2.maximumBlockSize
         && spec1.numChannels == spec2.numChannels
-        && spec1.sampleRate == spec2.sampleRate;
+        && juce::approximatelyEqual (spec1.sampleRate, spec2.sampleRate);
 }
 
 template <class T>

@@ -708,7 +708,8 @@ void ProPhatVoice<T>::processKillOverlap (juce::dsp::AudioBlock<T>& block, int c
 }
 
 template <std::floating_point T>
-void ProPhatVoice<T>::assertForDiscontinuities (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix)
+void ProPhatVoice<T>::assertForDiscontinuities (juce::AudioBuffer<T>& outputBuffer, int startSample,
+                                                int numSamples, [[maybe_unused]]juce::String dbgPrefix)
 {
     auto prev = outputBuffer.getSample (0, startSample);
     auto prevDiff = abs (outputBuffer.getSample (0, startSample + 1) - prev);

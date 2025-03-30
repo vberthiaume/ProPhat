@@ -1,0 +1,87 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMake: Configure (Debug)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-B",
+                "Builds",
+                "-G",
+                "Ninja",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DCMAKE_C_COMPILER_LAUNCHER=sccache",
+                "-DCMAKE_CXX_COMPILER_LAUNCHER=sccache",
+                "."
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "ProPhat CMake Debug Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Builds",
+                "-j8",
+                "--config",
+                "Debug"
+            ],
+            "dependsOn": [
+                "CMake: Configure (Debug)"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "CMake: Configure (Release)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-B",
+                "Builds",
+                "-G",
+                "Ninja",
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-DCMAKE_C_COMPILER_LAUNCHER=sccache",
+                "-DCMAKE_CXX_COMPILER_LAUNCHER=sccache",
+                "."
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "ProPhat CMake RELEASE Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Builds",
+                "-j8",
+                "--config",
+                "Release"
+            ],
+            "dependsOn": [
+                "CMake: Configure (Release)"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
