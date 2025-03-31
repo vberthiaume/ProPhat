@@ -1,5 +1,8 @@
 #include "../Utility/Helpers.h"
 
+//NOW HERE -- TOGGLEING THIS TO 1 MAKES THE EFFECT CROSSOVER GLITCH GO AWAY
+#define USE_ONLY_2_EFFECTS 0
+
 enum class EffectType
 {
     verb = 0,
@@ -55,9 +58,13 @@ public:
         if (curEffect == EffectType::verb)
             curEffect = EffectType::chorus;
         else if (curEffect == EffectType::chorus)
+#if USE_ONLY_2_EFFECTS
+            curEffect = EffectType::verb;
+#else
             curEffect = EffectType::phaser;
         else if (curEffect == EffectType::phaser)
             curEffect = EffectType::verb;
+#endif
         else
             jassertfalse;
     }

@@ -107,19 +107,20 @@ public:
     void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     {
         needToClearEffect = true;
-        //TODO: surround with trylock or something
-        const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
 
+        //TODO: surround with trylock or something, although not here because we don't have a proper fallback
+        const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
         if (currentEffectType == EffectType::transitioning)
         {
+            //
             //copy the OG buffer into the individual processor ones
             fade_buffer1 = buffer;
-            auto audioBlock1 { juce::dsp::AudioBlock<T> (fade_buffer1).getSubBlock ((size_t) startSample, (size_t) numSamples) };
-            auto context1 { juce::dsp::ProcessContextReplacing<T> (audioBlock1) };
+            auto block1 {juce::dsp::AudioBlock<T> (fade_buffer1)};
+            auto context1 { juce::dsp::ProcessContextReplacing<T> (block1) };
 
             fade_buffer2 = buffer;
-            auto audioBlock2 { juce::dsp::AudioBlock<T> (fade_buffer2).getSubBlock ((size_t) startSample, (size_t) numSamples) };
-            auto context2 { juce::dsp::ProcessContextReplacing<T> (audioBlock2) };
+            auto block2 {juce::dsp::AudioBlock<T> (fade_buffer2)};
+            auto context2 { juce::dsp::ProcessContextReplacing<T> (block2) };
 
             //do the crossfade based on the actual current effect -- which is actually now the NEXT effect lol
             const auto nextEffect = effectCrossFader.curEffect;
@@ -148,6 +149,9 @@ public:
 
             return;
         }
+
+        // fade_buffer1.clear();
+        // fade_buffer2.clear();
 
         auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
         auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };

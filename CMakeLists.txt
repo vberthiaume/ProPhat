@@ -153,11 +153,10 @@ if(MSVC)
     target_link_libraries(SharedCode INTERFACE Dwmapi.lib)
 endif()
 
-#TODO: unclear that this does anything?
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    add_compile_options(-Wno-implicit-int-float-conversion)
-endif()
-
+#TODO: unclear that this does anything? -- it actually does, although clang complains that it doesn't understand it lol
+# if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+#     add_compile_options(-Wno-implicit-int-float-conversion)
+# endif()
 
 # Link the JUCE plugin targets our SharedCode target
 target_link_libraries("${PROJECT_NAME}" PRIVATE SharedCode)
