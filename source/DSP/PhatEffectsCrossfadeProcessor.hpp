@@ -85,42 +85,20 @@ public:
         jassert (previousEffectBuffer.getNumChannels() == nextEffectBuffer.getNumChannels() && nextEffectBuffer.getNumChannels() == outputBuffer.getNumChannels());
         jassert (previousEffectBuffer.getNumSamples() == nextEffectBuffer.getNumSamples() && nextEffectBuffer.getNumSamples() == outputBuffer.getNumSamples());
 
-        const auto channels = outputBuffer.getNumChannels();
-        const auto samples  = outputBuffer.getNumSamples();
+        const auto numChannels      = outputBuffer.getNumChannels();
+        const auto numSamples       = outputBuffer.getNumSamples();
+        const bool needToInverse = juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (1));
 
-        const auto needToInverse {juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (1))};
-        if (needToInverse)
+        for (int channel = 0; channel < numChannels; ++channel)
         {
-            for (int channel = 0; channel < channels; ++channel)
-            {
-                for (int sample = 0; sample < samples; ++sample)
-                {
-                    // Get individual samples
-                    const auto prev = previousEffectBuffer.getSample (channel, sample);
-                    const auto next = nextEffectBuffer.getSample (channel, sample);
+            const auto* prevData = previousEffectBuffer.getReadPointer (channel);
+            const auto* nextData = nextEffectBuffer.getReadPointer (channel);
+            auto*       outData  = outputBuffer.getWritePointer (channel);
 
-                    // Mix and send to output
-                    const auto gain   = 1 - smoothedGain.getNextValue();
-                    const auto output = static_cast<T> (prev * gain + next * (1 - gain));
-                    outputBuffer.setSample (channel, sample, static_cast<T> (output));
-                }
-            }
-        }
-        else
-        {
-            for (int channel = 0; channel < channels; ++channel)
+            for (int sample = 0; sample < numSamples; ++sample)
             {
-                for (int sample = 0; sample < samples; ++sample)
-                {
-                    // Get individual samples
-                    const auto prev = previousEffectBuffer.getSample (channel, sample);
-                    const auto next = nextEffectBuffer.getSample (channel, sample);
-
-                    // Mix and send to output
-                    const auto gain   = smoothedGain.getNextValue();
-                    const auto output = static_cast<T> (prev * gain + next * (1 - gain));
-                    outputBuffer.setSample (channel, sample, static_cast<T> (output));
-                }
+                const auto gain = needToInverse ? (1 - smoothedGain.getNextValue()) : smoothedGain.getNextValue();
+                outData[sample] = prevData[sample] * gain + nextData[sample] * (1 - gain);
             }
         }
     }
