@@ -112,7 +112,6 @@ public:
         const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
         if (currentEffectType == EffectType::transitioning)
         {
-            //
             //copy the OG buffer into the individual processor ones
             fade_buffer1 = buffer;
             auto block1 {juce::dsp::AudioBlock<T> (fade_buffer1)};

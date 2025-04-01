@@ -113,8 +113,8 @@ public:
                 for (int sample = 0; sample < samples; ++sample)
                 {
                     // Get individual samples
-                    const auto prev = nextEffectBuffer.getSample (channel, sample);
-                    const auto next = previousEffectBuffer.getSample (channel, sample);
+                    const auto prev = previousEffectBuffer.getSample (channel, sample);
+                    const auto next = nextEffectBuffer.getSample (channel, sample);
 
                     // Mix and send to output
                     const auto gain   = smoothedGain.getNextValue();
