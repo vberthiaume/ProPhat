@@ -103,6 +103,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     , effectGroup ("effectGroup", effectGroupDesc)
     , effectParam1Attachment (p.state, effectParam1ID.getParamID(), effectParam1Slider)
     , effectParam2Attachment (p.state, effectParam2ID.getParamID(), effectParam2Slider)
+    //TODO VB: so probably this should be a ButtonGroupComponent like the lfoShapeButtons
     , effectChangeButton ("change effect!")
 
     //OTHER
@@ -179,7 +180,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
                         { &lfoShapeButtons, &lfoFreqSlider,    &lfoDestButtons, &lfoAmountSlider });
 
     addGroup (effectGroup, { &effectParam1Label, &effectParam2Label, &tempLabel},
-                           { effectParam1Desc,    effectParam2Desc, "TAP DAT" },
+                           { effectParam1Desc,    effectParam2Desc, {} },
                            { &effectParam1Slider, &effectParam2Slider, &effectChangeButton });
 
     osc1ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID.getParamID()));
@@ -188,7 +189,29 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
 
     //TODO: make this a button like the ones right above
-    effectChangeButton.onClick = std::bind (&ProPhatProcessor::changeEffect, &processor);
+    // effectChangeButton.onClick = std::bind (&ProPhatProcessor::changeEffect, &processor);
+    effectChangeButton.onClick = [this]()
+    {
+        const auto curEffect = processor.changeEffect();
+        //TODO: use enumStringMapper or something
+        const auto effectName = [&curEffect]()
+        {
+            switch (curEffect)
+            {
+                case EffectType::verb:
+                    return "REVERB";
+                case EffectType::chorus:
+                    return "CHORUS";
+                case EffectType::phaser:
+                    return "PHASER";
+                case EffectType::transitioning:
+                default:
+                    jassertfalse;
+                    return "ERROR";
+            }
+        }();
+        effectGroup.setText (effectName);
+    };
 }
 
 ProPhatEditor::~ProPhatEditor ()

@@ -48,7 +48,7 @@ public:
 
     void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override;
 
-    void changeEffect();
+    EffectType changeEffect();
 
 private:
     void renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples) override;
@@ -159,9 +159,9 @@ void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNum
 }
 
 template <std::floating_point T>
-void ProPhatSynthesiser<T>::changeEffect()
+EffectType ProPhatSynthesiser<T>::changeEffect()
 {
-    effectsProcessor.changeEffect();
+    return effectsProcessor.changeEffect();
 }
 
 template <std::floating_point T>
