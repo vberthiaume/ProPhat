@@ -48,7 +48,7 @@ public:
 
     void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override;
 
-    EffectType changeEffect();
+    // EffectType changeEffect();
 
 private:
     void renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples) override;
@@ -91,6 +91,7 @@ void ProPhatSynthesiser<T>::addParamListenersToState ()
 
     state.addParameterListener (effectParam1ID.getParamID (), this);
     state.addParameterListener (effectParam2ID.getParamID (), this);
+    state.addParameterListener (effectSelectedID.getParamID (), this);
 
     state.addParameterListener (masterGainID.getParamID (), this);
 }
@@ -124,6 +125,10 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
         effectsProcessor.setEffectParam (parameterID, newValue);
     else if (parameterID == masterGainID.getParamID ())
         setMasterGain (newValue);
+
+    //TODO: actually switch to the right effect lol using the newValue
+    else if (parameterID == effectSelectedID.getParamID ())
+        effectsProcessor.changeEffect();
     else
         jassertfalse;
 }
@@ -158,11 +163,11 @@ void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNum
     Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
 }
 
-template <std::floating_point T>
-EffectType ProPhatSynthesiser<T>::changeEffect()
-{
-    return effectsProcessor.changeEffect();
-}
+// template <std::floating_point T>
+// EffectType ProPhatSynthesiser<T>::changeEffect()
+// {
+//     return effectsProcessor.changeEffect();
+// }
 
 template <std::floating_point T>
 void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples)

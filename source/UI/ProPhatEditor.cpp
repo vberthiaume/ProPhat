@@ -103,8 +103,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     , effectGroup ("effectGroup", effectGroupDesc)
     , effectParam1Attachment (p.state, effectParam1ID.getParamID(), effectParam1Slider)
     , effectParam2Attachment (p.state, effectParam2ID.getParamID(), effectParam2Slider)
-    //TODO VB: so probably this should be a ButtonGroupComponent like the lfoShapeButtons
-    , effectChangeButton ("change effect!")
+    , effectChangeButton (p.state, effectSelectedID.getParamID(), std::make_unique<SelectedEffect> (SelectedEffect()), effectGroupDesc, {effect0, effect1, effect2})
 
     //OTHER
     , masterGainAttachment (p.state, masterGainID.getParamID(), masterGainSlider)
@@ -183,35 +182,36 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
                            { effectParam1Desc,    effectParam2Desc, {} },
                            { &effectParam1Slider, &effectParam2Slider, &effectChangeButton });
 
-    osc1ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID.getParamID()));
-    osc2ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID.getParamID()));
-    lfoShapeButtons.setSelectedButton  ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID.getParamID()));
-    lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
+    osc1ShapeButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID.getParamID()));
+    osc2ShapeButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID.getParamID()));
+    lfoShapeButtons.setSelectedButton    ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID.getParamID()));
+    lfoDestButtons.setSelectedButton     ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
+    effectChangeButton.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, effectSelectedID.getParamID()));
 
     //TODO: make this a button like the ones right above
-    // effectChangeButton.onClick = std::bind (&ProPhatProcessor::changeEffect, &processor);
-    effectChangeButton.onClick = [this]()
-    {
-        const auto curEffect = processor.changeEffect();
-        //TODO: use enumStringMapper or something
-        const auto effectName = [&curEffect]()
-        {
-            switch (curEffect)
-            {
-                case EffectType::verb:
-                    return "REVERB";
-                case EffectType::chorus:
-                    return "CHORUS";
-                case EffectType::phaser:
-                    return "PHASER";
-                case EffectType::transitioning:
-                default:
-                    jassertfalse;
-                    return "ERROR";
-            }
-        }();
-        effectGroup.setText (effectName);
-    };
+    //  effectChangeButton.onClick = std::bind (&ProPhatProcessor::changeEffect, &processor);
+    // effectChangeButton.onClick = [this]()
+    // {
+    //     const auto curEffect = processor.changeEffect();
+    //     //TODO: use enumStringMapper or something
+    //     const auto effectName = [&curEffect]()
+    //     {
+    //         switch (curEffect)
+    //         {
+    //             case EffectType::verb:
+    //                 return "REVERB";
+    //             case EffectType::chorus:
+    //                 return "CHORUS";
+    //             case EffectType::phaser:
+    //                 return "PHASER";
+    //             case EffectType::transitioning:
+    //             default:
+    //                 jassertfalse;
+    //                 return "ERROR";
+    //         }
+    //     }();
+    //     effectGroup.setText (effectName);
+    // };
 }
 
 ProPhatEditor::~ProPhatEditor ()

@@ -384,11 +384,11 @@ void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float n
     else if (parameterID == lfoShapeID.getParamID ())
         setLfoShape ((int) newValue);
     else if (parameterID == lfoDestID.getParamID ())
-        setLfoDest ((int) newValue);
-    else if (parameterID == lfoAmountID.getParamID())
-        setLfoAmount (newValue);
+        setLfoDest ((int) newValue);  
 
     //TODO RT: I think because all of these end up setting smoothed values, it's fine to set them directly
+    else if (parameterID == lfoAmountID.getParamID())
+        setLfoAmount (newValue);
     else if (parameterID == lfoFreqID.getParamID())
         setLfoFreq (newValue);
     else if (parameterID == filterCutoffID.getParamID ())

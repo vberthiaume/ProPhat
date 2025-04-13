@@ -132,6 +132,7 @@ const juce::ParameterID lfoAmountID        { "Lfo Amount", 1 };
 
 const juce::ParameterID effectParam1ID     { "Effect Param1", 1 };
 const juce::ParameterID effectParam2ID     { "Effect Param2", 1 };
+const juce::ParameterID effectSelectedID { "Current Effect", 1 };
 
 const juce::ParameterID masterGainID       { "Master Gain", 1 };
 }
@@ -169,7 +170,7 @@ constexpr auto lfoDestDesc                  { "DEST" };
 constexpr auto lfoFreqSliderDesc            { "FREQUENCY" };
 constexpr auto lfoAmountSliderDesc          { "AMOUNT" };
 
-#if 0
+#if 1
 constexpr auto effectGroupDesc              { "EFFECT" };
 constexpr auto effectParam1Desc             { "PARAM 1" };
 constexpr auto effectParam2Desc             { "PARAM 2" };
@@ -202,6 +203,10 @@ constexpr auto lfoDest0     { "Osc1 Freq" };
 constexpr auto lfoDest1     { "Osc2 Freq" };
 constexpr auto lfoDest2     { "Cutoff" };
 constexpr auto lfoDest3     { "Resonance" };
+
+constexpr auto effect0     { "Reverb" };
+constexpr auto effect1     { "Chorus" };
+constexpr auto effect2     { "Phaser" };
 }
 
 struct Selection
@@ -211,6 +216,9 @@ struct Selection
 
     int curSelection = 0;
 
+    //TODO: does this need to be virtual? When do we need a custom behaviour for this?
+    //ah it's because totalSelectable is an enum value :hmm: I wonder how we could get around this
+    // virtual int getLastSelectionIndex () { return totalSelectable - 1; };
     virtual int getLastSelectionIndex () = 0;
     virtual bool isNullSelectionAllowed () = 0;
 };
@@ -228,7 +236,7 @@ struct OscShape : public Selection
         noise // noise needs to be after totalSelectable, because it's not selectable with the regular oscillators
     };
 
-    int getLastSelectionIndex () override { return totalSelectable - 1; }
+    int getLastSelectionIndex () override { return totalSelectable - 1; };
     bool isNullSelectionAllowed () override { return true; }
 };
 
@@ -244,7 +252,7 @@ struct LfoShape : public Selection
         totalSelectable
     };
 
-    int getLastSelectionIndex () override { return totalSelectable - 1; }
+    int getLastSelectionIndex () override { return totalSelectable - 1; };
     bool isNullSelectionAllowed () override { return false; }
 };
 
@@ -259,8 +267,24 @@ struct LfoDest : public Selection
         totalSelectable
     };
 
-    int getLastSelectionIndex () override { return totalSelectable - 1; }
+    int getLastSelectionIndex () override { return totalSelectable - 1; };
     bool isNullSelectionAllowed () override { return false; }
+};
+
+struct SelectedEffect : public Selection
+{
+    //this is essentially like EffectType, so we still need that enum?
+    enum
+    {
+        none = 0,
+        verb,
+        chorus,
+        phaser,
+        totalSelectable
+    };
+
+    int getLastSelectionIndex () override { return totalSelectable - 1; };
+    bool isNullSelectionAllowed () override { return true; }
 };
 
 //====================================================================================================

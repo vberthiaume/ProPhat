@@ -82,8 +82,6 @@ private:
 
     juce::GroupComponent oscGroup, filterGroup, ampGroup, lfoGroup, effectGroup;
 
-    juce::TextButton effectChangeButton;
-
 #if USE_BACKGROUND_IMAGE
     juce::Image backgroundTexture;
 #endif
@@ -125,6 +123,7 @@ private:
     SliderLabel effectParam1Label, effectParam2Label, tempLabel;
     SnappingSlider effectParam1Slider, effectParam2Slider;
     juce::AudioProcessorValueTreeState::SliderAttachment effectParam1Attachment, effectParam2Attachment;
+    ButtonGroupComponent effectChangeButton;
 
     //OTHER
     SliderLabel masterGainLabel;

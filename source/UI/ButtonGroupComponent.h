@@ -29,7 +29,8 @@ enum defaults
 {
     defaultOscShape = (int) OscShape::saw,
     defaultLfoShape = (int) LfoShape::triangle,
-    defaultLfoDest = (int) LfoDest::filterCutOff
+    defaultLfoDest = (int) LfoDest::filterCutOff,
+    defaultEffect = (int) SelectedEffect::none,
 };
 
 class FilledDrawableButton : public juce::DrawableButton

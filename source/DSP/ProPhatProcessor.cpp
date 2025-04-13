@@ -85,6 +85,7 @@ juce::AudioProcessorValueTreeState ProPhatProcessor::constructState ()
 
         std::make_unique<juce::AudioParameterFloat>  (effectParam1ID, effectParam1ID.getParamID (), sliderRange, defaultEffectParam1),
         std::make_unique<juce::AudioParameterFloat>  (effectParam2ID, effectParam2ID.getParamID (), sliderRange, defaultEffectParam2),
+        std::make_unique<juce::AudioParameterChoice> (effectSelectedID, effectSelectedID.getParamID (), juce::StringArray { effect0, effect1, effect2 }, defaultLfoShape),
 
         std::make_unique<juce::AudioParameterFloat>  (masterGainID, masterGainID.getParamID (), sliderRange, defaultMasterGain)
     }};
@@ -98,11 +99,11 @@ bool ProPhatProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 }
 #endif
 
-EffectType ProPhatProcessor::changeEffect()
-{
-    return isUsingDoublePrecision() ? proPhatSynthDouble.changeEffect()
-                                    : proPhatSynthFloat.changeEffect();
-}
+// EffectType ProPhatProcessor::changeEffect()
+// {
+//     return isUsingDoublePrecision() ? proPhatSynthDouble.changeEffect()
+//                                     : proPhatSynthFloat.changeEffect();
+// }
 
 void ProPhatProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
