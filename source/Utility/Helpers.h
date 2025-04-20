@@ -204,9 +204,10 @@ constexpr auto lfoDest1     { "Osc2 Freq" };
 constexpr auto lfoDest2     { "Cutoff" };
 constexpr auto lfoDest3     { "Resonance" };
 
-constexpr auto effect0     { "Reverb" };
-constexpr auto effect1     { "Chorus" };
-constexpr auto effect2     { "Phaser" };
+constexpr auto effect0      { "None" };
+constexpr auto effect1      { "Reverb" };
+constexpr auto effect2      { "Chorus" };
+constexpr auto effect3      { "Phaser" };
 }
 
 struct Selection

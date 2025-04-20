@@ -103,7 +103,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     , effectGroup ("effectGroup", effectGroupDesc)
     , effectParam1Attachment (p.state, effectParam1ID.getParamID(), effectParam1Slider)
     , effectParam2Attachment (p.state, effectParam2ID.getParamID(), effectParam2Slider)
-    , effectChangeButton (p.state, effectSelectedID.getParamID(), std::make_unique<SelectedEffect> (SelectedEffect()), effectGroupDesc, {effect0, effect1, effect2})
+    , effectChangeButton (p.state, effectSelectedID.getParamID(), std::make_unique<SelectedEffect> (SelectedEffect()), effectGroupDesc, {effect1, effect2, effect3}, true)
 
     //OTHER
     , masterGainAttachment (p.state, masterGainID.getParamID(), masterGainSlider)

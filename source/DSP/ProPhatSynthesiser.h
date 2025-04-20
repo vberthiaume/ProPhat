@@ -128,7 +128,18 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
 
     //TODO: actually switch to the right effect lol using the newValue
     else if (parameterID == effectSelectedID.getParamID ())
-        effectsProcessor.changeEffect();
+    {
+        EffectType effect;
+        if (newValue == 0)
+            effect = EffectType::verb;
+        else if (newValue == 1)
+            effect = EffectType::chorus;
+        else if (newValue == 2)
+            effect = EffectType::phaser;
+        else
+            jassertfalse;
+        effectsProcessor.changeEffect(effect);
+    }
     else
         jassertfalse;
 }

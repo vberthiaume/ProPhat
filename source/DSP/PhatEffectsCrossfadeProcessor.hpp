@@ -45,6 +45,7 @@ public:
         smoothedGain.reset (spec.sampleRate, .1);
     }
 
+    #if 0
     EffectType changeEffect()
     {
         //first reverse the smoothedGain. If we're not at one of the extremes, we got a double click which we'll ignore
@@ -70,6 +71,20 @@ public:
 
         return curEffect;
     }
+    #else
+    void changeEffect(EffectType effect)
+    {
+        //first reverse the smoothedGain. If we're not at one of the extremes, we got a double click which we'll ignore
+        jassert (juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (1))
+                 || juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (0)));
+        if (juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (1)))
+            smoothedGain.setTargetValue (0.);
+        else
+            smoothedGain.setTargetValue (1.);
+
+        curEffect = effect;
+    }
+    #endif
 
     EffectType getCurrentEffectType() const
     {

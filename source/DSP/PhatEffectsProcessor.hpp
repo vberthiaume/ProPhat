@@ -99,9 +99,9 @@ public:
             jassertfalse; //unknown effect parameter!
     }
 
-    EffectType changeEffect()
+    void changeEffect(EffectType effect)
     {
-        return effectCrossFader.changeEffect();
+        effectCrossFader.changeEffect(effect);
     }
 
     void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
