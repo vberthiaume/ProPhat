@@ -5,7 +5,8 @@
 
 enum class EffectType
 {
-    verb = 0,
+    none = 0,
+    verb,
     chorus,
     phaser,
     transitioning

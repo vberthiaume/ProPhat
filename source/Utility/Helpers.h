@@ -132,7 +132,7 @@ const juce::ParameterID lfoAmountID        { "Lfo Amount", 1 };
 
 const juce::ParameterID effectParam1ID     { "Effect Param1", 1 };
 const juce::ParameterID effectParam2ID     { "Effect Param2", 1 };
-const juce::ParameterID effectSelectedID { "Current Effect", 1 };
+const juce::ParameterID effectSelectedID   { "Current Effect", 1 };
 
 const juce::ParameterID masterGainID       { "Master Gain", 1 };
 }

@@ -131,10 +131,12 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
     {
         EffectType effect;
         if (newValue == 0)
-            effect = EffectType::verb;
+            effect = EffectType::none;
         else if (newValue == 1)
-            effect = EffectType::chorus;
+            effect = EffectType::verb;
         else if (newValue == 2)
+            effect = EffectType::chorus;
+        else if (newValue == 3)
             effect = EffectType::phaser;
         else
             jassertfalse;

@@ -125,6 +125,8 @@ public:
             const auto nextEffect = effectCrossFader.curEffect;
             switch (nextEffect)
             {
+                case EffectType::none:
+                    break;
                 case EffectType::verb:
                     phaserWrapper->process (context1);
                     verbWrapper->process (context2);
@@ -185,7 +187,7 @@ public:
                 needToClearEffect = false;
             }
         }
-        else
+        else if (currentEffectType != EffectType::none)
             jassertfalse; //unknown effect!!
     }
 

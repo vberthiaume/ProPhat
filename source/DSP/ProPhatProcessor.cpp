@@ -85,7 +85,7 @@ juce::AudioProcessorValueTreeState ProPhatProcessor::constructState ()
 
         std::make_unique<juce::AudioParameterFloat>  (effectParam1ID, effectParam1ID.getParamID (), sliderRange, defaultEffectParam1),
         std::make_unique<juce::AudioParameterFloat>  (effectParam2ID, effectParam2ID.getParamID (), sliderRange, defaultEffectParam2),
-        std::make_unique<juce::AudioParameterChoice> (effectSelectedID, effectSelectedID.getParamID (), juce::StringArray { effect0, effect1, effect2 }, defaultLfoShape),
+        std::make_unique<juce::AudioParameterChoice> (effectSelectedID, effectSelectedID.getParamID (), juce::StringArray { effect0, effect1, effect2, effect3 }, defaultLfoShape),
 
         std::make_unique<juce::AudioParameterFloat>  (masterGainID, masterGainID.getParamID (), sliderRange, defaultMasterGain)
     }};
