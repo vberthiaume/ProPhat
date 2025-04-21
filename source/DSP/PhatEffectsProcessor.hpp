@@ -40,7 +40,6 @@ public:
 
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
-        // pre-allocate!
         fade_buffer1.setSize ((int) spec.numChannels, (int) spec.maximumBlockSize);
         fade_buffer2.setSize ((int) spec.numChannels, (int) spec.maximumBlockSize);
 
@@ -68,7 +67,7 @@ public:
             {
                 phaserWrapper->processor.setRate (static_cast<T> (99.9) * newValue);
             }
-            else
+            else if (curEffect != EffectType::none)
             {
                 jassertfalse;
             }
@@ -90,7 +89,7 @@ public:
                 phaserWrapper->processor.setDepth (newValue);
                 phaserWrapper->processor.setMix (newValue);
             }
-            else
+            else if (curEffect != EffectType::none)
             {
                 jassertfalse;
             }
@@ -121,22 +120,41 @@ public:
             auto block2 {juce::dsp::AudioBlock<T> (fade_buffer2)};
             auto context2 { juce::dsp::ProcessContextReplacing<T> (block2) };
 
-            //do the crossfade based on the actual current effect -- which is actually now the NEXT effect lol
+            //do the crossfad between the previous and next effects
+            const auto prevEffect = effectCrossFader.prevEffect;
             const auto nextEffect = effectCrossFader.curEffect;
+            switch (prevEffect)
+            {
+                case EffectType::none:
+                    fade_buffer1.clear();
+                    break;
+                case EffectType::verb:
+                    verbWrapper->process (context1);
+                    break;
+                case EffectType::chorus:
+                    chorusWrapper->process (context1);
+                    break;
+                case EffectType::phaser:
+                    phaserWrapper->process (context1);
+                    break;
+                case EffectType::transitioning:
+                default:
+                    jassertfalse;
+                    break;
+            }
+
             switch (nextEffect)
             {
                 case EffectType::none:
+                    fade_buffer2.clear();
                     break;
                 case EffectType::verb:
-                    phaserWrapper->process (context1);
                     verbWrapper->process (context2);
                     break;
                 case EffectType::chorus:
-                    verbWrapper->process (context1);
                     chorusWrapper->process (context2);
                     break;
                 case EffectType::phaser:
-                    chorusWrapper->process (context1);
                     phaserWrapper->process (context2);
                     break;
                 case EffectType::transitioning:
@@ -150,9 +168,6 @@ public:
 
             return;
         }
-
-        // fade_buffer1.clear();
-        // fade_buffer2.clear();
 
         auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
         auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };

@@ -187,31 +187,6 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     lfoShapeButtons.setSelectedButton    ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID.getParamID()));
     lfoDestButtons.setSelectedButton     ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
     effectChangeButton.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, effectSelectedID.getParamID()));
-
-    //TODO: make this a button like the ones right above
-    //  effectChangeButton.onClick = std::bind (&ProPhatProcessor::changeEffect, &processor);
-    // effectChangeButton.onClick = [this]()
-    // {
-    //     const auto curEffect = processor.changeEffect();
-    //     //TODO: use enumStringMapper or something
-    //     const auto effectName = [&curEffect]()
-    //     {
-    //         switch (curEffect)
-    //         {
-    //             case EffectType::verb:
-    //                 return "REVERB";
-    //             case EffectType::chorus:
-    //                 return "CHORUS";
-    //             case EffectType::phaser:
-    //                 return "PHASER";
-    //             case EffectType::transitioning:
-    //             default:
-    //                 jassertfalse;
-    //                 return "ERROR";
-    //         }
-    //     }();
-    //     effectGroup.setText (effectName);
-    // };
 }
 
 ProPhatEditor::~ProPhatEditor ()

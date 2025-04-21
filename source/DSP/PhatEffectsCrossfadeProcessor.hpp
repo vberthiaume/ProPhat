@@ -1,8 +1,5 @@
 #include "../Utility/Helpers.h"
 
-//NOW HERE -- TOGGLEING THIS TO 1 MAKES THE EFFECT CROSSOVER GLITCH GO AWAY
-#define USE_ONLY_2_EFFECTS 0
-
 enum class EffectType
 {
     none = 0,
@@ -60,13 +57,9 @@ public:
         if (curEffect == EffectType::verb)
             curEffect = EffectType::chorus;
         else if (curEffect == EffectType::chorus)
-#if USE_ONLY_2_EFFECTS
-            curEffect = EffectType::verb;
-#else
             curEffect = EffectType::phaser;
         else if (curEffect == EffectType::phaser)
             curEffect = EffectType::verb;
-#endif
         else
             jassertfalse;
 
@@ -83,6 +76,7 @@ public:
         else
             smoothedGain.setTargetValue (1.);
 
+        prevEffect = curEffect;
         curEffect = effect;
     }
     #endif
@@ -121,6 +115,8 @@ public:
         }
     }
 
+
+    EffectType prevEffect = EffectType::none;
     EffectType curEffect = EffectType::verb;
 
   private:

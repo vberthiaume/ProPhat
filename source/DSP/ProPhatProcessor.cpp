@@ -99,12 +99,6 @@ bool ProPhatProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 }
 #endif
 
-// EffectType ProPhatProcessor::changeEffect()
-// {
-//     return isUsingDoublePrecision() ? proPhatSynthDouble.changeEffect()
-//                                     : proPhatSynthFloat.changeEffect();
-// }
-
 void ProPhatProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     jassert (! isUsingDoublePrecision());

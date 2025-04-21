@@ -48,8 +48,6 @@ public:
 
     void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override;
 
-    // EffectType changeEffect();
-
 private:
     void renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples) override;
 
@@ -130,6 +128,7 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
     else if (parameterID == effectSelectedID.getParamID ())
     {
         EffectType effect;
+        //TODO: these are indeed integer values, need to convert them for the comparison
         if (newValue == 0)
             effect = EffectType::none;
         else if (newValue == 1)
@@ -152,19 +151,6 @@ void ProPhatSynthesiser<T>::setMasterGain (float gain)
     gainWrapper->processor.setGainLinear (static_cast<T> (gain));
 }
 
-//template <std::floating_point T>
-//void ProPhatSynthesiser<T>::setEffectParam (juce::StringRef parameterID, float newValue)
-//{
-//    if (parameterID == ProPhatParameterIds::effectParam1ID.getParamID ())
-//        reverbParams.roomSize = newValue;
-//    else if (parameterID == ProPhatParameterIds::effectParam2ID.getParamID ())
-//        reverbParams.wetLevel = newValue;
-//    else
-//        jassertfalse;   //unknown effect parameter!
-//
-//    verbWrapper->processor.setParameters (reverbParams);
-//}
-
 template <std::floating_point T>
 void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNumber, const float velocity)
 {
@@ -175,12 +161,6 @@ void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNum
 
     Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
 }
-
-// template <std::floating_point T>
-// EffectType ProPhatSynthesiser<T>::changeEffect()
-// {
-//     return effectsProcessor.changeEffect();
-// }
 
 template <std::floating_point T>
 void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples)
@@ -193,9 +173,5 @@ void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int
     
     auto audioBlock { juce::dsp::AudioBlock<T> (outputAudio).getSubBlock ((size_t) startSample, (size_t) numSamples) };
     const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
-
-    //for (const auto& fx : fxChain)
-    //    fx->process (context);
-
     gainWrapper->process (context);
 }
