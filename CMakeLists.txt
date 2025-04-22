@@ -112,6 +112,11 @@ include(Assets)
 # MacOS only: Cleans up folder and target organization on Xcode.
 include(XcodePrettify)
 
+if(WIN32)
+    set(JUCE_ASIO ON CACHE BOOL "Enable ASIO support" FORCE)
+    set(ASIOSDK_DIR "C:/SDKs/asiosdk_2.3.3_2019-06-14" CACHE PATH "Path to ASIO SDK")
+endif()
+
 # This is where you can set preprocessor definitions for JUCE and your plugin
 target_compile_definitions(SharedCode
     INTERFACE
@@ -129,7 +134,14 @@ target_compile_definitions(SharedCode
     PRODUCT_NAME_WITHOUT_VERSION="ProPhat"
 
     JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1
+	JUCE_ASIO=1
 )
+
+if(WIN32)
+    target_include_directories(SharedCode INTERFACE
+        "${ASIOSDK_DIR}/common"
+    )
+endif()
 
 # Link to any other modules you added (with juce_add_module) here!
 # Usually JUCE modules must have PRIVATE visibility
