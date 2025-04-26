@@ -193,6 +193,8 @@ private:
         }
     */
     std::mutex lfoMutex;
+
+    //TODO RT: I think this (and all similar parameters set in the UI and read in the audio thread) sould be atomic
     T lfoAmount = static_cast<T> (Constants::defaultLfoAmount);
     LfoDest lfoDest;
 
@@ -450,6 +452,7 @@ void ProPhatVoice<T>::setLfoShape (int shape)
     {
         case LfoShape::triangle:
         {
+            //TODO RT: I should really have 4 lfos and just have an atomic curLfo pointer that I swap when I change LFOs
             std::lock_guard<std::mutex> lock (lfoMutex);
             lfo.initialise ([](T x) { return (std::sin (x) + 1) / 2; }, 128);
         }
