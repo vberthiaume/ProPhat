@@ -25,6 +25,10 @@
 #include "PhatEffectsCrossfadeProcessor.hpp"
 #include "PhatVerb.h"
 #include "ProPhatVoice.h"
+
+//I don't think this is making any difference
+#define ENABLE_CLEAR_EFFECT 0
+
 template <std::floating_point T>
 class EffectsProcessor
 {
@@ -105,7 +109,9 @@ public:
 
     void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     {
-        needToClearEffect = true;
+#if ENABLE_CLEAR_EFFECT
+         needToClearEffect = true;
+#endif
 
         //TODO: surround with trylock or something, although not here because we don't have a proper fallback
         const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
@@ -175,39 +181,47 @@ public:
         if (currentEffectType == EffectType::verb)
         {
             verbWrapper->process (context);
+#if ENABLE_CLEAR_EFFECT
             if (needToClearEffect)
             {
                 phaserWrapper->reset();
                 chorusWrapper->reset();
                 needToClearEffect = false;
             }
+#endif
         }
         else if (currentEffectType == EffectType::chorus)
         {
             chorusWrapper->process (context);
+#if ENABLE_CLEAR_EFFECT
             if (needToClearEffect)
             {
                 verbWrapper->reset();
                 phaserWrapper->reset();
                 needToClearEffect = false;
             }
+#endif
         }
         else if (currentEffectType == EffectType::phaser)
         {
             phaserWrapper->process (context);
+#if ENABLE_CLEAR_EFFECT
             if (needToClearEffect)
             {
                 chorusWrapper->reset();
                 verbWrapper->reset();
                 needToClearEffect = false;
             }
+#endif
         }
         else if (currentEffectType != EffectType::none)
             jassertfalse; //unknown effect!!
     }
 
 private:
+#if ENABLE_CLEAR_EFFECT
     bool needToClearEffect {false};
+#endif
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
 
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>> phaserWrapper;
