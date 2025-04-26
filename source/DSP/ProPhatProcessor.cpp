@@ -32,6 +32,26 @@ ProPhatProcessor::ProPhatProcessor()
     , perfCounter ("ProcessBlock")
 #endif
 {
+    //NOW HERE: this needs to be in EffectsProcessor, and we pass a pointer in the effect crossfader
+    //init our log
+    DebugLog tempData;
+    memset (&tempData, 0, sizeof (tempData));
+
+    //init the file that'll receive the log
+    auto mmFile = juce::File (kSharedMemoryMapFilepath);
+    mmFile.replaceWithData (&tempData, sizeof (tempData));
+
+    m_pLogDebugMapping = new juce::MemoryMappedFile (mmFile, juce::MemoryMappedFile::readWrite, false);
+    m_pLogDebug = static_cast<DebugLog*> (m_pLogDebugMapping->getData());
+    if (m_pLogDebug)
+    {
+        m_pLogDebug->logHead = 0;
+        memset (m_pLogDebug->log, 0, sizeof (m_pLogDebug->log));
+    }
+    else
+    {
+        jassertfalse; // failed to create the log
+    }
 }
 
 void ProPhatProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)

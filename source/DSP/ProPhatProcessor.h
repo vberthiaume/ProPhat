@@ -87,6 +87,9 @@ public:
     juce::ListenerList<MidiMessageListener> midiListeners;
 
 private:
+    juce::MemoryMappedFile* m_pLogDebugMapping{};
+    DebugLog* m_pLogDebug{};
+
     ProPhatSynthesiser<float> proPhatSynthFloat;
     ProPhatSynthesiser<double> proPhatSynthDouble;
 
