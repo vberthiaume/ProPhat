@@ -210,6 +210,32 @@ constexpr auto effect2      { "Chorus" };
 constexpr auto effect3      { "Phaser" };
 }
 
+//====================================================================================================
+
+//TODO: this needs to be OS dependent
+static constexpr auto kSharedMemoryMapFilepath { "/tmp/ProPhatSharedMemory" };
+static constexpr auto kMaxDebugEntries { 2048 };
+
+struct DebugLogEntry
+{
+    uint_fast64_t startTime{};
+    uint_fast64_t endTime{};
+    int curEffect{};
+};
+
+struct DebugLog
+{
+    DebugLogEntry log[kMaxDebugEntries];
+    volatile size_t logHead{};
+};
+
+inline void printDebugLogEntry ()
+{
+}
+
+
+//====================================================================================================
+
 struct Selection
 {
     Selection () = default;
