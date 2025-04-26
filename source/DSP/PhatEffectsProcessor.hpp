@@ -32,9 +32,29 @@
 template <std::floating_point T>
 class EffectsProcessor
 {
-public:
+  public:
     EffectsProcessor()
     {
+        //init our log
+        DebugLog tempData;
+        memset (&tempData, 0, sizeof (tempData));
+
+        //init the file that'll receive the log
+        auto mmFile = juce::File (kSharedMemoryMapFilepath);
+        mmFile.replaceWithData (&tempData, sizeof (tempData));
+
+        m_pLogDebugMapping = new juce::MemoryMappedFile (mmFile, juce::MemoryMappedFile::readWrite, false);
+        m_pLogDebug        = static_cast<DebugLog*> (m_pLogDebugMapping->getData());
+        if (m_pLogDebug)
+        {
+            m_pLogDebug->logHead = 0;
+            memset (m_pLogDebug->log, 0, sizeof (m_pLogDebug->log));
+        }
+        else
+        {
+            jassertfalse; // failed to create the log
+        }
+
         verbWrapper = std::make_unique<EffectProcessorWrapper<PhatVerbProcessor<T>, T>>();
         verbWrapper->processor.setParameters (reverbParams);
 
@@ -222,6 +242,9 @@ private:
 #if ENABLE_CLEAR_EFFECT
     bool needToClearEffect {false};
 #endif
+    juce::MemoryMappedFile* m_pLogDebugMapping{};
+    DebugLog* m_pLogDebug{};
+
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
 
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>> phaserWrapper;
