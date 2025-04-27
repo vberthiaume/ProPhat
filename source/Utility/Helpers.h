@@ -218,8 +218,8 @@ static constexpr auto kMaxDebugEntries { 2048 };
 
 struct DebugLogEntry
 {
-    uint_fast64_t startTime{};
-    uint_fast64_t endTime{};
+    juce::int64 startTime{};
+    juce::int64 endTime{};
     int curEffect{};
 };
 
@@ -228,10 +228,6 @@ struct DebugLog
     DebugLogEntry log[kMaxDebugEntries];
     volatile size_t logHead{};
 };
-
-inline void printDebugLogEntry ()
-{
-}
 
 
 //====================================================================================================

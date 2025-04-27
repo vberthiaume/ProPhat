@@ -43,7 +43,7 @@ class EffectsProcessor
         auto mmFile = juce::File (kSharedMemoryMapFilepath);
         mmFile.replaceWithData (&tempData, sizeof (tempData));
 
-        m_pLogDebugMapping = new juce::MemoryMappedFile (mmFile, juce::MemoryMappedFile::readWrite, false);
+        m_pLogDebugMapping = std::make_unique<juce::MemoryMappedFile> (mmFile, juce::MemoryMappedFile::readWrite, false);
         m_pLogDebug        = static_cast<DebugLog*> (m_pLogDebugMapping->getData());
         if (m_pLogDebug)
         {
@@ -135,6 +135,14 @@ class EffectsProcessor
 
         //TODO: surround with trylock or something, although not here because we don't have a proper fallback
         const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
+
+        DebugLogEntry& debugLogEntry = m_pLogDebug->log[m_pLogDebug->logHead];
+        if (enableLogging)
+        {
+            debugLogEntry.startTime = juce::Time::currentTimeMillis();
+            debugLogEntry.curEffect = static_cast<int> (effectCrossFader.getCurrentEffectType());
+        }
+
         if (currentEffectType == EffectType::transitioning)
         {
             //copy the OG buffer into the individual processor ones
@@ -191,59 +199,70 @@ class EffectsProcessor
 
             //crossfade the 2 effects
             effectCrossFader.process (fade_buffer1, fade_buffer2, buffer);
-
-            return;
         }
-
-        auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
-        auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
-
-        if (currentEffectType == EffectType::verb)
+        else
         {
-            verbWrapper->process (context);
-#if ENABLE_CLEAR_EFFECT
-            if (needToClearEffect)
+            auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
+            auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
+
+            if (currentEffectType == EffectType::verb)
             {
-                phaserWrapper->reset();
-                chorusWrapper->reset();
-                needToClearEffect = false;
-            }
+                verbWrapper->process (context);
+#if ENABLE_CLEAR_EFFECT
+                if (needToClearEffect)
+                {
+                    phaserWrapper->reset();
+                    chorusWrapper->reset();
+                    needToClearEffect = false;
+                }
 #endif
+            }
+            else if (currentEffectType == EffectType::chorus)
+            {
+                chorusWrapper->process (context);
+#if ENABLE_CLEAR_EFFECT
+                if (needToClearEffect)
+                {
+                    verbWrapper->reset();
+                    phaserWrapper->reset();
+                    needToClearEffect = false;
+                }
+#endif
+            }
+            else if (currentEffectType == EffectType::phaser)
+            {
+                phaserWrapper->process (context);
+#if ENABLE_CLEAR_EFFECT
+                if (needToClearEffect)
+                {
+                    chorusWrapper->reset();
+                    verbWrapper->reset();
+                    needToClearEffect = false;
+                }
+#endif
+            }
+            else if (currentEffectType != EffectType::none)
+                jassertfalse; //unknown effect!!
         }
-        else if (currentEffectType == EffectType::chorus)
+
+        if (enableLogging)
         {
-            chorusWrapper->process (context);
-#if ENABLE_CLEAR_EFFECT
-            if (needToClearEffect)
-            {
-                verbWrapper->reset();
-                phaserWrapper->reset();
-                needToClearEffect = false;
-            }
-#endif
+            //probably there's a way to increase the head at the beginning of the function,
+            //and then I'd be able to do the early return instead of this big else section
+            debugLogEntry.endTime = juce::Time::currentTimeMillis();
+            m_pLogDebug->logHead = (m_pLogDebug->logHead + 1) & (kMaxDebugEntries - 1);
+            //the AI suggested this, probably unrelated
+            // memset (&debugLogEntry, 0, sizeof (DebugLogEntry));
         }
-        else if (currentEffectType == EffectType::phaser)
-        {
-            phaserWrapper->process (context);
-#if ENABLE_CLEAR_EFFECT
-            if (needToClearEffect)
-            {
-                chorusWrapper->reset();
-                verbWrapper->reset();
-                needToClearEffect = false;
-            }
-#endif
-        }
-        else if (currentEffectType != EffectType::none)
-            jassertfalse; //unknown effect!!
     }
 
 private:
 #if ENABLE_CLEAR_EFFECT
     bool needToClearEffect {false};
 #endif
-    juce::MemoryMappedFile* m_pLogDebugMapping{};
+    std::unique_ptr<juce::MemoryMappedFile> m_pLogDebugMapping{};
     DebugLog* m_pLogDebug{};
+    bool enableLogging {true};
 
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
 
