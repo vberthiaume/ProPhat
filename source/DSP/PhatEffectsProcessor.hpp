@@ -35,16 +35,27 @@ class EffectsProcessor
   public:
     EffectsProcessor()
     {
-        //init our log
         DebugLog tempData;
         memset (&tempData, 0, sizeof (tempData));
 
-        //init the file that'll receive the log
+        // Initialize the file that will receive the log
         auto mmFile = juce::File (kSharedMemoryMapFilepath);
-        mmFile.replaceWithData (&tempData, sizeof (tempData));
+        // the OG code called replaceWithData, but apparently this is breaking things on linux
+        // if (! mmFile.existsAsFile() || mmFile.getSize() != sizeof (DebugLog))
+        // {
+        //     mmFile.deleteFile(); // Start clean if it already exists
+        //     bool success = mmFile.replaceWithData (&tempData, sizeof (tempData));
+        //     jassert (success); // Fail loudly if replaceWithData failed
+        // }
 
+        //not quite sure how this is working, how does mmFile automatically match the size of the debuglog?
+        jassert (mmFile.getSize() == sizeof (DebugLog)); // Confirm correct size
+
+        // Create the memory mapped file
         m_pLogDebugMapping = std::make_unique<juce::MemoryMappedFile> (mmFile, juce::MemoryMappedFile::readWrite, false);
-        m_pLogDebug        = static_cast<DebugLog*> (m_pLogDebugMapping->getData());
+        jassert (m_pLogDebugMapping != nullptr);
+
+        m_pLogDebug = static_cast<DebugLog*> (m_pLogDebugMapping->getData());
         if (m_pLogDebug)
         {
             m_pLogDebug->logHead = 0;
@@ -52,7 +63,7 @@ class EffectsProcessor
         }
         else
         {
-            jassertfalse; // failed to create the log
+            jassertfalse; // Failed to map the log memory!
         }
 
         verbWrapper = std::make_unique<EffectProcessorWrapper<PhatVerbProcessor<T>, T>>();
@@ -137,10 +148,10 @@ class EffectsProcessor
         const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
 
         DebugLogEntry& debugLogEntry = m_pLogDebug->log[m_pLogDebug->logHead];
-        if (enableLogging)
+        if (enableLogging && m_pLogDebug != nullptr)
         {
             debugLogEntry.startTime = juce::Time::currentTimeMillis();
-            debugLogEntry.curEffect = static_cast<int> (effectCrossFader.getCurrentEffectType());
+            debugLogEntry.curEffect = static_cast<int>(effectCrossFader.getCurrentEffectType());
         }
 
         if (currentEffectType == EffectType::transitioning)
@@ -247,12 +258,8 @@ class EffectsProcessor
 
         if (enableLogging)
         {
-            //probably there's a way to increase the head at the beginning of the function,
-            //and then I'd be able to do the early return instead of this big else section
             debugLogEntry.endTime = juce::Time::currentTimeMillis();
             m_pLogDebug->logHead = (m_pLogDebug->logHead + 1) & (kMaxDebugEntries - 1);
-            //the AI suggested this, probably unrelated
-            // memset (&debugLogEntry, 0, sizeof (DebugLogEntry));
         }
     }
 
