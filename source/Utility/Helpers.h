@@ -218,8 +218,8 @@ static constexpr auto kMaxDebugEntries { 2048 };
 
 struct DebugLogEntry
 {
-    juce::int64 startTime{};
-    juce::int64 endTime{};
+    juce::int64 timeSinceLastCall{};
+    juce::int64 processCallDuration{};
     int curEffect{};
 };
 

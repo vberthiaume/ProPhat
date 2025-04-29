@@ -150,7 +150,8 @@ class EffectsProcessor
         DebugLogEntry& debugLogEntry = m_pLogDebug->log[m_pLogDebug->logHead];
         if (enableLogging && m_pLogDebug != nullptr)
         {
-            debugLogEntry.startTime = juce::Time::currentTimeMillis();
+            debugLogEntry.timeSinceLastCall = juce::Time::currentTimeMillis() - cachedProcessCallTime;
+            cachedProcessCallTime = juce::Time::currentTimeMillis();
             debugLogEntry.curEffect = static_cast<int>(effectCrossFader.getCurrentEffectType());
         }
 
@@ -258,7 +259,7 @@ class EffectsProcessor
 
         if (enableLogging)
         {
-            debugLogEntry.endTime = juce::Time::currentTimeMillis();
+            debugLogEntry.processCallDuration = juce::Time::currentTimeMillis() - cachedProcessCallTime;
             m_pLogDebug->logHead = (m_pLogDebug->logHead + 1) & (kMaxDebugEntries - 1);
         }
     }
@@ -267,6 +268,7 @@ private:
 #if ENABLE_CLEAR_EFFECT
     bool needToClearEffect {false};
 #endif
+    juce::int64 cachedProcessCallTime{juce::Time::currentTimeMillis()};
     std::unique_ptr<juce::MemoryMappedFile> m_pLogDebugMapping{};
     DebugLog* m_pLogDebug{};
     bool enableLogging {true};
