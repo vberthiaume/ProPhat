@@ -644,7 +644,7 @@ void ProPhatVoice<T>::processRampUp (juce::dsp::AudioBlock<T>& block, int curBlo
     const auto curRampUpLenght = juce::jmin (curBlockSize, rampUpSamplesLeft);
     const auto prevRampUpValue = static_cast<T> ((Constants::rampUpSamples - rampUpSamplesLeft) / Constants::rampUpSamples);
     const auto nextRampUpValue = static_cast<T> (prevRampUpValue + curRampUpLenght / Constants::rampUpSamples);
-    const auto incr            = static_cast<T> ((nextRampUpValue - prevRampUpValue) / curRampUpLenght);
+    const auto incr            = static_cast<T> ((nextRampUpValue - prevRampUpValue) / static_cast<T> (curRampUpLenght));
 
     jassert (nextRampUpValue >= T(0) && nextRampUpValue <= T(1.0001));
 

@@ -287,12 +287,12 @@ void PhatOscillators<T>::updateOscFrequenciesInternal ()
     const auto curOsc1Slop = slopOsc1 * slopMod;
     const auto curOsc2Slop = slopOsc2 * slopMod;
 
-    const auto osc1FloatNote = curMidiNote - osc1NoteOffset + osc1TuningOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote + curOsc1Slop;
+    const auto osc1FloatNote = static_cast<float> (curMidiNote) - osc1NoteOffset + osc1TuningOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote + curOsc1Slop;
     sub.setFrequency (Helpers::getMidiNoteInHertz(osc1FloatNote - 12), true);
     noise.setFrequency (Helpers::getMidiNoteInHertz (osc1FloatNote), true);
     osc1.setFrequency (Helpers::getMidiNoteInHertz (osc1FloatNote), true);
 
-    const auto osc2Freq = Helpers::getMidiNoteInHertz (curMidiNote - osc2NoteOffset + osc2TuningOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote + curOsc2Slop);
+    const auto osc2Freq = Helpers::getMidiNoteInHertz (static_cast<float> (curMidiNote) - osc2NoteOffset + osc2TuningOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote + curOsc2Slop);
     osc2.setFrequency (osc2Freq, true);
 }
 

@@ -259,7 +259,7 @@ struct OscShape : public Selection
         noise // noise needs to be after totalSelectable, because it's not selectable with the regular oscillators
     };
 
-    int getLastSelectionIndex () override { return totalSelectable - 1; };
+    int getLastSelectionIndex () override { return totalSelectable - 1; }
     bool isNullSelectionAllowed () override { return true; }
 };
 
@@ -275,7 +275,7 @@ struct LfoShape : public Selection
         totalSelectable
     };
 
-    int getLastSelectionIndex () override { return totalSelectable - 1; };
+    int getLastSelectionIndex () override { return totalSelectable - 1; }
     bool isNullSelectionAllowed () override { return false; }
 };
 
@@ -290,7 +290,7 @@ struct LfoDest : public Selection
         totalSelectable
     };
 
-    int getLastSelectionIndex () override { return totalSelectable - 1; };
+    int getLastSelectionIndex () override { return totalSelectable - 1; }
     bool isNullSelectionAllowed () override { return false; }
 };
 
@@ -306,7 +306,7 @@ struct SelectedEffect : public Selection
         totalSelectable
     };
 
-    int getLastSelectionIndex () override { return totalSelectable - 1; };
+    int getLastSelectionIndex () override { return totalSelectable - 1; }
     bool isNullSelectionAllowed () override { return true; }
 };
 

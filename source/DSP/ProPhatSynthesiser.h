@@ -128,14 +128,15 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
     else if (parameterID == effectSelectedID.getParamID ())
     {
         EffectType effect;
-        //TODO: these are indeed integer values, need to convert them for the comparison
-        if (newValue == 0)
+        //TODO: switch?
+        const auto newInt { static_cast<int> (newValue) };
+        if (newInt == 0)
             effect = EffectType::none;
-        else if (newValue == 1)
+        else if (newInt == 1)
             effect = EffectType::verb;
-        else if (newValue == 2)
+        else if (newInt == 2)
             effect = EffectType::chorus;
-        else if (newValue == 3)
+        else if (newInt == 3)
             effect = EffectType::phaser;
         else
             jassertfalse;

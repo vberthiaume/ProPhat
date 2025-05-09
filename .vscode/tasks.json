@@ -13,6 +13,7 @@
                 "-DCMAKE_BUILD_TYPE=Debug",
                 "-DCMAKE_C_COMPILER_LAUNCHER=sccache",
                 "-DCMAKE_CXX_COMPILER_LAUNCHER=sccache",
+                "-DFORMATS=Standalone", //change this to allow for other builds, e.g., -DFORMATS="Standalone;AU;VST3;AUv3"
                 "."
             ],
             "group": {

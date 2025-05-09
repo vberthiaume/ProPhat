@@ -26,8 +26,9 @@
 #include "PhatVerb.h"
 #include "ProPhatVoice.h"
 
-//I don't think this is making any difference
-#define ENABLE_CLEAR_EFFECT 0
+//if I don't clear the effects, their buffers will still contain the last processed content
+//but I don't think this changes anything for glitches
+#define ENABLE_CLEAR_EFFECT 1
 
 template <std::floating_point T>
 class EffectsProcessor
@@ -40,15 +41,12 @@ class EffectsProcessor
 
         // Initialize the file that will receive the log
         auto mmFile = juce::File (kSharedMemoryMapFilepath);
-        // the OG code called replaceWithData, but apparently this is breaking things on linux
-        // if (! mmFile.existsAsFile() || mmFile.getSize() != sizeof (DebugLog))
-        // {
-        //     mmFile.deleteFile(); // Start clean if it already exists
-        //     bool success = mmFile.replaceWithData (&tempData, sizeof (tempData));
-        //     jassert (success); // Fail loudly if replaceWithData failed
-        // }
-
-        //not quite sure how this is working, how does mmFile automatically match the size of the debuglog?
+        if (! mmFile.existsAsFile() || mmFile.getSize() != sizeof (DebugLog))
+        {
+            mmFile.deleteFile(); // Start clean if it already exists
+            bool success = mmFile.replaceWithData (&tempData, sizeof (tempData));
+            jassert (success); // Fail loudly if replaceWithData failed
+        }
         jassert (mmFile.getSize() == sizeof (DebugLog)); // Confirm correct size
 
         // Create the memory mapped file
