@@ -30,7 +30,7 @@ SliderLabel::SliderLabel ()
 
 void SliderLabel::componentMovedOrResized (juce::Component& attachedSlider, bool, bool)
 {
-    constexpr auto gap    { 7 };
+    constexpr auto gap    { 7.f };
     const auto theFont    { getFont () };
     const auto borderSize { getBorderSize () };
 
@@ -39,7 +39,7 @@ void SliderLabel::componentMovedOrResized (juce::Component& attachedSlider, bool
 
     //position the label to be the width of its text and centered below the slider
     setBounds (static_cast<int> (attachedSlider.getX () + (attachedSlider.getWidth () - width) / 2),
-               static_cast<int> (attachedSlider.getBottom () - height + gap),
+               static_cast<int> (static_cast<float> (attachedSlider.getBottom ()) - height + gap),
                width,
                static_cast<int> (height));
 }

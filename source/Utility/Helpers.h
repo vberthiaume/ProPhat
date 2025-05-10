@@ -276,7 +276,7 @@ struct LfoShape : public Selection
         saw,
         //revSaw,
         square,
-        random,
+        randomLfo,
         totalSelectable
     };
 

@@ -143,12 +143,12 @@ void ProPhatLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int 
         if (height < width)
         {
             squareSide = (float) height;
-            xTranslation = (width - height) / 2.f;
+            xTranslation = static_cast<float> (width - height) / 2.f;
         }
         else
         {
             squareSide = (float) width;
-            yTranslation = (height - width) / 2.f;
+            yTranslation = static_cast<float> (height - width) / 2.f;
         }
 
 #if USE_SVG

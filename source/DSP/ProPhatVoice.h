@@ -495,7 +495,7 @@ void ProPhatVoice<T>::setLfoShape (int shape)
         }
             break;
 
-        case LfoShape::random:
+        case LfoShape::randomLfo:
         {
             std::lock_guard<std::mutex> lock (lfoMutex);
             lfo.initialise ([this](T x)
