@@ -235,11 +235,16 @@ struct DebugLog
 struct Selection
 {
     Selection () = default;
+    virtual ~Selection () = default;
+    Selection (const Selection&) = default;
+    Selection& operator= (const Selection&) = default;
+    Selection (Selection&&) noexcept = default;
+    Selection& operator= (Selection&&) noexcept = default;
+
     Selection (int selection) : curSelection (selection) {}
 
     int curSelection = 0;
 
-    //TODO: does this need to be virtual? When do we need a custom behaviour for this?
     //ah it's because totalSelectable is an enum value :hmm: I wonder how we could get around this
     // virtual int getLastSelectionIndex () { return totalSelectable - 1; };
     virtual int getLastSelectionIndex () = 0;
