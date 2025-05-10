@@ -53,13 +53,13 @@ public:
 #if CPU_USAGE
     void timerCallback() override
     {
-       auto stats = processor.perfCounter.getStatisticsAndReset();
+       auto stats = phatProcessor.perfCounter.getStatisticsAndReset();
        cpuUsageText.setText (juce::String (stats.averageSeconds, 6), juce::dontSendNotification);
     }
 #endif
 
 private:
-    ProPhatProcessor& processor;
+    ProPhatProcessor& phatProcessor;
 
 #if USE_NATIVE_TITLE_BAR
     void buttonClicked (juce::Button*) override;

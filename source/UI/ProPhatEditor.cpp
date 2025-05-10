@@ -56,7 +56,7 @@ constexpr auto totalWidth           { 2 * overallGap + 4 * panelGap + numButtonG
 
 ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     : juce::AudioProcessorEditor (p)
-    , processor (p)
+    , phatProcessor (p)
 #if USE_NATIVE_TITLE_BAR
     , optionsButton ("OPTIONS")
 #endif
@@ -108,7 +108,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     //OTHER
     , masterGainAttachment (p.state, masterGainID.getParamID(), masterGainSlider)
 {
-    processor.midiListeners.add (this);
+    phatProcessor.midiListeners.add (this);
 #if CPU_USAGE
     setSize (width, height + 50);
 
@@ -182,16 +182,16 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
                            { effectParam1Desc,    effectParam2Desc, {} },
                            { &effectParam1Slider, &effectParam2Slider, &effectChangeButton });
 
-    osc1ShapeButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID.getParamID()));
-    osc2ShapeButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID.getParamID()));
-    lfoShapeButtons.setSelectedButton    ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID.getParamID()));
-    lfoDestButtons.setSelectedButton     ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
-    effectChangeButton.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, effectSelectedID.getParamID()));
+    osc1ShapeButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (phatProcessor.state, osc1ShapeID.getParamID()));
+    osc2ShapeButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (phatProcessor.state, osc2ShapeID.getParamID()));
+    lfoShapeButtons.setSelectedButton    ((int) Helpers::getRangedParamValue (phatProcessor.state, lfoShapeID.getParamID()));
+    lfoDestButtons.setSelectedButton     ((int) Helpers::getRangedParamValue (phatProcessor.state, lfoDestID.getParamID()));
+    effectChangeButton.setSelectedButton ((int) Helpers::getRangedParamValue (phatProcessor.state, effectSelectedID.getParamID()));
 }
 
 ProPhatEditor::~ProPhatEditor ()
 {
-    processor.midiListeners.remove (this);
+    phatProcessor.midiListeners.remove (this);
     cancelPendingUpdate ();
     setLookAndFeel (nullptr);
 }
@@ -280,7 +280,7 @@ void ProPhatEditor::resized()
 
     const auto optionButtonBounds { rightSection.removeFromTop (25.f) };
 #if USE_NATIVE_TITLE_BAR && ! JUCE_ANDROID && ! JUCE_IOS
-    if (processor.wrapperType == juce::AudioProcessor::WrapperType::wrapperType_Standalone)
+    if (phatProcessor.wrapperType == juce::AudioProcessor::WrapperType::wrapperType_Standalone)
         optionsButton.setBounds (optionButtonBounds.toNearestInt ());
 #endif
     logoBounds = logoRow;
