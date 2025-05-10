@@ -648,12 +648,13 @@ void ProPhatVoice<T>::processRampUp (juce::dsp::AudioBlock<T>& block, int curBlo
 
     jassert (nextRampUpValue >= T(0) && nextRampUpValue <= T(1.0001));
 
-    for (size_t c = 0; c < block.getNumChannels (); ++c)
+    const auto numChannels {static_cast<int> (block.getNumChannels ())};
+    for (int c = 0; c < numChannels; ++c)
     {
         for (int i = 0; i < curRampUpLenght; ++i)
         {
-            auto value = block.getSample (c, i);
-            auto ramp = prevRampUpValue + i * incr;
+            const auto value = block.getSample (c, i);
+            const auto ramp = prevRampUpValue + static_cast<T> (i) * incr;
             block.setSample (c, i, value * ramp);
         }
     }
@@ -681,13 +682,14 @@ void ProPhatVoice<T>::processKillOverlap (juce::dsp::AudioBlock<T>& block, int c
 
     auto curSamples = juce::jmin (Constants::killRampSamples - overlapIndex, (int) curBlockSize);
 
-    for (size_t c = 0; c < block.getNumChannels (); ++c)
+    const auto numChannels { static_cast<int> (block.getNumChannels ()) };
+    for (int c = 0; c < numChannels; ++c)
     {
         for (int i = 0; i < curSamples; ++i)
         {
-            T prev  { block.getSample (c, i)};
-            T overl { overlap->getSample (c, overlapIndex + i)};
-            T total { juce::jlimit (min, max, prev + overl) };
+            const T prev  { block.getSample (c, i)};
+            const T overl { overlap->getSample (c, overlapIndex + i)};
+            const T total { juce::jlimit (min, max, prev + overl) };
 
             block.setSample (c, i, total);
 
