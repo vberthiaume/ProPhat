@@ -90,7 +90,6 @@ public:
         }
     }
 
-    //==============================================================================
     /** Applies the reverb to two stereo channels of audio data. */
     void processStereo (T* const left, T* const right, const int numSamples) noexcept
     {
@@ -275,6 +274,8 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhatVerb)
 };
+
+//==============================================================================
 
 template <std::floating_point T>
 class PhatVerbProcessor
