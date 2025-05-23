@@ -212,26 +212,6 @@ constexpr auto effect3      { "Phaser" };
 
 //====================================================================================================
 
-//TODO: this needs to be OS dependent
-static constexpr auto kSharedMemoryMapFilepath { "/tmp/ProPhatSharedMemory" };
-static constexpr auto kMaxDebugEntries { 2048 };
-
-struct DebugLogEntry
-{
-    juce::int64 timeSinceLastCall{};
-    juce::int64 processCallDuration{};
-    int curEffect{};
-};
-
-struct DebugLog
-{
-    DebugLogEntry log[kMaxDebugEntries];
-    volatile size_t logHead{};
-};
-
-
-//====================================================================================================
-
 struct Selection
 {
     Selection () = default;

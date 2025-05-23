@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "../modules/DebugLog/Source/DebugLog.hpp"
 #include "PhatEffectsCrossfadeProcessor.hpp"
 #include "PhatVerb.h"
 #include "ProPhatVoice.h"
@@ -40,17 +41,16 @@ class EffectsProcessor
         memset (&tempData, 0, sizeof (tempData));
 
         // Initialize the file that will receive the log
-        auto mmFile = juce::File (kSharedMemoryMapFilepath);
-        if (! mmFile.existsAsFile() || mmFile.getSize() != sizeof (DebugLog))
+        if (! memoryMappedFile.existsAsFile() || memoryMappedFile.getSize() != sizeof (DebugLog))
         {
-            mmFile.deleteFile(); // Start clean if it already exists
-            bool success = mmFile.replaceWithData (&tempData, sizeof (tempData));
+            memoryMappedFile.deleteFile(); // Start clean if it already exists
+            bool success = memoryMappedFile.replaceWithData (&tempData, sizeof (tempData));
             jassert (success); // Fail loudly if replaceWithData failed
         }
-        jassert (mmFile.getSize() == sizeof (DebugLog)); // Confirm correct size
+        jassert (memoryMappedFile.getSize() == sizeof (DebugLog)); // Confirm correct size
 
         // Create the memory mapped file
-        m_pLogDebugMapping = std::make_unique<juce::MemoryMappedFile> (mmFile, juce::MemoryMappedFile::readWrite, false);
+        m_pLogDebugMapping = std::make_unique<juce::MemoryMappedFile> (memoryMappedFile, juce::MemoryMappedFile::readWrite, false);
         jassert (m_pLogDebugMapping != nullptr);
 
         m_pLogDebug = static_cast<DebugLog*> (m_pLogDebugMapping->getData());
