@@ -43,7 +43,7 @@ constexpr auto defaultOscNoise          { 0 };
 constexpr auto defaultOscSlop           { 0 };
 constexpr auto defaultOscTuning         { 0 };
 
-constexpr auto numVoices                { 16 };
+constexpr auto numVoices                {1};//{ 16 };
 constexpr auto defaultOscMidiNote       { 48 }; //C2 on rev2
 constexpr auto middleCMidiNote          { 60 }; //C3 on rev2
 
