@@ -74,7 +74,12 @@ public:
         processorChain.process (context);
     }
 
-    void prepare (const juce::dsp::ProcessSpec& spec) { processorChain.prepare (spec); }
+    void prepare (const juce::dsp::ProcessSpec& spec)
+    {
+        processorChain.prepare (spec);
+        //TODO VB: I'm not sure this is necessary/does anything
+//        updateOscillators();
+    }
 
 private:
     enum

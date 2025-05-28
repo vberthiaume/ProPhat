@@ -747,6 +747,7 @@ void ProPhatVoice<T>::assertForDiscontinuities (juce::AudioBuffer<T>& outputBuff
 template <std::floating_point T>
 void ProPhatVoice<T>::applyKillRamp (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
 {
+//    return;
     outputBuffer.applyGainRamp (startSample, numSamples, 1.f, 0.f);
     currentlyKillingVoice = false;
 

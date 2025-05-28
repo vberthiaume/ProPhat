@@ -103,7 +103,8 @@ class EffectsProcessor
             else if (curEffect != EffectType::none)
             {
                 //TODO VB: so this can be called if you start a reaper project and it changes effects before you start playing because of automation
-                jassertfalse;
+                //presumably we'll get rid of this when we recall parameters per effect
+//                jassertfalse;
             }
         }
         else if (parameterID == ProPhatParameterIds::effectParam2ID.getParamID())
@@ -126,7 +127,8 @@ class EffectsProcessor
             else if (curEffect != EffectType::none)
             {
                 //TODO VB: so this can be called if you start a reaper project and it changes effects before you start playing because of automation
-                jassertfalse;
+                //see above
+//                jassertfalse;
             }
         }
         else
