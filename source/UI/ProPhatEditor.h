@@ -122,7 +122,7 @@ private:
     //EFFECT
     SliderLabel effectParam1Label, effectParam2Label, tempLabel;
     SnappingSlider effectParam1Slider, effectParam2Slider;
-    juce::AudioProcessorValueTreeState::SliderAttachment effectParam1Attachment, effectParam2Attachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> effectParam1Attachment, effectParam2Attachment;
     ButtonGroupComponent effectChangeButton;
 
     //OTHER

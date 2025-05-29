@@ -26,6 +26,8 @@
 #include "juce_core/juce_core.h"
 #include "juce_dsp/juce_dsp.h"
 
+#define USE_PER_EFFECT_PARAMS 1
+
 namespace Constants
 {
 constexpr auto phatGrey                 { 0xff191919 };
@@ -130,8 +132,19 @@ const juce::ParameterID lfoDestID          { "Lfo Dest", 1 };
 const juce::ParameterID lfoFreqID          { "Lfo Freq", 1 };
 const juce::ParameterID lfoAmountID        { "Lfo Amount", 1 };
 
+
+#if ! USE_PER_EFFECT_PARAMS
 const juce::ParameterID effectParam1ID     { "Effect Param1", 1 };
 const juce::ParameterID effectParam2ID     { "Effect Param2", 1 };
+#else
+const juce::ParameterID reverbParam1ID     { "Reverb Param1", 1 };
+const juce::ParameterID reverbParam2ID     { "Reverb Param2", 1 };
+const juce::ParameterID chorusParam1ID     { "Chorus Param1", 1 };
+const juce::ParameterID chorusParam2ID     { "Chorus Param2", 1 };
+const juce::ParameterID phaserParam1ID     { "Phaser Param1", 1 };
+const juce::ParameterID phaserParam2ID     { "Phaser Param2", 1 };
+#endif
+
 const juce::ParameterID effectSelectedID   { "Current Effect", 1 };
 
 const juce::ParameterID masterGainID       { "Master Gain", 1 };

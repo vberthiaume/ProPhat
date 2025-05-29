@@ -84,6 +84,38 @@ class EffectsProcessor
 
     void setEffectParam (juce::StringRef parameterID, T newValue)
     {
+#if USE_PER_EFFECT_PARAMS
+        if (parameterID == ProPhatParameterIds::reverbParam1ID.getParamID())
+        {
+            reverbParams.roomSize = static_cast<float> (newValue);
+            verbWrapper->processor.setParameters (reverbParams);
+        }
+        else if (parameterID == ProPhatParameterIds::chorusParam1ID.getParamID())
+        {
+            chorusWrapper->processor.setRate (static_cast<T> (99.9) * newValue);
+        }
+        else if (parameterID == ProPhatParameterIds::phaserParam1ID.getParamID())
+        {
+            phaserWrapper->processor.setRate (static_cast<T> (99.9) * newValue);
+        }
+        else if (parameterID == ProPhatParameterIds::reverbParam2ID.getParamID())
+        {
+            reverbParams.wetLevel = newValue;
+            verbWrapper->processor.setParameters (reverbParams);
+        }
+        else if (parameterID == ProPhatParameterIds::chorusParam2ID.getParamID())
+        {
+            chorusWrapper->processor.setDepth (newValue);
+            chorusWrapper->processor.setMix (newValue);
+        }
+        else if (parameterID == ProPhatParameterIds::phaserParam2ID.getParamID())
+        {
+            phaserWrapper->processor.setDepth (newValue);
+            phaserWrapper->processor.setMix (newValue);
+        }
+        else
+            jassertfalse; //unknown effect parameter!
+#else
         const auto curEffect { effectCrossFader.getCurrentEffectType() };
         if (parameterID == ProPhatParameterIds::effectParam1ID.getParamID())
         {
@@ -104,7 +136,7 @@ class EffectsProcessor
             {
                 //TODO VB: so this can be called if you start a reaper project and it changes effects before you start playing because of automation
                 //presumably we'll get rid of this when we recall parameters per effect
-//                jassertfalse;
+                jassertfalse;
             }
         }
         else if (parameterID == ProPhatParameterIds::effectParam2ID.getParamID())
@@ -128,11 +160,12 @@ class EffectsProcessor
             {
                 //TODO VB: so this can be called if you start a reaper project and it changes effects before you start playing because of automation
                 //see above
-//                jassertfalse;
+                jassertfalse;
             }
         }
         else
             jassertfalse; //unknown effect parameter!
+#endif
     }
 
     void changeEffect(EffectType effect)

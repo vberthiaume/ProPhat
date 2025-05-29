@@ -101,8 +101,6 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
 
     //EFFECT
     , effectGroup ("effectGroup", effectGroupDesc)
-    , effectParam1Attachment (p.state, effectParam1ID.getParamID(), effectParam1Slider)
-    , effectParam2Attachment (p.state, effectParam2ID.getParamID(), effectParam2Slider)
     , effectChangeButton (p.state, effectSelectedID.getParamID(), std::make_unique<SelectedEffect> (SelectedEffect()), effectGroupDesc, {effect1, effect2, effect3}, true)
 
     //OTHER
@@ -163,30 +161,57 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     };
 
     addGroup (oscGroup, { &osc1FreqSliderLabel,  &osc1TuningSliderLabel, nullptr,           &oscSubSliderLabel, &osc2FreqSliderLabel, &osc2TuningSliderLabel, nullptr,           &oscMixSliderLabel, &oscNoiseSliderLabel, &oscSlopSliderLabel},
-                        { osc1FreqDesc,          osc1TuningDesc,         juce::String (),   oscSubOctDesc,      osc2FreqDesc,         osc2TuningDesc,         juce::String (),   oscMixDesc,         oscNoiseDesc,         oscSlopDesc},
-                        { &osc1FreqSlider,       &osc1TuningSlider,      &osc1ShapeButtons, &oscSubSlider,      &osc2FreqSlider,      &osc2TuningSlider,      &osc2ShapeButtons, &oscMixSlider,      &oscNoiseSlider,      &oscSlopSlider});
+              { osc1FreqDesc,          osc1TuningDesc,         juce::String (),   oscSubOctDesc,      osc2FreqDesc,         osc2TuningDesc,         juce::String (),   oscMixDesc,         oscNoiseDesc,         oscSlopDesc},
+              { &osc1FreqSlider,       &osc1TuningSlider,      &osc1ShapeButtons, &oscSubSlider,      &osc2FreqSlider,      &osc2TuningSlider,      &osc2ShapeButtons, &oscMixSlider,      &oscNoiseSlider,      &oscSlopSlider});
 
     addGroup (filterGroup, { &filterCutoffLabel,     &filterResonanceLabel,      &filterEnvAttackLabel,  &filterEnvDecayLabel,   &filterEnvSustainLabel,  &filterEnvReleaseLabel },
-                           { filterCutoffSliderDesc, filterResonanceSliderDesc,  ampAttackSliderDesc,    ampDecaySliderDesc,     ampSustainSliderDesc,    ampReleaseSliderDesc },
-                           { &filterCutoffSlider,    &filterResonanceSlider,     &filterEnvAttackSlider, &filterEnvDecaySlider,  &filterEnvSustainSlider, &filterEnvReleaseSlider });
+              { filterCutoffSliderDesc, filterResonanceSliderDesc,  ampAttackSliderDesc,    ampDecaySliderDesc,     ampSustainSliderDesc,    ampReleaseSliderDesc },
+              { &filterCutoffSlider,    &filterResonanceSlider,     &filterEnvAttackSlider, &filterEnvDecaySlider,  &filterEnvSustainSlider, &filterEnvReleaseSlider });
 
     addGroup (ampGroup, { &masterGainLabel,  &ampAttackLabel,     &ampDecayLabel,     &ampSustainLabel,     &ampReleaseLabel },
-                        { masterGainDesc,    ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc },
-                        { &masterGainSlider, &ampAttackSlider,    &ampDecaySlider,    &ampSustainSlider,    &ampReleaseSlider });
+              { masterGainDesc,    ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc },
+              { &masterGainSlider, &ampAttackSlider,    &ampDecaySlider,    &ampSustainSlider,    &ampReleaseSlider });
 
     addGroup (lfoGroup, { nullptr,          &lfoFreqLabel,     nullptr,         &lfoAmountLabel },
-                        { {},               lfoFreqSliderDesc, juce::String (), lfoAmountSliderDesc },
-                        { &lfoShapeButtons, &lfoFreqSlider,    &lfoDestButtons, &lfoAmountSlider });
+              { {},               lfoFreqSliderDesc, juce::String (), lfoAmountSliderDesc },
+              { &lfoShapeButtons, &lfoFreqSlider,    &lfoDestButtons, &lfoAmountSlider });
 
     addGroup (effectGroup, { &effectParam1Label, &effectParam2Label, &tempLabel},
-                           { effectParam1Desc,    effectParam2Desc, {} },
-                           { &effectParam1Slider, &effectParam2Slider, &effectChangeButton });
+              { effectParam1Desc,    effectParam2Desc, {} },
+              { &effectParam1Slider, &effectParam2Slider, &effectChangeButton });
 
     osc1ShapeButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (phatProcessor.state, osc1ShapeID.getParamID()));
     osc2ShapeButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (phatProcessor.state, osc2ShapeID.getParamID()));
     lfoShapeButtons.setSelectedButton    ((int) Helpers::getRangedParamValue (phatProcessor.state, lfoShapeID.getParamID()));
     lfoDestButtons.setSelectedButton     ((int) Helpers::getRangedParamValue (phatProcessor.state, lfoDestID.getParamID()));
     effectChangeButton.setSelectedButton ((int) Helpers::getRangedParamValue (phatProcessor.state, effectSelectedID.getParamID()));
+
+    const auto curEffect = phatProcessor.state.getParameter (effectSelectedID.getParamID())->getValue();
+
+    //TODO: DRY this logic, which is also in ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, float newValue)
+                EffectType effect;
+                //TODO: switch?
+    //VB NOW HERE: what is this value lol
+                const auto newInt { static_cast<int> (newValue) };
+                if (newInt == 0)
+                    effect = EffectType::none;
+                else if (newInt == 1)
+                    effect = EffectType::verb;
+                else if (newInt == 2)
+                    effect = EffectType::chorus;
+                else if (newInt == 3)
+                    effect = EffectType::phaser;
+                else
+                    jassertfalse;
+
+
+    if (curEffect == EffectType::verb)
+    {
+        effectParam1Attachment = std::make_unique<effectParam1Attachment>(p.state, reverbParam1ID.getParamID(), effectParam1Slider);
+        effectParam2Attachment = std::make_unique<effectParam2Attachment>(p.state, reverbParam2ID.getParamID(), effectParam2Slider);
+    }
+//    , effectParam1Attachment (p.state, effectParam1ID.getParamID(), effectParam1Slider)
+//    , effectParam2Attachment (p.state, effectParam2ID.getParamID(), effectParam2Slider)
 }
 
 ProPhatEditor::~ProPhatEditor ()
