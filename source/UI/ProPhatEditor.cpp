@@ -176,7 +176,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
               { {},               lfoFreqSliderDesc, juce::String (), lfoAmountSliderDesc },
               { &lfoShapeButtons, &lfoFreqSlider,    &lfoDestButtons, &lfoAmountSlider });
 
-    addGroup (effectGroup, { &effectParam1Label, &effectParam2Label, &tempLabel},
+    addGroup (effectGroup, { &effectParam1Label, &effectParam2Label, &placeHolderLabel},
               { effectParam1Desc,    effectParam2Desc, {} },
               { &effectParam1Slider, &effectParam2Slider, &effectChangeButton });
 
