@@ -122,9 +122,18 @@ private:
     juce::AudioProcessorValueTreeState::SliderAttachment lfoFreqAttachment, lfoAmountAttachment;
 
     //EFFECT
-    SliderLabel effectParam1Label, effectParam2Label, placeHolderLabel;
-    SnappingSlider effectParam1Slider, effectParam2Slider;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> effectParam1Attachment, effectParam2Attachment;
+    SliderLabel reverbParam1Label, reverbParam2Label, reverbPlaceHolderLabel;
+    SnappingSlider reverbParam1Slider, reverbParam2Slider;
+    juce::AudioProcessorValueTreeState::SliderAttachment reverbParam1Attachment, reverbParam2Attachment;
+
+    SliderLabel chorusParam1Label, chorusParam2Label;
+    SnappingSlider chorusParam1Slider, chorusParam2Slider;
+    juce::AudioProcessorValueTreeState::SliderAttachment chorusParam1Attachment, chorusParam2Attachment;
+
+    SliderLabel phaserParam1Label, phaserParam2Label;
+    SnappingSlider phaserParam1Slider, phaserParam2Slider;
+    juce::AudioProcessorValueTreeState::SliderAttachment phaserParam1Attachment, phaserParam2Attachment;
+
     ButtonGroupComponent effectChangeButton;
 
     //OTHER

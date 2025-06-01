@@ -101,6 +101,12 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
 
     //EFFECT
     , effectGroup ("effectGroup", effectGroupDesc)
+    , reverbParam1Attachment (p.state, reverbParam1ID.getParamID (), reverbParam1Slider)
+    , reverbParam2Attachment (p.state, reverbParam2ID.getParamID (), reverbParam2Slider)
+    , chorusParam1Attachment (p.state, chorusParam1ID.getParamID (), chorusParam1Slider)
+    , chorusParam2Attachment (p.state, chorusParam2ID.getParamID (), chorusParam2Slider)
+    , phaserParam1Attachment (p.state, phaserParam1ID.getParamID (), phaserParam1Slider)
+    , phaserParam2Attachment (p.state, phaserParam2ID.getParamID (), phaserParam2Slider)
     , effectChangeButton (p.state, effectSelectedID.getParamID(), std::make_unique<SelectedEffect> (SelectedEffect()), effectGroupDesc, {effect1, effect2, effect3}, true)
 
     //OTHER
@@ -176,9 +182,17 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
               { {},               lfoFreqSliderDesc, juce::String (), lfoAmountSliderDesc },
               { &lfoShapeButtons, &lfoFreqSlider,    &lfoDestButtons, &lfoAmountSlider });
 
-    addGroup (effectGroup, { &effectParam1Label, &effectParam2Label, &placeHolderLabel},
+    addGroup (effectGroup, { &reverbParam1Label, &reverbParam2Label, &reverbPlaceHolderLabel},
               { effectParam1Desc,    effectParam2Desc, {} },
-              { &effectParam1Slider, &effectParam2Slider, &effectChangeButton });
+              { &reverbParam1Slider, &reverbParam2Slider, &effectChangeButton });
+
+    addGroup (effectGroup, { &chorusParam1Label, &chorusParam2Label,  },
+              { effectParam1Desc,    effectParam2Desc, {} },
+              { &chorusParam1Slider, &chorusParam2Slider });
+
+    addGroup (effectGroup, { &phaserParam1Label, &phaserParam2Label, },
+              { effectParam1Desc,    effectParam2Desc, {} },
+              { &phaserParam1Slider, &phaserParam2Slider });
 
     osc1ShapeButtons.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, osc1ShapeID.getParamID())));
     osc2ShapeButtons.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, osc2ShapeID.getParamID())));
@@ -238,23 +252,57 @@ void ProPhatEditor::parameterChanged (const juce::String& theParameterID, float 
     else
         jassertfalse;
 
-    //TODO VB: something bout this logic is not working, the attachment keeps sending events
-    safePtr->effectParam1Attachment.release();
-    safePtr->effectParam2Attachment.release();
-
     switch (effect)
     {
         case EffectType::verb:
-            safePtr->effectParam1Attachment.reset (new juce::AudioProcessorValueTreeState::SliderAttachment (safePtr->phatProcessor.state, reverbParam1ID.getParamID(), safePtr->effectParam1Slider));
-            safePtr->effectParam2Attachment.reset (new juce::AudioProcessorValueTreeState::SliderAttachment (safePtr->phatProcessor.state, reverbParam2ID.getParamID(), safePtr->effectParam2Slider));
+            safePtr->reverbParam1Label.setVisible (true);
+            safePtr->reverbParam2Label.setVisible (true);
+            safePtr->reverbParam1Slider.setVisible (true);
+            safePtr->reverbParam2Slider.setVisible (true);
+
+            safePtr->chorusParam1Label.setVisible (false);
+            safePtr->chorusParam2Label.setVisible (false);
+            safePtr->chorusParam1Slider.setVisible (false);
+            safePtr->chorusParam2Slider.setVisible (false);
+
+            safePtr->phaserParam1Label.setVisible (false);
+            safePtr->phaserParam2Label.setVisible (false);
+            safePtr->phaserParam1Slider.setVisible (false);
+            safePtr->phaserParam2Slider.setVisible (false);
             break;
+
         case EffectType::chorus:
-            safePtr->effectParam1Attachment.reset (new juce::AudioProcessorValueTreeState::SliderAttachment (safePtr->phatProcessor.state, chorusParam1ID.getParamID(), safePtr->effectParam1Slider));
-            safePtr->effectParam2Attachment.reset (new juce::AudioProcessorValueTreeState::SliderAttachment (safePtr->phatProcessor.state, chorusParam2ID.getParamID(), safePtr->effectParam2Slider));
+            safePtr->reverbParam1Label.setVisible (false);
+            safePtr->reverbParam2Label.setVisible (false);
+            safePtr->reverbParam1Slider.setVisible (false);
+            safePtr->reverbParam2Slider.setVisible (false);
+
+            safePtr->chorusParam1Label.setVisible (true);
+            safePtr->chorusParam2Label.setVisible (true);
+            safePtr->chorusParam1Slider.setVisible (true);
+            safePtr->chorusParam2Slider.setVisible (true);
+
+            safePtr->phaserParam1Label.setVisible (false);
+            safePtr->phaserParam2Label.setVisible (false);
+            safePtr->phaserParam1Slider.setVisible (false);
+            safePtr->phaserParam2Slider.setVisible (false);
             break;
+
         case EffectType::phaser:
-            safePtr->effectParam1Attachment.reset (new juce::AudioProcessorValueTreeState::SliderAttachment (safePtr->phatProcessor.state, phaserParam1ID.getParamID(), safePtr->effectParam1Slider));
-            safePtr->effectParam2Attachment.reset (new juce::AudioProcessorValueTreeState::SliderAttachment(safePtr->phatProcessor.state, phaserParam2ID.getParamID(), safePtr->effectParam2Slider));
+            safePtr->reverbParam1Label.setVisible (false);
+            safePtr->reverbParam2Label.setVisible (false);
+            safePtr->reverbParam1Slider.setVisible (false);
+            safePtr->reverbParam2Slider.setVisible (false);
+
+            safePtr->chorusParam1Label.setVisible (false);
+            safePtr->chorusParam2Label.setVisible (false);
+            safePtr->chorusParam1Slider.setVisible (false);
+            safePtr->chorusParam2Slider.setVisible (false);
+
+            safePtr->phaserParam1Label.setVisible (true);
+            safePtr->phaserParam2Label.setVisible (true);
+            safePtr->phaserParam1Slider.setVisible (true);
+            safePtr->phaserParam2Slider.setVisible (true);
             break;
         case EffectType::none:
             break;
@@ -385,7 +433,10 @@ void ProPhatEditor::resized()
 
     //second line
     positionGroup (lfoGroup, bottomSection.removeFromLeft (sliderColumnW + buttonGroupColumnW + panelGap), { &lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider }, 2, 2);
-    positionGroup (effectGroup, bottomSection.removeFromLeft (2 * sliderColumnW + panelGap), { &effectParam1Slider, &effectParam2Slider, &effectChangeButton }, 2, 2);
+    const auto effectSection { bottomSection.removeFromLeft (2 * sliderColumnW + panelGap) };
+    positionGroup (effectGroup, effectSection, { &reverbParam1Slider, &reverbParam2Slider, &effectChangeButton }, 2, 2);
+    positionGroup (effectGroup, effectSection, { &chorusParam1Slider, &chorusParam2Slider, &effectChangeButton }, 2, 2);
+    positionGroup (effectGroup, effectSection, { &phaserParam1Slider, &phaserParam2Slider, &effectChangeButton }, 2, 2);
     positionGroup (ampGroup, bottomSection, { &ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider, &masterGainSlider }, 1, 5);
 
 #if CPU_USAGE
