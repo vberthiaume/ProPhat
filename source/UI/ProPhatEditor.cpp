@@ -180,38 +180,13 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
               { effectParam1Desc,    effectParam2Desc, {} },
               { &effectParam1Slider, &effectParam2Slider, &effectChangeButton });
 
-    osc1ShapeButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (phatProcessor.state, osc1ShapeID.getParamID()));
-    osc2ShapeButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (phatProcessor.state, osc2ShapeID.getParamID()));
-    lfoShapeButtons.setSelectedButton    ((int) Helpers::getRangedParamValue (phatProcessor.state, lfoShapeID.getParamID()));
-    lfoDestButtons.setSelectedButton     ((int) Helpers::getRangedParamValue (phatProcessor.state, lfoDestID.getParamID()));
-    effectChangeButton.setSelectedButton ((int) Helpers::getRangedParamValue (phatProcessor.state, effectSelectedID.getParamID()));
+    osc1ShapeButtons.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, osc1ShapeID.getParamID())));
+    osc2ShapeButtons.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, osc2ShapeID.getParamID())));
+    lfoShapeButtons.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, lfoShapeID.getParamID())));
+    lfoDestButtons.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, lfoDestID.getParamID())));
+    effectChangeButton.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, effectSelectedID.getParamID())));
 
-    const auto curEffect = phatProcessor.state.getParameter (effectSelectedID.getParamID())->getValue();
-
-    //TODO: DRY this logic, which is also in ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, float newValue)
-                EffectType effect;
-                //TODO: switch?
-    //VB NOW HERE: what is this value lol
-                const auto newInt { static_cast<int> (newValue) };
-                if (newInt == 0)
-                    effect = EffectType::none;
-                else if (newInt == 1)
-                    effect = EffectType::verb;
-                else if (newInt == 2)
-                    effect = EffectType::chorus;
-                else if (newInt == 3)
-                    effect = EffectType::phaser;
-                else
-                    jassertfalse;
-
-
-    if (curEffect == EffectType::verb)
-    {
-        effectParam1Attachment = std::make_unique<effectParam1Attachment>(p.state, reverbParam1ID.getParamID(), effectParam1Slider);
-        effectParam2Attachment = std::make_unique<effectParam2Attachment>(p.state, reverbParam2ID.getParamID(), effectParam2Slider);
-    }
-//    , effectParam1Attachment (p.state, effectParam1ID.getParamID(), effectParam1Slider)
-//    , effectParam2Attachment (p.state, effectParam2ID.getParamID(), effectParam2Slider)
+    p.state.addParameterListener (effectSelectedID.getParamID(), this);
 }
 
 ProPhatEditor::~ProPhatEditor ()
@@ -236,6 +211,57 @@ void ProPhatEditor::handleAsyncUpdate ()
                 safePtr->repaint ();
             }
         });
+}
+
+void ProPhatEditor::parameterChanged (const juce::String& theParameterID, float newValue)
+{
+    jassert (theParameterID == effectSelectedID.getParamID());
+
+    juce::Component::SafePointer safePtr { this };
+    juce::MessageManager::callAsync ([safePtr, newInt { static_cast<int> (newValue) }] ()
+    {
+        if (! safePtr)
+            return;
+
+    //TODO: DRY this logic, which is also in ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, float newValue)
+    EffectType effect;
+    if (newInt == 0)
+        effect = EffectType::none;
+    else if (newInt == 1)
+        effect = EffectType::verb;
+    else if (newInt == 2)
+        effect = EffectType::chorus;
+    else if (newInt == 3)
+        effect = EffectType::phaser;
+    else
+        jassertfalse;
+
+    //TODO VB: something bout this logic is not working, the attachment keeps sending events
+    safePtr->effectParam1Attachment.release();
+    safePtr->effectParam2Attachment.release();
+
+
+    switch (effect)
+    {
+        case EffectType::verb:
+            safePtr->effectParam1Attachment.reset (new juce::AudioProcessorValueTreeState::SliderAttachment (safePtr->phatProcessor.state, reverbParam1ID.getParamID(), safePtr->effectParam1Slider));
+            safePtr->effectParam2Attachment.reset (new juce::AudioProcessorValueTreeState::SliderAttachment (safePtr->phatProcessor.state, reverbParam2ID.getParamID(), safePtr->effectParam2Slider));
+            break;
+        case EffectType::chorus:
+            safePtr->effectParam1Attachment.reset (new juce::AudioProcessorValueTreeState::SliderAttachment (safePtr->phatProcessor.state, chorusParam1ID.getParamID(), safePtr->effectParam1Slider));
+            safePtr->effectParam2Attachment.reset (new juce::AudioProcessorValueTreeState::SliderAttachment (safePtr->phatProcessor.state, chorusParam2ID.getParamID(), safePtr->effectParam2Slider));
+            break;
+        case EffectType::phaser:
+            safePtr->effectParam1Attachment.reset (new juce::AudioProcessorValueTreeState::SliderAttachment (safePtr->phatProcessor.state, phaserParam1ID.getParamID(), safePtr->effectParam1Slider));
+            safePtr->effectParam2Attachment.reset (new juce::AudioProcessorValueTreeState::SliderAttachment(safePtr->phatProcessor.state, phaserParam2ID.getParamID(), safePtr->effectParam2Slider));
+            break;
+        case EffectType::none:
+            break;
+        case EffectType::transitioning:
+        default:
+            jassertfalse;
+    }
+    });
 }
 
 #if USE_NATIVE_TITLE_BAR

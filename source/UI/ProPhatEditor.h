@@ -34,6 +34,7 @@
 class ProPhatEditor : public juce::AudioProcessorEditor
                     , public juce::AsyncUpdater
                     , public ProPhatProcessor::MidiMessageListener
+                    , public juce::AudioProcessorValueTreeState::Listener
 #if USE_NATIVE_TITLE_BAR
     , private juce::Button::Listener
 #endif
@@ -49,6 +50,7 @@ public:
     void resized() override;
     void receivedMidiMessage (juce::MidiBuffer& midiMessages) override;
     void handleAsyncUpdate () override;
+    void parameterChanged (const juce::String& parameterID, float newValue) override;
 
 #if CPU_USAGE
     void timerCallback() override
