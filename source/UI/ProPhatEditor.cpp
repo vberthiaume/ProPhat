@@ -187,6 +187,8 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     effectChangeButton.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, effectSelectedID.getParamID())));
 
     p.state.addParameterListener (effectSelectedID.getParamID(), this);
+    //TODO VB: there's probably a less verbose way to do this
+    parameterChanged (effectSelectedID.getParamID (), phatProcessor.state.getParameterAsValue (effectSelectedID.getParamID ()).getValue());
 }
 
 ProPhatEditor::~ProPhatEditor ()
@@ -239,7 +241,6 @@ void ProPhatEditor::parameterChanged (const juce::String& theParameterID, float 
     //TODO VB: something bout this logic is not working, the attachment keeps sending events
     safePtr->effectParam1Attachment.release();
     safePtr->effectParam2Attachment.release();
-
 
     switch (effect)
     {
