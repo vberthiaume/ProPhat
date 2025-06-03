@@ -87,7 +87,6 @@ void ProPhatSynthesiser<T>::addParamListenersToState ()
 {
     using namespace ProPhatParameterIds;
 
-#if USE_PER_EFFECT_PARAMS
     state.addParameterListener (reverbParam1ID.getParamID (), this);
     state.addParameterListener (reverbParam2ID.getParamID (), this);
 
@@ -96,10 +95,7 @@ void ProPhatSynthesiser<T>::addParamListenersToState ()
 
     state.addParameterListener (phaserParam1ID.getParamID (), this);
     state.addParameterListener (phaserParam2ID.getParamID (), this);
-#else
-    state.addParameterListener (effectParam1ID.getParamID (), this);
-    state.addParameterListener (effectParam2ID.getParamID (), this);
-#endif
+
     state.addParameterListener (effectSelectedID.getParamID (), this);
 
     state.addParameterListener (masterGainID.getParamID (), this);
@@ -129,13 +125,9 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
     using namespace ProPhatParameterIds;
 
     //DBG ("ProPhatSynthesiser::parameterChanged (" + parameterID + ", " + juce::String (newValue));
-#if USE_PER_EFFECT_PARAMS
     if (parameterID == reverbParam1ID.getParamID () || parameterID == reverbParam2ID.getParamID ()
         || parameterID == chorusParam1ID.getParamID () || parameterID == chorusParam2ID.getParamID ()
         || parameterID == phaserParam1ID.getParamID () || parameterID == phaserParam2ID.getParamID ())
-#else
-        if (parameterID == effectParam1ID.getParamID () || parameterID == effectParam2ID.getParamID ())
-#endif
         effectsProcessor.setEffectParam (parameterID, newValue);
     else if (parameterID == masterGainID.getParamID ())
         setMasterGain (newValue);
