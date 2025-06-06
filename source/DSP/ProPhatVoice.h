@@ -602,6 +602,12 @@ void ProPhatVoice<T>::startNote (int midiNoteNumber, float velocity, juce::Synth
 template <std::floating_point T>
 void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
 {
+#if 1
+    currentlyReleasingNote = true;
+    ampADSR.noteOff();
+    filterADSR.noteOff();
+    clearCurrentNote();
+#else
     if (allowTailOff)
     {
         currentlyReleasingNote = true;
@@ -633,6 +639,7 @@ void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
         DBG ("\tDEBUG kill voice: " + juce::String (voiceId));
 #endif
     }
+#endif
 }
 
 template <std::floating_point T>
