@@ -602,7 +602,8 @@ void ProPhatVoice<T>::startNote (int midiNoteNumber, float velocity, juce::Synth
 template <std::floating_point T>
 void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
 {
-#if 1
+    //this does not remove the glitch
+#if 0
     currentlyReleasingNote = true;
     ampADSR.noteOff();
     filterADSR.noteOff();
@@ -627,7 +628,8 @@ void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
             overlap->clear();
             voicesBeingKilled->insert (voiceId);
             currentlyKillingVoice = true;
-            //TODO VB: this won't render the effects, right??
+            //TODO VB: this won't render the effects, right?? no... but whatever is rendered into the voices block will be sent to the effects
+            //so I think the issue really is with the effects crossfader. or the reverb... but I couldn't find any issues with the reverb lol
             renderNextBlock (*overlap, 0, Constants::killRampSamples);
             overlapIndex = 0;
         }
