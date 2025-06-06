@@ -117,13 +117,13 @@ private:
     void setFilterCutoffInternal (T curCutOff)
     {
         const auto limitedCutOff { juce::jlimit (T (Constants::cutOffRange.start), T (Constants::cutOffRange.end), curCutOff) };
-        processorChain.template get<(int) ProcessorId::filterIndex> ().setCutoffFrequencyHz (limitedCutOff);
+        filterAndGainProcessorChain.template get<(int) ProcessorId::filterIndex> ().setCutoffFrequencyHz (limitedCutOff);
     }
 
     void setFilterResonanceInternal (T curResonance)
     {
         const auto limitedResonance { juce::jlimit (T (0), T (1), curResonance) };
-        processorChain.template get<(int) ProcessorId::filterIndex> ().setResonance (limitedResonance);
+        filterAndGainProcessorChain.template get<(int) ProcessorId::filterIndex> ().setResonance (limitedResonance);
     }
 
     /** Calculate LFO values. Called on the audio thread. */
@@ -141,13 +141,14 @@ private:
     bool currentlyKillingVoice = false;
     std::set<int>* voicesBeingKilled;
 
-    juce::dsp::ProcessorChain<juce::dsp::LadderFilter<T>, juce::dsp::Gain<T>> processorChain;
+    juce::dsp::ProcessorChain<juce::dsp::LadderFilter<T>, juce::dsp::Gain<T>> filterAndGainProcessorChain;
     //TODO: use a slider for this
     static constexpr auto envelopeAmount { 2 };
 
     juce::ADSR ampADSR, filterADSR;
     juce::ADSR::Parameters ampParams { Constants::defaultAmpA, Constants::defaultAmpD, Constants::defaultAmpS, Constants::defaultAmpR };
     juce::ADSR::Parameters filterEnvParams { ampParams };
+    //TODO: should these be atomic??? Are they set on the audio thread??
     bool currentlyReleasingNote = false, justDoneReleaseEnvelope = false;
 
     T curFilterCutoff { Constants::defaultFilterCutoff };
@@ -231,11 +232,11 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
         //render the oscillators
         auto oscBlock { oscillators.process (pos, subBlockSize) };
 
-        //render our effects
+        //apply filter and gain
         juce::dsp::ProcessContextReplacing<T> oscContext (oscBlock);
-        processorChain.process (oscContext);
+        filterAndGainProcessorChain.process (oscContext);
 
-        //apply the enveloppes. We calculate and apply the amp envelope on a sample basis,
+        //apply the envelopes. We calculate and apply the amp envelope on a sample basis,
         //but for the filter env we increment it on a sample basis but only apply it
         //once per buffer, just like the LFO -- see below.
         auto filterEnvelope { 0.f };
@@ -243,9 +244,11 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
             const auto numChannels { oscBlock.getNumChannels () };
             for (auto i = 0; i < subBlockSize; ++i)
             {
-                //calculate and atore filter envelope
+                //TODO: we only need the last of these right, not sure this needs to be in this loop
+                //calculate and store filter envelope
                 filterEnvelope = filterADSR.getNextSample ();
 
+                //TODO: if there's an efficient way to render the ampEnv here we could use SIMD for the multiplication below
                 //calculate and apply amp envelope
                 const auto ampEnv = ampADSR.getNextSample ();
                 for (size_t c = 0; c < numChannels; ++c)
@@ -257,10 +260,6 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
                 currentlyReleasingNote = false;
                 justDoneReleaseEnvelope = true;
                 stopNote (0.f, false);
-
-#if DEBUG_VOICES
-                DBG ("\tDEBUG ENVELOPPE DONE");
-#endif
             }
         }
 
@@ -306,7 +305,7 @@ ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorStat
 {
     addParamListenersToState ();
 
-    processorChain.template get<(int)ProcessorId::masterGainIndex>().setGainLinear (static_cast<T> (Constants::defaultOscLevel));
+    filterAndGainProcessorChain.template get<(int)ProcessorId::masterGainIndex>().setGainLinear (static_cast<T> (Constants::defaultOscLevel));
 
     setFilterCutoffInternal (Constants::defaultFilterCutoff);
     setFilterResonanceInternal (Constants::defaultFilterResonance);
@@ -326,7 +325,7 @@ void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
     overlap = std::make_unique<juce::AudioBuffer<T>> (spec.numChannels, Constants::killRampSamples);
     overlap->clear();
 
-    processorChain.prepare (spec);
+    filterAndGainProcessorChain.prepare (spec);
 
     ampADSR.setSampleRate (spec.sampleRate);
     ampADSR.setParameters (ampParams);
@@ -622,6 +621,7 @@ void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
             overlap->clear();
             voicesBeingKilled->insert (voiceId);
             currentlyKillingVoice = true;
+            //TODO VB: this won't render the effects, right??
             renderNextBlock (*overlap, 0, Constants::killRampSamples);
             overlapIndex = 0;
         }
