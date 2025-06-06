@@ -135,7 +135,7 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
     //TODO: actually switch to the right effect lol using the newValue
     else if (parameterID == effectSelectedID.getParamID ())
     {
-        EffectType effect;
+        EffectType effect { EffectType::none };
         //TODO: switch?
         const auto newInt { static_cast<int> (newValue) };
         if (newInt == 0)
