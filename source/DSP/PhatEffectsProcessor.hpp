@@ -37,14 +37,16 @@ class EffectsProcessor
   public:
     EffectsProcessor()
     {
+#if ENABLE_DEBUG_LOG
+        //TODO: presumably this can be DRYed into some function and called from the main processor
         DebugLog tempData;
         memset (&tempData, 0, sizeof (tempData));
 
         // Initialize the file that will receive the log
         if (! memoryMappedFile.existsAsFile() || memoryMappedFile.getSize() != sizeof (DebugLog))
         {
-            memoryMappedFile.deleteFile(); // Start clean if it already exists
-            bool success = memoryMappedFile.replaceWithData (&tempData, sizeof (tempData));
+            bool success = memoryMappedFile.deleteFile(); // Start clean if it already exists
+            success = memoryMappedFile.replaceWithData (&tempData, sizeof (tempData));
             jassert (success); // Fail loudly if replaceWithData failed
         }
         jassert (memoryMappedFile.getSize() == sizeof (DebugLog)); // Confirm correct size
@@ -63,6 +65,7 @@ class EffectsProcessor
         {
             jassertfalse; // Failed to map the log memory!
         }
+#endif
 
         verbWrapper = std::make_unique<EffectProcessorWrapper<PhatVerbProcessor<T>, T>>();
         verbWrapper->processor.setParameters (reverbParams);
@@ -130,13 +133,15 @@ class EffectsProcessor
         //TODO: surround with trylock or something, although not here because we don't have a proper fallback
         const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
 
+#if ENABLE_DEBUG_LOG
         DebugLogEntry& debugLogEntry = m_pLogDebug->log[m_pLogDebug->logHead];
-        if (enableLogging && m_pLogDebug != nullptr)
+        if (m_pLogDebug != nullptr)
         {
             debugLogEntry.timeSinceLastCall = juce::Time::currentTimeMillis() - cachedProcessCallTime;
             cachedProcessCallTime = juce::Time::currentTimeMillis();
             debugLogEntry.curEffect = static_cast<int>(effectCrossFader.getCurrentEffectType());
         }
+#endif
 
         if (currentEffectType == EffectType::transitioning)
         {
@@ -149,7 +154,7 @@ class EffectsProcessor
             auto block2 {juce::dsp::AudioBlock<T> (fade_buffer2)};
             auto context2 { juce::dsp::ProcessContextReplacing<T> (block2) };
 
-            //do the crossfad between the previous and next effects
+            //do the crossfade between the previous and next effects
             const auto prevEffect = effectCrossFader.prevEffect;
             const auto nextEffect = effectCrossFader.curEffect;
             switch (prevEffect)
@@ -240,21 +245,21 @@ class EffectsProcessor
                 jassertfalse; //unknown effect!!
         }
 
-        if (enableLogging)
-        {
+#if ENABLE_DEBUG_LOG
             debugLogEntry.processCallDuration = juce::Time::currentTimeMillis() - cachedProcessCallTime;
             m_pLogDebug->logHead = (m_pLogDebug->logHead + 1) & (kMaxDebugEntries - 1);
-        }
+#endif
     }
 
 private:
 #if ENABLE_CLEAR_EFFECT
     bool needToClearEffect {false};
 #endif
+#if ENABLE_DEBUG_LOG
     juce::int64 cachedProcessCallTime{juce::Time::currentTimeMillis()};
     std::unique_ptr<juce::MemoryMappedFile> m_pLogDebugMapping{};
     DebugLog* m_pLogDebug{};
-    bool enableLogging {true};
+#endif
 
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
 
