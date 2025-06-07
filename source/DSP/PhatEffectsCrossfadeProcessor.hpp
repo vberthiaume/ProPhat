@@ -45,6 +45,8 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
         smoothedGain.reset (spec.sampleRate, .1);
+
+        gains.resize (spec.maximumBlockSize);
     }
 
     void changeEffect(EffectType effect)
@@ -89,7 +91,7 @@ public:
         const bool needToInverse = juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (1));
 
         T nextGain{};
-
+//        gains.clear();
         for (int channel = 0; channel < numChannels; ++channel)
         {
             const auto* prevData = previousEffectBuffer.getReadPointer (channel);
@@ -100,6 +102,7 @@ public:
             {
                 nextGain = smoothedGain.getNextValue();
 #if ENABLE_GAIN_LOGGING
+                gains[sample] = nextGain;
                 if (channel == 0 && sample == 0 && debugLogEntry)
                     debugLogEntry->firstGain = nextGain;
 #endif
@@ -109,7 +112,12 @@ public:
             }
 #if ENABLE_GAIN_LOGGING
             if (channel == 0 && debugLogEntry)
+            {
                 debugLogEntry->lastGain = nextGain;
+                DBG ("NEW BLOCK");
+                for (int i = 0; i < gains.size(); ++i)
+                    DBG (gains[i]);
+            }
 #endif
         }
     }
@@ -125,4 +133,6 @@ public:
 
     //TODO: this needs to be stored and retrieved from the state
     //EffectType curEffect = EffectType::verb;
+
+    std::vector<float> gains{};
 };
