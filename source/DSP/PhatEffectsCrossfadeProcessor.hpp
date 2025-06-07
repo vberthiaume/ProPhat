@@ -116,7 +116,6 @@ public:
                     jassertfalse;
 
 #if ENABLE_GAIN_LOGGING
-//                gains[sample] = nextGain;
                 if (channel == 0 && sample == 0 && debugLogEntry)
                     debugLogEntry->firstGain = nextGain;
 #endif
