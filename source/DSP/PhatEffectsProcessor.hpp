@@ -145,6 +145,9 @@ class EffectsProcessor
 
         if (currentEffectType == EffectType::transitioning)
         {
+#if ENABLE_GAIN_LOGGING
+     effectCrossFader.setDebugLogEntry (&debugLogEntry);
+#endif
             //copy the OG buffer into the individual processor ones
             for (auto c = 0; c < buffer.getNumChannels(); ++c)
             {

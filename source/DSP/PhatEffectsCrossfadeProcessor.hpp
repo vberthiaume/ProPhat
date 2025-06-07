@@ -1,4 +1,8 @@
+#pragma once
+
 #include "../Utility/Helpers.h"
+#include "../modules/DebugLog/Source/DebugLog.hpp"
+#include <sstream>
 
 enum class EffectType
 {
@@ -66,6 +70,13 @@ public:
         return curEffect;
     }
 
+#if ENABLE_GAIN_LOGGING
+    void setDebugLogEntry (DebugLogEntry *_debugLogEntry)
+    {
+        debugLogEntry = _debugLogEntry;
+    }
+#endif
+
     void process (const juce::AudioBuffer<T>& previousEffectBuffer,
                   const juce::AudioBuffer<T>& nextEffectBuffer,
                   juce::AudioBuffer<T>&       outputBuffer)
@@ -77,6 +88,12 @@ public:
         const auto numSamples       = outputBuffer.getNumSamples();
         const bool needToInverse = juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (1));
 
+#if ENABLE_GAIN_LOGGING
+        char* writePtr = debugLogEntry->message;
+        size_t remaining = sizeof(debugLogEntry->message);
+        int written = 0;
+#endif
+
         for (int channel = 0; channel < numChannels; ++channel)
         {
             const auto* prevData = previousEffectBuffer.getReadPointer (channel);
@@ -86,18 +103,49 @@ public:
             for (int sample = 0; sample < numSamples; ++sample)
             {
                 //TODO VB: how do I know this smoothedGain ramp really goes from 1 to 0 over the total samples??
-                const auto gain = needToInverse ? (1 - smoothedGain.getNextValue()) : smoothedGain.getNextValue();
+                //I need to print it
+                const auto nextGain {smoothedGain.getNextValue()};
+                const auto gain = needToInverse ? (1 - nextGain) : nextGain;
                 outData[sample] = prevData[sample] * gain + nextData[sample] * (1 - gain);
+
+#if ENABLE_GAIN_LOGGING
+                //if (channel == 0)
+                //  gainRamp << nextGain << ", ";
+                if (channel == 0 && remaining > 0)
+                {
+                    written = std::snprintf(writePtr, remaining, "%.3f, ", nextGain);
+                    if (written < 0 || static_cast<size_t>(written) >= remaining)
+                    {
+                        jassertfalse;
+                        break; // Stop if buffer full or error
+                    }
+                    writePtr += written;
+                    remaining -= written;
+                }
+#endif
             }
         }
+#if ENABLE_GAIN_LOGGING
+        DBG (debugLogEntry->message);
+        //NOW HERE: this gainRamp breaks the debuglog, not too sure why
+//        //also if I use ducoup here, once I call this once, it'll get called again and again randomly even when not playing???
+//        //it actually does not get called multiple times, it's just that the entry isn't cleared. I think at least
+//        if (debugLogEntry)
+////            debugLogEntry->message = "ducoup";
+//            debugLogEntry->message = gainRamp.str();
+//        // else
+//        //     jassertfalse;
+#endif
     }
-
 
     EffectType prevEffect = EffectType::none;
     EffectType curEffect = EffectType::verb;
 
   private:
     juce::SmoothedValue<T, juce::ValueSmoothingTypes::Linear> smoothedGain;
+#if ENABLE_GAIN_LOGGING
+    DebugLogEntry* debugLogEntry{nullptr};
+#endif
 
     //TODO: this needs to be stored and retrieved from the state
     //EffectType curEffect = EffectType::verb;
