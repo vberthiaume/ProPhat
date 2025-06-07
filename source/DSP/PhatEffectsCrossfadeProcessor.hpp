@@ -99,7 +99,7 @@ public:
         const auto numSamples       = outputBuffer.getNumSamples();
         const bool needToInverse = juce::approximatelyEqual (smoothedGainL.getTargetValue(), static_cast<T> (1));
 
-        T nextGain{};
+        T gain;
         for (int channel = 0; channel < numChannels; ++channel)
         {
             const auto* prevData = previousEffectBuffer.getReadPointer (channel);
@@ -108,25 +108,27 @@ public:
 
             for (int sample = 0; sample < numSamples; ++sample)
             {
+                T nextGain{};
                 if (channel == 0)
                     nextGain = smoothedGainL.getNextValue();
                 else if (channel == 1)
                     nextGain = smoothedGainR.getNextValue();
                 else
                     jassertfalse;
+                gain = needToInverse ? (1 - nextGain) : nextGain;
 
 #if ENABLE_GAIN_LOGGING
                 if (channel == 0 && sample == 0 && debugLogEntry)
-                    debugLogEntry->firstGain = nextGain;
+                    debugLogEntry->firstGain = gain;
 #endif
 
-                const auto gain = needToInverse ? (1 - nextGain) : nextGain;
+
                 outData[sample] = prevData[sample] * gain + nextData[sample] * (1 - gain);
             }
 #if ENABLE_GAIN_LOGGING
             if (channel == 0 && debugLogEntry)
             {
-                debugLogEntry->lastGain = nextGain;
+                debugLogEntry->lastGain = gain;
 //                DBG ("NEW BLOCK");
 //                for (int i = 0; i < gains.size(); ++i)
 //                    DBG (gains[i]);
