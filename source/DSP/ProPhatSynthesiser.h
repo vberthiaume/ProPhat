@@ -32,13 +32,12 @@
 *   state via juce::AudioProcessorValueTreeState::Listener().
 */
 template <std::floating_point T>
-class ProPhatSynthesiser : public juce::Synthesiser
-                         , public juce::AudioProcessorValueTreeState::Listener
+class ProPhatSynthesiser : public juce::Synthesiser, public juce::AudioProcessorValueTreeState::Listener
 {
-public:
-    ProPhatSynthesiser(juce::AudioProcessorValueTreeState& processorState);
+  public:
+    ProPhatSynthesiser (juce::AudioProcessorValueTreeState& processorState);
 
-    void addParamListenersToState ();
+    void addParamListenersToState();
 
     void prepare (const juce::dsp::ProcessSpec& spec) noexcept;
 
@@ -48,7 +47,7 @@ public:
 
     void noteOn (const int midiChannel, const int midiNoteNumber, const float velocity) override;
 
-private:
+  private:
     void renderVoices (juce::AudioBuffer<T>& outputAudio, int startSample, int numSamples) override;
 
     //TODO: make this into a bit mask thing?
@@ -67,15 +66,15 @@ private:
 //=====================================================================================================================
 
 template <std::floating_point T>
-ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& processorState) :
-    state (processorState)
+ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& processorState)
+: state (processorState)
 {
     for (auto i = 0; i < Constants::numVoices; ++i)
         addVoice (new ProPhatVoice<T> (state, i, &voicesBeingKilled));
 
-    addSound (new ProPhatSound ());
+    addSound (new ProPhatSound());
 
-    addParamListenersToState ();
+    addParamListenersToState();
 
     gainWrapper = std::make_unique<EffectProcessorWrapper<juce::dsp::Gain<T>, T>>();
     gainWrapper->processor.setRampDurationSeconds (0.1);
@@ -83,22 +82,22 @@ ProPhatSynthesiser<T>::ProPhatSynthesiser (juce::AudioProcessorValueTreeState& p
 }
 
 template <std::floating_point T>
-void ProPhatSynthesiser<T>::addParamListenersToState ()
+void ProPhatSynthesiser<T>::addParamListenersToState()
 {
     using namespace ProPhatParameterIds;
 
-    state.addParameterListener (reverbParam1ID.getParamID (), this);
-    state.addParameterListener (reverbParam2ID.getParamID (), this);
+    state.addParameterListener (reverbParam1ID.getParamID(), this);
+    state.addParameterListener (reverbParam2ID.getParamID(), this);
 
-    state.addParameterListener (chorusParam1ID.getParamID (), this);
-    state.addParameterListener (chorusParam2ID.getParamID (), this);
+    state.addParameterListener (chorusParam1ID.getParamID(), this);
+    state.addParameterListener (chorusParam2ID.getParamID(), this);
 
-    state.addParameterListener (phaserParam1ID.getParamID (), this);
-    state.addParameterListener (phaserParam2ID.getParamID (), this);
+    state.addParameterListener (phaserParam1ID.getParamID(), this);
+    state.addParameterListener (phaserParam2ID.getParamID(), this);
 
-    state.addParameterListener (effectSelectedID.getParamID (), this);
+    state.addParameterListener (effectSelectedID.getParamID(), this);
 
-    state.addParameterListener (masterGainID.getParamID (), this);
+    state.addParameterListener (masterGainID.getParamID(), this);
 }
 
 template <std::floating_point T>
@@ -114,7 +113,7 @@ void ProPhatSynthesiser<T>::prepare (const juce::dsp::ProcessSpec& spec) noexcep
     for (auto* v : voices)
         dynamic_cast<ProPhatVoice<T>*> (v)->prepare (spec);
 
-    effectsProcessor.prepare(spec);
+    effectsProcessor.prepare (spec);
 
     gainWrapper->prepare (spec);
 }
@@ -125,15 +124,15 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
     using namespace ProPhatParameterIds;
 
     //DBG ("ProPhatSynthesiser::parameterChanged (" + parameterID + ", " + juce::String (newValue));
-    if (parameterID == reverbParam1ID.getParamID () || parameterID == reverbParam2ID.getParamID ()
-        || parameterID == chorusParam1ID.getParamID () || parameterID == chorusParam2ID.getParamID ()
-        || parameterID == phaserParam1ID.getParamID () || parameterID == phaserParam2ID.getParamID ())
+    if (parameterID == reverbParam1ID.getParamID() || parameterID == reverbParam2ID.getParamID()
+        || parameterID == chorusParam1ID.getParamID() || parameterID == chorusParam2ID.getParamID()
+        || parameterID == phaserParam1ID.getParamID() || parameterID == phaserParam2ID.getParamID())
         effectsProcessor.setEffectParam (parameterID, newValue);
-    else if (parameterID == masterGainID.getParamID ())
+    else if (parameterID == masterGainID.getParamID())
         setMasterGain (newValue);
 
     //TODO: actually switch to the right effect lol using the newValue
-    else if (parameterID == effectSelectedID.getParamID ())
+    else if (parameterID == effectSelectedID.getParamID())
     {
         EffectType effect { EffectType::none };
         //TODO: switch?
@@ -148,7 +147,7 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
             effect = EffectType::phaser;
         else
             jassertfalse;
-        effectsProcessor.changeEffect(effect);
+        effectsProcessor.changeEffect (effect);
     }
     else
         jassertfalse;
@@ -179,8 +178,8 @@ void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int
 
     //TODO: this converts the arguments internally to a context, exactly like below, so might as well use that directly as params
     effectsProcessor.process (outputAudio, startSample, numSamples);
-    
-    auto audioBlock { juce::dsp::AudioBlock<T> (outputAudio).getSubBlock ((size_t) startSample, (size_t) numSamples) };
+
+    auto       audioBlock { juce::dsp::AudioBlock<T> (outputAudio).getSubBlock ((size_t) startSample, (size_t) numSamples) };
     const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
     gainWrapper->process (context);
 }
