@@ -71,7 +71,7 @@ public:
                   juce::AudioBuffer<T>&       outputBuffer)
     {
         jassert (previousEffectBuffer.getNumChannels() == nextEffectBuffer.getNumChannels() && nextEffectBuffer.getNumChannels() == outputBuffer.getNumChannels());
-        jassert (previousEffectBuffer.getNumSamples() == nextEffectBuffer.getNumSamples() && nextEffectBuffer.getNumSamples() == outputBuffer.getNumSamples());
+        jassert (previousEffectBuffer.getNumSamples() == nextEffectBuffer.getNumSamples() && nextEffectBuffer.getNumSamples() >= outputBuffer.getNumSamples());
 
         const auto numChannels      = outputBuffer.getNumChannels();
         const auto numSamples       = outputBuffer.getNumSamples();
@@ -85,6 +85,7 @@ public:
 
             for (int sample = 0; sample < numSamples; ++sample)
             {
+                //TODO VB: how do I know this smoothedGain ramp really goes from 1 to 0 over the total samples??
                 const auto gain = needToInverse ? (1 - smoothedGain.getNextValue()) : smoothedGain.getNextValue();
                 outData[sample] = prevData[sample] * gain + nextData[sample] * (1 - gain);
             }

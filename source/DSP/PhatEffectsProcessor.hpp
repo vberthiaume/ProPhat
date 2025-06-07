@@ -146,11 +146,14 @@ class EffectsProcessor
         if (currentEffectType == EffectType::transitioning)
         {
             //copy the OG buffer into the individual processor ones
-            fade_buffer1 = buffer;
+            for (auto c = 0; c < buffer.getNumChannels(); ++c)
+            {
+                fade_buffer1.copyFrom (c, 0, buffer, c, startSample, numSamples);
+                fade_buffer2.copyFrom (c, 0, buffer, c, startSample, numSamples);
+            }
             auto block1 { juce::dsp::AudioBlock<T> (fade_buffer1) };
             auto context1 { juce::dsp::ProcessContextReplacing<T> (block1) };
 
-            fade_buffer2 = buffer;
             auto block2 { juce::dsp::AudioBlock<T> (fade_buffer2) };
             auto context2 { juce::dsp::ProcessContextReplacing<T> (block2) };
 
