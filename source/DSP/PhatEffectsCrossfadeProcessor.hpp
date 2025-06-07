@@ -44,7 +44,9 @@ public:
 
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
-        smoothedGain.reset (spec.sampleRate, .1);
+        jassert (spec.numChannels == 2);
+        smoothedGainL.reset (spec.sampleRate, .1);
+        smoothedGainR.reset (spec.sampleRate, .1);
 
         gains.resize (spec.maximumBlockSize);
     }
@@ -52,21 +54,28 @@ public:
     void changeEffect(EffectType effect)
     {
         //first reverse the smoothedGain. If we're not at one of the extremes, we got a double click which we'll ignore
-        jassert (juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (1))
-                 || juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (0)));
-        if (juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (1)))
-            smoothedGain.setTargetValue (0.);
+        jassert (juce::approximatelyEqual (smoothedGainL.getTargetValue(), static_cast<T> (1))
+                 || juce::approximatelyEqual (smoothedGainL.getTargetValue(), static_cast<T> (0)));
+        if (juce::approximatelyEqual (smoothedGainL.getTargetValue(), static_cast<T> (1)))
+        {
+            smoothedGainL.setTargetValue (0.);
+            smoothedGainR.setTargetValue (0.);
+        }
         else
-            smoothedGain.setTargetValue (1.);
+        {
+            smoothedGainL.setTargetValue (1.);
+            smoothedGainR.setTargetValue (1.);
+        }
 
         prevEffect = curEffect;
         curEffect = effect;
+        
     }
 
     EffectType getCurrentEffectType() const
     {
         //TODO: this isn't atomic. Try lock?
-        if (smoothedGain.isSmoothing())
+        if (smoothedGainL.isSmoothing())
             return EffectType::transitioning;
 
         return curEffect;
@@ -88,10 +97,9 @@ public:
 
         const auto numChannels      = outputBuffer.getNumChannels();
         const auto numSamples       = outputBuffer.getNumSamples();
-        const bool needToInverse = juce::approximatelyEqual (smoothedGain.getTargetValue(), static_cast<T> (1));
+        const bool needToInverse = juce::approximatelyEqual (smoothedGainL.getTargetValue(), static_cast<T> (1));
 
         T nextGain{};
-//        gains.clear();
         for (int channel = 0; channel < numChannels; ++channel)
         {
             const auto* prevData = previousEffectBuffer.getReadPointer (channel);
@@ -100,9 +108,15 @@ public:
 
             for (int sample = 0; sample < numSamples; ++sample)
             {
-                nextGain = smoothedGain.getNextValue();
+                if (channel == 0)
+                    nextGain = smoothedGainL.getNextValue();
+                else if (channel == 1)
+                    nextGain = smoothedGainR.getNextValue();
+                else
+                    jassertfalse;
+
 #if ENABLE_GAIN_LOGGING
-                gains[sample] = nextGain;
+//                gains[sample] = nextGain;
                 if (channel == 0 && sample == 0 && debugLogEntry)
                     debugLogEntry->firstGain = nextGain;
 #endif
@@ -114,9 +128,9 @@ public:
             if (channel == 0 && debugLogEntry)
             {
                 debugLogEntry->lastGain = nextGain;
-                DBG ("NEW BLOCK");
-                for (int i = 0; i < gains.size(); ++i)
-                    DBG (gains[i]);
+//                DBG ("NEW BLOCK");
+//                for (int i = 0; i < gains.size(); ++i)
+//                    DBG (gains[i]);
             }
 #endif
         }
@@ -126,7 +140,8 @@ public:
     EffectType curEffect = EffectType::verb;
 
   private:
-    juce::SmoothedValue<T, juce::ValueSmoothingTypes::Linear> smoothedGain;
+    juce::SmoothedValue<T, juce::ValueSmoothingTypes::Linear> smoothedGainL;
+    juce::SmoothedValue<T, juce::ValueSmoothingTypes::Linear> smoothedGainR;
 #if ENABLE_GAIN_LOGGING
     DebugLogEntry* debugLogEntry{nullptr};
 #endif

@@ -43,7 +43,7 @@ class EffectsProcessor
         memset (&tempData, 0, sizeof (tempData));
 
         // Initialize the file that will receive the log
-        if (! memoryMappedFile.existsAsFile() || memoryMappedFile.getSize() != sizeof (DebugLog))
+//        if (! memoryMappedFile.existsAsFile() || memoryMappedFile.getSize() != sizeof (DebugLog))
         {
             bool success = memoryMappedFile.deleteFile(); // Start clean if it already exists
             success      = memoryMappedFile.replaceWithData (&tempData, sizeof (tempData));
@@ -126,6 +126,7 @@ class EffectsProcessor
 
     void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     {
+//        jassert (isUsingDoublePrecision());
 #if ENABLE_CLEAR_EFFECT
         needToClearEffect = true;
 #endif
@@ -137,9 +138,13 @@ class EffectsProcessor
         DebugLogEntry& debugLogEntry = m_pLogDebug->log[m_pLogDebug->logHead];
         if (m_pLogDebug != nullptr)
         {
+            //TODO VB: couldn't I just make a new debug entry?
+            //IMPORTANT! Need to clear all the debug entry fields here so that we overwrite the previous one properly!
             debugLogEntry.timeSinceLastCall = juce::Time::currentTimeMillis() - cachedProcessCallTime;
             cachedProcessCallTime           = juce::Time::currentTimeMillis();
             debugLogEntry.curEffect         = static_cast<int> (effectCrossFader.getCurrentEffectType());
+            debugLogEntry.firstGain = {};
+            debugLogEntry.lastGain = {};
         }
 #endif
 
