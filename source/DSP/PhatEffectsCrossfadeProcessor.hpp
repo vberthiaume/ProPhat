@@ -99,7 +99,7 @@ public:
         const auto numSamples       = outputBuffer.getNumSamples();
         const bool needToInverse = juce::approximatelyEqual (smoothedGainL.getTargetValue(), static_cast<T> (1));
 
-        T gain;
+        T gain{};
         for (int channel = 0; channel < numChannels; ++channel)
         {
             const auto* prevData = previousEffectBuffer.getReadPointer (channel);
@@ -108,6 +108,8 @@ public:
 
             for (int sample = 0; sample < numSamples; ++sample)
             {
+                //TODO VB: this could be an IIFE to get gain
+                //figure out gain value based on the current channel and whether we're running the smoothedGains in reverse
                 T nextGain{};
                 if (channel == 0)
                     nextGain = smoothedGainL.getNextValue();
@@ -117,21 +119,22 @@ public:
                     jassertfalse;
                 gain = needToInverse ? (1 - nextGain) : nextGain;
 
+                //cross fade prevData and nextData into outData. I guess any of these can be clipping
+                outData[sample] = prevData[sample] * gain + nextData[sample] * (1 - gain);
+
 #if ENABLE_GAIN_LOGGING
                 if (channel == 0 && sample == 0 && debugLogEntry)
-                    debugLogEntry->firstGain = gain;
+                    debugLogEntry->firstGain = static_cast<float> (gain);
+                gains[sample] = gain;
 #endif
-
-
-                outData[sample] = prevData[sample] * gain + nextData[sample] * (1 - gain);
             }
 #if ENABLE_GAIN_LOGGING
             if (channel == 0 && debugLogEntry)
             {
-                debugLogEntry->lastGain = gain;
-//                DBG ("NEW BLOCK");
-//                for (int i = 0; i < gains.size(); ++i)
-//                    DBG (gains[i]);
+                debugLogEntry->lastGain = static_cast<float> (gain);
+                 DBG ("NEW BLOCK");
+                 for (int i = 0; i < gains.size(); ++i)
+                     DBG (gains[i]);
             }
 #endif
         }
