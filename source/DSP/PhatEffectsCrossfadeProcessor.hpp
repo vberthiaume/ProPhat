@@ -39,7 +39,7 @@ struct EffectProcessorWrapper
 template <std::floating_point T>
 class EffectsCrossfadeProcessor
 {
-public:
+  public:
     EffectsCrossfadeProcessor() = default;
 
     void prepare (const juce::dsp::ProcessSpec& spec)
@@ -51,7 +51,7 @@ public:
         gains.resize (spec.maximumBlockSize);
     }
 
-    void changeEffect(EffectType effect)
+    void changeEffect (EffectType effect)
     {
         //first reverse the smoothedGain. If we're not at one of the extremes, we got a double click which we'll ignore
         jassert (juce::approximatelyEqual (smoothedGainL.getTargetValue(), static_cast<T> (1))
@@ -68,8 +68,7 @@ public:
         }
 
         prevEffect = curEffect;
-        curEffect = effect;
-        
+        curEffect  = effect;
     }
 
     EffectType getCurrentEffectType() const
@@ -82,7 +81,7 @@ public:
     }
 
 #if ENABLE_GAIN_LOGGING
-    void setDebugLogEntry (DebugLogEntry *_debugLogEntry)
+    void setDebugLogEntry (DebugLogEntry* _debugLogEntry)
     {
         debugLogEntry = _debugLogEntry;
     }
@@ -90,16 +89,17 @@ public:
 
     void process (const juce::AudioBuffer<T>& previousEffectBuffer,
                   const juce::AudioBuffer<T>& nextEffectBuffer,
-                  juce::AudioBuffer<T>&       outputBuffer)
+                  juce::AudioBuffer<T>&       outputBuffer,
+                  int                         numSamples)
     {
         jassert (previousEffectBuffer.getNumChannels() == nextEffectBuffer.getNumChannels() && nextEffectBuffer.getNumChannels() == outputBuffer.getNumChannels());
-        jassert (previousEffectBuffer.getNumSamples() == nextEffectBuffer.getNumSamples() && nextEffectBuffer.getNumSamples() >= outputBuffer.getNumSamples());
+        // jassert (previousEffectBuffer.getNumSamples() == nextEffectBuffer.getNumSamples() && nextEffectBuffer.getNumSamples() >= outputBuffer.getNumSamples());
 
-        const auto numChannels      = outputBuffer.getNumChannels();
-        const auto numSamples       = outputBuffer.getNumSamples();
+        const auto numChannels   = outputBuffer.getNumChannels();
+        // const auto numSamples    = outputBuffer.getNumSamples();
         const bool needToInverse = juce::approximatelyEqual (smoothedGainL.getTargetValue(), static_cast<T> (1));
 
-        T gain{};
+        T gain {};
         for (int channel = 0; channel < numChannels; ++channel)
         {
             const auto* prevData = previousEffectBuffer.getReadPointer (channel);
@@ -110,7 +110,7 @@ public:
             {
                 //TODO VB: this could be an IIFE to get gain
                 //figure out gain value based on the current channel and whether we're running the smoothedGains in reverse
-                T nextGain{};
+                T nextGain {};
                 if (channel == 0)
                     nextGain = smoothedGainL.getNextValue();
                 else if (channel == 1)
@@ -129,29 +129,30 @@ public:
 #endif
             }
 #if ENABLE_GAIN_LOGGING
+            //NOW HERE -- NEXT DATA STILL LOOKS LIKE BS
             if (channel == 0 && debugLogEntry)
             {
-                debugLogEntry->lastGain = static_cast<float> (nextData[numSamples-1]);
-                 DBG ("OUT DATA");
-                 for (int i = 0; i < gains.size(); ++i)
-                     DBG (gains[i]);
+                debugLogEntry->lastGain = static_cast<float> (nextData[numSamples - 1]);
+                DBG ("NEXT DATA");
+                for (int i = 0; i < gains.size(); ++i)
+                    DBG (gains[i]);
             }
 #endif
         }
     }
 
     EffectType prevEffect = EffectType::none;
-    EffectType curEffect = EffectType::verb;
+    EffectType curEffect  = EffectType::verb;
 
   private:
     juce::SmoothedValue<T, juce::ValueSmoothingTypes::Linear> smoothedGainL;
     juce::SmoothedValue<T, juce::ValueSmoothingTypes::Linear> smoothedGainR;
 #if ENABLE_GAIN_LOGGING
-    DebugLogEntry* debugLogEntry{nullptr};
+    DebugLogEntry* debugLogEntry { nullptr };
 #endif
 
     //TODO: this needs to be stored and retrieved from the state
     //EffectType curEffect = EffectType::verb;
 
-    std::vector<float> gains{};
+    std::vector<float> gains {};
 };

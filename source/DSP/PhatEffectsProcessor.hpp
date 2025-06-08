@@ -210,8 +210,21 @@ class EffectsProcessor
                     break;
             }
 
+#if 0//ENABLE_GAIN_LOGGING
+            /* this should be fixed now, but maybe double check
+                - so here fade_buffer1 contains some valid data, but NOT throughout the whole fade_buffer1.getNumSamples() lenght of the buffer
+                - fade_buffer2 seems to mostly contain garbage
+                - so there's something wrong with how these effects are rendered, not too sure if it's related to the number of samples or midi events in the context??
+             */
+            int adsf = 0;
+            const auto* nextData = fade_buffer1.getReadPointer (0);
+            for (int i = 0; i < numSamples; ++i)
+                DBG (nextData[i]);
+            adsf = 1;
+#endif
+
             //crossfade the 2 effects
-            effectCrossFader.process (fade_buffer1, fade_buffer2, buffer);
+            effectCrossFader.process (fade_buffer1, fade_buffer2, buffer, numSamples);
         }
         else
         {

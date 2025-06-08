@@ -104,7 +104,7 @@ private:
 
 //====================================================================================================
 
-//NOW HERE: so on mac this is only called when we press play, leading to an initialize call after we've set other things... does this happen on other platforms?
+//TODO VB: on mac this is only called when we press play, leading to an initialize call after we've set other things... does this happen on other platforms?
 template <std::floating_point T>
 void GainedOscillator<T>::updateOscillators()
 {
