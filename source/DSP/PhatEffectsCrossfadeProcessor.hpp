@@ -124,15 +124,15 @@ public:
 
 #if ENABLE_GAIN_LOGGING
                 if (channel == 0 && sample == 0 && debugLogEntry)
-                    debugLogEntry->firstGain = static_cast<float> (gain);
-                gains[sample] = gain;
+                    debugLogEntry->firstGain = static_cast<float> (nextData[sample]);
+                gains[sample] = nextData[sample];
 #endif
             }
 #if ENABLE_GAIN_LOGGING
             if (channel == 0 && debugLogEntry)
             {
-                debugLogEntry->lastGain = static_cast<float> (gain);
-                 DBG ("NEW BLOCK");
+                debugLogEntry->lastGain = static_cast<float> (nextData[numSamples-1]);
+                 DBG ("OUT DATA");
                  for (int i = 0; i < gains.size(); ++i)
                      DBG (gains[i]);
             }

@@ -143,8 +143,10 @@ class EffectsProcessor
             debugLogEntry.timeSinceLastCall = juce::Time::currentTimeMillis() - cachedProcessCallTime;
             cachedProcessCallTime           = juce::Time::currentTimeMillis();
             debugLogEntry.curEffect         = static_cast<int> (effectCrossFader.getCurrentEffectType());
+#if ENABLE_GAIN_LOGGING
             debugLogEntry.firstGain = {};
             debugLogEntry.lastGain = {};
+#endif
         }
 #endif
 
