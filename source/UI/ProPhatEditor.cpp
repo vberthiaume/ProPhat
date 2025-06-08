@@ -234,13 +234,13 @@ void ProPhatEditor::parameterChanged (const juce::String& theParameterID, float 
     jassert (theParameterID == effectSelectedID.getParamID());
 
     juce::Component::SafePointer safePtr { this };
-    juce::MessageManager::callAsync ([safePtr, newInt { static_cast<int> (newValue) }] ()
+    juce::MessageManager::callAsync ([safePtr, newInt { static_cast<int> (newValue) }]()
     {
         if (! safePtr)
             return;
 
     //TODO: DRY this logic, which is also in ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, float newValue)
-    EffectType effect;
+    EffectType effect { EffectType::none };
     if (newInt == 0)
         effect = EffectType::none;
     else if (newInt == 1)
@@ -309,8 +309,7 @@ void ProPhatEditor::parameterChanged (const juce::String& theParameterID, float 
         case EffectType::transitioning:
         default:
             jassertfalse;
-    }
-    });
+    } });
 }
 
 #if USE_NATIVE_TITLE_BAR
