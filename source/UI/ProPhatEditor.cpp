@@ -22,7 +22,9 @@
 
 //many UI elements are constructed out of order here, which
 //doesn't affect anything but produces a lot of warnings 
-#pragma GCC diagnostic ignored "-Wreorder"
+#if ! defined(_MSC_VER)
+    #pragma GCC diagnostic ignored "-Wreorder"
+#endif
 
 #include "ProPhatEditor.h"
 #include "ProPhatApplication.h"

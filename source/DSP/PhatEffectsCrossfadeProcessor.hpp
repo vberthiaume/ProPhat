@@ -48,7 +48,10 @@ class EffectsCrossfadeProcessor
         smoothedGainL.reset (spec.sampleRate, .1);
         smoothedGainR.reset (spec.sampleRate, .1);
 
-        gains.resize (spec.maximumBlockSize);
+        gainLog.resize (spec.maximumBlockSize);
+        prevDataLog.resize (spec.maximumBlockSize);
+        nextDataLog.resize (spec.maximumBlockSize);
+        outDataLog.resize (spec.maximumBlockSize);
     }
 
     void changeEffect (EffectType effect)
@@ -93,13 +96,12 @@ class EffectsCrossfadeProcessor
                   int                         numSamples)
     {
         jassert (previousEffectBuffer.getNumChannels() == nextEffectBuffer.getNumChannels() && nextEffectBuffer.getNumChannels() == outputBuffer.getNumChannels());
-        // jassert (previousEffectBuffer.getNumSamples() == nextEffectBuffer.getNumSamples() && nextEffectBuffer.getNumSamples() >= outputBuffer.getNumSamples());
+        //TODO VB: should probably assert that all buffers have at least numSamples?
 
         const auto numChannels   = outputBuffer.getNumChannels();
-        // const auto numSamples    = outputBuffer.getNumSamples();
         const bool needToInverse = juce::approximatelyEqual (smoothedGainL.getTargetValue(), static_cast<T> (1));
 
-        T gain {};
+        T curGain {};
         for (int channel = 0; channel < numChannels; ++channel)
         {
             const auto* prevData = previousEffectBuffer.getReadPointer (channel);
@@ -108,8 +110,8 @@ class EffectsCrossfadeProcessor
 
             for (int sample = 0; sample < numSamples; ++sample)
             {
-                //TODO VB: this could be an IIFE to get gain
-                //figure out gain value based on the current channel and whether we're running the smoothedGains in reverse
+                //TODO VB: this could be an IIFE to get curGain
+                //figure out curGain value based on the current channel and whether we're running the smoothedGains in reverse
                 T nextGain {};
                 if (channel == 0)
                     nextGain = smoothedGainL.getNextValue();
@@ -117,25 +119,44 @@ class EffectsCrossfadeProcessor
                     nextGain = smoothedGainR.getNextValue();
                 else
                     jassertfalse;
-                gain = needToInverse ? (1 - nextGain) : nextGain;
+                curGain = needToInverse ? (1 - nextGain) : nextGain;
 
                 //cross fade prevData and nextData into outData. I guess any of these can be clipping
-                outData[sample] = prevData[sample] * gain + nextData[sample] * (1 - gain);
+                outData[sample] = prevData[sample] * curGain + nextData[sample] * (1 - curGain);
 
 #if ENABLE_GAIN_LOGGING
                 if (channel == 0 && sample == 0 && debugLogEntry)
-                    debugLogEntry->firstGain = static_cast<float> (nextData[sample]);
-                gains[sample] = nextData[sample];
+                    debugLogEntry->firstGain = static_cast<float> (outData[sample]);
+
+                gainLog[sample] = curGain;
+                prevDataLog[sample] = prevData[sample];
+                nextDataLog[sample] = nextData[sample];
+                outDataLog[sample] = outData[sample];
 #endif
             }
 #if ENABLE_GAIN_LOGGING
             //NOW HERE -- NEXT DATA STILL LOOKS LIKE BS
             if (channel == 0 && debugLogEntry)
             {
-                debugLogEntry->lastGain = static_cast<float> (nextData[numSamples - 1]);
-                DBG ("NEXT DATA");
-                for (int i = 0; i < gains.size(); ++i)
-                    DBG (gains[i]);
+                debugLogEntry->lastGain = static_cast<float> (outData[numSamples - 1]);
+
+                DBG ("GAIN");
+                for (int i = 0; i < numSamples; ++i)
+                    DBG (gainLog[i]);
+
+                DBG ("PREV");
+                for (int i = 0; i < numSamples; ++i)
+                    DBG (prevDataLog[i]);
+
+                DBG ("NEXT");
+                for (int i = 0; i < numSamples; ++i)
+                    DBG (nextDataLog[i]);
+
+                DBG ("OUT");
+                for (int i = 0; i < numSamples; ++i)
+                    DBG (outDataLog[i]);
+
+                DBG ("DONE ENABLE_GAIN_LOGGING");
             }
 #endif
         }
@@ -154,5 +175,8 @@ class EffectsCrossfadeProcessor
     //TODO: this needs to be stored and retrieved from the state
     //EffectType curEffect = EffectType::verb;
 
-    std::vector<float> gains {};
+    std::vector<T> gainLog {};
+    std::vector<T> prevDataLog {};
+    std::vector<T> nextDataLog {};
+    std::vector<T> outDataLog {};
 };
