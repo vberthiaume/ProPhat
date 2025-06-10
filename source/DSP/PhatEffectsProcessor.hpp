@@ -170,6 +170,13 @@ class EffectsProcessor
             //do the crossfade between the previous and next effects
             const auto prevEffect = effectCrossFader.prevEffect;
             const auto nextEffect = effectCrossFader.curEffect;
+
+#if ENABLE_GAIN_LOGGING
+            DBG ("fade buffer 1 before processing");
+            for (int i = 0; i < numSamples; ++i)
+                DBG (fade_buffer1.getReadPointer (0)[i]);
+            DBG ("done fade buffer 1");
+#endif
             switch (prevEffect)
             {
                 case EffectType::none:
@@ -189,6 +196,21 @@ class EffectsProcessor
                     jassertfalse;
                     break;
             }
+
+#if ENABLE_GAIN_LOGGING
+            DBG ("fade buffer 1 after processing");
+            for (int i = 0; i < numSamples; ++i)
+                DBG (fade_buffer1.getReadPointer (0)[i]);
+            DBG ("done fade buffer 2");
+#endif
+
+#if ENABLE_GAIN_LOGGING
+            //NOW HERE: this can definitely look weird
+            DBG ("fade buffer 2 before processing");
+            for (int i = 0; i < numSamples; ++i)
+                DBG (fade_buffer2.getReadPointer (0)[i]);
+            DBG ("done fade buffer 2");
+#endif
 
             switch (nextEffect)
             {
@@ -210,17 +232,11 @@ class EffectsProcessor
                     break;
             }
 
-#if 0//ENABLE_GAIN_LOGGING
-            /* this should be fixed now, but maybe double check
-                - so here fade_buffer1 contains some valid data, but NOT throughout the whole fade_buffer1.getNumSamples() lenght of the buffer
-                - fade_buffer2 seems to mostly contain garbage
-                - so there's something wrong with how these effects are rendered, not too sure if it's related to the number of samples or midi events in the context??
-             */
-            int adsf = 0;
-            const auto* nextData = fade_buffer1.getReadPointer (0);
+#if ENABLE_GAIN_LOGGING
+            DBG ("fade buffer 2 after processing");
             for (int i = 0; i < numSamples; ++i)
-                DBG (nextData[i]);
-            adsf = 1;
+                DBG (fade_buffer2.getReadPointer (0)[i]);
+            DBG ("done fade buffer 2");
 #endif
 
             //crossfade the 2 effects

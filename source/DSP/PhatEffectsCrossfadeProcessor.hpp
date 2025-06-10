@@ -134,27 +134,27 @@ class EffectsCrossfadeProcessor
                 outDataLog[sample] = outData[sample];
 #endif
             }
-#if ENABLE_GAIN_LOGGING
+#if 0 //ENABLE_GAIN_LOGGING
             //NOW HERE -- NEXT DATA STILL LOOKS LIKE BS
             if (channel == 0 && debugLogEntry)
             {
                 debugLogEntry->lastGain = static_cast<float> (outData[numSamples - 1]);
 
-                DBG ("GAIN");
-                for (int i = 0; i < numSamples; ++i)
-                    DBG (gainLog[i]);
+//                DBG ("GAIN");
+//                for (size_t i = 0; i < numSamples; ++i)
+//                    DBG (gainLog[i]);
 
-                DBG ("PREV");
-                for (int i = 0; i < numSamples; ++i)
-                    DBG (prevDataLog[i]);
+//                DBG ("PREV");
+//                for (size_t i = 0; i < numSamples; ++i)
+//                    DBG (prevDataLog[i]);
 
                 DBG ("NEXT");
-                for (int i = 0; i < numSamples; ++i)
+                for (size_t i = 0; i < numSamples; ++i)
                     DBG (nextDataLog[i]);
 
-                DBG ("OUT");
-                for (int i = 0; i < numSamples; ++i)
-                    DBG (outDataLog[i]);
+//                DBG ("OUT");
+//                for (size_t i = 0; i < numSamples; ++i)
+//                    DBG (outDataLog[i]);
 
                 DBG ("DONE ENABLE_GAIN_LOGGING");
             }
