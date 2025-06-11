@@ -126,7 +126,6 @@ class EffectsProcessor
 
     void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     {
-//        jassert (isUsingDoublePrecision());
 #if ENABLE_CLEAR_EFFECT
         needToClearEffect = true;
 #endif
@@ -202,9 +201,7 @@ class EffectsProcessor
             for (int i = 0; i < numSamples; ++i)
                 DBG (fade_buffer1.getReadPointer (0)[i]);
             DBG ("done fade buffer 2");
-#endif
 
-#if ENABLE_GAIN_LOGGING
             //NOW HERE: this can definitely look weird
             DBG ("fade buffer 2 before processing");
             for (int i = 0; i < numSamples; ++i)

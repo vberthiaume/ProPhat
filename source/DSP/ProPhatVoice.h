@@ -602,13 +602,6 @@ void ProPhatVoice<T>::startNote (int midiNoteNumber, float velocity, juce::Synth
 template <std::floating_point T>
 void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
 {
-    //this does not remove the glitch
-#if 0
-    currentlyReleasingNote = true;
-    ampADSR.noteOff();
-    filterADSR.noteOff();
-    clearCurrentNote();
-#else
     if (allowTailOff)
     {
         currentlyReleasingNote = true;
@@ -639,14 +632,13 @@ void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
         DBG ("\tDEBUG kill voice: " + juce::String (voiceId));
 #endif
     }
-#endif
 }
 
 template <std::floating_point T>
 void ProPhatVoice<T>::processRampUp (juce::dsp::AudioBlock<T>& block, int curBlockSize)
 {
 #if DEBUG_VOICES
-    DBG ("\tDEBUG RAMP UP " + juce::String (rampUpSamples - rampUpSamplesLeft));
+    DBG ("\tDEBUG RAMP UP " + juce::String (Constants::rampUpSamples - rampUpSamplesLeft));
 #endif
     const auto curRampUpLenght = juce::jmin (curBlockSize, rampUpSamplesLeft);
     const auto prevRampUpValue = static_cast<T> ((Constants::rampUpSamples - rampUpSamplesLeft) / Constants::rampUpSamples);
@@ -723,6 +715,9 @@ template <std::floating_point T>
 void ProPhatVoice<T>::assertForDiscontinuities (juce::AudioBuffer<T>& outputBuffer, int startSample,
                                                 int numSamples, [[maybe_unused]]juce::String dbgPrefix)
 {
+    if (startSample == outputBuffer.getNumSamples() - 1)
+        return;
+
     auto prev = outputBuffer.getSample (0, startSample);
     auto prevDiff = abs (outputBuffer.getSample (0, startSample + 1) - prev);
 
