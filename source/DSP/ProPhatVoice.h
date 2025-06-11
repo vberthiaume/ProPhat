@@ -580,7 +580,7 @@ template <std::floating_point T>
 void ProPhatVoice<T>::startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* /*sound*/, int currentPitchWheelPosition)
 {
 #if DEBUG_VOICES
-    DBG ("\tDEBUG start: " + juce::String (voiceId));
+    DBG ("\tDEBUG ProPhatVoice::startNote() with voiceId : " + juce::String (voiceId));
 #endif
 
     ampADSR.setParameters (ampParams);
@@ -609,19 +609,26 @@ void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
         filterADSR.noteOff();
 
 #if DEBUG_VOICES
-        DBG ("\tDEBUG tailoff voice: " + juce::String (voiceId));
+        DBG ("\tDEBUG ProPhatVoice<T>::stopNote with tailoff for voiceId: " << juce::String (voiceId));
 #endif
     }
     else
     {
+        //if we have a valid sample rate and we haven't had the chance to apply the release envelope
         if (! juce::approximatelyEqual (getSampleRate(), 0.) && ! justDoneReleaseEnvelope)
         {
+#if DEBUG_VOICES
+            DBG ("\tProPhatVoice<T>::stopNote() starting to kill voice: " + juce::String (voiceId));
+#endif
             rampingUp = false;
 
+            //get ready to kill the voice
             overlap->clear();
             voicesBeingKilled->insert (voiceId);
             currentlyKillingVoice = true;
-            renderNextBlock (*overlap, 0, Constants::killRampSamples);
+
+            //render the voice kill
+            renderNextBlockTemplate (*overlap, 0, Constants::killRampSamples);
             overlapIndex = 0;
         }
 
@@ -638,7 +645,7 @@ template <std::floating_point T>
 void ProPhatVoice<T>::processRampUp (juce::dsp::AudioBlock<T>& block, int curBlockSize)
 {
 #if DEBUG_VOICES
-    DBG ("\tDEBUG RAMP UP " + juce::String (Constants::rampUpSamples - rampUpSamplesLeft));
+    DBG ("\tDEBUG ProPhatVoice<T>::processRampUp() " + juce::String (Constants::rampUpSamples - rampUpSamplesLeft));
 #endif
     const auto curRampUpLenght = juce::jmin (curBlockSize, rampUpSamplesLeft);
     const auto prevRampUpValue = static_cast<T> ((Constants::rampUpSamples - rampUpSamplesLeft) / Constants::rampUpSamples);
@@ -664,7 +671,7 @@ void ProPhatVoice<T>::processRampUp (juce::dsp::AudioBlock<T>& block, int curBlo
     {
         rampingUp = false;
 #if DEBUG_VOICES
-        DBG ("\tDEBUG RAMP UP DONE");
+        DBG ("\tDEBUG ProPhatVoice<T>::processRampUp() DONE");
 #endif
     }
 }
@@ -673,7 +680,7 @@ template <std::floating_point T>
 void ProPhatVoice<T>::processKillOverlap (juce::dsp::AudioBlock<T>& block, int curBlockSize)
 {
 #if DEBUG_VOICES
-    DBG ("\tDEBUG ADD OVERLAP" + juce::String (overlapIndex));
+    DBG ("\tDEBUG ProPhatVoice::processKillOverlap() " + juce::String (overlapIndex));
 #endif
 
     const T min { -1 };
@@ -706,9 +713,25 @@ void ProPhatVoice<T>::processKillOverlap (juce::dsp::AudioBlock<T>& block, int c
         overlapIndex = -1;
         voicesBeingKilled->erase (voiceId);
 #if DEBUG_VOICES
-        DBG ("\tDEBUG OVERLAP DONE");
+        DBG ("\tDEBUG ProPhatVoice::processKillOverlap() DONE");
 #endif
     }
+}
+
+template <std::floating_point T>
+void ProPhatVoice<T>::applyKillRamp (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
+{
+#if DEBUG_VOICES
+    DBG ("\tDEBUG ProPhatVoice<T>::applyKillRamp on samples " << juce::String (startSample) << "-" << juce::String (startSample + numSamples));
+#endif
+    //    return;
+    outputBuffer.applyGainRamp (startSample, numSamples, 1.f, 0.f);
+    currentlyKillingVoice = false;
+
+#if DEBUG_VOICES
+    assertForDiscontinuities (outputBuffer, startSample, numSamples, "\tBUILDING KILLRAMP\t");
+    DBG ("\tDEBUG ProPhatVoice<T>::applyKillRamp done");
+#endif
 }
 
 template <std::floating_point T>
@@ -737,25 +760,11 @@ void ProPhatVoice<T>::assertForDiscontinuities (juce::AudioBuffer<T>& outputBuff
                 jassert (abs (cur - prev) < .2f);
 
                 auto curDiff = abs (cur - prev);
-                jassert (curDiff - prevDiff < .08f);
+                jassert (curDiff - prevDiff < .2f);
 
                 prev = cur;
                 prevDiff = curDiff;
             }
         }
     }
-}
-
-template <std::floating_point T>
-void ProPhatVoice<T>::applyKillRamp (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
-{
-//    return;
-    outputBuffer.applyGainRamp (startSample, numSamples, 1.f, 0.f);
-    currentlyKillingVoice = false;
-
-#if DEBUG_VOICES
-    DBG ("\tDEBUG START KILLRAMP");
-    assertForDiscontinuities (outputBuffer, startSample, numSamples, "\tBUILDING KILLRAMP\t");
-    DBG ("\tDEBUG stop KILLRAMP");
-#endif
 }

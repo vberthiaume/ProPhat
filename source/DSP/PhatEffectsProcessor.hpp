@@ -170,12 +170,12 @@ class EffectsProcessor
             const auto prevEffect = effectCrossFader.prevEffect;
             const auto nextEffect = effectCrossFader.curEffect;
 
-#if ENABLE_GAIN_LOGGING
-            DBG ("fade buffer 1 before processing");
-            for (int i = 0; i < numSamples; ++i)
-                DBG (fade_buffer1.getReadPointer (0)[i]);
-            DBG ("done fade buffer 1");
-#endif
+//#if ENABLE_GAIN_LOGGING
+//            DBG ("fade buffer 1 before processing");
+//            for (int i = 0; i < numSamples; ++i)
+//                DBG (fade_buffer1.getReadPointer (0)[i]);
+//            DBG ("done fade buffer 1");
+//#endif
             switch (prevEffect)
             {
                 case EffectType::none:
@@ -197,10 +197,10 @@ class EffectsProcessor
             }
 
 #if ENABLE_GAIN_LOGGING
-            DBG ("fade buffer 1 after processing");
-            for (int i = 0; i < numSamples; ++i)
-                DBG (fade_buffer1.getReadPointer (0)[i]);
-            DBG ("done fade buffer 2");
+            //DBG ("fade buffer 1 after processing");
+            //for (int i = 0; i < numSamples; ++i)
+            //    DBG (fade_buffer1.getReadPointer (0)[i]);
+            //DBG ("done fade buffer 1");
 
             //NOW HERE: this can definitely look weird
             DBG ("fade buffer 2 before processing");
