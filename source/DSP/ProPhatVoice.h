@@ -214,6 +214,26 @@ private:
 
 //===========================================================================================================
 
+template <std::floating_point T>
+ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet)
+: state (processorState)
+, voiceId (vId)
+, oscillators (state)
+, voicesBeingKilled (activeVoiceSet)
+{
+    addParamListenersToState ();
+
+    filterAndGainProcessorChain.template get<(int)ProcessorId::masterGainIndex>().setGainLinear (static_cast<T> (Constants::defaultOscLevel));
+
+    setFilterCutoffInternal (Constants::defaultFilterCutoff);
+    setFilterResonanceInternal (Constants::defaultFilterResonance);
+
+    lfoDest.curSelection = (int) defaultLfoDest;
+
+    setLfoShape (LfoShape::triangle);
+    lfo.setFrequency (Constants::defaultLfoFreq);
+}
+
 template<std::floating_point T>
 void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
 {
@@ -229,7 +249,7 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
     {
         const auto subBlockSize = juce::jmin (numSamples - pos, lfoUpdateCounter);
 
-        //render the oscillators
+        //render the oscillators over the subBlockSize
         auto oscBlock { oscillators.process (pos, subBlockSize) };
 
         //apply filter and gain
@@ -294,26 +314,6 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
     else
         assertForDiscontinuities (outputBuffer, startSample, numSamples, {});
 #endif
-}
-
-template <std::floating_point T>
-ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet)
-: state (processorState)
-, voiceId (vId)
-, oscillators (state)
-, voicesBeingKilled (activeVoiceSet)
-{
-    addParamListenersToState ();
-
-    filterAndGainProcessorChain.template get<(int)ProcessorId::masterGainIndex>().setGainLinear (static_cast<T> (Constants::defaultOscLevel));
-
-    setFilterCutoffInternal (Constants::defaultFilterCutoff);
-    setFilterResonanceInternal (Constants::defaultFilterResonance);
-
-    lfoDest.curSelection = (int) defaultLfoDest;
-
-    setLfoShape (LfoShape::triangle);
-    lfo.setFrequency (Constants::defaultLfoFreq);
 }
 
 template <std::floating_point T>
@@ -628,8 +628,6 @@ void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
             overlap->clear();
             voicesBeingKilled->insert (voiceId);
             currentlyKillingVoice = true;
-            //TODO VB: this won't render the effects, right?? no... but whatever is rendered into the voices block will be sent to the effects
-            //so I think the issue really is with the effects crossfader. or the reverb... but I couldn't find any issues with the reverb lol
             renderNextBlock (*overlap, 0, Constants::killRampSamples);
             overlapIndex = 0;
         }
