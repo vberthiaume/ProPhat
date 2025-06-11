@@ -36,10 +36,18 @@ ProPhatProcessor::ProPhatProcessor()
 
 void ProPhatProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    if (isUsingDoublePrecision ())
+    if (isUsingDoublePrecision())
         proPhatSynthDouble.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
     else
         proPhatSynthFloat.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
+}
+
+void ProPhatProcessor::releaseResources()
+{
+    if (isUsingDoublePrecision())
+        proPhatSynthDouble.releaseResources();
+    else
+        proPhatSynthFloat.releaseResources();
 }
 
 juce::AudioProcessorValueTreeState ProPhatProcessor::constructState ()

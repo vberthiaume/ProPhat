@@ -221,6 +221,7 @@ void PhatOscillators<T>::parameterChanged (const juce::String& parameterID, floa
 template <std::floating_point T>
 void PhatOscillators<T>::prepare (const juce::dsp::ProcessSpec& spec)
 {
+    //TODO VB: this is never freed???
     osc1Block = juce::dsp::AudioBlock<T> (heapBlock1, spec.numChannels, spec.maximumBlockSize);
     osc2Block = juce::dsp::AudioBlock<T> (heapBlock2, spec.numChannels, spec.maximumBlockSize);
     noiseBlock = juce::dsp::AudioBlock<T> (heapBlockNoise, spec.numChannels, spec.maximumBlockSize);

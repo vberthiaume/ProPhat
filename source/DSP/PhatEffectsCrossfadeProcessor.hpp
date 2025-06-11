@@ -90,15 +90,15 @@ class EffectsCrossfadeProcessor
     }
 #endif
 
+#if EFFECTS_PROCESSOR_PER_VOICE
     void process (const juce::AudioBuffer<T>& previousEffectBuffer,
                   const juce::AudioBuffer<T>& nextEffectBuffer,
-                  juce::AudioBuffer<T>&       outputBuffer,
-                  int                         numSamples)
+                  juce::dsp::AudioBlock<T>    outputBlock)
     {
-        jassert (previousEffectBuffer.getNumChannels() == nextEffectBuffer.getNumChannels() && nextEffectBuffer.getNumChannels() == outputBuffer.getNumChannels());
+        jassert (previousEffectBuffer.getNumChannels() == nextEffectBuffer.getNumChannels() && nextEffectBuffer.getNumChannels() == outputBlock.getNumChannels());
         //TODO VB: should probably assert that all buffers have at least numSamples?
 
-        const auto numChannels   = outputBuffer.getNumChannels();
+        const auto numChannels   = outputBlock.getNumChannels();
         const bool needToInverse = juce::approximatelyEqual (smoothedGainL.getTargetValue(), static_cast<T> (1));
 
         T curGain {};
@@ -106,9 +106,8 @@ class EffectsCrossfadeProcessor
         {
             const auto* prevData = previousEffectBuffer.getReadPointer (channel);
             const auto* nextData = nextEffectBuffer.getReadPointer (channel);
-            auto*       outData  = outputBuffer.getWritePointer (channel);
 
-            for (int sample = 0; sample < numSamples; ++sample)
+            for (int sample = 0; sample < outputBlock.getNumSamples(); ++sample)
             {
                 //TODO VB: this could be an IIFE to get curGain
                 //figure out curGain value based on the current channel and whether we're running the smoothedGains in reverse
@@ -117,6 +116,43 @@ class EffectsCrossfadeProcessor
                     nextGain = smoothedGainL.getNextValue();
                 else if (channel == 1)
                     nextGain = smoothedGainR.getNextValue();
+                else
+                    jassertfalse;
+                curGain = needToInverse ? (1 - nextGain) : nextGain;
+
+                //cross fade prevData and nextData into outData. I guess any of these can be clipping
+                outputBlock.setSample (channel, sample, prevData[sample] * curGain + nextData[sample] * (1 - curGain));
+            }
+        }
+    }
+#else
+    void process (const juce::AudioBuffer<T>& previousEffectBuffer,
+                  const juce::AudioBuffer<T>& nextEffectBuffer,
+                  juce::AudioBuffer<T>& outputBuffer,
+                  int                         numSamples)
+    {
+        jassert (previousEffectBuffer.getNumChannels () == nextEffectBuffer.getNumChannels () && nextEffectBuffer.getNumChannels () == outputBuffer.getNumChannels ());
+        //TODO VB: should probably assert that all buffers have at least numSamples?
+
+        const auto numChannels = outputBuffer.getNumChannels ();
+        const bool needToInverse = juce::approximatelyEqual (smoothedGainL.getTargetValue (), static_cast<T> (1));
+
+        T curGain {};
+        for (int channel = 0; channel < numChannels; ++channel)
+        {
+            const auto* prevData = previousEffectBuffer.getReadPointer (channel);
+            const auto* nextData = nextEffectBuffer.getReadPointer (channel);
+            auto* outData = outputBuffer.getWritePointer (channel);
+
+            for (int sample = 0; sample < numSamples; ++sample)
+            {
+                //TODO VB: this could be an IIFE to get curGain
+                //figure out curGain value based on the current channel and whether we're running the smoothedGains in reverse
+                T nextGain {};
+                if (channel == 0)
+                    nextGain = smoothedGainL.getNextValue ();
+                else if (channel == 1)
+                    nextGain = smoothedGainR.getNextValue ();
                 else
                     jassertfalse;
                 curGain = needToInverse ? (1 - nextGain) : nextGain;
@@ -140,27 +176,28 @@ class EffectsCrossfadeProcessor
             {
                 debugLogEntry->lastGain = static_cast<float> (outData[numSamples - 1]);
 
-//                DBG ("GAIN");
-//                for (size_t i = 0; i < numSamples; ++i)
-//                    DBG (gainLog[i]);
+                //                DBG ("GAIN");
+                //                for (size_t i = 0; i < numSamples; ++i)
+                //                    DBG (gainLog[i]);
 
-//                DBG ("PREV");
-//                for (size_t i = 0; i < numSamples; ++i)
-//                    DBG (prevDataLog[i]);
+                //                DBG ("PREV");
+                //                for (size_t i = 0; i < numSamples; ++i)
+                //                    DBG (prevDataLog[i]);
 
                 DBG ("NEXT");
                 for (size_t i = 0; i < numSamples; ++i)
                     DBG (nextDataLog[i]);
 
-//                DBG ("OUT");
-//                for (size_t i = 0; i < numSamples; ++i)
-//                    DBG (outDataLog[i]);
+                //                DBG ("OUT");
+                //                for (size_t i = 0; i < numSamples; ++i)
+                //                    DBG (outDataLog[i]);
 
                 DBG ("DONE ENABLE_GAIN_LOGGING");
             }
 #endif
         }
     }
+#endif
 
     EffectType prevEffect = EffectType::none;
     EffectType curEffect  = EffectType::verb;

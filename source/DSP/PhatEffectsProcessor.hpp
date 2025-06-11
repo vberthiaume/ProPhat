@@ -25,7 +25,6 @@
 #include "../modules/DebugLog/Source/DebugLog.hpp"
 #include "PhatEffectsCrossfadeProcessor.hpp"
 #include "PhatVerb.h"
-#include "ProPhatVoice.h"
 
 //if I don't clear the effects, their buffers will still contain the last processed content
 //but I don't think this changes anything for glitches
@@ -124,58 +123,33 @@ class EffectsProcessor
         effectCrossFader.changeEffect (effect);
     }
 
-    void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
+#if EFFECTS_PROCESSOR_PER_VOICE
+    void process (juce::dsp::AudioBlock<T> audioBlock)
     {
-#if ENABLE_CLEAR_EFFECT
         needToClearEffect = true;
-#endif
 
         //TODO: surround with trylock or something, although not here because we don't have a proper fallback
         const auto currentEffectType { effectCrossFader.getCurrentEffectType() };
-
-#if ENABLE_DEBUG_LOG
-        DebugLogEntry& debugLogEntry = m_pLogDebug->log[m_pLogDebug->logHead];
-        if (m_pLogDebug != nullptr)
-        {
-            //TODO VB: couldn't I just make a new debug entry?
-            //IMPORTANT! Need to clear all the debug entry fields here so that we overwrite the previous one properly!
-            debugLogEntry.timeSinceLastCall = juce::Time::currentTimeMillis() - cachedProcessCallTime;
-            cachedProcessCallTime           = juce::Time::currentTimeMillis();
-            debugLogEntry.curEffect         = static_cast<int> (effectCrossFader.getCurrentEffectType());
-#if ENABLE_GAIN_LOGGING
-            debugLogEntry.firstGain = {};
-            debugLogEntry.lastGain = {};
-#endif
-        }
-#endif
-
         if (currentEffectType == EffectType::transitioning)
         {
-#if ENABLE_GAIN_LOGGING
-     effectCrossFader.setDebugLogEntry (&debugLogEntry);
-#endif
-            //copy the OG buffer into the individual processor ones
-            for (auto c = 0; c < buffer.getNumChannels(); ++c)
-            {
-                fade_buffer1.copyFrom (c, 0, buffer, c, startSample, numSamples);
-                fade_buffer2.copyFrom (c, 0, buffer, c, startSample, numSamples);
-            }
-            auto block1 { juce::dsp::AudioBlock<T> (fade_buffer1) };
+            ////copy the OG buffer into the individual processor ones
+            //for (auto c = 0; c < buffer.getNumChannels(); ++c)
+            //{
+            //    fade_buffer1.copyFrom (c, 0, buffer, c, startSample, numSamples);
+            //    fade_buffer2.copyFrom (c, 0, buffer, c, startSample, numSamples);
+            //}
+            juce::dsp::AudioBlock<T> block1 { juce::dsp::AudioBlock<T> (fade_buffer1) };
+            block1.copyFrom (audioBlock);
             auto context1 { juce::dsp::ProcessContextReplacing<T> (block1) };
 
             auto block2 { juce::dsp::AudioBlock<T> (fade_buffer2) };
+            block2.copyFrom (audioBlock);
             auto context2 { juce::dsp::ProcessContextReplacing<T> (block2) };
 
             //do the crossfade between the previous and next effects
             const auto prevEffect = effectCrossFader.prevEffect;
             const auto nextEffect = effectCrossFader.curEffect;
 
-//#if ENABLE_GAIN_LOGGING
-//            DBG ("fade buffer 1 before processing");
-//            for (int i = 0; i < numSamples; ++i)
-//                DBG (fade_buffer1.getReadPointer (0)[i]);
-//            DBG ("done fade buffer 1");
-//#endif
             switch (prevEffect)
             {
                 case EffectType::none:
@@ -195,19 +169,6 @@ class EffectsProcessor
                     jassertfalse;
                     break;
             }
-
-#if ENABLE_GAIN_LOGGING
-            //DBG ("fade buffer 1 after processing");
-            //for (int i = 0; i < numSamples; ++i)
-            //    DBG (fade_buffer1.getReadPointer (0)[i]);
-            //DBG ("done fade buffer 1");
-
-            //NOW HERE: this can definitely look weird
-            DBG ("fade buffer 2 before processing");
-            for (int i = 0; i < numSamples; ++i)
-                DBG (fade_buffer2.getReadPointer (0)[i]);
-            DBG ("done fade buffer 2");
-#endif
 
             switch (nextEffect)
             {
@@ -229,19 +190,11 @@ class EffectsProcessor
                     break;
             }
 
-#if ENABLE_GAIN_LOGGING
-            DBG ("fade buffer 2 after processing");
-            for (int i = 0; i < numSamples; ++i)
-                DBG (fade_buffer2.getReadPointer (0)[i]);
-            DBG ("done fade buffer 2");
-#endif
-
             //crossfade the 2 effects
-            effectCrossFader.process (fade_buffer1, fade_buffer2, buffer, numSamples);
+            effectCrossFader.process (fade_buffer1, fade_buffer2, audioBlock);
         }
         else
         {
-            auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
             auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
             if (currentEffectType == EffectType::verb)
@@ -289,6 +242,175 @@ class EffectsProcessor
         m_pLogDebug->logHead              = (m_pLogDebug->logHead + 1) & (kMaxDebugEntries - 1);
 #endif
     }
+
+#else
+
+void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
+{
+#if ENABLE_CLEAR_EFFECT
+    needToClearEffect = true;
+#endif
+
+    //TODO: surround with trylock or something, although not here because we don't have a proper fallback
+    const auto currentEffectType { effectCrossFader.getCurrentEffectType () };
+
+#if ENABLE_DEBUG_LOG
+    DebugLogEntry& debugLogEntry = m_pLogDebug->log[m_pLogDebug->logHead];
+    if (m_pLogDebug != nullptr)
+    {
+        //TODO VB: couldn't I just make a new debug entry?
+        //IMPORTANT! Need to clear all the debug entry fields here so that we overwrite the previous one properly!
+        debugLogEntry.timeSinceLastCall = juce::Time::currentTimeMillis () - cachedProcessCallTime;
+        cachedProcessCallTime = juce::Time::currentTimeMillis ();
+        debugLogEntry.curEffect = static_cast<int> (effectCrossFader.getCurrentEffectType ());
+#if ENABLE_GAIN_LOGGING
+        debugLogEntry.firstGain = {};
+        debugLogEntry.lastGain = {};
+#endif
+    }
+#endif
+
+    if (currentEffectType == EffectType::transitioning)
+    {
+#if ENABLE_GAIN_LOGGING
+        effectCrossFader.setDebugLogEntry (&debugLogEntry);
+#endif
+        //copy the OG buffer into the individual processor ones
+        for (auto c = 0; c < buffer.getNumChannels (); ++c)
+        {
+            fade_buffer1.copyFrom (c, 0, buffer, c, startSample, numSamples);
+            fade_buffer2.copyFrom (c, 0, buffer, c, startSample, numSamples);
+        }
+        auto block1 { juce::dsp::AudioBlock<T> (fade_buffer1) };
+        auto context1 { juce::dsp::ProcessContextReplacing<T> (block1) };
+
+        auto block2 { juce::dsp::AudioBlock<T> (fade_buffer2) };
+        auto context2 { juce::dsp::ProcessContextReplacing<T> (block2) };
+
+        //do the crossfade between the previous and next effects
+        const auto prevEffect = effectCrossFader.prevEffect;
+        const auto nextEffect = effectCrossFader.curEffect;
+
+        //#if ENABLE_GAIN_LOGGING
+        //            DBG ("fade buffer 1 before processing");
+        //            for (int i = 0; i < numSamples; ++i)
+        //                DBG (fade_buffer1.getReadPointer (0)[i]);
+        //            DBG ("done fade buffer 1");
+        //#endif
+        switch (prevEffect)
+        {
+        case EffectType::none:
+            fade_buffer1.clear ();
+            break;
+        case EffectType::verb:
+            verbWrapper->process (context1);
+            break;
+        case EffectType::chorus:
+            chorusWrapper->process (context1);
+            break;
+        case EffectType::phaser:
+            phaserWrapper->process (context1);
+            break;
+        case EffectType::transitioning:
+        default:
+            jassertfalse;
+            break;
+        }
+
+#if ENABLE_GAIN_LOGGING
+        //DBG ("fade buffer 1 after processing");
+        //for (int i = 0; i < numSamples; ++i)
+        //    DBG (fade_buffer1.getReadPointer (0)[i]);
+        //DBG ("done fade buffer 1");
+
+        //NOW HERE: this can definitely look weird
+        DBG ("fade buffer 2 before processing");
+        for (int i = 0; i < numSamples; ++i)
+            DBG (fade_buffer2.getReadPointer (0)[i]);
+        DBG ("done fade buffer 2");
+#endif
+
+        switch (nextEffect)
+        {
+        case EffectType::none:
+            fade_buffer2.clear ();
+            break;
+        case EffectType::verb:
+            verbWrapper->process (context2);
+            break;
+        case EffectType::chorus:
+            chorusWrapper->process (context2);
+            break;
+        case EffectType::phaser:
+            phaserWrapper->process (context2);
+            break;
+        case EffectType::transitioning:
+        default:
+            jassertfalse;
+            break;
+        }
+
+#if ENABLE_GAIN_LOGGING
+        DBG ("fade buffer 2 after processing");
+        for (int i = 0; i < numSamples; ++i)
+            DBG (fade_buffer2.getReadPointer (0)[i]);
+        DBG ("done fade buffer 2");
+#endif
+
+        //crossfade the 2 effects
+        effectCrossFader.process (fade_buffer1, fade_buffer2, buffer, numSamples);
+    }
+    else
+    {
+        auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
+        auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
+
+        if (currentEffectType == EffectType::verb)
+        {
+            verbWrapper->process (context);
+#if ENABLE_CLEAR_EFFECT
+            if (needToClearEffect)
+            {
+                phaserWrapper->reset ();
+                chorusWrapper->reset ();
+                needToClearEffect = false;
+            }
+#endif
+        }
+        else if (currentEffectType == EffectType::chorus)
+        {
+            chorusWrapper->process (context);
+#if ENABLE_CLEAR_EFFECT
+            if (needToClearEffect)
+            {
+                verbWrapper->reset ();
+                phaserWrapper->reset ();
+                needToClearEffect = false;
+            }
+#endif
+        }
+        else if (currentEffectType == EffectType::phaser)
+        {
+            phaserWrapper->process (context);
+#if ENABLE_CLEAR_EFFECT
+            if (needToClearEffect)
+            {
+                chorusWrapper->reset ();
+                verbWrapper->reset ();
+                needToClearEffect = false;
+            }
+#endif
+        }
+        else if (currentEffectType != EffectType::none)
+            jassertfalse; //unknown effect!!
+    }
+
+#if ENABLE_DEBUG_LOG
+    debugLogEntry.processCallDuration = juce::Time::currentTimeMillis () - cachedProcessCallTime;
+    m_pLogDebug->logHead = (m_pLogDebug->logHead + 1) & (kMaxDebugEntries - 1);
+#endif
+}
+#endif
 
   private:
 #if ENABLE_CLEAR_EFFECT

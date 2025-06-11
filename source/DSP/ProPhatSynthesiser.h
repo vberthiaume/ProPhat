@@ -22,7 +22,9 @@
 
 #pragma once
 
+#if ! EFFECTS_PROCESSOR_PER_VOICE
 #include "PhatEffectsProcessor.hpp"
+#endif
 #include "ProPhatVoice.h"
 #include "PhatVerb.h"
 #include "../Utility/Helpers.h"
@@ -41,6 +43,8 @@ class ProPhatSynthesiser : public juce::Synthesiser, public juce::AudioProcessor
 
     void prepare (const juce::dsp::ProcessSpec& spec) noexcept;
 
+    void releaseResources ();
+
     void parameterChanged (const juce::String& parameterID, float newValue) override;
 
     void setMasterGain (float gain);
@@ -53,7 +57,9 @@ class ProPhatSynthesiser : public juce::Synthesiser, public juce::AudioProcessor
     //TODO: make this into a bit mask thing?
     std::set<int> voicesBeingKilled;
 
+#if ! EFFECTS_PROCESSOR_PER_VOICE
     EffectsProcessor<T> effectsProcessor;
+#endif
 
     //TODO: probably don't need the wrapper on this
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Gain<T>, T>> gainWrapper;
@@ -61,6 +67,9 @@ class ProPhatSynthesiser : public juce::Synthesiser, public juce::AudioProcessor
     juce::AudioProcessorValueTreeState& state;
 
     juce::dsp::ProcessSpec curSpecs;
+
+    //TODO VB: this is useless with reaper, but maybe there's a way to fix it
+    bool isPlaying { false };
 };
 
 //=====================================================================================================================
@@ -86,6 +95,7 @@ void ProPhatSynthesiser<T>::addParamListenersToState()
 {
     using namespace ProPhatParameterIds;
 
+#if ! EFFECTS_PROCESSOR_PER_VOICE
     state.addParameterListener (reverbParam1ID.getParamID(), this);
     state.addParameterListener (reverbParam2ID.getParamID(), this);
 
@@ -96,6 +106,7 @@ void ProPhatSynthesiser<T>::addParamListenersToState()
     state.addParameterListener (phaserParam2ID.getParamID(), this);
 
     state.addParameterListener (effectSelectedID.getParamID(), this);
+#endif
 
     state.addParameterListener (masterGainID.getParamID(), this);
 }
@@ -113,9 +124,22 @@ void ProPhatSynthesiser<T>::prepare (const juce::dsp::ProcessSpec& spec) noexcep
     for (auto* v : voices)
         dynamic_cast<ProPhatVoice<T>*> (v)->prepare (spec);
 
+#if ! EFFECTS_PROCESSOR_PER_VOICE
     effectsProcessor.prepare (spec);
+#endif
 
     gainWrapper->prepare (spec);
+
+    isPlaying = true;
+}
+
+template <std::floating_point T>
+void ProPhatSynthesiser<T>::releaseResources()
+{
+    for (auto* v : voices)
+        dynamic_cast<ProPhatVoice<T>*> (v)->releaseResources();
+
+    isPlaying = false;
 }
 
 template <std::floating_point T>
@@ -124,13 +148,15 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
     using namespace ProPhatParameterIds;
 
     //DBG ("ProPhatSynthesiser::parameterChanged (" + parameterID + ", " + juce::String (newValue));
-    if (parameterID == reverbParam1ID.getParamID() || parameterID == reverbParam2ID.getParamID()
+
+    if (parameterID == masterGainID.getParamID ())
+        setMasterGain (newValue);
+
+#if ! EFFECTS_PROCESSOR_PER_VOICE
+    else if (parameterID == reverbParam1ID.getParamID() || parameterID == reverbParam2ID.getParamID()
         || parameterID == chorusParam1ID.getParamID() || parameterID == chorusParam2ID.getParamID()
         || parameterID == phaserParam1ID.getParamID() || parameterID == phaserParam2ID.getParamID())
         effectsProcessor.setEffectParam (parameterID, newValue);
-    else if (parameterID == masterGainID.getParamID())
-        setMasterGain (newValue);
-
     //TODO: actually switch to the right effect lol using the newValue
     else if (parameterID == effectSelectedID.getParamID())
     {
@@ -147,8 +173,12 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
             effect = EffectType::phaser;
         else
             jassertfalse;
-        effectsProcessor.changeEffect (effect);
+
+        //so if this were in the voice, with EFFECTS_PROCESSOR_PER_VOICE == 1, we could be able to use this isPlaying trick but that doesn't work in the synth
+        //if (isPlaying)
+            effectsProcessor.changeEffect (effect);
     }
+#endif
     else
         jassertfalse;
 }
@@ -176,8 +206,10 @@ void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int
     for (auto* voice : voices)
         voice->renderNextBlock (outputAudio, startSample, numSamples);
 
+#if ! EFFECTS_PROCESSOR_PER_VOICE
     //TODO: this converts the arguments internally to a context, exactly like below, so might as well use that directly as params
     effectsProcessor.process (outputAudio, startSample, numSamples);
+#endif
 
     auto       audioBlock { juce::dsp::AudioBlock<T> (outputAudio).getSubBlock ((size_t) startSample, (size_t) numSamples) };
     const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };

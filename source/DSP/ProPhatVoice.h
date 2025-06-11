@@ -28,6 +28,10 @@
 #include "../Utility/Helpers.h"
 #include "../Utility/Macros.h"
 
+#if EFFECTS_PROCESSOR_PER_VOICE
+#include "PhatEffectsProcessor.hpp"
+#endif
+
 struct ProPhatSound : public juce::SynthesiserSound
 {
     bool appliesToNote    (int) override { return true; }
@@ -56,6 +60,7 @@ public:
     void parameterChanged (const juce::String& parameterID, float newValue) override;
 
     void prepare (const juce::dsp::ProcessSpec& spec);
+    void releaseResources();
 
     void setAmpParam (juce::StringRef parameterID, float newValue);
     void setFilterEnvParam (juce::StringRef parameterID, float newValue);
@@ -144,6 +149,9 @@ private:
     juce::dsp::ProcessorChain<juce::dsp::LadderFilter<T>, juce::dsp::Gain<T>> filterAndGainProcessorChain;
     //TODO: use a slider for this
     static constexpr auto envelopeAmount { 2 };
+    #if EFFECTS_PROCESSOR_PER_VOICE
+        EffectsProcessor<T> effectsProcessor;
+    #endif
 
     juce::ADSR ampADSR, filterADSR;
     juce::ADSR::Parameters ampParams { Constants::defaultAmpA, Constants::defaultAmpD, Constants::defaultAmpS, Constants::defaultAmpR };
@@ -250,11 +258,15 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
         const auto subBlockSize = juce::jmin (numSamples - pos, lfoUpdateCounter);
 
         //render the oscillators over the subBlockSize
-        auto oscBlock { oscillators.process (pos, subBlockSize) };
+        juce::dsp::AudioBlock<T> oscBlock { oscillators.process (pos, subBlockSize) };
 
         //apply filter and gain
         juce::dsp::ProcessContextReplacing<T> oscContext (oscBlock);
         filterAndGainProcessorChain.process (oscContext);
+
+#if EFFECTS_PROCESSOR_PER_VOICE
+        effectsProcessor.process (oscBlock);
+#endif
 
         //apply the envelopes. We calculate and apply the amp envelope on a sample basis,
         //but for the filter env we increment it on a sample basis but only apply it
@@ -335,6 +347,16 @@ void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
     filterADSR.setParameters (filterEnvParams);
 
     lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
+
+#if EFFECTS_PROCESSOR_PER_VOICE
+    effectsProcessor.prepare (spec);
+#endif
+}
+
+template <std::floating_point T>
+void ProPhatVoice<T>::releaseResources ()
+{
+
 }
 
 template <std::floating_point T>
@@ -359,6 +381,19 @@ void ProPhatVoice<T>::addParamListenersToState ()
     state.addParameterListener (lfoDestID.getParamID (), this);
     state.addParameterListener (lfoFreqID.getParamID (), this);
     state.addParameterListener (lfoAmountID.getParamID (), this);
+
+#if EFFECTS_PROCESSOR_PER_VOICE
+    state.addParameterListener (reverbParam1ID.getParamID (), this);
+    state.addParameterListener (reverbParam2ID.getParamID (), this);
+
+    state.addParameterListener (chorusParam1ID.getParamID (), this);
+    state.addParameterListener (chorusParam2ID.getParamID (), this);
+
+    state.addParameterListener (phaserParam1ID.getParamID (), this);
+    state.addParameterListener (phaserParam2ID.getParamID (), this);
+
+    state.addParameterListener (effectSelectedID.getParamID (), this);
+#endif
 }
 
 template <std::floating_point T>
@@ -396,6 +431,33 @@ void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float n
         setFilterCutoff (newValue);
     else if (parameterID == filterResonanceID.getParamID ())
         setFilterResonance (newValue);
+
+#if EFFECTS_PROCESSOR_PER_VOICE
+    else if (parameterID == reverbParam1ID.getParamID () || parameterID == reverbParam2ID.getParamID ()
+             || parameterID == chorusParam1ID.getParamID () || parameterID == chorusParam2ID.getParamID ()
+             || parameterID == phaserParam1ID.getParamID () || parameterID == phaserParam2ID.getParamID ())
+        effectsProcessor.setEffectParam (parameterID, newValue);
+    //TODO: actually switch to the right effect lol using the newValue
+    else if (parameterID == effectSelectedID.getParamID ())
+    {
+        EffectType effect { EffectType::none };
+        //TODO: switch?
+        const auto newInt { static_cast<int> (newValue) };
+        if (newInt == 0)
+            effect = EffectType::none;
+        else if (newInt == 1)
+            effect = EffectType::verb;
+        else if (newInt == 2)
+            effect = EffectType::chorus;
+        else if (newInt == 3)
+            effect = EffectType::phaser;
+        else
+            jassertfalse;
+
+        if (isVoiceActive ())
+            effectsProcessor.changeEffect (effect);
+    }
+#endif
 
     else
         jassertfalse;
