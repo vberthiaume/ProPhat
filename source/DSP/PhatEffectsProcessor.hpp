@@ -244,7 +244,6 @@ class EffectsProcessor
     }
 
 #else
-
 void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
 {
 #if ENABLE_CLEAR_EFFECT

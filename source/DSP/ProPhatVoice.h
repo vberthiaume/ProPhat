@@ -250,6 +250,7 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
 
     //reserve an audio block of size numSamples. Auvaltool has a tendency to _not_ call prepare before rendering
     //with new buffer sizes, so just making sure we're not taking more samples than the audio block was prepared with.
+    jassert (numSamples <= curPreparedSamples);
     numSamples = juce::jmin (numSamples, curPreparedSamples);
     auto currentAudioBlock { oscillators.prepareRender (numSamples) };
 
@@ -298,6 +299,7 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
         if (rampingUp)
             processRampUp (oscBlock, (int) subBlockSize);
 
+        //for now this is only happening when we run out of voices
         //overlapIndex will be >= 0 if we're in the process of adding a kill overlap buffer to the oscBlock
         if (overlapIndex > -1)
             processKillOverlap (oscBlock, (int) subBlockSize);
