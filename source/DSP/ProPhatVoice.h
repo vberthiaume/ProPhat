@@ -298,6 +298,7 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
         if (rampingUp)
             processRampUp (oscBlock, (int) subBlockSize);
 
+        //overlapIndex will be >= 0 if we're in the process of adding a kill overlap buffer to the oscBlock
         if (overlapIndex > -1)
             processKillOverlap (oscBlock, (int) subBlockSize);
 
@@ -335,7 +336,6 @@ void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
     oscillators.prepare (spec);
 
     overlap = std::make_unique<juce::AudioBuffer<T>> (spec.numChannels, Constants::killRampSamples);
-    overlap->clear();
 
     filterAndGainProcessorChain.prepare (spec);
 
@@ -689,8 +689,9 @@ void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
             voicesBeingKilled->insert (voiceId);
             currentlyKillingVoice = true;
 
-            //render the voice kill
+            //render the voice kill into the overlap buffer
             renderNextBlockTemplate (*overlap, 0, Constants::killRampSamples);
+            //this index is how we keep track of progress in applying the overlap buffer to the next output buffer
             overlapIndex = 0;
         }
 
@@ -738,6 +739,8 @@ void ProPhatVoice<T>::processRampUp (juce::dsp::AudioBlock<T>& block, int curBlo
     }
 }
 
+#define CLIP_OVERLAP 0
+
 template <std::floating_point T>
 void ProPhatVoice<T>::processKillOverlap (juce::dsp::AudioBlock<T>& block, int curBlockSize)
 {
@@ -757,7 +760,14 @@ void ProPhatVoice<T>::processKillOverlap (juce::dsp::AudioBlock<T>& block, int c
         {
             const T prev  { block.getSample (c, i)};
             const T overl { overlap->getSample (c, overlapIndex + i)};
+
+#if CLIP_OVERLAP
+            //well lol, that won't work bro, that'll def induce clipping
             const T total { juce::jlimit (min, max, prev + overl) };
+#else
+            const T total {prev + overl};
+            jassert (total <= min && total >= max);
+#endif
 
             block.setSample (c, i, total);
 
