@@ -349,7 +349,7 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
             break;
         }
 
-#if ENABLE_GAIN_LOGGING
+#if 0 //ENABLE_GAIN_LOGGING
         DBG ("fade buffer 2 after processing");
         for (int i = 0; i < numSamples; ++i)
             DBG (fade_buffer2.getReadPointer (0)[i]);

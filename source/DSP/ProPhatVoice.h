@@ -297,7 +297,32 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
         }
 
         if (rampingUp)
+        {
+#if 0 //ENABLE_GAIN_LOGGING
+            DBG ("oscBlock after processRampUp");
+            for (int i = 0; i < subBlockSize; ++i)
+                DBG (oscBlock.getChannelPointer (0)[i]);
+            DBG ("done oscBlock after processRampUp");
+
+            DBG ("oscBlock after processRampUp FULL BUFFER");
+            for (int i = 0; i < numSamples; ++i)
+                DBG (oscBlock.getChannelPointer (0)[i]);
+            DBG ("done oscBlock after processRampUp");
+#endif
             processRampUp (oscBlock, (int) subBlockSize);
+
+#if 0 //ENABLE_GAIN_LOGGING
+            DBG ("oscBlock after processRampUp");
+            for (int i = 0; i < subBlockSize; ++i)
+                DBG (oscBlock.getChannelPointer (0)[i]);
+            DBG ("done oscBlock after processRampUp");
+
+            DBG ("oscBlock after processRampUp FULL BUFFER");
+            for (int i = 0; i < numSamples; ++i)
+                DBG (oscBlock.getChannelPointer (0)[i]);
+            DBG ("done oscBlock after processRampUp");
+#endif
+        }
 
         //for now this is only happening when we run out of voices
         //overlapIndex will be >= 0 if we're in the process of adding a kill overlap buffer to the oscBlock
@@ -713,7 +738,7 @@ void ProPhatVoice<T>::processRampUp (juce::dsp::AudioBlock<T>& block, int curBlo
     DBG ("\tDEBUG ProPhatVoice<T>::processRampUp() " + juce::String (Constants::rampUpSamples - rampUpSamplesLeft));
 #endif
     const auto curRampUpLenght = juce::jmin (curBlockSize, rampUpSamplesLeft);
-    const auto prevRampUpValue = static_cast<T> ((Constants::rampUpSamples - rampUpSamplesLeft) / Constants::rampUpSamples);
+    const auto prevRampUpValue = static_cast<T> ((Constants::rampUpSamples - rampUpSamplesLeft)) / static_cast<T> (Constants::rampUpSamples);
     const auto nextRampUpValue = static_cast<T> (prevRampUpValue + curRampUpLenght / Constants::rampUpSamples);
     const auto incr            = static_cast<T> ((nextRampUpValue - prevRampUpValue) / static_cast<T> (curRampUpLenght));
 
