@@ -271,6 +271,16 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
 
     if (currentEffectType == EffectType::transitioning)
     {
+#if 1
+        //NOW HERE: this is hit when loading the reaper project, and after that only when we start the effect transition
+        //I need to set a bool here and print all the output after that, to see if I can reliably print the glitch
+        int i = 0;
+        for (int i = 0; i < numSamples; ++i)
+            DBG (fade_buffer2.getReadPointer (0)[i]);
+        ++i;
+#endif
+
+
 #if ENABLE_GAIN_LOGGING
         effectCrossFader.setDebugLogEntry (&debugLogEntry);
 #endif
@@ -290,12 +300,6 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
         const auto prevEffect = effectCrossFader.prevEffect;
         const auto nextEffect = effectCrossFader.curEffect;
 
-        //#if ENABLE_GAIN_LOGGING
-        //            DBG ("fade buffer 1 before processing");
-        //            for (int i = 0; i < numSamples; ++i)
-        //                DBG (fade_buffer1.getReadPointer (0)[i]);
-        //            DBG ("done fade buffer 1");
-        //#endif
         switch (prevEffect)
         {
         case EffectType::none:
@@ -316,19 +320,6 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
             break;
         }
 
-#if ENABLE_GAIN_LOGGING
-        //DBG ("fade buffer 1 after processing");
-        //for (int i = 0; i < numSamples; ++i)
-        //    DBG (fade_buffer1.getReadPointer (0)[i]);
-        //DBG ("done fade buffer 1");
-
-        //NOW HERE: this can definitely look weird
-        int i = 0;
-        for (int i = 0; i < numSamples; ++i)
-            DBG (fade_buffer2.getReadPointer (0)[i]);
-        ++i;
-#endif
-
         switch (nextEffect)
         {
         case EffectType::none:
@@ -348,13 +339,6 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
             jassertfalse;
             break;
         }
-
-#if 0 //ENABLE_GAIN_LOGGING
-        DBG ("fade buffer 2 after processing");
-        for (int i = 0; i < numSamples; ++i)
-            DBG (fade_buffer2.getReadPointer (0)[i]);
-        DBG ("done fade buffer 2");
-#endif
 
         //crossfade the 2 effects
         effectCrossFader.process (fade_buffer1, fade_buffer2, buffer, numSamples);
