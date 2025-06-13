@@ -323,10 +323,10 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
         //DBG ("done fade buffer 1");
 
         //NOW HERE: this can definitely look weird
-        DBG ("fade buffer 2 before processing");
+        int i = 0;
         for (int i = 0; i < numSamples; ++i)
             DBG (fade_buffer2.getReadPointer (0)[i]);
-        DBG ("done fade buffer 2");
+        ++i;
 #endif
 
         switch (nextEffect)
