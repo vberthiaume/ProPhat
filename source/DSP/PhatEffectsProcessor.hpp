@@ -82,6 +82,16 @@ class EffectsProcessor
         chorusWrapper->prepare (spec);
         phaserWrapper->prepare (spec);
         effectCrossFader.prepare (spec);
+
+        setIsPlaying (true);
+    }
+
+    bool isPlaying = false;
+
+    //should really be called releaseResources
+    void setIsPlaying (bool pIsPlaying)
+    {
+        isPlaying = pIsPlaying;
     }
 
     void setEffectParam (juce::StringRef parameterID, T newValue)
@@ -272,12 +282,19 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     if (currentEffectType == EffectType::transitioning)
     {
 #if 1
-        //NOW HERE: this is hit when loading the reaper project, and after that only when we start the effect transition
-        //I need to set a bool here and print all the output after that, to see if I can reliably print the glitch
-        int i = 0;
-        for (int i = 0; i < numSamples; ++i)
-            DBG (fade_buffer2.getReadPointer (0)[i]);
-        ++i;
+        if (isPlaying)
+        {
+            //NOW HERE STILL: this is hit when loading the reaper project, and after that only when we start the effect transition
+            //what I'm trying to do is set a bool when we start playing, so that I can tell apart these 2 cases (reaper just starting up
+            //vs doing the transition) and then in the second case print everything from now on.
+            //I tried to do that with the isPlaying bool but it is not working because it's only hit when I start reaper
+            //and not when I press play
+            //I need to set a bool here and print all the output after that, to see if I can reliably print the glitch
+            int asdf = 0;
+            for (int i = 0; i < numSamples; ++i)
+                DBG (fade_buffer2.getReadPointer (0)[i]);
+            ++asdf;
+        }
 #endif
 
 

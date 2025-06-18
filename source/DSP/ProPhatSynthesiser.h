@@ -140,6 +140,8 @@ void ProPhatSynthesiser<T>::releaseResources()
         dynamic_cast<ProPhatVoice<T>*> (v)->releaseResources();
 
     isPlaying = false;
+
+    effectsProcessor.setIsPlaying (false);
 }
 
 template <std::floating_point T>
