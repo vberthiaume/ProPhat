@@ -200,6 +200,8 @@ void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNum
         return;
 
     Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
+
+    effectsProcessor.setIsPlaying (true);
 }
 
 template <std::floating_point T>
