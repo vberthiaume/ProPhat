@@ -45,8 +45,9 @@ class EffectsCrossfadeProcessor
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
         jassert (spec.numChannels == 2);
-        smoothedGainL.reset (spec.sampleRate, .1);
-        smoothedGainR.reset (spec.sampleRate, .1);
+        //changing this creates a long tail but still an initial glitch
+        smoothedGainL.reset (spec.sampleRate, T (2));
+        smoothedGainR.reset (spec.sampleRate, T (2));
 
         gainLog.resize (spec.maximumBlockSize);
         prevDataLog.resize (spec.maximumBlockSize);
