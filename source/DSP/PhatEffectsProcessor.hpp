@@ -29,7 +29,7 @@
 //if I don't clear the effects, their buffers will still contain the last processed content
 //but I don't think this changes anything for glitches
 #define ENABLE_CLEAR_EFFECT 1
-#define LOG_EVERYTHING_AFTER_TRANSITION 0
+#define LOG_EVERYTHING_AFTER_TRANSITION 1
 
 template <std::floating_point T>
 class EffectsProcessor
@@ -86,14 +86,15 @@ class EffectsProcessor
         effectCrossFader.prepare (spec);
     }
 
-    bool isPlaying = false;
-    bool needToLogEverything = false;
+#if LOG_EVERYTHING_AFTER_TRANSITION
+    bool isPlaying         = false;
+    bool transitionStarted = false;
 
-    //should really be called releaseResources
     void setIsPlaying (bool pIsPlaying)
     {
         isPlaying = pIsPlaying;
     }
+#endif
 
     void setEffectParam (juce::StringRef parameterID, T newValue)
     {
@@ -133,6 +134,11 @@ class EffectsProcessor
     {
         //NO GLITCH if I comment this out
         effectCrossFader.changeEffect (effect);
+
+#if LOG_EVERYTHING_AFTER_TRANSITION
+        if (isPlaying)
+            transitionStarted = true;
+#endif
     }
 
 #if EFFECTS_PROCESSOR_PER_VOICE
@@ -283,17 +289,6 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
 
     if (currentEffectType == EffectType::transitioning)
     {
-#if LOG_EVERYTHING_AFTER_TRANSITION
-        if (isPlaying)
-        {
-            needToLogEverything = true; //this will be hit when we begin the first transition after playing a note
-            int asdf            = 0;
-            for (int i = 0; i < numSamples; ++i)
-                DBG (buffer.getReadPointer (0)[i]);
-            ++asdf;
-        }
-#endif
-
 #if ENABLE_GAIN_LOGGING
         effectCrossFader.setDebugLogEntry (&debugLogEntry);
 #endif
@@ -359,14 +354,6 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     }
     else
     {
-        if (needToLogEverything)
-        {
-            int asdf = 0;
-            for (int i = 0; i < numSamples; ++i)
-                DBG (buffer.getReadPointer (0)[i]);
-            ++asdf;
-        }
-
         auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
         auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
@@ -409,6 +396,16 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
         else if (currentEffectType != EffectType::none)
             jassertfalse; //unknown effect!!
     }
+
+#if LOG_EVERYTHING_AFTER_TRANSITION
+    if (transitionStarted)
+    {
+        int asdf = 0;
+        for (int i = 0; i < numSamples; ++i)
+            DBG (buffer.getReadPointer (0)[i]);
+        ++asdf;
+    }
+#endif
 
 #if ENABLE_DEBUG_LOG
     debugLogEntry.processCallDuration = juce::Time::currentTimeMillis () - cachedProcessCallTime;

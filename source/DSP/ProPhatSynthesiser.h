@@ -67,9 +67,6 @@ class ProPhatSynthesiser : public juce::Synthesiser, public juce::AudioProcessor
     juce::AudioProcessorValueTreeState& state;
 
     juce::dsp::ProcessSpec curSpecs;
-
-    //TODO VB: this is useless with reaper, but maybe there's a way to fix it
-    bool isPlaying { false };
 };
 
 //=====================================================================================================================
@@ -136,11 +133,6 @@ void ProPhatSynthesiser<T>::releaseResources()
 {
     for (auto* v : voices)
         dynamic_cast<ProPhatVoice<T>*> (v)->releaseResources();
-
-    //TODO VB: not sure this is accurate, probably would need to be set in noteOff
-    isPlaying = false;
-
-    effectsProcessor.setIsPlaying (false);
 }
 
 template <std::floating_point T>
@@ -175,10 +167,7 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
         else
             jassertfalse;
 
-        //TODO VB: I don't really understand this comment, but this might actually work now that we set isPlaying in NoteOn()
-        //so if this were in the voice, with EFFECTS_PROCESSOR_PER_VOICE == 1, we could be able to use this isPlaying trick but that doesn't work in the synth
-        //if (isPlaying)
-            effectsProcessor.changeEffect (effect);
+        effectsProcessor.changeEffect (effect);
     }
 #endif
     else
@@ -201,8 +190,9 @@ void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNum
 
     Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
 
-    isPlaying = true;
+#if LOG_EVERYTHING_AFTER_TRANSITION
     effectsProcessor.setIsPlaying (true);
+#endif
 }
 
 template <std::floating_point T>
@@ -210,14 +200,6 @@ void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int
 {
     for (auto* voice : voices)
         voice->renderNextBlock (outputAudio, startSample, numSamples);
-
-    // if (isPlaying)
-    // {
-    //     int asdf = 0;
-    //     for (int i = startSample; i < startSample + numSamples; ++i)
-    //         DBG (outputAudio.getReadPointer (0)[i]);
-    //     asdf++;
-    // }
 
 #if ! EFFECTS_PROCESSOR_PER_VOICE
     //TODO: this converts the arguments internally to a context, exactly like below, so might as well use that directly as params
