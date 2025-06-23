@@ -32,6 +32,8 @@
 #include "PhatEffectsProcessor.hpp"
 #endif
 
+#define LOG_FROM_NOTE_OFF DEBUG_VOICES && 1
+
 struct ProPhatSound : public juce::SynthesiserSound
 {
     bool appliesToNote    (int) override { return true; }
@@ -69,6 +71,10 @@ public:
     void setLfoDest (int dest);
     void setLfoFreq (float newFreq) { lfo.setFrequency (newFreq); }
     void setLfoAmount (float newAmount) { lfoAmount = newAmount; }
+
+#if LOG_FROM_NOTE_OFF
+    bool noteOffLoggingEnabled = false;
+#endif
 
     void setFilterCutoff (T newValue)
     {
@@ -353,6 +359,16 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
 #if DEBUG_VOICES
     else
         assertForDiscontinuities (outputBuffer, startSample, numSamples, {});
+
+#if LOG_FROM_NOTE_OFF
+    if (noteOffLoggingEnabled)
+    {
+        int asdf = 4;
+        for (int i = startSample; i < startSample + numSamples; ++i)
+            DBG (outputBuffer.getSample(0, i));
+        ++asdf;
+    }
+#endif
 #endif
 }
 
@@ -670,6 +686,10 @@ void ProPhatVoice<T>::startNote (int midiNoteNumber, float velocity, juce::Synth
 {
 #if DEBUG_VOICES
     DBG ("\tDEBUG ProPhatVoice::startNote() with voiceId : " + juce::String (voiceId));
+
+#if LOG_FROM_NOTE_OFF
+    noteOffLoggingEnabled = false;
+#endif
 #endif
 
     ampADSR.setParameters (ampParams);
@@ -691,6 +711,10 @@ void ProPhatVoice<T>::startNote (int midiNoteNumber, float velocity, juce::Synth
 template <std::floating_point T>
 void ProPhatVoice<T>::stopNote (float /*velocity*/, bool allowTailOff)
 {
+#if LOG_FROM_NOTE_OFF
+    noteOffLoggingEnabled = true;
+#endif
+
     if (allowTailOff)
     {
         currentlyReleasingNote = true;

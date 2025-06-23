@@ -203,7 +203,7 @@ void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int
 
 #if ! EFFECTS_PROCESSOR_PER_VOICE
     //TODO: this converts the arguments internally to a context, exactly like below, so might as well use that directly as params
-    //NO GLITCH if I comment this out
+    //NO (audible) GLITCH if I comment this out
     effectsProcessor.process (outputAudio, startSample, numSamples);
 #endif
 
