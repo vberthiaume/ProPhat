@@ -29,7 +29,8 @@
 //if I don't clear the effects, their buffers will still contain the last processed content
 //but I don't think this changes anything for glitches
 #define ENABLE_CLEAR_EFFECT 1
-#define LOG_EVERYTHING_AFTER_TRANSITION 1
+#define LOG_EVERYTHING_AFTER_TRANSITION 0
+#define BYPASS_EFFECTS_BUT_DO_CROSSFADE 1
 
 template <std::floating_point T>
 class EffectsProcessor
@@ -299,6 +300,7 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
             fade_buffer2.copyFrom (c, 0, buffer, c, startSample, numSamples);
         }
 
+#if ! BYPASS_EFFECTS_BUT_DO_CROSSFADE
         auto block1 { juce::dsp::AudioBlock<T> (fade_buffer1) };
         auto context1 { juce::dsp::ProcessContextReplacing<T> (block1) };
 
@@ -348,18 +350,21 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
             jassertfalse;
             break;
         }
-
+#endif
         //crossfade the 2 effects
         effectCrossFader.process (fade_buffer1, fade_buffer2, buffer, startSample, numSamples);
     }
     else
     {
+        //TODO VB: could the getSubBlock here cause issues? I can't quite figure it out so I could test it
         auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
         auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
         if (currentEffectType == EffectType::verb)
         {
+#if ! BYPASS_EFFECTS_BUT_DO_CROSSFADE
             verbWrapper->process (context);
+#endif
 #if ENABLE_CLEAR_EFFECT
             if (needToClearEffect)
             {
@@ -371,7 +376,9 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
         }
         else if (currentEffectType == EffectType::chorus)
         {
+#if ! BYPASS_EFFECTS_BUT_DO_CROSSFADE
             chorusWrapper->process (context);
+#endif
 #if ENABLE_CLEAR_EFFECT
             if (needToClearEffect)
             {
@@ -383,7 +390,9 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
         }
         else if (currentEffectType == EffectType::phaser)
         {
+#if ! BYPASS_EFFECTS_BUT_DO_CROSSFADE
             phaserWrapper->process (context);
+#endif
 #if ENABLE_CLEAR_EFFECT
             if (needToClearEffect)
             {

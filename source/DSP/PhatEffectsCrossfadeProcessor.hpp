@@ -4,6 +4,9 @@
 #include "../modules/DebugLog/Source/DebugLog.hpp"
 #include <sstream>
 
+
+constexpr auto crossfadeDurationSeconds = .1;
+
 enum class EffectType
 {
     none = 0,
@@ -46,8 +49,8 @@ class EffectsCrossfadeProcessor
     {
         jassert (spec.numChannels == 2);
         //changing this creates a long tail but still an initial glitch
-        smoothedGainL.reset (spec.sampleRate, T (2));
-        smoothedGainR.reset (spec.sampleRate, T (2));
+        smoothedGainL.reset (spec.sampleRate, static_cast<T> (crossfadeDurationSeconds));
+        smoothedGainR.reset (spec.sampleRate, static_cast<T> (crossfadeDurationSeconds));
 
         gainLog.resize (spec.maximumBlockSize);
         prevDataLog.resize (spec.maximumBlockSize);
