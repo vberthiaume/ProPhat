@@ -128,7 +128,8 @@ class EffectsCrossfadeProcessor
 #else
     void process (const juce::AudioBuffer<T>& previousEffectBuffer,
                   const juce::AudioBuffer<T>& nextEffectBuffer,
-                  juce::AudioBuffer<T>& outputBuffer,
+                  juce::AudioBuffer<T>&       outputBuffer,
+                  int                         startSample,
                   int                         numSamples)
     {
         jassert (previousEffectBuffer.getNumChannels () == nextEffectBuffer.getNumChannels () && nextEffectBuffer.getNumChannels () == outputBuffer.getNumChannels ());
@@ -158,7 +159,7 @@ class EffectsCrossfadeProcessor
                 curGain = needToInverse ? (1 - nextGain) : nextGain;
 
                 //cross fade prevData and nextData into outData. I guess any of these can be clipping
-                outData[sample] = prevData[sample] * curGain + nextData[sample] * (1 - curGain);
+                outData[startSample + sample] = prevData[sample] * curGain + nextData[sample] * (1 - curGain);
 
 #if ENABLE_GAIN_LOGGING
                 if (channel == 0 && sample == 0 && debugLogEntry)

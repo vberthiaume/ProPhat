@@ -82,6 +82,7 @@ class EffectsProcessor
         verbWrapper->prepare (spec);
         chorusWrapper->prepare (spec);
         phaserWrapper->prepare (spec);
+
         effectCrossFader.prepare (spec);
     }
 
@@ -131,7 +132,7 @@ class EffectsProcessor
     void changeEffect (EffectType effect)
     {
         //NO GLITCH if I comment this out
-        //effectCrossFader.changeEffect (effect);
+        effectCrossFader.changeEffect (effect);
     }
 
 #if EFFECTS_PROCESSOR_PER_VOICE
@@ -262,7 +263,7 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
 #endif
 
     //TODO: surround with trylock or something, although not here because we don't have a proper fallback
-    /*const*/ auto currentEffectType { effectCrossFader.getCurrentEffectType () };
+    const auto currentEffectType { effectCrossFader.getCurrentEffectType () };
 
 #if ENABLE_DEBUG_LOG
     DebugLogEntry& debugLogEntry = m_pLogDebug->log[m_pLogDebug->logHead];
@@ -302,6 +303,7 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
             fade_buffer1.copyFrom (c, 0, buffer, c, startSample, numSamples);
             fade_buffer2.copyFrom (c, 0, buffer, c, startSample, numSamples);
         }
+
         auto block1 { juce::dsp::AudioBlock<T> (fade_buffer1) };
         auto context1 { juce::dsp::ProcessContextReplacing<T> (block1) };
 
@@ -353,7 +355,7 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
         }
 
         //crossfade the 2 effects
-        effectCrossFader.process (fade_buffer1, fade_buffer2, buffer, numSamples);
+        effectCrossFader.process (fade_buffer1, fade_buffer2, buffer, startSample, numSamples);
     }
     else
     {
@@ -368,7 +370,6 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
         auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
         auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
-        currentEffectType = EffectType::verb;
         if (currentEffectType == EffectType::verb)
         {
             verbWrapper->process (context);
@@ -427,10 +428,9 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
 #endif
 
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Chorus<T>, T>> chorusWrapper;
-
     std::unique_ptr<EffectProcessorWrapper<juce::dsp::Phaser<T>, T>> phaserWrapper;
-
     std::unique_ptr<EffectProcessorWrapper<PhatVerbProcessor<T>, T>> verbWrapper;
+
     PhatVerbParameters<T>                                            reverbParams {
         //manually setting all these because we need to set the default room size and wet level to 0 if we want to be able to retrieve
         //these values from a saved state. If they are saved as 0 in the state, the event callback will not be propagated because
