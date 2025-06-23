@@ -356,8 +356,9 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     }
     else
     {
-        //TODO VB: could the getSubBlock here cause issues? I can't quite figure it out so I could test it
-        auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
+        //these 2 things seem to sound the same, I'm not too sure if the simpler second one is ok
+        //auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
+        auto audioBlock = juce::dsp::AudioBlock<T> (buffer);
         auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
         if (currentEffectType == EffectType::verb)

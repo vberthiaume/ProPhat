@@ -4,7 +4,7 @@
 #include "../modules/DebugLog/Source/DebugLog.hpp"
 #include <sstream>
 
-
+//changing this does NOT affect the perception of glitches at note-offs
 constexpr auto crossfadeDurationSeconds = .1;
 
 enum class EffectType
