@@ -29,7 +29,7 @@
 //if I don't clear the effects, their buffers will still contain the last processed content
 //but I don't think this changes anything for glitches
 #define ENABLE_CLEAR_EFFECT 1
-#define LOG_EVERYTHING_AFTER_TRANSITION 1
+#define LOG_EVERYTHING_AFTER_TRANSITION 0
 
 template <std::floating_point T>
 class EffectsProcessor
@@ -261,7 +261,7 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
 #endif
 
     //TODO: surround with trylock or something, although not here because we don't have a proper fallback
-    const auto currentEffectType { effectCrossFader.getCurrentEffectType () };
+    /*const*/ auto currentEffectType { effectCrossFader.getCurrentEffectType () };
 
 #if ENABLE_DEBUG_LOG
     DebugLogEntry& debugLogEntry = m_pLogDebug->log[m_pLogDebug->logHead];
@@ -279,7 +279,7 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     }
 #endif
 
-    if (currentEffectType == EffectType::transitioning)
+    if (false || currentEffectType == EffectType::transitioning)
     {
 #if LOG_EVERYTHING_AFTER_TRANSITION
         if (isPlaying)
@@ -367,6 +367,7 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
         auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
         auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
+        currentEffectType = EffectType::verb;
         if (currentEffectType == EffectType::verb)
         {
             verbWrapper->process (context);
