@@ -130,7 +130,8 @@ class EffectsProcessor
 
     void changeEffect (EffectType effect)
     {
-        effectCrossFader.changeEffect (effect);
+        //NO GLITCH if I comment this out
+        //effectCrossFader.changeEffect (effect);
     }
 
 #if EFFECTS_PROCESSOR_PER_VOICE
@@ -279,7 +280,7 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     }
 #endif
 
-    if (false || currentEffectType == EffectType::transitioning)
+    if (currentEffectType == EffectType::transitioning)
     {
 #if LOG_EVERYTHING_AFTER_TRANSITION
         if (isPlaying)
