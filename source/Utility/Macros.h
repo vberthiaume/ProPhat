@@ -24,7 +24,7 @@
 
 #define CPU_USAGE 0
 
-#define DEBUG_VOICES 1
+#define DEBUG_VOICES 0
 
 #define PRINT_ALL_SAMPLES 0
 

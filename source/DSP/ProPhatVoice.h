@@ -45,20 +45,18 @@ struct ProPhatSound : public juce::SynthesiserSound
 /**
  * @brief The main voice for our synthesizer.
 */
-template <std::floating_point T>
-class ProPhatVoice : public juce::SynthesiserVoice
-                   , public juce::AudioProcessorValueTreeState::Listener
+enum class ProcessorId
 {
-public:
-    enum class ProcessorId
-    {
-        filterIndex = 0,
-        masterGainIndex,
-    };
-
+    filterIndex = 0,
+    masterGainIndex,
+};
+template <std::floating_point T>
+class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorValueTreeState::Listener
+{
+  public:
     ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int voiceId, std::set<int>* activeVoiceSet);
 
-    void addParamListenersToState ();
+    void addParamListenersToState();
     void parameterChanged (const juce::String& parameterID, float newValue) override;
 
     void prepare (const juce::dsp::ProcessSpec& spec);
@@ -116,9 +114,9 @@ public:
             setFilterTiltCutoff (juce::jmap (T (newValue), T (0), T (127), T (curFilterCutoff), T (Constants::cutOffRange.end)));
     }
 
-    int getVoiceId() { return voiceId; }
+    int getVoiceId() const { return voiceId; }
 
-private:
+  private:
     juce::AudioProcessorValueTreeState& state;
 
     int voiceId;
@@ -128,38 +126,38 @@ private:
     void setFilterCutoffInternal (T curCutOff)
     {
         const auto limitedCutOff { juce::jlimit (T (Constants::cutOffRange.start), T (Constants::cutOffRange.end), curCutOff) };
-        filterAndGainProcessorChain.template get<(int) ProcessorId::filterIndex> ().setCutoffFrequencyHz (limitedCutOff);
+        filterAndGainProcessorChain.template get<(int) ProcessorId::filterIndex>().setCutoffFrequencyHz (limitedCutOff);
     }
 
     void setFilterResonanceInternal (T curResonance)
     {
         const auto limitedResonance { juce::jlimit (T (0), T (1), curResonance) };
-        filterAndGainProcessorChain.template get<(int) ProcessorId::filterIndex> ().setResonance (limitedResonance);
+        filterAndGainProcessorChain.template get<(int) ProcessorId::filterIndex>().setResonance (limitedResonance);
     }
 
     /** Calculate LFO values. Called on the audio thread. */
     inline void updateLfo();
-    void processRampUp (juce::dsp::AudioBlock<T>& block, int curBlockSize);
-    void processKillOverlap (juce::dsp::AudioBlock<T>& block, int curBlockSize);
-    void assertForDiscontinuities (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix);
-    void applyKillRamp (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples);
+    void        processRampUp (juce::dsp::AudioBlock<T>& block, int curBlockSize);
+    void        processKillOverlap (juce::dsp::AudioBlock<T>& block, int curBlockSize);
+    void        assertForDiscontinuities (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples, juce::String dbgPrefix);
+    void        applyKillRamp (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples);
 
     PhatOscillators<T> oscillators;
 
     std::unique_ptr<juce::AudioBuffer<T>> overlap;
-    int overlapIndex = -1;
+    int                                   overlapIndex = -1;
     //TODO replace this currentlyKillingVoice bool with a check in the bitfield that voicesBeingKilled will become
-    bool currentlyKillingVoice = false;
+    bool           currentlyKillingVoice = false;
     std::set<int>* voicesBeingKilled;
 
     juce::dsp::ProcessorChain<juce::dsp::LadderFilter<T>, juce::dsp::Gain<T>> filterAndGainProcessorChain;
     //TODO: use a slider for this
     static constexpr auto envelopeAmount { 2 };
-    #if EFFECTS_PROCESSOR_PER_VOICE
-        EffectsProcessor<T> effectsProcessor;
-    #endif
+#if EFFECTS_PROCESSOR_PER_VOICE
+    EffectsProcessor<T> effectsProcessor;
+#endif
 
-    juce::ADSR ampADSR, filterADSR;
+    juce::ADSR             ampADSR, filterADSR;
     juce::ADSR::Parameters ampParams { Constants::defaultAmpA, Constants::defaultAmpD, Constants::defaultAmpS, Constants::defaultAmpR };
     juce::ADSR::Parameters filterEnvParams { ampParams };
     //TODO: should these be atomic??? Are they set on the audio thread??
@@ -169,8 +167,8 @@ private:
     T curFilterResonance { Constants::defaultFilterResonance };
 
     //lfo stuff
-    static constexpr auto lfoUpdateRate = 100;
-    int lfoUpdateCounter = lfoUpdateRate;
+    static constexpr auto    lfoUpdateRate    = 100;
+    int                      lfoUpdateCounter = lfoUpdateRate;
     juce::dsp::Oscillator<T> lfo;
 
     /** TODO RT: implement this pattern for all things that need to be try-locked. Can I abstract/wrap this into an object?
@@ -210,16 +208,16 @@ private:
     std::mutex lfoMutex;
 
     //TODO RT: I think this (and all similar parameters set in the UI and read in the audio thread) sould be atomic
-    T lfoAmount = static_cast<T> (Constants::defaultLfoAmount);
+    T       lfoAmount = static_cast<T> (Constants::defaultLfoAmount);
     LfoDest lfoDest;
 
     //for the random lfo
     juce::Random rng;
-    T randomValue = 0.f;
-    bool valueWasBig = false;
+    T            randomValue = 0.f;
+    bool         valueWasBig = false;
 
-    bool rampingUp = false;
-    int rampUpSamplesLeft = 0;
+    bool rampingUp         = false;
+    int  rampUpSamplesLeft = 0;
 
     T tiltCutoff { 0.f };
 
