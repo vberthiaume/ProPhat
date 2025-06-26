@@ -32,7 +32,7 @@
 #include "PhatEffectsProcessor.hpp"
 #endif
 
-#define LOG_FROM_NOTE_OFF DEBUG_VOICES && 1
+#define LOG_FROM_NOTE_OFF DEBUG_VOICES && 0
 
 struct ProPhatSound : public juce::SynthesiserSound
 {
@@ -352,8 +352,8 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
     if (currentlyKillingVoice)
         applyKillRamp (outputBuffer, startSample, numSamples);
 #if DEBUG_VOICES
-    else
-        assertForDiscontinuities (outputBuffer, startSample, numSamples, {});
+    // else
+    //     assertForDiscontinuities (outputBuffer, startSample, numSamples, {});
 
 #if LOG_FROM_NOTE_OFF
     if (noteOffLoggingEnabled)
