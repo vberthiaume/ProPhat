@@ -36,7 +36,7 @@
 
 struct ProPhatSound : public juce::SynthesiserSound
 {
-    bool appliesToNote    (int) override { return true; }
+    bool appliesToNote (int) override { return true; }
     bool appliesToChannel (int) override { return true; }
 };
 
@@ -228,14 +228,11 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
 
 template <std::floating_point T>
 ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet)
-: state (processorState)
-, voiceId (vId)
-, oscillators (state)
-, voicesBeingKilled (activeVoiceSet)
+: state (processorState), voiceId (vId), oscillators (state), voicesBeingKilled (activeVoiceSet)
 {
-    addParamListenersToState ();
+    addParamListenersToState();
 
-    filterAndGainProcessorChain.template get<(int)ProcessorId::masterGainIndex>().setGainLinear (static_cast<T> (Constants::defaultOscLevel));
+    filterAndGainProcessorChain.template get<(int) ProcessorId::masterGainIndex>().setGainLinear (static_cast<T> (Constants::defaultOscLevel));
 
     setFilterCutoffInternal (Constants::defaultFilterCutoff);
     setFilterResonanceInternal (Constants::defaultFilterResonance);
@@ -246,10 +243,10 @@ ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorStat
     lfo.setFrequency (Constants::defaultLfoFreq);
 }
 
-template<std::floating_point T>
+template <std::floating_point T>
 void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples)
 {
-    if (! currentlyKillingVoice && ! isVoiceActive ())
+    if (! currentlyKillingVoice && ! isVoiceActive())
         return;
 
     //reserve an audio block of size numSamples. Auvaltool has a tendency to _not_ call prepare before rendering
@@ -278,23 +275,23 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
         //once per buffer, just like the LFO -- see below.
         auto filterEnvelope { 0.f };
         {
-            const auto numChannels { oscBlock.getNumChannels () };
+            const auto numChannels { oscBlock.getNumChannels() };
             for (auto i = 0; i < subBlockSize; ++i)
             {
                 //TODO: we only need the last of these right, not sure this needs to be in this loop
                 //calculate and store filter envelope
-                filterEnvelope = filterADSR.getNextSample ();
+                filterEnvelope = filterADSR.getNextSample();
 
                 //TODO: if there's an efficient way to render the ampEnv here we could use SIMD for the multiplication below
                 //calculate and apply amp envelope
-                const auto ampEnv = ampADSR.getNextSample ();
+                const auto ampEnv = ampADSR.getNextSample();
                 for (size_t c = 0; c < numChannels; ++c)
                     oscBlock.getChannelPointer (c)[i] *= ampEnv;
             }
 
-            if (currentlyReleasingNote && ! ampADSR.isActive ())
+            if (currentlyReleasingNote && ! ampADSR.isActive())
             {
-                currentlyReleasingNote = false;
+                currentlyReleasingNote  = false;
                 justDoneReleaseEnvelope = true;
                 stopNote (0.f, false);
             }
@@ -338,7 +335,7 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
         if (lfoUpdateCounter == 0)
         {
             lfoUpdateCounter = lfoUpdateRate;
-            updateLfo ();
+            updateLfo();
         }
 
         //apply our filter envelope once per buffer
@@ -363,7 +360,7 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
     {
         int asdf = 4;
         for (int i = startSample; i < startSample + numSamples; ++i)
-            DBG (outputBuffer.getSample(0, i));
+            DBG (outputBuffer.getSample (0, i));
         ++asdf;
     }
 #endif
@@ -387,7 +384,7 @@ void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
     filterADSR.setSampleRate (spec.sampleRate);
     filterADSR.setParameters (filterEnvParams);
 
-    lfo.prepare ({spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels});
+    lfo.prepare ({ spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels });
 
 #if EFFECTS_PROCESSOR_PER_VOICE
     effectsProcessor.prepare (spec);
@@ -395,45 +392,44 @@ void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
 }
 
 template <std::floating_point T>
-void ProPhatVoice<T>::releaseResources ()
+void ProPhatVoice<T>::releaseResources()
 {
-
 }
 
 template <std::floating_point T>
-void ProPhatVoice<T>::addParamListenersToState ()
+void ProPhatVoice<T>::addParamListenersToState()
 {
     using namespace ProPhatParameterIds;
 
     //add our synth as listener to all parameters so we can do automations
-    state.addParameterListener (filterCutoffID.getParamID (), this);
-    state.addParameterListener (filterResonanceID.getParamID (), this);
-    state.addParameterListener (filterEnvAttackID.getParamID (), this);
-    state.addParameterListener (filterEnvDecayID.getParamID (), this);
-    state.addParameterListener (filterEnvSustainID.getParamID (), this);
-    state.addParameterListener (filterEnvReleaseID.getParamID (), this);
+    state.addParameterListener (filterCutoffID.getParamID(), this);
+    state.addParameterListener (filterResonanceID.getParamID(), this);
+    state.addParameterListener (filterEnvAttackID.getParamID(), this);
+    state.addParameterListener (filterEnvDecayID.getParamID(), this);
+    state.addParameterListener (filterEnvSustainID.getParamID(), this);
+    state.addParameterListener (filterEnvReleaseID.getParamID(), this);
 
-    state.addParameterListener (ampAttackID.getParamID (), this);
-    state.addParameterListener (ampDecayID.getParamID (), this);
-    state.addParameterListener (ampSustainID.getParamID (), this);
-    state.addParameterListener (ampReleaseID.getParamID (), this);
+    state.addParameterListener (ampAttackID.getParamID(), this);
+    state.addParameterListener (ampDecayID.getParamID(), this);
+    state.addParameterListener (ampSustainID.getParamID(), this);
+    state.addParameterListener (ampReleaseID.getParamID(), this);
 
-    state.addParameterListener (lfoShapeID.getParamID (), this);
-    state.addParameterListener (lfoDestID.getParamID (), this);
-    state.addParameterListener (lfoFreqID.getParamID (), this);
-    state.addParameterListener (lfoAmountID.getParamID (), this);
+    state.addParameterListener (lfoShapeID.getParamID(), this);
+    state.addParameterListener (lfoDestID.getParamID(), this);
+    state.addParameterListener (lfoFreqID.getParamID(), this);
+    state.addParameterListener (lfoAmountID.getParamID(), this);
 
 #if EFFECTS_PROCESSOR_PER_VOICE
-    state.addParameterListener (reverbParam1ID.getParamID (), this);
-    state.addParameterListener (reverbParam2ID.getParamID (), this);
+    state.addParameterListener (reverbParam1ID.getParamID(), this);
+    state.addParameterListener (reverbParam2ID.getParamID(), this);
 
-    state.addParameterListener (chorusParam1ID.getParamID (), this);
-    state.addParameterListener (chorusParam2ID.getParamID (), this);
+    state.addParameterListener (chorusParam1ID.getParamID(), this);
+    state.addParameterListener (chorusParam2ID.getParamID(), this);
 
-    state.addParameterListener (phaserParam1ID.getParamID (), this);
-    state.addParameterListener (phaserParam2ID.getParamID (), this);
+    state.addParameterListener (phaserParam1ID.getParamID(), this);
+    state.addParameterListener (phaserParam2ID.getParamID(), this);
 
-    state.addParameterListener (effectSelectedID.getParamID (), this);
+    state.addParameterListener (effectSelectedID.getParamID(), this);
 #endif
 }
 
@@ -445,22 +441,22 @@ void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float n
     //DBG ("ProPhatVoice::parameterChanged (" + parameterID + ", " + juce::String (newValue));
 
     //TODO RT: I _think_ it's fine to just set the envelopes directly but I should make sure it's true
-    if (parameterID == ampAttackID.getParamID ()
-        || parameterID == ampDecayID.getParamID ()
-        || parameterID == ampSustainID.getParamID ()
-        || parameterID == ampReleaseID.getParamID ())
+    if (parameterID == ampAttackID.getParamID()
+        || parameterID == ampDecayID.getParamID()
+        || parameterID == ampSustainID.getParamID()
+        || parameterID == ampReleaseID.getParamID())
         setAmpParam (parameterID, newValue);
 
-    else if (parameterID == filterEnvAttackID.getParamID ()
-             || parameterID == filterEnvDecayID.getParamID ()
-             || parameterID == filterEnvSustainID.getParamID ()
-             || parameterID == filterEnvReleaseID.getParamID ())
+    else if (parameterID == filterEnvAttackID.getParamID()
+             || parameterID == filterEnvDecayID.getParamID()
+             || parameterID == filterEnvSustainID.getParamID()
+             || parameterID == filterEnvReleaseID.getParamID())
         setFilterEnvParam (parameterID, newValue);
 
     //TODO RT: need to use try_locks for both of these
-    else if (parameterID == lfoShapeID.getParamID ())
+    else if (parameterID == lfoShapeID.getParamID())
         setLfoShape ((int) newValue);
-    else if (parameterID == lfoDestID.getParamID ())
+    else if (parameterID == lfoDestID.getParamID())
         setLfoDest ((int) newValue);
 
     //TODO RT: I think because all of these end up setting smoothed values, it's fine to set them directly
@@ -468,18 +464,18 @@ void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float n
         setLfoAmount (newValue);
     else if (parameterID == lfoFreqID.getParamID())
         setLfoFreq (newValue);
-    else if (parameterID == filterCutoffID.getParamID ())
+    else if (parameterID == filterCutoffID.getParamID())
         setFilterCutoff (newValue);
-    else if (parameterID == filterResonanceID.getParamID ())
+    else if (parameterID == filterResonanceID.getParamID())
         setFilterResonance (newValue);
 
 #if EFFECTS_PROCESSOR_PER_VOICE
-    else if (parameterID == reverbParam1ID.getParamID () || parameterID == reverbParam2ID.getParamID ()
-             || parameterID == chorusParam1ID.getParamID () || parameterID == chorusParam2ID.getParamID ()
-             || parameterID == phaserParam1ID.getParamID () || parameterID == phaserParam2ID.getParamID ())
+    else if (parameterID == reverbParam1ID.getParamID() || parameterID == reverbParam2ID.getParamID()
+             || parameterID == chorusParam1ID.getParamID() || parameterID == chorusParam2ID.getParamID()
+             || parameterID == phaserParam1ID.getParamID() || parameterID == phaserParam2ID.getParamID())
         effectsProcessor.setEffectParam (parameterID, newValue);
     //TODO: actually switch to the right effect lol using the newValue
-    else if (parameterID == effectSelectedID.getParamID ())
+    else if (parameterID == effectSelectedID.getParamID())
     {
         EffectType effect { EffectType::none };
         //TODO: switch?
@@ -495,7 +491,7 @@ void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float n
         else
             jassertfalse;
 
-        if (isVoiceActive ())
+        if (isVoiceActive())
             effectsProcessor.changeEffect (effect);
     }
 #endif
@@ -556,20 +552,22 @@ void ProPhatVoice<T>::setLfoShape (int shape)
         {
             //TODO RT: I should really have 4 lfos and just have an atomic curLfo pointer that I swap when I change LFOs
             std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([](T x) { return (std::sin (x) + 1) / 2; }, 128);
+            lfo.initialise ([] (T x)
+                            { return (std::sin (x) + 1) / 2; },
+                            128);
         }
-            break;
+        break;
 
         case LfoShape::saw:
         {
             std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([](T x)
+            lfo.initialise ([] (T x)
                             {
                 //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-                return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T { 0 }, T { 1 });
-            }, 2);
+                return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T { 0 }, T { 1 }); },
+                            2);
         }
-            break;
+        break;
 
             //TODO add this once we have more room in the UI for lfo destinations
             /*
@@ -587,20 +585,19 @@ void ProPhatVoice<T>::setLfoShape (int shape)
         case LfoShape::square:
         {
             std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([](T x)
+            lfo.initialise ([] (T x)
                             {
                 if (x < 0)
                     return T { 0 };
                 else
-                    return T { 1 };
-            });
+                    return T { 1 }; });
         }
-            break;
+        break;
 
         case LfoShape::randomLfo:
         {
             std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([this](T x)
+            lfo.initialise ([this] (T x)
                             {
                 if (x <= 0.f && valueWasBig)
                 {
@@ -613,10 +610,9 @@ void ProPhatVoice<T>::setLfoShape (int shape)
                     valueWasBig = true;
                 }
 
-                return randomValue;
-            });
+                return randomValue; });
         }
-            break;
+        break;
 
         default:
             jassertfalse;
@@ -667,7 +663,7 @@ void ProPhatVoice<T>::updateLfo()
             break;
 
         case LfoDest::filterCutOff:
-            lfoCutOffContributionHz  = juce::jmap (lfoOut, T (0), T (1), T (10), T (10000));
+            lfoCutOffContributionHz = juce::jmap (lfoOut, T (0), T (1), T (10), T (10000));
             break;
 
         case LfoDest::filterResonance:
@@ -700,7 +696,7 @@ void ProPhatVoice<T>::startNote (int midiNoteNumber, float velocity, juce::Synth
 
     oscillators.updateOscFrequencies (midiNoteNumber, velocity, currentPitchWheelPosition);
 
-    rampingUp = true;
+    rampingUp         = true;
     rampUpSamplesLeft = Constants::rampUpSamples;
 
     oscillators.updateOscLevels();
@@ -764,15 +760,15 @@ void ProPhatVoice<T>::processRampUp (juce::dsp::AudioBlock<T>& block, int curBlo
     const auto nextRampUpValue = static_cast<T> (prevRampUpValue + curRampUpLenght / Constants::rampUpSamples);
     const auto incr            = static_cast<T> ((nextRampUpValue - prevRampUpValue) / static_cast<T> (curRampUpLenght));
 
-    jassert (nextRampUpValue >= T(0) && nextRampUpValue <= T(1.0001));
+    jassert (nextRampUpValue >= T (0) && nextRampUpValue <= T (1.0001));
 
-    const auto numChannels {static_cast<int> (block.getNumChannels ())};
+    const auto numChannels { static_cast<int> (block.getNumChannels()) };
     for (int c = 0; c < numChannels; ++c)
     {
         for (int i = 0; i < curRampUpLenght; ++i)
         {
             const auto value = block.getSample (c, i);
-            const auto ramp = prevRampUpValue + static_cast<T> (i) * incr;
+            const auto ramp  = prevRampUpValue + static_cast<T> (i) * incr;
             block.setSample (c, i, value * ramp);
         }
     }
@@ -802,19 +798,19 @@ void ProPhatVoice<T>::processKillOverlap (juce::dsp::AudioBlock<T>& block, int c
 
     auto curSamples = juce::jmin (Constants::killRampSamples - overlapIndex, (int) curBlockSize);
 
-    const auto numChannels { static_cast<int> (block.getNumChannels ()) };
+    const auto numChannels { static_cast<int> (block.getNumChannels()) };
     for (int c = 0; c < numChannels; ++c)
     {
         for (int i = 0; i < curSamples; ++i)
         {
-            const T prev  { block.getSample (c, i)};
-            const T overl { overlap->getSample (c, overlapIndex + i)};
+            const T prev { block.getSample (c, i) };
+            const T overl { overlap->getSample (c, overlapIndex + i) };
 
 #if CLIP_OVERLAP
             //well lol, that won't work bro, that'll def induce clipping
             const T total { juce::jlimit (min, max, prev + overl) };
 #else
-            const T total {prev + overl};
+            const T total { prev + overl };
             jassert (total >= min && total <= max);
 #endif
 
@@ -856,16 +852,15 @@ void ProPhatVoice<T>::applyKillRamp (juce::AudioBuffer<T>& outputBuffer, int sta
 }
 
 template <std::floating_point T>
-void ProPhatVoice<T>::assertForDiscontinuities (juce::AudioBuffer<T>& outputBuffer, int startSample,
-                                                int numSamples, [[maybe_unused]]juce::String dbgPrefix)
+void ProPhatVoice<T>::assertForDiscontinuities (juce::AudioBuffer<T>& outputBuffer, int startSample, int numSamples, [[maybe_unused]] juce::String dbgPrefix)
 {
     if (startSample == outputBuffer.getNumSamples() - 1)
         return;
 
-    auto prev = outputBuffer.getSample (0, startSample);
+    auto prev     = outputBuffer.getSample (0, startSample);
     auto prevDiff = abs (outputBuffer.getSample (0, startSample + 1) - prev);
 
-    for (int c = 0; c < outputBuffer.getNumChannels (); ++c)
+    for (int c = 0; c < outputBuffer.getNumChannels(); ++c)
     {
         for (int i = startSample; i < startSample + numSamples; ++i)
         {
@@ -883,7 +878,7 @@ void ProPhatVoice<T>::assertForDiscontinuities (juce::AudioBuffer<T>& outputBuff
                 auto curDiff = abs (cur - prev);
                 jassert (curDiff - prevDiff < .2f);
 
-                prev = cur;
+                prev     = cur;
                 prevDiff = curDiff;
             }
         }
