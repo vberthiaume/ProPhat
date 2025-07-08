@@ -306,13 +306,13 @@ struct SelectedEffect : public Selection
 */
 struct SharedFonts final
 {
-    juce::Font regular { juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsMedium_ttf, BinaryData::PoppinsMedium_ttfSize) };
-    juce::Font thin    { juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsThin_ttf, BinaryData::PoppinsThin_ttfSize) };
-    juce::Font bold    { juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsBlack_ttf, BinaryData::PoppinsBlack_ttfSize) };
+    juce::FontOptions regular { juce::FontOptions (juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsMedium_ttf, BinaryData::PoppinsMedium_ttfSize)) };
+    juce::FontOptions thin { juce::FontOptions (juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsThin_ttf, BinaryData::PoppinsThin_ttfSize)) };
+    juce::FontOptions bold { juce::FontOptions (juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsBlack_ttf, BinaryData::PoppinsBlack_ttfSize)) };
 
-    juce::Font getRegularFont (float h) { return regular.withHeight (h); }
-    juce::Font getThinFont (float h)    { return thin.withHeight (h); }
-    juce::Font getBoldFont (float h)    { return bold.withHeight (h); }
+    [[nodiscard]] juce::Font getRegularFont (float h) const { return regular.withHeight (h); }
+    [[nodiscard]] juce::Font getThinFont (float h) const { return thin.withHeight (h); }
+    [[nodiscard]] juce::Font getBoldFont (float h) const { return bold.withHeight (h); }
 };
 
 //====================================================================================================

@@ -33,6 +33,7 @@
 #endif
 
 #define LOG_FROM_NOTE_OFF DEBUG_VOICES && 0
+#define CLIP_OVERLAP 0
 
 struct ProPhatSound : public juce::SynthesiserSound
 {
@@ -54,7 +55,7 @@ template <std::floating_point T>
 class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorValueTreeState::Listener
 {
   public:
-    ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int voiceId, std::set<int>* activeVoiceSet);
+    ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet);
 
     void addParamListenersToState();
     void parameterChanged (const juce::String& parameterID, float newValue) override;
@@ -783,8 +784,6 @@ void ProPhatVoice<T>::processRampUp (juce::dsp::AudioBlock<T>& block, int curBlo
 #endif
     }
 }
-
-#define CLIP_OVERLAP 0
 
 template <std::floating_point T>
 void ProPhatVoice<T>::processKillOverlap (juce::dsp::AudioBlock<T>& block, int curBlockSize)

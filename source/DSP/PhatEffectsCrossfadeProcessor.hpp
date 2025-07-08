@@ -99,8 +99,9 @@ class EffectsCrossfadeProcessor
                   const juce::AudioBuffer<T>& nextEffectBuffer,
                   juce::dsp::AudioBlock<T>    outputBlock)
     {
-        jassert (previousEffectBuffer.getNumChannels() == nextEffectBuffer.getNumChannels() && nextEffectBuffer.getNumChannels() == outputBlock.getNumChannels());
         //TODO VB: should probably assert that all buffers have at least numSamples?
+        jassert (previousEffectBuffer.getNumChannels() == nextEffectBuffer.getNumChannels());
+        jassert (static_cast<size_t> (nextEffectBuffer.getNumChannels()) == outputBlock.getNumChannels());
 
         const auto numChannels   = outputBlock.getNumChannels();
         const bool needToInverse = juce::approximatelyEqual (smoothedGainL.getTargetValue(), static_cast<T> (1));
