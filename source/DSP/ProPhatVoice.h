@@ -268,7 +268,7 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
         filterAndGainProcessorChain.process (oscContext);
 
 #if EFFECTS_PROCESSOR_PER_VOICE
-        effectsProcessor.process (oscBlock);
+        effectsProcessor.process (oscBlock, pos, subBlockSize);
 #endif
 
         //apply the envelopes. We calculate and apply the amp envelope on a sample basis,
@@ -299,32 +299,7 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
         }
 
         if (rampingUp)
-        {
-#if 0 //ENABLE_GAIN_LOGGING
-            DBG ("oscBlock after processRampUp");
-            for (int i = 0; i < subBlockSize; ++i)
-                DBG (oscBlock.getChannelPointer (0)[i]);
-            DBG ("done oscBlock after processRampUp");
-
-            DBG ("oscBlock after processRampUp FULL BUFFER");
-            for (int i = 0; i < numSamples; ++i)
-                DBG (oscBlock.getChannelPointer (0)[i]);
-            DBG ("done oscBlock after processRampUp");
-#endif
             processRampUp (oscBlock, (int) subBlockSize);
-
-#if 0 //ENABLE_GAIN_LOGGING
-            DBG ("oscBlock after processRampUp");
-            for (int i = 0; i < subBlockSize; ++i)
-                DBG (oscBlock.getChannelPointer (0)[i]);
-            DBG ("done oscBlock after processRampUp");
-
-            DBG ("oscBlock after processRampUp FULL BUFFER");
-            for (int i = 0; i < numSamples; ++i)
-                DBG (oscBlock.getChannelPointer (0)[i]);
-            DBG ("done oscBlock after processRampUp");
-#endif
-        }
 
         //for now this is only happening when we run out of voices
         //overlapIndex will be >= 0 if we're in the process of adding a kill overlap buffer to the oscBlock
