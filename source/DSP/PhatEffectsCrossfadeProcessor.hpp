@@ -94,11 +94,16 @@ class EffectsCrossfadeProcessor
     }
 #endif
 
+
     void process (const juce::AudioBuffer<T>& previousEffectBuffer,
                   const juce::AudioBuffer<T>& nextEffectBuffer,
-                  juce::AudioBuffer<T>&       outputBuffer,
-                  int                         startSample,
-                  int                         numSamples)
+#if EFFECTS_PROCESSOR_PER_VOICE
+                  juce::dsp::AudioBlock<T>& outputBuffer,
+#else
+                  juce::AudioBuffer<T>& outputBuffer,
+#endif
+                  int startSample,
+                  int numSamples)
     {
         jassert (previousEffectBuffer.getNumChannels() == nextEffectBuffer.getNumChannels() && nextEffectBuffer.getNumChannels() == outputBuffer.getNumChannels());
         //TODO VB: should probably assert that all buffers have at least numSamples?
@@ -111,7 +116,11 @@ class EffectsCrossfadeProcessor
         {
             const auto* prevData = previousEffectBuffer.getReadPointer (channel);
             const auto* nextData = nextEffectBuffer.getReadPointer (channel);
+#if EFFECTS_PROCESSOR_PER_VOICE
+            auto* outData = outputBuffer.getChannelPointer (channel);
+#else
             auto* outData = outputBuffer.getWritePointer (channel);
+#endif
 
             for (int sample = 0; sample < numSamples; ++sample)
             {

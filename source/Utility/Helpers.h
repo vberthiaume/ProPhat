@@ -68,10 +68,10 @@ constexpr float defaultEffectParam1     { 0.f };
 constexpr float defaultEffectParam2     { 0.f };
 
 //envelope stuff
-constexpr auto minAmp                   { .000001f };
+constexpr auto minEnvelopeValue         { .01f };
 
-constexpr auto defaultAmpA              { minAmp };
-constexpr auto defaultAmpD              { minAmp };
+constexpr auto defaultAmpA              { minEnvelopeValue };
+constexpr auto defaultAmpD              { minEnvelopeValue };
 constexpr auto defaultAmpS              { 1.f };
 constexpr auto defaultAmpR              { .25f };
 
@@ -80,10 +80,10 @@ constexpr auto ampSkewFactor            { .5f };
 constexpr auto cutOffSkewFactor         { .5f };
 constexpr auto slopSkewFactor           { .5f };
 
-const juce::NormalisableRange<float> attackRange        { minAmp, 25.f, 0.f, ampSkewFactor };
-const juce::NormalisableRange<float> decayRange         { minAmp, 25.f, 0.f, ampSkewFactor };
-const juce::NormalisableRange<float> sustainRange       { minAmp, 1.f,  0.f, sustainSkewFactor };
-const juce::NormalisableRange<float> releaseRange       { minAmp, 25.f, 0.f, ampSkewFactor };
+const juce::NormalisableRange<float> attackRange        { minEnvelopeValue, 25.f, 0.f, ampSkewFactor };
+const juce::NormalisableRange<float> decayRange         { minEnvelopeValue, 25.f, 0.f, ampSkewFactor };
+const juce::NormalisableRange<float> sustainRange       { minEnvelopeValue, 1.f,  0.f, sustainSkewFactor };
+const juce::NormalisableRange<float> releaseRange       { minEnvelopeValue, 25.f, 0.f, ampSkewFactor };
 
 const juce::NormalisableRange<float> dBRange            { -12.f, 12.f };
 const juce::NormalisableRange<float> sliderRange        { 0.f, 1.f };
