@@ -146,6 +146,7 @@ class EffectsProcessor
 void process (juce::dsp::AudioBlock<T>& buffer, int startSample, int numSamples)
 #else
 void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
+// void process (const juce::dsp::ProcessContextReplacing<T>& context)
 #endif
 {
 #if ENABLE_CLEAR_EFFECT
@@ -193,6 +194,7 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
         }
 #endif
 
+    //THE GLITCH HAS TO BE SOMEWHERE IN HERE
 #if ! BYPASS_EFFECTS_BUT_DO_CROSSFADE
         auto block1 { juce::dsp::AudioBlock<T> (fade_buffer1) };
         auto context1 { juce::dsp::ProcessContextReplacing<T> (block1) };
@@ -250,8 +252,7 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     else
     {
         //these 2 things seem to sound the same, I'm not too sure if the simpler second one is ok
-        //auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
-        auto audioBlock = juce::dsp::AudioBlock<T> (buffer);
+        auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
         auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
         if (currentEffectType == EffectType::verb)
