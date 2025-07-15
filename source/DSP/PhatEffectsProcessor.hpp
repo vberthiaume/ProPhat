@@ -251,7 +251,6 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     }
     else
     {
-        //these 2 things seem to sound the same, I'm not too sure if the simpler second one is ok
         auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
         auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
