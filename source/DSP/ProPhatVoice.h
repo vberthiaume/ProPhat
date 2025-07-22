@@ -767,8 +767,8 @@ void ProPhatVoice<T>::processKillOverlap (juce::dsp::AudioBlock<T>& block, int c
     DBG ("\tDEBUG ProPhatVoice::processKillOverlap() " + juce::String (overlapIndex));
 #endif
 
-    const T min { -1 };
-    const T max { 1 };
+    [[maybe_unused]] const T min { -1 };
+    [[maybe_unused]] const T max { 1 };
 
     auto curSamples = juce::jmin (Constants::killRampSamples - overlapIndex, (int) curBlockSize);
 

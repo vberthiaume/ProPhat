@@ -154,7 +154,8 @@ namespace ProPhatParameterLabels
 constexpr auto oscGroupDesc                 { "OSCILLATORS" };
 constexpr auto osc1ShapeDesc                { "SHAPE" };
 constexpr auto osc2ShapeDesc                { "SHAPE" };
-constexpr auto osc1FreqDesc                 { "OSC 1 FREQ" };
+// change this to see if you're building the right thing!
+constexpr auto osc1FreqDesc                 { "OSC 1 duge" };
 constexpr auto osc2FreqDesc                 { "OSC 2 FREQ" };
 constexpr auto osc1TuningDesc               { "FINE TUNE" };
 constexpr auto osc2TuningDesc               { "FINE TUNE" };

@@ -231,7 +231,7 @@ void ProPhatEditor::handleAsyncUpdate ()
         });
 }
 
-void ProPhatEditor::parameterChanged (const juce::String& theParameterID, float newValue)
+void ProPhatEditor::parameterChanged ([[maybe_unused]] const juce::String& theParameterID, float newValue)
 {
     jassert (theParameterID == effectSelectedID.getParamID());
 

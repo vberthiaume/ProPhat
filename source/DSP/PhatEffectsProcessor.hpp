@@ -30,7 +30,7 @@
 //but I don't think this changes anything for glitches
 #define ENABLE_CLEAR_EFFECT 1
 #define LOG_EVERYTHING_AFTER_TRANSITION 0
-#define BYPASS_EFFECTS_BUT_DO_CROSSFADE 0
+#define BYPASS_EFFECTS_BUT_DO_CROSSFADE 1
 
 template <std::floating_point T>
 class EffectsProcessor

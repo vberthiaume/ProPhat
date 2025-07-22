@@ -140,7 +140,7 @@ void ButtonGroupComponent::selectNext()
     setSelection (curSelection);
 }
 
-void ButtonGroupComponent::parameterChanged (const juce::String& theParameterID, float newValue)
+void ButtonGroupComponent::parameterChanged ([[maybe_unused]] const juce::String& theParameterID, float newValue)
 {
     jassert (parameterID == theParameterID);
 
