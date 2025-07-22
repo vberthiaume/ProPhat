@@ -135,9 +135,10 @@ class EffectsCrossfadeProcessor
                     jassertfalse;
                 curGain = needToInverse ? (1 - nextGain) : nextGain;
 
-                //cross fade prevData and nextData into outData. I guess any of these can be clipping
-                outData[startSample + sample] = prevData[sample] * curGain + nextData[sample] * (1 - curGain);
+                //I DON'T THINK THESE COMMENTED OUT /*startSample +*/ ARE THE SOLUTION BUT IT'S SOMETHING LIKE THIS, I think the samples are messed up
+                outData[startSample + sample] = prevData[/*startSample +*/ sample] * curGain + nextData[/*startSample +*/ sample] * (1 - curGain);
 
+                //NOW HERE i THINK i NEED TO LOG THE OUT, PREV AND NEXT DATA and the gain too why not.
 #if ENABLE_GAIN_LOGGING
                 if (channel == 0 && sample == 0 && debugLogEntry)
                     debugLogEntry->firstGain = static_cast<float> (outData[sample]);
