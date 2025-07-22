@@ -72,7 +72,7 @@ juce_add_plugin("${PROJECT_NAME}"
     AU_MAIN_TYPE kAudioUnitType_MusicDevice
 
     # On MacOS, plugin is copied to ~/Users/yourname/Library/Audio/Plug-Ins/
-    COPY_PLUGIN_AFTER_BUILD FALSE
+    COPY_PLUGIN_AFTER_BUILD TRUE
 
     # Change me!
     # A four-character plugin id
