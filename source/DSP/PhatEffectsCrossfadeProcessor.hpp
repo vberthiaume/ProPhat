@@ -4,6 +4,8 @@
 #include "../modules/DebugLog/Source/DebugLog.hpp"
 #include <sstream>
 
+#define LOG_EVERYTHING_DURING_CROSSFADE 0
+
 //changing this does NOT affect the perception of glitches at note-offs
 constexpr auto crossfadeDurationSeconds = .1;
 
@@ -104,6 +106,23 @@ class EffectsCrossfadeProcessor
         jassert (previousEffectBuffer.getNumSamples () >= nextEffectBuffer.getNumSamples ()
                  && nextEffectBuffer.getNumSamples () >= inputBlock.getNumSamples ());
 
+
+#if LOG_EVERYTHING_DURING_CROSSFADE
+        DBG ("prevData");
+        for (int i = 0; i < inputBlock.getNumSamples (); ++i)
+            DBG (previousEffectBuffer.getReadPointer (0)[i]);
+
+        //DBG ("nextData");
+        //for (int i = 0; i < inputBlock.getNumSamples (); ++i)
+        //    DBG (nextEffectBuffer.getReadPointer (0)[i]);
+
+        DBG ("context");
+        for (int i = 0; i < inputBlock.getNumSamples (); ++i)
+            DBG (context.getOutputBlock ().getChannelPointer (0)[i]);
+
+        DBG ("done");
+#endif
+
         const bool needToInverse = juce::approximatelyEqual (smoothedGainL.getTargetValue (), static_cast<T> (1));
 
         T curGain {};
@@ -128,7 +147,6 @@ class EffectsCrossfadeProcessor
 
                 outData[sample] = prevData[sample] * curGain + nextData[sample] * (1 - curGain);
 
-                //NOW HERE i THINK i NEED TO LOG THE OUT, PREV AND NEXT DATA and the gain too why not.
 #if ENABLE_GAIN_LOGGING
                 if (channel == 0 && sample == 0 && debugLogEntry)
                     debugLogEntry->firstGain = static_cast<float> (outData[sample]);

@@ -29,7 +29,7 @@
 //if I don't clear the effects, their buffers will still contain the last processed content
 //but I don't think this changes anything for glitches
 #define ENABLE_CLEAR_EFFECT 1
-#define LOG_EVERYTHING_AFTER_TRANSITION 0
+#define LOG_EVERYTHING_AFTER_TRANSITION 1
 #define BYPASS_EFFECTS_BUT_DO_CROSSFADE 0
 
 template <std::floating_point T>
@@ -148,6 +148,8 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
     needToClearEffect = true;
 #endif
 
+    const auto inputBlock { context.getInputBlock () };
+    const auto numSamples { static_cast<int> (inputBlock.getNumSamples ()) };
     //TODO: surround with trylock or something, although not here because we don't have a proper fallback
     const auto currentEffectType { effectCrossFader.getCurrentEffectType () };
 
@@ -172,8 +174,6 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
 #if ENABLE_GAIN_LOGGING
         effectCrossFader.setDebugLogEntry (&debugLogEntry);
 #endif
-        const auto inputBlock { context.getInputBlock () };
-        const auto numSamples { static_cast<int> (inputBlock.getNumSamples()) };
         jassert (fade_buffer1.getNumSamples() >= numSamples && fade_buffer2.getNumSamples() >= numSamples);
 
         //copy the OG buffer into the individual processor ones
@@ -292,7 +292,7 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
     {
         int asdf = 0;
         for (int i = 0; i < numSamples; ++i)
-            DBG (buffer.getReadPointer (0)[i]);
+            DBG (inputBlock.getChannelPointer (0)[i]);
         ++asdf;
     }
 #endif
