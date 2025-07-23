@@ -142,7 +142,7 @@ class EffectsProcessor
 #endif
     }
 
-void process (juce::dsp::ProcessContextReplacing<T>& context)
+void process (const juce::dsp::ProcessContextReplacing<T>& context)
 {
 #if ENABLE_CLEAR_EFFECT
     needToClearEffect = true;

@@ -94,9 +94,9 @@ class EffectsCrossfadeProcessor
     }
 #endif
 
-    void process (const juce::AudioBuffer<T>&            previousEffectBuffer,
-                  const juce::AudioBuffer<T>&            nextEffectBuffer,
-                  juce::dsp::ProcessContextReplacing<T>& context)
+    void process (const juce::AudioBuffer<T>&                  previousEffectBuffer,
+                  const juce::AudioBuffer<T>&                  nextEffectBuffer,
+                  const juce::dsp::ProcessContextReplacing<T>& context)
     {
         const auto inputBlock { context.getInputBlock() };
         jassert (previousEffectBuffer.getNumChannels() >= nextEffectBuffer.getNumChannels()
