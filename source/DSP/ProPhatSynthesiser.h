@@ -202,12 +202,13 @@ void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int
         voice->renderNextBlock (outputAudio, startSample, numSamples);
 
     auto audioBlock { juce::dsp::AudioBlock<T> (outputAudio).getSubBlock ((size_t) startSample, (size_t) numSamples) };
+    //TODO VB this used to be const, should it?
+    auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
 #if ! EFFECTS_PROCESSOR_PER_VOICE
     //TODO VB: this could even be the context below probably
-    effectsProcessor.process (audioBlock);
+    effectsProcessor.process (context);
 #endif
 
-    const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
     gainWrapper->process (context);
 }

@@ -94,25 +94,26 @@ class EffectsCrossfadeProcessor
     }
 #endif
 
-    void process (const juce::AudioBuffer<T>& previousEffectBuffer,
-                  const juce::AudioBuffer<T>& nextEffectBuffer,
-                  juce::dsp::AudioBlock<T>&   audioBlock)
+    void process (const juce::AudioBuffer<T>&            previousEffectBuffer,
+                  const juce::AudioBuffer<T>&            nextEffectBuffer,
+                  juce::dsp::ProcessContextReplacing<T>& context)
     {
+        const auto inputBlock { context.getInputBlock() };
         jassert (previousEffectBuffer.getNumChannels() >= nextEffectBuffer.getNumChannels()
-                 && nextEffectBuffer.getNumChannels() >= audioBlock.getNumChannels());
+                 && nextEffectBuffer.getNumChannels() >= inputBlock.getNumChannels());
         jassert (previousEffectBuffer.getNumSamples () >= nextEffectBuffer.getNumSamples ()
-                 && nextEffectBuffer.getNumSamples () >= audioBlock.getNumSamples ());
+                 && nextEffectBuffer.getNumSamples () >= inputBlock.getNumSamples ());
 
         const bool needToInverse = juce::approximatelyEqual (smoothedGainL.getTargetValue (), static_cast<T> (1));
 
         T curGain {};
-        for (int channel = 0; channel < audioBlock.getNumChannels (); ++channel)
+        for (int channel = 0; channel < inputBlock.getNumChannels (); ++channel)
         {
             const auto* prevData = previousEffectBuffer.getReadPointer (channel);
             const auto* nextData = nextEffectBuffer.getReadPointer (channel);
-            auto*       outData  = audioBlock.getChannelPointer (channel);
+            auto*       outData  = context.getOutputBlock().getChannelPointer (channel);
 
-            for (int sample = 0; sample < audioBlock.getNumSamples(); ++sample)
+            for (int sample = 0; sample < inputBlock.getNumSamples(); ++sample)
             {
                 //TODO VB: this could be an IIFE to get curGain
                 //figure out curGain value based on the current channel and whether we're running the smoothedGains in reverse

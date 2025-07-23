@@ -142,7 +142,7 @@ class EffectsProcessor
 #endif
     }
 
-void process (juce::dsp::AudioBlock<T>& audioBlock)
+void process (juce::dsp::ProcessContextReplacing<T>& context)
 {
 #if ENABLE_CLEAR_EFFECT
     needToClearEffect = true;
@@ -172,15 +172,16 @@ void process (juce::dsp::AudioBlock<T>& audioBlock)
 #if ENABLE_GAIN_LOGGING
         effectCrossFader.setDebugLogEntry (&debugLogEntry);
 #endif
-        const auto numSamples { static_cast<int> (audioBlock.getNumSamples()) };
+        const auto inputBlock { context.getInputBlock () };
+        const auto numSamples { static_cast<int> (inputBlock.getNumSamples()) };
         jassert (fade_buffer1.getNumSamples() >= numSamples && fade_buffer2.getNumSamples() >= numSamples);
 
         //copy the OG buffer into the individual processor ones
-        for (auto c = 0; c < audioBlock.getNumChannels (); ++c)
+        for (auto c = 0; c < inputBlock.getNumChannels (); ++c)
         {
             //TODO VB: look into copyFromWithRamp!!! we could probably use this to do the crossfade
-            fade_buffer1.copyFrom (c, 0, audioBlock.getChannelPointer (c), numSamples);
-            fade_buffer2.copyFrom (c, 0, audioBlock.getChannelPointer (c), numSamples);
+            fade_buffer1.copyFrom (c, 0, inputBlock.getChannelPointer (c), numSamples);
+            fade_buffer2.copyFrom (c, 0, inputBlock.getChannelPointer (c), numSamples);
         }
 
     //THE GLITCH HAS TO BE SOMEWHERE IN HERE
@@ -236,12 +237,10 @@ void process (juce::dsp::AudioBlock<T>& audioBlock)
         }
 #endif
         //crossfade the 2 effects
-        effectCrossFader.process (fade_buffer1, fade_buffer2, audioBlock);
+        effectCrossFader.process (fade_buffer1, fade_buffer2, context);
     }
     else
     {
-        auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
-
         if (currentEffectType == EffectType::verb)
         {
 #if ! BYPASS_EFFECTS_BUT_DO_CROSSFADE
