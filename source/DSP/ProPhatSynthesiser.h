@@ -201,14 +201,13 @@ void ProPhatSynthesiser<T>::renderVoices (juce::AudioBuffer<T>& outputAudio, int
     for (auto* voice : voices)
         voice->renderNextBlock (outputAudio, startSample, numSamples);
 
-#if ! EFFECTS_PROCESSOR_PER_VOICE
-    //TODO: this converts the arguments internally to a context, exactly like below, so might as well use that directly as params
-    //NO (audible) GLITCH if I comment this out
+    auto audioBlock { juce::dsp::AudioBlock<T> (outputAudio).getSubBlock ((size_t) startSample, (size_t) numSamples) };
 
-    effectsProcessor.process (outputAudio, startSample, numSamples);
+#if ! EFFECTS_PROCESSOR_PER_VOICE
+    //TODO VB: this could even be the context below probably
+    effectsProcessor.process (audioBlock);
 #endif
 
-    auto       audioBlock { juce::dsp::AudioBlock<T> (outputAudio).getSubBlock ((size_t) startSample, (size_t) numSamples) };
     const auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
     gainWrapper->process (context);
 }

@@ -142,12 +142,7 @@ class EffectsProcessor
 #endif
     }
 
-#if EFFECTS_PROCESSOR_PER_VOICE
-void process (juce::dsp::AudioBlock<T>& buffer, int startSample, int numSamples)
-#else
-void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
-// void process (const juce::dsp::ProcessContextReplacing<T>& context)
-#endif
+void process (juce::dsp::AudioBlock<T>& audioBlock)
 {
 #if ENABLE_CLEAR_EFFECT
     needToClearEffect = true;
@@ -177,22 +172,16 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
 #if ENABLE_GAIN_LOGGING
         effectCrossFader.setDebugLogEntry (&debugLogEntry);
 #endif
+        const auto numSamples { static_cast<int> (audioBlock.getNumSamples()) };
+        jassert (fade_buffer1.getNumSamples() >= numSamples && fade_buffer2.getNumSamples() >= numSamples);
 
-#if EFFECTS_PROCESSOR_PER_VOICE
         //copy the OG buffer into the individual processor ones
-        for (auto c = 0; c < buffer.getNumChannels (); ++c)
+        for (auto c = 0; c < audioBlock.getNumChannels (); ++c)
         {
-            fade_buffer1.copyFrom (c, 0, buffer.getChannelPointer (c) + startSample, numSamples);
-            fade_buffer2.copyFrom (c, 0, buffer.getChannelPointer (c) + startSample, numSamples);
+            //TODO VB: look into copyFromWithRamp!!! we could probably use this to do the crossfade
+            fade_buffer1.copyFrom (c, 0, audioBlock.getChannelPointer (c), numSamples);
+            fade_buffer2.copyFrom (c, 0, audioBlock.getChannelPointer (c), numSamples);
         }
-#else
-        //copy the OG buffer into the individual processor ones
-        for (auto c = 0; c < buffer.getNumChannels (); ++c)
-        {
-            fade_buffer1.copyFrom (c, 0, buffer, c, startSample, numSamples);
-            fade_buffer2.copyFrom (c, 0, buffer, c, startSample, numSamples);
-        }
-#endif
 
     //THE GLITCH HAS TO BE SOMEWHERE IN HERE
 #if ! BYPASS_EFFECTS_BUT_DO_CROSSFADE
@@ -247,11 +236,10 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
         }
 #endif
         //crossfade the 2 effects
-        effectCrossFader.process (fade_buffer1, fade_buffer2, buffer, startSample, numSamples);
+        effectCrossFader.process (fade_buffer1, fade_buffer2, audioBlock);
     }
     else
     {
-        auto audioBlock { juce::dsp::AudioBlock<T> (buffer).getSubBlock ((size_t) startSample, (size_t) numSamples) };
         auto context { juce::dsp::ProcessContextReplacing<T> (audioBlock) };
 
         if (currentEffectType == EffectType::verb)
@@ -315,7 +303,6 @@ void process (juce::AudioBuffer<T>& buffer, int startSample, int numSamples)
     m_pLogDebug->logHead = (m_pLogDebug->logHead + 1) & (kMaxDebugEntries - 1);
 #endif
 }
-
 
   private:
 #if ENABLE_CLEAR_EFFECT

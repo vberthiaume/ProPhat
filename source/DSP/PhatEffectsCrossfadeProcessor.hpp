@@ -94,35 +94,25 @@ class EffectsCrossfadeProcessor
     }
 #endif
 
-
     void process (const juce::AudioBuffer<T>& previousEffectBuffer,
                   const juce::AudioBuffer<T>& nextEffectBuffer,
-#if EFFECTS_PROCESSOR_PER_VOICE
-                  juce::dsp::AudioBlock<T>& outputBuffer,
-#else
-                  juce::AudioBuffer<T>& outputBuffer,
-#endif
-                  int startSample,
-                  int numSamples)
+                  juce::dsp::AudioBlock<T>&   audioBlock)
     {
-        jassert (previousEffectBuffer.getNumChannels() == nextEffectBuffer.getNumChannels() && nextEffectBuffer.getNumChannels() == outputBuffer.getNumChannels());
-        //TODO VB: should probably assert that all buffers have at least numSamples?
+        jassert (previousEffectBuffer.getNumChannels() >= nextEffectBuffer.getNumChannels()
+                 && nextEffectBuffer.getNumChannels() >= audioBlock.getNumChannels());
+        jassert (previousEffectBuffer.getNumSamples () >= nextEffectBuffer.getNumSamples ()
+                 && nextEffectBuffer.getNumSamples () >= audioBlock.getNumSamples ());
 
-        const auto numChannels = outputBuffer.getNumChannels ();
         const bool needToInverse = juce::approximatelyEqual (smoothedGainL.getTargetValue (), static_cast<T> (1));
 
         T curGain {};
-        for (int channel = 0; channel < numChannels; ++channel)
+        for (int channel = 0; channel < audioBlock.getNumChannels (); ++channel)
         {
             const auto* prevData = previousEffectBuffer.getReadPointer (channel);
             const auto* nextData = nextEffectBuffer.getReadPointer (channel);
-#if EFFECTS_PROCESSOR_PER_VOICE
-            auto* outData = outputBuffer.getChannelPointer (channel);
-#else
-            auto* outData = outputBuffer.getWritePointer (channel);
-#endif
+            auto*       outData  = audioBlock.getChannelPointer (channel);
 
-            for (int sample = 0; sample < numSamples; ++sample)
+            for (int sample = 0; sample < audioBlock.getNumSamples(); ++sample)
             {
                 //TODO VB: this could be an IIFE to get curGain
                 //figure out curGain value based on the current channel and whether we're running the smoothedGains in reverse
@@ -135,8 +125,7 @@ class EffectsCrossfadeProcessor
                     jassertfalse;
                 curGain = needToInverse ? (1 - nextGain) : nextGain;
 
-                //I DON'T THINK THESE COMMENTED OUT /*startSample +*/ ARE THE SOLUTION BUT IT'S SOMETHING LIKE THIS, I think the samples are messed up
-                outData[startSample + sample] = prevData[/*startSample +*/ sample] * curGain + nextData[/*startSample +*/ sample] * (1 - curGain);
+                outData[sample] = prevData[sample] * curGain + nextData[sample] * (1 - curGain);
 
                 //NOW HERE i THINK i NEED TO LOG THE OUT, PREV AND NEXT DATA and the gain too why not.
 #if ENABLE_GAIN_LOGGING
