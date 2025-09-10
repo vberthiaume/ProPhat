@@ -4,8 +4,6 @@
 #include "../modules/DebugLog/Source/DebugLog.hpp"
 #include <sstream>
 
-#define LOG_EVERYTHING_DURING_CROSSFADE 0
-
 constexpr auto crossfadeDurationSeconds = .1;
 
 enum class EffectType
@@ -103,23 +101,6 @@ class EffectsCrossfadeProcessor
                  && nextEffectBuffer.getNumChannels() >= inputBlock.getNumChannels());
         jassert (previousEffectBuffer.getNumSamples () >= nextEffectBuffer.getNumSamples ()
                  && nextEffectBuffer.getNumSamples () >= inputBlock.getNumSamples ());
-
-
-#if LOG_EVERYTHING_DURING_CROSSFADE
-        DBG ("prevData");
-        for (int i = 0; i < inputBlock.getNumSamples (); ++i)
-            DBG (previousEffectBuffer.getReadPointer (0)[i]);
-
-        //DBG ("nextData");
-        //for (int i = 0; i < inputBlock.getNumSamples (); ++i)
-        //    DBG (nextEffectBuffer.getReadPointer (0)[i]);
-
-        DBG ("context");
-        for (int i = 0; i < inputBlock.getNumSamples (); ++i)
-            DBG (context.getOutputBlock ().getChannelPointer (0)[i]);
-
-        DBG ("done");
-#endif
 
         const bool needToInverse = juce::approximatelyEqual (smoothedGainL.getTargetValue (), static_cast<T> (1));
 

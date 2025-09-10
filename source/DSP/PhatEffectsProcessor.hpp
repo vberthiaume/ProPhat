@@ -183,7 +183,6 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
             fade_buffer2.copyFrom (c, 0, inputBlock.getChannelPointer (c), numSamples);
         }
 
-    //THE GLITCH HAS TO BE SOMEWHERE IN HERE
         auto block1 { juce::dsp::AudioBlock<T> (fade_buffer1).getSubBlock ((size_t) 0, (size_t) numSamples) };
         auto context1 { juce::dsp::ProcessContextReplacing<T> (block1) };
 
