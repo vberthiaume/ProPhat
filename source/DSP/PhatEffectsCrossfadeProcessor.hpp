@@ -6,7 +6,6 @@
 
 #define LOG_EVERYTHING_DURING_CROSSFADE 0
 
-//changing this does NOT affect the perception of glitches at note-offs
 constexpr auto crossfadeDurationSeconds = .1;
 
 enum class EffectType
@@ -50,7 +49,6 @@ class EffectsCrossfadeProcessor
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
         jassert (spec.numChannels == 2);
-        //changing this creates a long tail but still an initial glitch
         smoothedGainL.reset (spec.sampleRate, static_cast<T> (crossfadeDurationSeconds));
         smoothedGainR.reset (spec.sampleRate, static_cast<T> (crossfadeDurationSeconds));
 

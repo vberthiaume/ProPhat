@@ -30,7 +30,6 @@
 //but I don't think this changes anything for glitches
 #define ENABLE_CLEAR_EFFECT 1
 #define LOG_EVERYTHING_AFTER_TRANSITION 0
-#define BYPASS_EFFECTS_BUT_DO_CROSSFADE 0
 
 template <std::floating_point T>
 class EffectsProcessor
@@ -185,7 +184,6 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
         }
 
     //THE GLITCH HAS TO BE SOMEWHERE IN HERE
-#if ! BYPASS_EFFECTS_BUT_DO_CROSSFADE
         auto block1 { juce::dsp::AudioBlock<T> (fade_buffer1).getSubBlock ((size_t) 0, (size_t) numSamples) };
         auto context1 { juce::dsp::ProcessContextReplacing<T> (block1) };
 
@@ -235,7 +233,6 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
             jassertfalse;
             break;
         }
-#endif
         //crossfade the 2 effects
         effectCrossFader.process (fade_buffer1, fade_buffer2, context);
     }
@@ -243,9 +240,7 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
     {
         if (currentEffectType == EffectType::verb)
         {
-#if ! BYPASS_EFFECTS_BUT_DO_CROSSFADE
             verbWrapper->process (context);
-#endif
 #if ENABLE_CLEAR_EFFECT
             if (needToClearEffect)
             {
@@ -257,9 +252,7 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
         }
         else if (currentEffectType == EffectType::chorus)
         {
-#if ! BYPASS_EFFECTS_BUT_DO_CROSSFADE
             chorusWrapper->process (context);
-#endif
 #if ENABLE_CLEAR_EFFECT
             if (needToClearEffect)
             {
@@ -271,9 +264,7 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
         }
         else if (currentEffectType == EffectType::phaser)
         {
-#if ! BYPASS_EFFECTS_BUT_DO_CROSSFADE
             phaserWrapper->process (context);
-#endif
 #if ENABLE_CLEAR_EFFECT
             if (needToClearEffect)
             {
