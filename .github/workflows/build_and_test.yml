@@ -81,6 +81,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           echo "ASIO_SDK_DIR=${{ github.workspace }}/asiosdk_2.3.3_2019-06-14" >> $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=${{ github.workspace }}/asiosdk_2.3.3_2019-06-14" >> $GITHUB_ENV
 
       - name: Cache IPP (Windows)
         if: runner.os == 'Windows'
@@ -135,7 +136,12 @@ jobs:
       #     p12-password: ${{ secrets.DEV_ID_APP_PASSWORD }}
 
       - name: Configure
-        run: cmake -B ${{ env.BUILD_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ${{ matrix.extra-flags }} .
+        run: |
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            cmake -B ${{ env.BUILD_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DJUCE_ASIO_DIR="${{ env.ASIO_SDK_DIR }}" ${{ matrix.extra-flags }} .
+          else
+            cmake -B ${{ env.BUILD_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ${{ matrix.extra-flags }} .
+          fi
 
       - name: Build
         run: cmake --build ${{ env.BUILD_DIR }} --config ${{ env.BUILD_TYPE }}
@@ -160,22 +166,22 @@ jobs:
           echo "STANDALONE_PATH=$ARTIFACTS_PATH/Standalone/${{ env.PRODUCT_NAME }}.app" >> $GITHUB_ENV
           echo "ARTIFACT_NAME=${{ env.PRODUCT_NAME }}-${{ env.VERSION }}-${{ matrix.name }}" >> $GITHUB_ENV
 
-# TODO VB: this is still causing issues
-#      - name: Pluginval
-#        run: |
-#          curl -LO "https://github.com/Tracktion/pluginval/releases/download/v1.0.3/pluginval_${{ matrix.name }}.zip"
-#          7z x pluginval_${{ matrix.name }}.zip
-#          ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate "${{ env.VST3_PATH }}"
+      # TODO VB: this is still causing issues
+      #      - name: Pluginval
+      #        run: |
+      #          curl -LO "https://github.com/Tracktion/pluginval/releases/download/v1.0.3/pluginval_${{ matrix.name }}.zip"
+      #          7z x pluginval_${{ matrix.name }}.zip
+      #          ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate "${{ env.VST3_PATH }}"
 
-#      - name: Import Certificates (macOS)
-#        uses: sudara/basic-macos-keychain-action@v1
-#        id: keychain
-#        if: ${{ matrix.name == 'macOS'}}
-#        with:
-#          dev-id-app-cert: ${{ secrets.DEV_ID_APP_CERT }}
-#          dev-id-app-password: ${{ secrets.DEV_ID_APP_PASSWORD }}
-#          dev-id-installer-cert: ${{ secrets.DEV_ID_INSTALLER_CERT }}
-#          dev-id-installer-password: ${{ secrets.DEV_ID_INSTALLER_PASSWORD }}
+      #      - name: Import Certificates (macOS)
+      #        uses: sudara/basic-macos-keychain-action@v1
+      #        id: keychain
+      #        if: ${{ matrix.name == 'macOS'}}
+      #        with:
+      #          dev-id-app-cert: ${{ secrets.DEV_ID_APP_CERT }}
+      #          dev-id-app-password: ${{ secrets.DEV_ID_APP_PASSWORD }}
+      #          dev-id-installer-cert: ${{ secrets.DEV_ID_INSTALLER_CERT }}
+      #          dev-id-installer-password: ${{ secrets.DEV_ID_INSTALLER_PASSWORD }}
 
       # - name: Codesign (macOS)
       #   if: ${{ matrix.name == 'macOS' }}
@@ -203,25 +209,25 @@ jobs:
           SetFile -a C "${{ env.AU_PATH }}"
           SetFile -a C "${{ env.CLAP_PATH }}"
 
-#      - name: pkgbuild, Productbuild and Notarize
-#        if: ${{ matrix.name == 'macOS' }}
-#        timeout-minutes: 5
-#        run: |
-#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.au.pkg" --version $VERSION --component "${{ env.AU_PATH }}" --install-location "/Library/Audio/Plug-Ins/Components"  "packaging/${{ env.PRODUCT_NAME }}.au.pkg"
-#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.vst3.pkg" --version $VERSION --component "${{ env.VST3_PATH }}" --install-location "/Library/Audio/Plug-Ins/VST3" "packaging/${{ env.PRODUCT_NAME }}.vst3.pkg"
-#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.clap.pkg" --version $VERSION --component "${{ env.CLAP_PATH }}" --install-location "/Library/Audio/Plug-Ins/CLAP" "packaging/${{ env.PRODUCT_NAME }}.clap.pkg"
-#
-#          # Standalone is special, needs a boolean to always install in /Applications
-#          pkgbuild --analyze --root "$(dirname "${{ env.STANDALONE_PATH }}")" standalone.plist
-#          plutil -replace BundleIsRelocatable -bool NO standalone.plist
-#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.app.pkg" --version $VERSION --root "$(dirname "${{ env.STANDALONE_PATH }}")" --component-plist standalone.plist --install-location "/Applications" "packaging/${{ env.PRODUCT_NAME }}.app.pkg"
-#
-#          cd packaging
-#          envsubst < distribution.xml.template > distribution.xml
-#          productbuild --resources ./resources --distribution distribution.xml --sign "${{ secrets.DEVELOPER_ID_INSTALLER }}" --timestamp "${{ env.ARTIFACT_NAME }}.pkg"
-#
-#          # xcrun notarytool submit "${{ env.ARTIFACT_NAME }}.pkg" --apple-id ${{ secrets.NOTARIZATION_USERNAME }} --password ${{ secrets.NOTARIZATION_PASSWORD }} --team-id ${{ secrets.TEAM_ID }} --wait
-#          # xcrun stapler staple "${{ env.ARTIFACT_NAME }}.pkg"
+      #      - name: pkgbuild, Productbuild and Notarize
+      #        if: ${{ matrix.name == 'macOS' }}
+      #        timeout-minutes: 5
+      #        run: |
+      #          pkgbuild --identifier "${{ env.BUNDLE_ID }}.au.pkg" --version $VERSION --component "${{ env.AU_PATH }}" --install-location "/Library/Audio/Plug-Ins/Components"  "packaging/${{ env.PRODUCT_NAME }}.au.pkg"
+      #          pkgbuild --identifier "${{ env.BUNDLE_ID }}.vst3.pkg" --version $VERSION --component "${{ env.VST3_PATH }}" --install-location "/Library/Audio/Plug-Ins/VST3" "packaging/${{ env.PRODUCT_NAME }}.vst3.pkg"
+      #          pkgbuild --identifier "${{ env.BUNDLE_ID }}.clap.pkg" --version $VERSION --component "${{ env.CLAP_PATH }}" --install-location "/Library/Audio/Plug-Ins/CLAP" "packaging/${{ env.PRODUCT_NAME }}.clap.pkg"
+      #
+      #          # Standalone is special, needs a boolean to always install in /Applications
+      #          pkgbuild --analyze --root "$(dirname "${{ env.STANDALONE_PATH }}")" standalone.plist
+      #          plutil -replace BundleIsRelocatable -bool NO standalone.plist
+      #          pkgbuild --identifier "${{ env.BUNDLE_ID }}.app.pkg" --version $VERSION --root "$(dirname "${{ env.STANDALONE_PATH }}")" --component-plist standalone.plist --install-location "/Applications" "packaging/${{ env.PRODUCT_NAME }}.app.pkg"
+      #
+      #          cd packaging
+      #          envsubst < distribution.xml.template > distribution.xml
+      #          productbuild --resources ./resources --distribution distribution.xml --sign "${{ secrets.DEVELOPER_ID_INSTALLER }}" --timestamp "${{ env.ARTIFACT_NAME }}.pkg"
+      #
+      #          # xcrun notarytool submit "${{ env.ARTIFACT_NAME }}.pkg" --apple-id ${{ secrets.NOTARIZATION_USERNAME }} --password ${{ secrets.NOTARIZATION_PASSWORD }} --team-id ${{ secrets.TEAM_ID }} --wait
+      #          # xcrun stapler staple "${{ env.ARTIFACT_NAME }}.pkg"
 
       - name: Zip
         if: ${{ matrix.name == 'Linux' }}
