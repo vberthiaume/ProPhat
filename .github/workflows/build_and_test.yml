@@ -83,7 +83,7 @@ jobs:
 
       - name: Ls bro
         if: runner.os == 'Windows'
-        run: ls -R
+        run: ls -R "D:/a/ProPhat/ProPhat/asiosdk_2.3.3_2019-06-14"
 
       - name: Set ASIO SDK Path (Windows)
         if: runner.os == 'Windows'
