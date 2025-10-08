@@ -75,7 +75,7 @@ jobs:
         if: runner.os == 'Windows' && steps.cache-asio.outputs.cache-hit != 'true'
         run: |
           curl -L -o asiosdk.zip https://www.steinberg.net/asiosdk
-          7z x asiosdk.zip -o${{ github.workspace }}
+          7z x asiosdk.zip
 
       - name: Ls bro
         if: runner.os == 'Windows'
