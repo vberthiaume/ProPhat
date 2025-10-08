@@ -77,6 +77,10 @@ jobs:
           curl -L -o asiosdk.zip https://www.steinberg.net/asiosdk
           7z x asiosdk.zip
 
+      - name: pwd bro
+        if: runner.os == 'Windows'
+        run: pwd
+
       - name: Ls bro
         if: runner.os == 'Windows'
         run: ls -R
