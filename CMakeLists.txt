@@ -119,7 +119,22 @@ include(XcodePrettify)
 
 if(WIN32)
     set(JUCE_ASIO ON CACHE BOOL "Enable ASIO support" FORCE)
-    set(ASIOSDK_DIR "C:/SDKs/asiosdk_2.3.3_2019-06-14" CACHE PATH "Path to ASIO SDK")
+
+    # Use environment variable if set, otherwise fall back to default path
+    if(DEFINED ENV{ASIO_SDK_PATH})
+        set(ASIOSDK_DIR "$ENV{ASIO_SDK_PATH}" CACHE PATH "Path to ASIO SDK" FORCE)
+        message(STATUS "Using ASIO SDK from environment: $ENV{ASIO_SDK_PATH}")
+    elseif(NOT ASIOSDK_DIR)
+        set(ASIOSDK_DIR "C:/SDKs/asiosdk_2.3.3_2019-06-14" CACHE PATH "Path to ASIO SDK")
+        message(STATUS "Using default ASIO SDK path: ${ASIOSDK_DIR}")
+    endif()
+
+    # Verify the path exists
+    if(EXISTS "${ASIOSDK_DIR}/common/iasiodrv.h")
+        message(STATUS "ASIO SDK found at: ${ASIOSDK_DIR}")
+    else()
+        message(WARNING "ASIO SDK not found at: ${ASIOSDK_DIR}")
+    endif()
 endif()
 
 # This is where you can set preprocessor definitions for JUCE and your plugin
