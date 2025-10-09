@@ -140,7 +140,7 @@ jobs:
       - name: Configure
         run: cmake -B ${{ env.BUILD_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ${{ matrix.extra-flags }} .
         env:
-          ASIO_SDK_PATH: ${{ runner.os == 'Windows' && format('{0}/asiosdk_2.3.3_2019-06-14', github.workspace) || '' }}
+          ASIO_SDK_PATH: ${{ runner.os == 'Windows' && format('{0}\asiosdk_2.3.3_2019-06-14', github.workspace) || '' }}
       
       - name: echo bro
         run: echo $ASIO_SDK_PATH
