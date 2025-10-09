@@ -69,7 +69,7 @@ jobs:
         uses: actions/cache@v4
         with:
           key: asio-sdk-2.3.3
-          path: ${{ github.workspace }}/asiosdk_2.3.3_2019-06-14
+          path: ${{ github.workspace }}/asiosdk_2.3.3_2019-06-14/common/
 
       - name: Download and Extract ASIO SDK (Windows)
         if: runner.os == 'Windows' && steps.cache-asio.outputs.cache-hit != 'true'
@@ -132,7 +132,7 @@ jobs:
       - name: Configure
         run: cmake -B ${{ env.BUILD_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ${{ matrix.extra-flags }} .
         env:
-          ASIO_SDK_PATH: ${{ runner.os == 'Windows' && format('{0}/asiosdk_2.3.3_2019-06-14', github.workspace) || '' }}
+          ASIO_SDK_PATH: ${{ runner.os == 'Windows' && format('{0}/asiosdk_2.3.3_2019-06-14/common/', github.workspace) || '' }}
 
       - name: Build
         run: cmake --build ${{ env.BUILD_DIR }} --config ${{ env.BUILD_TYPE }}
