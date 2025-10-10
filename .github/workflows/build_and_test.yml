@@ -225,6 +225,10 @@ jobs:
         working-directory: ${{ env.ARTIFACTS_PATH }}
         run: 7z a -tzip "${{ env.ARTIFACT_NAME }}.zip" "-xr!lib${{ env.PRODUCT_NAME }}_SharedCode.a" .
 
+      - name: Install Inno Setup (Windows)
+        if: ${{ matrix.name == 'Windows' }}
+        run: choco install innosetup -y
+
       - name: Generate Installer
         if: ${{ matrix.name == 'Windows' }}
         run: |
