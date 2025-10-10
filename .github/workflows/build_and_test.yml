@@ -129,28 +129,17 @@ jobs:
       #     p12-file-base64: ${{ secrets.DEV_ID_APP_CERT }}
       #     p12-password: ${{ secrets.DEV_ID_APP_PASSWORD }}
 
-      - name: Debug ASIO SDK Path (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          echo "Workspace: ${{ github.workspace }}"
-          echo "ASIO path would be: ${{ github.workspace }}\asiosdk_2.3.3_2019-06-14"
-          ls -la "${{ github.workspace }}"
-          ls -la "${{ github.workspace }}\asiosdk_2.3.3_2019-06-14\common"
-
       - name: Configure
         run: cmake -B ${{ env.BUILD_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ${{ matrix.extra-flags }} .
         env:
           ASIO_SDK_PATH: ${{ runner.os == 'Windows' && format('{0}\asiosdk_2.3.3_2019-06-14', github.workspace) || '' }}
-
-      - name: echo bro
-        run: echo $ASIO_SDK_PATH
 
       - name: Build
         run: cmake --build ${{ env.BUILD_DIR }} --config ${{ env.BUILD_TYPE }}
 
       - name: Test & Benchmarks
         working-directory: ${{ env.BUILD_DIR }}
-        run: ctest --verbose --output-on-failure
+        run: ctest --output-on-failure --verbose -C ${{ env.BUILD_TYPE }}
 
       - name: Read in .env from CMake # see GitHubENV.cmake
         run: |
