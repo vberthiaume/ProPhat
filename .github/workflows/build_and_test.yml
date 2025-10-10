@@ -142,7 +142,8 @@ jobs:
         run: |
           echo "Workspace: ${{ github.workspace }}"
           echo "ASIO path would be: ${{ github.workspace }}\asiosdk_2.3.3_2019-06-14"
-          ls -la "${{ github.workspace }}/asiosdk_2.3.3_2019-06-14/common"
+          ls -la "${{ github.workspace }}"
+          ls -la "${{ github.workspace }}\asiosdk_2.3.3_2019-06-14\common"
 
       - name: Configure
         run: cmake -B ${{ env.BUILD_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ${{ matrix.extra-flags }} .
