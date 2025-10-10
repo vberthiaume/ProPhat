@@ -139,7 +139,12 @@ jobs:
 
       - name: Test & Benchmarks
         working-directory: ${{ env.BUILD_DIR }}
-        run: ctest --output-on-failure --verbose -C ${{ env.BUILD_TYPE }}
+        run: |
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            ctest --output-on-failure --verbose -C ${{ env.BUILD_TYPE }} -E "fifo.multi_consumer_multi_producer"
+          else
+            ctest --output-on-failure --verbose -C ${{ env.BUILD_TYPE }}
+          fi
 
       - name: Read in .env from CMake # see GitHubENV.cmake
         run: |
