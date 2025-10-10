@@ -63,28 +63,6 @@ jobs:
           sudo apt-get update && sudo apt install libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev xvfb ninja-build
           sudo /usr/bin/Xvfb $DISPLAY &
 
-      - name: Cache ASIO SDK (Windows)
-        if: runner.os == 'Windows'
-        id: cache-asio
-        uses: actions/cache@v4
-        with:
-          key: asio-sdk-2.3.3
-          path: ${{ github.workspace }}/asiosdk_2.3.3_2019-06-14
-
-      - name: Download and Extract ASIO SDK (Windows)
-        if: runner.os == 'Windows' && steps.cache-asio.outputs.cache-hit != 'true'
-        run: |
-          curl -L -o asiosdk.zip https://www.steinberg.net/asiosdk
-          7z x asiosdk.zip
-
-      - name: pwd bro
-        if: runner.os == 'Windows'
-        run: pwd
-
-      - name: Ls bro
-        if: runner.os == 'Windows'
-        run: ls -R
-
       - name: Cache IPP (Windows)
         if: runner.os == 'Windows'
         id: cache-ipp
@@ -127,6 +105,20 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Cache ASIO SDK (Windows)
+        if: runner.os == 'Windows'
+        id: cache-asio
+        uses: actions/cache@v4
+        with:
+          key: asio-sdk-2.3.3
+          path: ${{ github.workspace }}/asiosdk_2.3.3_2019-06-14
+
+      - name: Download and Extract ASIO SDK (Windows)
+        if: runner.os == 'Windows' && steps.cache-asio.outputs.cache-hit != 'true'
+        run: |
+          curl -L -o asiosdk.zip https://www.steinberg.net/asiosdk
+          7z x asiosdk.zip
+
       - name: Cache the build
         uses: mozilla-actions/sccache-action@v0.0.9
 
@@ -149,7 +141,7 @@ jobs:
         run: cmake -B ${{ env.BUILD_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ${{ matrix.extra-flags }} .
         env:
           ASIO_SDK_PATH: ${{ runner.os == 'Windows' && format('{0}\asiosdk_2.3.3_2019-06-14', github.workspace) || '' }}
-      
+
       - name: echo bro
         run: echo $ASIO_SDK_PATH
 
