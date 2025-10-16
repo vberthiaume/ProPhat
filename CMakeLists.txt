@@ -127,7 +127,7 @@ if(WIN32)
         set(ASIOSDK_DIR "${ASIOSDK_DIR}" CACHE PATH "Path to ASIO SDK" FORCE)
         message(STATUS "Using ASIO SDK from environment: ${ASIOSDK_DIR}")
     elseif(NOT ASIOSDK_DIR)
-        set(ASIOSDK_DIR "C:/SDKs/asiosdk_2.3.3_2019-06-14" CACHE PATH "Path to ASIO SDK")
+        set(ASIOSDK_DIR "C:/SDKs/ASIOSDK" CACHE PATH "Path to ASIO SDK")
         message(STATUS "Using default ASIO SDK path: ${ASIOSDK_DIR}")
     endif()
     

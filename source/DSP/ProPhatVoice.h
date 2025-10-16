@@ -268,7 +268,7 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
         filterAndGainProcessorChain.process (oscContext);
 
 #if EFFECTS_PROCESSOR_PER_VOICE
-        effectsProcessor.process (oscBlock, pos, subBlockSize);
+        effectsProcessor.process (oscContext);
 #endif
 
         //apply the envelopes. We calculate and apply the amp envelope on a sample basis,
