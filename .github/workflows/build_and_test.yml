@@ -110,7 +110,7 @@ jobs:
         id: cache-asio
         uses: actions/cache@v4
         with:
-          key: asio-sdk-2.3.3
+          key: asio-sdk-2.3.4
           path: ${{ github.workspace }}/ASIOSDK
 
       - name: Download and Extract ASIO SDK (Windows)
