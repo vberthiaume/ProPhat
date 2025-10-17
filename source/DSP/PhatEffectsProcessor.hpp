@@ -195,7 +195,6 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
         switch (prevEffect)
         {
         case EffectType::none:
-            fade_buffer1.clear ();
             break;
         case EffectType::verb:
             verbWrapper->process (context1);
@@ -215,7 +214,6 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
         switch (nextEffect)
         {
         case EffectType::none:
-            fade_buffer2.clear ();
             break;
         case EffectType::verb:
             verbWrapper->process (context2);
