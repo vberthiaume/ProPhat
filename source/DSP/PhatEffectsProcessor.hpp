@@ -27,7 +27,7 @@
 #include "PhatVerb.h"
 
 //TODO VB: as of right now (2025-10-17), having this on or not actually doesn't seem to change anything, probably because another bug is masking this code (or something)
-#define ENABLE_CLEAR_EFFECT 1
+#define ENABLE_CLEAR_EFFECT 0
 #define LOG_EVERYTHING_AFTER_TRANSITION 0
 
 template <std::floating_point T>
