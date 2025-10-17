@@ -26,8 +26,7 @@
 #include "PhatEffectsCrossfadeProcessor.hpp"
 #include "PhatVerb.h"
 
-//if I don't clear the effects, their buffers will still contain the last processed content
-//but I don't think this changes anything for glitches
+//TODO VB: as of right now (2025-10-17), having this on or not actually doesn't seem to change anything, probably because another bug is masking this code (or something)
 #define ENABLE_CLEAR_EFFECT 1
 #define LOG_EVERYTHING_AFTER_TRANSITION 0
 
@@ -273,7 +272,19 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
             }
 #endif
         }
-        else if (currentEffectType != EffectType::none)
+        else if (currentEffectType == EffectType::none)
+        {
+#if ENABLE_CLEAR_EFFECT
+            if (needToClearEffect)
+            {
+                verbWrapper->reset ();
+                chorusWrapper->reset ();
+                phaserWrapper->reset ();
+                needToClearEffect = false;
+            }
+#endif
+        }
+        else
             jassertfalse; //unknown effect!!
     }
 

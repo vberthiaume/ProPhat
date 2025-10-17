@@ -77,8 +77,6 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
         processorChain.prepare (spec);
-        //TODO VB: I'm not sure this is necessary/does anything
-//        updateOscillators();
     }
 
 private:
@@ -104,7 +102,6 @@ private:
 
 //====================================================================================================
 
-//TODO VB: on mac this is only called when we press play, leading to an initialize call after we've set other things... does this happen on other platforms?
 template <std::floating_point T>
 void GainedOscillator<T>::updateOscillators()
 {

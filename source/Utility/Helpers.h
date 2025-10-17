@@ -230,8 +230,8 @@ struct Selection
 
     int curSelection = 0;
 
-    //ah it's because totalSelectable is an enum value :hmm: I wonder how we could get around this
-    // virtual int getLastSelectionIndex () { return totalSelectable - 1; };
+    //TODO: getLastSelectionIndex() is virtual but it is the same in all children -- is there a way to
+    //have totalSelectable declared in the parent somehow?
     virtual int getLastSelectionIndex () = 0;
     virtual bool isNullSelectionAllowed () = 0;
 };
