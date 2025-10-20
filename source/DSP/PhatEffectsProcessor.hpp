@@ -26,8 +26,11 @@
 #include "PhatEffectsCrossfadeProcessor.hpp"
 #include "PhatVerb.h"
 
-//TODO VB: as of right now (2025-10-17), having this on or not actually doesn't seem to change anything, probably because another bug is masking this code (or something)
-#define ENABLE_CLEAR_EFFECT 0
+//TODO VB: so as of 2025-10-20, having this on or off does not make more or less clicks, but if you have it off, and have a
+//note finish with reverb on, then toggle reverb off, and back on (after the note is done, with no release), then the reverb
+//will still output a trail because it hasn't been cleared. However it's cleared at every buffer now -- we could probably
+//just clear it once we've transitioned out of a given effect
+#define ENABLE_CLEAR_EFFECT 1
 #define LOG_EVERYTHING_AFTER_TRANSITION 0
 
 template <std::floating_point T>
@@ -131,7 +134,6 @@ class EffectsProcessor
 
     void changeEffect (EffectType effect)
     {
-        //NO (audible) GLITCH if I comment this out
         effectCrossFader.changeEffect (effect);
 
 #if LOG_EVERYTHING_AFTER_TRANSITION
