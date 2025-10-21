@@ -50,10 +50,12 @@ class EffectsCrossfadeProcessor
         smoothedGainL.reset (spec.sampleRate, static_cast<T> (crossfadeDurationSeconds));
         smoothedGainR.reset (spec.sampleRate, static_cast<T> (crossfadeDurationSeconds));
 
+#if ENABLE_GAIN_LOGGING
         gainLog.resize (spec.maximumBlockSize);
         prevDataLog.resize (spec.maximumBlockSize);
         nextDataLog.resize (spec.maximumBlockSize);
         outDataLog.resize (spec.maximumBlockSize);
+#endif
     }
 
     void changeEffect (EffectType effect)
@@ -147,13 +149,9 @@ class EffectsCrossfadeProcessor
     juce::SmoothedValue<T, juce::ValueSmoothingTypes::Linear> smoothedGainR;
 #if ENABLE_GAIN_LOGGING
     DebugLogEntry* debugLogEntry { nullptr };
-#endif
-
-    //TODO: this needs to be stored and retrieved from the state
-    //EffectType curEffect = EffectType::verb;
-
     std::vector<T> gainLog {};
     std::vector<T> prevDataLog {};
     std::vector<T> nextDataLog {};
     std::vector<T> outDataLog {};
+#endif
 };
