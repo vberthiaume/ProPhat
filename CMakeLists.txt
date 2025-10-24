@@ -102,7 +102,6 @@ clap_juce_extensions_plugin(TARGET "${PROJECT_NAME}"
 # Enable fast math, C++20 and a few other target defaults
 include(SharedCodeDefaults)
 
-
 # Manually list all .h and .cpp files for the plugin
 # If you are like me, you'll use globs for your sanity.
 # Just ensure you employ CONFIGURE_DEPENDS so the build system picks up changes
