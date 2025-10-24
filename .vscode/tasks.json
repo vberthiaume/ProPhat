@@ -27,7 +27,7 @@
             "command": "bash",
             "args": [
                 "-c",
-                "cmake --build Builds --target clean && cmake --build Builds -j8 --config Debug"
+                "cmake --build Builds && cmake --build Builds -j`nproc` --config Debug"
             ],
             "dependsOn": [
                 "CMake: Configure (Debug)"
