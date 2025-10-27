@@ -45,7 +45,7 @@ class EffectsProcessor
         memset (&tempData, 0, sizeof (tempData));
 
         // Initialize the file that will receive the log
-//        if (! memoryMappedFile.existsAsFile() || memoryMappedFile.getSize() != sizeof (DebugLog))
+        if (! memoryMappedFile.existsAsFile() || memoryMappedFile.getSize() != sizeof (DebugLog))
         {
             bool success = memoryMappedFile.deleteFile(); // Start clean if it already exists
             success      = memoryMappedFile.replaceWithData (&tempData, sizeof (tempData));

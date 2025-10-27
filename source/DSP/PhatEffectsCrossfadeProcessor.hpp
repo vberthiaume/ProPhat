@@ -49,13 +49,6 @@ class EffectsCrossfadeProcessor
         jassert (spec.numChannels == 2);
         smoothedGainL.reset (spec.sampleRate, static_cast<T> (crossfadeDurationSeconds));
         smoothedGainR.reset (spec.sampleRate, static_cast<T> (crossfadeDurationSeconds));
-
-#if ENABLE_GAIN_LOGGING
-        gainLog.resize (spec.maximumBlockSize);
-        prevDataLog.resize (spec.maximumBlockSize);
-        nextDataLog.resize (spec.maximumBlockSize);
-        outDataLog.resize (spec.maximumBlockSize);
-#endif
     }
 
     void changeEffect (EffectType effect)
@@ -131,11 +124,6 @@ class EffectsCrossfadeProcessor
 #if ENABLE_GAIN_LOGGING
                 if (channel == 0 && sample == 0 && debugLogEntry)
                     debugLogEntry->firstGain = static_cast<float> (outData[sample]);
-
-                gainLog[sample] = curGain;
-                prevDataLog[sample] = prevData[sample];
-                nextDataLog[sample] = nextData[sample];
-                outDataLog[sample] = outData[sample];
 #endif
             }
         }
@@ -149,9 +137,5 @@ class EffectsCrossfadeProcessor
     juce::SmoothedValue<T, juce::ValueSmoothingTypes::Linear> smoothedGainR;
 #if ENABLE_GAIN_LOGGING
     DebugLogEntry* debugLogEntry { nullptr };
-    std::vector<T> gainLog {};
-    std::vector<T> prevDataLog {};
-    std::vector<T> nextDataLog {};
-    std::vector<T> outDataLog {};
 #endif
 };
