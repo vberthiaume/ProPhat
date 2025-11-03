@@ -152,15 +152,17 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
         effectsProcessor.setEffectParam (parameterID, newValue);
     else if (parameterID == effectSelectedID.getParamID())
     {
-        EffectType effect { EffectType::none };
-        switch (static_cast<int> (newValue))
+        const auto effect = [val = static_cast<int> (newValue)]() -> EffectType
         {
-            case 0: effect = EffectType::none; break;
-            case 1: effect = EffectType::verb; break;
-            case 2: effect = EffectType::chorus; break;
-            case 3: effect = EffectType::phaser; break;
-            default: jassertfalse; break;
-        }
+            switch (val)
+            {
+                case 0: return EffectType::none;
+                case 1: return EffectType::verb;
+                case 2: return EffectType::chorus;
+                case 3: return EffectType::phaser;
+                default: jassertfalse; return EffectType::none;
+            }
+        }();
 
         effectsProcessor.changeEffect (effect);
     }
