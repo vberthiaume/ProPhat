@@ -162,16 +162,14 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
         debugLogEntry.timeSinceLastCall = juce::Time::currentTimeMillis () - cachedProcessCallTime;
         cachedProcessCallTime = juce::Time::currentTimeMillis ();
         debugLogEntry.curEffect = static_cast<int> (effectCrossFader.getCurrentEffectType ());
-#if ENABLE_GAIN_LOGGING
         debugLogEntry.firstGain = {};
         debugLogEntry.lastGain = {};
-#endif
     }
 #endif
 
     if (currentEffectType == EffectType::transitioning)
     {
-#if ENABLE_GAIN_LOGGING
+#if ENABLE_DEBUG_LOG
         effectCrossFader.setDebugLogEntry (&debugLogEntry);
 #endif
         jassert (fade_buffer1.getNumSamples() >= numSamples && fade_buffer2.getNumSamples() >= numSamples);

@@ -80,7 +80,7 @@ class EffectsCrossfadeProcessor
         return curEffect;
     }
 
-#if ENABLE_GAIN_LOGGING
+#if ENABLE_DEBUG_LOG
     void setDebugLogEntry (DebugLogEntry* _debugLogEntry)
     {
         debugLogEntry = _debugLogEntry;
@@ -121,8 +121,8 @@ class EffectsCrossfadeProcessor
 
                 outData[sample] = prevData[sample] * curGain + nextData[sample] * (1 - curGain);
 
-#if ENABLE_GAIN_LOGGING
-                if (channel == 0 && sample == 0 && debugLogEntry)
+#if ENABLE_DEBUG_LOG
+                if (debugLogEntry && channel == 0 && sample == 0)
                     debugLogEntry->firstGain = static_cast<float> (outData[sample]);
 #endif
             }
@@ -135,7 +135,7 @@ class EffectsCrossfadeProcessor
   private:
     juce::SmoothedValue<T, juce::ValueSmoothingTypes::Linear> smoothedGainL;
     juce::SmoothedValue<T, juce::ValueSmoothingTypes::Linear> smoothedGainR;
-#if ENABLE_GAIN_LOGGING
+#if ENABLE_DEBUG_LOG
     DebugLogEntry* debugLogEntry { nullptr };
 #endif
 };
