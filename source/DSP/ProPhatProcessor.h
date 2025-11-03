@@ -87,8 +87,6 @@ public:
     juce::ListenerList<MidiMessageListener> midiListeners;
 
 private:
-
-
     ProPhatSynthesiser<float> proPhatSynthFloat;
     ProPhatSynthesiser<double> proPhatSynthDouble;
 

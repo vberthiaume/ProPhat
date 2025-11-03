@@ -150,7 +150,6 @@ void ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, f
         || parameterID == chorusParam1ID.getParamID() || parameterID == chorusParam2ID.getParamID()
         || parameterID == phaserParam1ID.getParamID() || parameterID == phaserParam2ID.getParamID())
         effectsProcessor.setEffectParam (parameterID, newValue);
-    //TODO: actually switch to the right effect lol using the newValue
     else if (parameterID == effectSelectedID.getParamID())
     {
         EffectType effect { EffectType::none };
