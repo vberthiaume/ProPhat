@@ -143,12 +143,12 @@ void ProPhatLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int 
         if (height < width)
         {
             squareSide = (float) height;
-            xTranslation = (width - height) / 2.f;
+            xTranslation = static_cast<float> (width - height) / 2.f;
         }
         else
         {
             squareSide = (float) width;
-            yTranslation = (height - width) / 2.f;
+            yTranslation = static_cast<float> (height - width) / 2.f;
         }
 
 #if USE_SVG
@@ -186,10 +186,10 @@ void ProPhatLookAndFeel::drawGroupComponentOutline (juce::Graphics& g, int width
     cs = jmin (cs, w * 0.5f, h * 0.5f);
     auto cs2 = 2.0f * cs;
 
-    auto textW = text.isEmpty () ? 0
-        : jlimit (0.0f,
-                  jmax (0.0f, w - cs2 - textEdgeGap * 2),
-                  (float) f.getStringWidth (text) + textEdgeGap * 2.0f);
+    const auto textW = text.isEmpty() ? 0.f : jlimit (0.0f,
+                                                      jmax (0.0f, w - cs2 - textEdgeGap * 2),
+                                                      GlyphArrangement::getStringWidth(f, text) + textEdgeGap * 2.0f);
+
     auto textX = cs + textEdgeGap;
 
     if (position.testFlags (Justification::horizontallyCentred))
@@ -254,7 +254,7 @@ void ProPhatLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton
         g.setOpacity (0.5f);
 
     const auto text { button.getButtonText () };
-    const auto textWidth { font.getStringWidth (text) };
+    const auto textWidth { juce::GlyphArrangement::getStringWidthInt (font, text) };
     g.drawFittedText (text,
                       button.getLocalBounds ().withTrimmedLeft (roundToInt (tickWidth) + 10) .withWidth (textWidth),
                       Justification::centredLeft,
@@ -277,7 +277,7 @@ void ProPhatLookAndFeel::drawDrawableButton (juce::Graphics& g, juce::DrawableBu
                        .withMultipliedAlpha (button.isEnabled () ? 1.0f : 0.4f));
 
     const auto text { button.getButtonText () };
-    const auto textWidth { font.getStringWidth (text) };
+    const auto textWidth { juce::GlyphArrangement::getStringWidthInt (font, text) };
     g.drawFittedText (text,
                       (button.getWidth () - textWidth) / 2,
                       button.getHeight () - Constants::buttonSelectorFontHeight - 1,

@@ -25,6 +25,7 @@
 #include "juce_audio_processors/juce_audio_processors.h"
 #include "juce_core/juce_core.h"
 #include "juce_dsp/juce_dsp.h"
+#include "Macros.h"
 
 namespace Constants
 {
@@ -43,7 +44,11 @@ constexpr auto defaultOscNoise          { 0 };
 constexpr auto defaultOscSlop           { 0 };
 constexpr auto defaultOscTuning         { 0 };
 
+#if USE_ONLY_ONE_VOICE_TO_FORCE_KILLRAMP
+constexpr auto numVoices                { 1 };
+#else
 constexpr auto numVoices                { 16 };
+#endif
 constexpr auto defaultOscMidiNote       { 48 }; //C2 on rev2
 constexpr auto middleCMidiNote          { 60 }; //C3 on rev2
 
@@ -63,10 +68,10 @@ constexpr float defaultEffectParam1     { 0.f };
 constexpr float defaultEffectParam2     { 0.f };
 
 //envelope stuff
-constexpr auto minAmp                   { .000001f };
+constexpr auto minEnvelopeValue         { .01f };
 
-constexpr auto defaultAmpA              { minAmp };
-constexpr auto defaultAmpD              { minAmp };
+constexpr auto defaultAmpA              { minEnvelopeValue };
+constexpr auto defaultAmpD              { minEnvelopeValue };
 constexpr auto defaultAmpS              { 1.f };
 constexpr auto defaultAmpR              { .25f };
 
@@ -75,10 +80,10 @@ constexpr auto ampSkewFactor            { .5f };
 constexpr auto cutOffSkewFactor         { .5f };
 constexpr auto slopSkewFactor           { .5f };
 
-const juce::NormalisableRange<float> attackRange        { minAmp, 25.f, 0.f, ampSkewFactor };
-const juce::NormalisableRange<float> decayRange         { minAmp, 25.f, 0.f, ampSkewFactor };
-const juce::NormalisableRange<float> sustainRange       { minAmp, 1.f,  0.f, sustainSkewFactor };
-const juce::NormalisableRange<float> releaseRange       { minAmp, 25.f, 0.f, ampSkewFactor };
+const juce::NormalisableRange<float> attackRange        { minEnvelopeValue, 25.f, 0.f, ampSkewFactor };
+const juce::NormalisableRange<float> decayRange         { minEnvelopeValue, 25.f, 0.f, ampSkewFactor };
+const juce::NormalisableRange<float> sustainRange       { minEnvelopeValue, 1.f,  0.f, sustainSkewFactor };
+const juce::NormalisableRange<float> releaseRange       { minEnvelopeValue, 25.f, 0.f, ampSkewFactor };
 
 const juce::NormalisableRange<float> dBRange            { -12.f, 12.f };
 const juce::NormalisableRange<float> sliderRange        { 0.f, 1.f };
@@ -130,8 +135,14 @@ const juce::ParameterID lfoDestID          { "Lfo Dest", 1 };
 const juce::ParameterID lfoFreqID          { "Lfo Freq", 1 };
 const juce::ParameterID lfoAmountID        { "Lfo Amount", 1 };
 
-const juce::ParameterID effectParam1ID     { "Effect Param1", 1 };
-const juce::ParameterID effectParam2ID     { "Effect Param2", 1 };
+const juce::ParameterID reverbParam1ID     { "Reverb Param1", 1 };
+const juce::ParameterID reverbParam2ID     { "Reverb Param2", 1 };
+const juce::ParameterID chorusParam1ID     { "Chorus Param1", 1 };
+const juce::ParameterID chorusParam2ID     { "Chorus Param2", 1 };
+const juce::ParameterID phaserParam1ID     { "Phaser Param1", 1 };
+const juce::ParameterID phaserParam2ID     { "Phaser Param2", 1 };
+
+const juce::ParameterID effectSelectedID   { "Current Effect", 1 };
 
 const juce::ParameterID masterGainID       { "Master Gain", 1 };
 }
@@ -143,6 +154,7 @@ namespace ProPhatParameterLabels
 constexpr auto oscGroupDesc                 { "OSCILLATORS" };
 constexpr auto osc1ShapeDesc                { "SHAPE" };
 constexpr auto osc2ShapeDesc                { "SHAPE" };
+// change this to see if you're building the right thing!
 constexpr auto osc1FreqDesc                 { "OSC 1 FREQ" };
 constexpr auto osc2FreqDesc                 { "OSC 2 FREQ" };
 constexpr auto osc1TuningDesc               { "FINE TUNE" };
@@ -169,15 +181,9 @@ constexpr auto lfoDestDesc                  { "DEST" };
 constexpr auto lfoFreqSliderDesc            { "FREQUENCY" };
 constexpr auto lfoAmountSliderDesc          { "AMOUNT" };
 
-#if 0
 constexpr auto effectGroupDesc              { "EFFECT" };
 constexpr auto effectParam1Desc             { "PARAM 1" };
 constexpr auto effectParam2Desc             { "PARAM 2" };
-#else
-constexpr auto effectGroupDesc              { "REVERB" };
-constexpr auto effectParam1Desc             { "ROOM" };
-constexpr auto effectParam2Desc             { "MIX" };
-#endif
 
 constexpr auto masterGainDesc               { "MASTER VOL" };
 }
@@ -202,16 +208,30 @@ constexpr auto lfoDest0     { "Osc1 Freq" };
 constexpr auto lfoDest1     { "Osc2 Freq" };
 constexpr auto lfoDest2     { "Cutoff" };
 constexpr auto lfoDest3     { "Resonance" };
+
+constexpr auto effect0      { "None" };
+constexpr auto effect1      { "Reverb" };
+constexpr auto effect2      { "Chorus" };
+constexpr auto effect3      { "Phaser" };
 }
+
+//====================================================================================================
 
 struct Selection
 {
     Selection () = default;
-    Selection (int selection) : curSelection (selection) {}
     virtual ~Selection () = default;
+    Selection (const Selection&) = default;
+    Selection& operator= (const Selection&) = default;
+    Selection (Selection&&) noexcept = default;
+    Selection& operator= (Selection&&) noexcept = default;
+
+    Selection (int selection) : curSelection (selection) {}
 
     int curSelection = 0;
 
+    //TODO: getLastSelectionIndex() is virtual but it is the same in all children -- is there a way to
+    //have totalSelectable declared in the parent somehow?
     virtual int getLastSelectionIndex () = 0;
     virtual bool isNullSelectionAllowed () = 0;
 };
@@ -241,7 +261,7 @@ struct LfoShape : public Selection
         saw,
         //revSaw,
         square,
-        random,
+        randomLfo,
         totalSelectable
     };
 
@@ -264,6 +284,22 @@ struct LfoDest : public Selection
     bool isNullSelectionAllowed () override { return false; }
 };
 
+struct SelectedEffect : public Selection
+{
+    //this is essentially like EffectType, so we still need that enum?
+    enum
+    {
+        none = 0,
+        verb,
+        chorus,
+        phaser,
+        totalSelectable
+    };
+
+    int getLastSelectionIndex () override { return totalSelectable - 1; }
+    bool isNullSelectionAllowed () override { return true; }
+};
+
 //====================================================================================================
 
 /** This struct can be used to have a single shared font object throughout the plugin. To use it somewhere,
@@ -271,13 +307,13 @@ struct LfoDest : public Selection
 */
 struct SharedFonts final
 {
-    juce::Font regular { juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsMedium_ttf, BinaryData::PoppinsMedium_ttfSize) };
-    juce::Font thin    { juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsThin_ttf, BinaryData::PoppinsThin_ttfSize) };
-    juce::Font bold    { juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsBlack_ttf, BinaryData::PoppinsBlack_ttfSize) };
+    juce::FontOptions regular { juce::FontOptions (juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsMedium_ttf, BinaryData::PoppinsMedium_ttfSize)) };
+    juce::FontOptions thin { juce::FontOptions (juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsThin_ttf, BinaryData::PoppinsThin_ttfSize)) };
+    juce::FontOptions bold { juce::FontOptions (juce::Typeface::createSystemTypefaceFor (BinaryData::PoppinsBlack_ttf, BinaryData::PoppinsBlack_ttfSize)) };
 
-    juce::Font getRegularFont (float h) { return regular.withHeight (h); }
-    juce::Font getThinFont (float h)    { return thin.withHeight (h); }
-    juce::Font getBoldFont (float h)    { return bold.withHeight (h); }
+    [[nodiscard]] juce::Font getRegularFont (float h) const { return regular.withHeight (h); }
+    [[nodiscard]] juce::Font getThinFont (float h) const { return thin.withHeight (h); }
+    [[nodiscard]] juce::Font getBoldFont (float h) const { return bold.withHeight (h); }
 };
 
 //====================================================================================================
@@ -289,7 +325,7 @@ inline juce::Image getImage (const void* imageData, const int dataSize)
     return juce::ImageCache::getFromMemory (imageData, dataSize);
 }
 
-inline std::unique_ptr<juce::Drawable> getDrawable (const void* imageData, const int dataSize)
+inline std::unique_ptr<juce::Drawable> getDrawable (const void* imageData, const size_t dataSize)
 {
     return juce::Drawable::createFromImageData (imageData, dataSize);
 }
@@ -316,7 +352,7 @@ inline bool areSameSpecs (const juce::dsp::ProcessSpec& spec1, const juce::dsp::
 {
     return spec1.maximumBlockSize == spec2.maximumBlockSize
         && spec1.numChannels == spec2.numChannels
-        && spec1.sampleRate == spec2.sampleRate;
+        && juce::approximatelyEqual (spec1.sampleRate, spec2.sampleRate);
 }
 
 template <class T>

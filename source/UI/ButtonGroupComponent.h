@@ -29,7 +29,8 @@ enum defaults
 {
     defaultOscShape = (int) OscShape::saw,
     defaultLfoShape = (int) LfoShape::triangle,
-    defaultLfoDest = (int) LfoDest::filterCutOff
+    defaultLfoDest = (int) LfoDest::filterCutOff,
+    defaultEffect = (int) SelectedEffect::none,
 };
 
 class FilledDrawableButton : public juce::DrawableButton
@@ -65,7 +66,7 @@ public:
     ButtonGroupComponent (juce::AudioProcessorValueTreeState& state, const juce::String& parameterID, std::unique_ptr<Selection> theSelection,
                           juce::StringRef mainButtonName, juce::Array<juce::StringRef> selectionButtonNames, bool allowEmpty = false);
 
-    ~ButtonGroupComponent () { state.removeParameterListener (parameterID, this); }
+    ~ButtonGroupComponent () override { state.removeParameterListener (parameterID, this); }
 
     void buttonClicked (juce::Button* button) override;
 

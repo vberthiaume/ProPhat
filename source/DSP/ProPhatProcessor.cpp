@@ -36,10 +36,18 @@ ProPhatProcessor::ProPhatProcessor()
 
 void ProPhatProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    if (isUsingDoublePrecision ())
+    if (isUsingDoublePrecision())
         proPhatSynthDouble.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
     else
         proPhatSynthFloat.prepare ({ sampleRate, (juce::uint32) samplesPerBlock, 2 });
+}
+
+void ProPhatProcessor::releaseResources()
+{
+    if (isUsingDoublePrecision())
+        proPhatSynthDouble.releaseResources();
+    else
+        proPhatSynthFloat.releaseResources();
 }
 
 juce::AudioProcessorValueTreeState ProPhatProcessor::constructState ()
@@ -83,8 +91,13 @@ juce::AudioProcessorValueTreeState ProPhatProcessor::constructState ()
         std::make_unique<juce::AudioParameterChoice> (lfoDestID, lfoDestID.getParamID (), juce::StringArray { lfoDest0, lfoDest1, lfoDest2, lfoDest3 }, defaultLfoDest),
         std::make_unique<juce::AudioParameterFloat>  (lfoAmountID, lfoAmountID.getParamID (), sliderRange, defaultLfoAmount),
 
-        std::make_unique<juce::AudioParameterFloat>  (effectParam1ID, effectParam1ID.getParamID (), sliderRange, defaultEffectParam1),
-        std::make_unique<juce::AudioParameterFloat>  (effectParam2ID, effectParam2ID.getParamID (), sliderRange, defaultEffectParam2),
+        std::make_unique<juce::AudioParameterFloat>  (reverbParam1ID, reverbParam1ID.getParamID (), sliderRange, defaultEffectParam1),
+        std::make_unique<juce::AudioParameterFloat>  (reverbParam2ID, reverbParam2ID.getParamID (), sliderRange, defaultEffectParam2),
+        std::make_unique<juce::AudioParameterFloat>  (chorusParam1ID, chorusParam1ID.getParamID (), sliderRange, defaultEffectParam1),
+        std::make_unique<juce::AudioParameterFloat>  (chorusParam2ID, chorusParam2ID.getParamID (), sliderRange, defaultEffectParam2),
+        std::make_unique<juce::AudioParameterFloat>  (phaserParam1ID, phaserParam1ID.getParamID (), sliderRange, defaultEffectParam1),
+        std::make_unique<juce::AudioParameterFloat>  (phaserParam2ID, phaserParam2ID.getParamID (), sliderRange, defaultEffectParam2),
+        std::make_unique<juce::AudioParameterChoice> (effectSelectedID, effectSelectedID.getParamID (), juce::StringArray { effect0, effect1, effect2, effect3 }, defaultLfoShape),
 
         std::make_unique<juce::AudioParameterFloat>  (masterGainID, masterGainID.getParamID (), sliderRange, defaultMasterGain)
     }};

@@ -100,7 +100,7 @@ void ButtonGroupComponent::setSelection (int selectionIndex)
     {
         const float newValue = state.getParameterRange (parameterID).convertTo0to1 ((float) selectionIndex);
 
-        if (p->getValue() != newValue)
+        if (! juce::approximatelyEqual (p->getValue(), newValue))
             p->setValueNotifyingHost (newValue);
     }
 }
@@ -140,7 +140,7 @@ void ButtonGroupComponent::selectNext()
     setSelection (curSelection);
 }
 
-void ButtonGroupComponent::parameterChanged (const juce::String& theParameterID, float newValue)
+void ButtonGroupComponent::parameterChanged ([[maybe_unused]] const juce::String& theParameterID, float newValue)
 {
     jassert (parameterID == theParameterID);
 

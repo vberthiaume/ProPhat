@@ -34,6 +34,7 @@
 class ProPhatEditor : public juce::AudioProcessorEditor
                     , public juce::AsyncUpdater
                     , public ProPhatProcessor::MidiMessageListener
+                    , public juce::AudioProcessorValueTreeState::Listener
 #if USE_NATIVE_TITLE_BAR
     , private juce::Button::Listener
 #endif
@@ -43,23 +44,24 @@ class ProPhatEditor : public juce::AudioProcessorEditor
 {
 public:
     ProPhatEditor (ProPhatProcessor&);
-    ~ProPhatEditor ();
+    ~ProPhatEditor () override;
 
     void paint (juce::Graphics&) override;
     void resized() override;
     void receivedMidiMessage (juce::MidiBuffer& midiMessages) override;
     void handleAsyncUpdate () override;
+    void parameterChanged (const juce::String& parameterID, float newValue) override;
 
 #if CPU_USAGE
     void timerCallback() override
     {
-       auto stats = processor.perfCounter.getStatisticsAndReset();
+       auto stats = phatProcessor.perfCounter.getStatisticsAndReset();
        cpuUsageText.setText (juce::String (stats.averageSeconds, 6), juce::dontSendNotification);
     }
 #endif
 
 private:
-    ProPhatProcessor& processor;
+    ProPhatProcessor& phatProcessor;
 
 #if USE_NATIVE_TITLE_BAR
     void buttonClicked (juce::Button*) override;
@@ -120,9 +122,19 @@ private:
     juce::AudioProcessorValueTreeState::SliderAttachment lfoFreqAttachment, lfoAmountAttachment;
 
     //EFFECT
-    SliderLabel effectParam1Label, effectParam2Label;
-    SnappingSlider effectParam1Slider, effectParam2Slider;
-    juce::AudioProcessorValueTreeState::SliderAttachment effectParam1Attachment, effectParam2Attachment;
+    SliderLabel reverbParam1Label, reverbParam2Label, reverbPlaceHolderLabel;
+    SnappingSlider reverbParam1Slider, reverbParam2Slider;
+    juce::AudioProcessorValueTreeState::SliderAttachment reverbParam1Attachment, reverbParam2Attachment;
+
+    SliderLabel chorusParam1Label, chorusParam2Label;
+    SnappingSlider chorusParam1Slider, chorusParam2Slider;
+    juce::AudioProcessorValueTreeState::SliderAttachment chorusParam1Attachment, chorusParam2Attachment;
+
+    SliderLabel phaserParam1Label, phaserParam2Label;
+    SnappingSlider phaserParam1Slider, phaserParam2Slider;
+    juce::AudioProcessorValueTreeState::SliderAttachment phaserParam1Attachment, phaserParam2Attachment;
+
+    ButtonGroupComponent effectChangeButton;
 
     //OTHER
     SliderLabel masterGainLabel;

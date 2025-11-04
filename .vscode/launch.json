@@ -6,13 +6,15 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/Builds/ProPhat_artefacts/Debug/Standalone/ProPhat",
+            // "program": "/usr/local/bin/reaper",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "/usr/bin/gdb"
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "ProPhat CMake Debug Build"
         },
         {
             "name": "(lldb) Launch",

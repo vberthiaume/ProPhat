@@ -221,8 +221,8 @@ void PhatOscillators<T>::parameterChanged (const juce::String& parameterID, floa
 template <std::floating_point T>
 void PhatOscillators<T>::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    osc1Block = juce::dsp::AudioBlock<T> (heapBlock1, spec.numChannels, spec.maximumBlockSize);
-    osc2Block = juce::dsp::AudioBlock<T> (heapBlock2, spec.numChannels, spec.maximumBlockSize);
+    osc1Block  = juce::dsp::AudioBlock<T> (heapBlock1, spec.numChannels, spec.maximumBlockSize);
+    osc2Block  = juce::dsp::AudioBlock<T> (heapBlock2, spec.numChannels, spec.maximumBlockSize);
     noiseBlock = juce::dsp::AudioBlock<T> (heapBlockNoise, spec.numChannels, spec.maximumBlockSize);
 
     sub.prepare (spec);
@@ -250,18 +250,18 @@ template <std::floating_point T>
 juce::dsp::AudioBlock<T> PhatOscillators<T>::process (int pos, int subBlockSize)
 {
     //process osc1
-    auto block1 { osc1Output.getSubBlock (pos, subBlockSize) };
+    auto block1 { osc1Output.getSubBlock ((size_t) pos, (size_t) subBlockSize) };
     juce::dsp::ProcessContextReplacing<T> osc1Context (block1);
     sub.process (osc1Context); //TODO: is the sub on osc1 because that's how it is on the real prophet? Should it be added to the noise below instead?
     osc1.process (osc1Context);
 
     //process osc2
-    auto block2 { osc2Output.getSubBlock (pos, subBlockSize) };
+    auto block2 { osc2Output.getSubBlock ((size_t) pos, (size_t) subBlockSize) };
     juce::dsp::ProcessContextReplacing<T> osc2Context (block2);
     osc2.process (osc2Context);
 
     //process noise
-    auto blockAll { noiseOutput.getSubBlock (pos, subBlockSize) };
+    auto blockAll { noiseOutput.getSubBlock ((size_t) pos, (size_t) subBlockSize) };
     juce::dsp::ProcessContextReplacing<T> noiseContext (blockAll);
     noise.process (noiseContext);
 
@@ -279,7 +279,7 @@ void PhatOscillators<T>::updateOscFrequenciesInternal ()
     if (curMidiNote < 0)
         return;
 
-    auto pitchWheelDeltaNote = Constants::pitchWheelNoteRange.convertFrom0to1 (pitchWheelPosition / 16383.f);
+    auto pitchWheelDeltaNote = Constants::pitchWheelNoteRange.convertFrom0to1 ((float) pitchWheelPosition / 16383.f);
 
     slopOsc1 = distribution (generator);
     slopOsc2 = distribution (generator);
@@ -287,12 +287,12 @@ void PhatOscillators<T>::updateOscFrequenciesInternal ()
     const auto curOsc1Slop = slopOsc1 * slopMod;
     const auto curOsc2Slop = slopOsc2 * slopMod;
 
-    const auto osc1FloatNote = curMidiNote - osc1NoteOffset + osc1TuningOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote + curOsc1Slop;
+    const auto osc1FloatNote = static_cast<float> (curMidiNote) - osc1NoteOffset + osc1TuningOffset + lfoOsc1NoteOffset + pitchWheelDeltaNote + curOsc1Slop;
     sub.setFrequency (Helpers::getMidiNoteInHertz(osc1FloatNote - 12), true);
     noise.setFrequency (Helpers::getMidiNoteInHertz (osc1FloatNote), true);
     osc1.setFrequency (Helpers::getMidiNoteInHertz (osc1FloatNote), true);
 
-    const auto osc2Freq = Helpers::getMidiNoteInHertz (curMidiNote - osc2NoteOffset + osc2TuningOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote + curOsc2Slop);
+    const auto osc2Freq = Helpers::getMidiNoteInHertz (static_cast<float> (curMidiNote) - osc2NoteOffset + osc2TuningOffset + lfoOsc2NoteOffset + pitchWheelDeltaNote + curOsc2Slop);
     osc2.setFrequency (osc2Freq, true);
 }
 

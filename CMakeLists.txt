@@ -1,14 +1,12 @@
-# 3.24.1 is bundled in Visual Studio 2022 v17.4
-# 3.24.1 is also bundled in CLion as of 2023
-cmake_minimum_required(VERSION 3.24.1)
-
-# set(CXX_FLAGS "-Wall")
-# set(CMAKE_CXX_FLAGS "${CXX_FLAGS}")
+cmake_minimum_required(VERSION 3.25)
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES CXX_STANDARD 23)
 
 # This tells cmake we have goodies in the /cmake folder
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include (PamplejuceVersion)
+
+# Modern concise way to add dependencies to your project
+include (CPM)
 
 # Configures universal binaries and decides which version of macOS to support
 include(PamplejuceMacOS)
@@ -49,8 +47,11 @@ project(${PROJECT_NAME} VERSION ${CURRENT_VERSION})
 # On Github Actions, this is done as a part of actions/checkout
 add_subdirectory(JUCE)
 
+# Add CLAP format
+add_subdirectory(modules/clap-juce-extensions EXCLUDE_FROM_ALL)
+
 # Add any other modules you want modules here, before the juce_add_plugin call
-# juce_add_module(modules/my_module)
+add_subdirectory (modules/farbot)
 
 # This adds the melatonin inspector module
 add_subdirectory (modules/melatonin_inspector)
@@ -94,6 +95,10 @@ juce_add_plugin("${PROJECT_NAME}"
 # Without running into ODR violations
 add_library(SharedCode INTERFACE)
 
+clap_juce_extensions_plugin(TARGET "${PROJECT_NAME}"
+    CLAP_ID "${BUNDLE_ID}"
+    CLAP_FEATURES audio-effect)
+
 # Enable fast math, C++20 and a few other target defaults
 include(SharedCodeDefaults)
 
@@ -102,7 +107,7 @@ include(SharedCodeDefaults)
 # Just ensure you employ CONFIGURE_DEPENDS so the build system picks up changes
 # If you want to appease the CMake gods and avoid globs, manually add files like so:
 # set(SourceFiles Source/PluginEditor.h Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginProcessor.cpp)
-file(GLOB_RECURSE SourceFiles CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
+file(GLOB_RECURSE SourceFiles CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/source/*.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/../modules/DebugLog/Source/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/../modules/DebugLog/Source/*.hpp")
 target_sources(SharedCode INTERFACE ${SourceFiles})
 
 # Adds a BinaryData target for embedding assets into the binary
@@ -110,6 +115,38 @@ include(Assets)
 
 # MacOS only: Cleans up folder and target organization on Xcode.
 include(XcodePrettify)
+
+if(WIN32)
+    set(JUCE_ASIO ON CACHE BOOL "Enable ASIO support" FORCE)
+    
+    # Use environment variable if set, otherwise fall back to default path
+    if(DEFINED ENV{ASIO_SDK_PATH})
+        # Normalize the path to use forward slashes consistently
+        file(TO_CMAKE_PATH "$ENV{ASIO_SDK_PATH}" ASIOSDK_DIR)
+        set(ASIOSDK_DIR "${ASIOSDK_DIR}" CACHE PATH "Path to ASIO SDK" FORCE)
+        message(STATUS "Using ASIO SDK from environment: ${ASIOSDK_DIR}")
+    elseif(NOT ASIOSDK_DIR)
+        set(ASIOSDK_DIR "C:/SDKs/ASIOSDK" CACHE PATH "Path to ASIO SDK")
+        message(STATUS "Using default ASIO SDK path: ${ASIOSDK_DIR}")
+    endif()
+    
+    # Debug: List what's in the directory
+    message(STATUS "Checking ASIO SDK at: ${ASIOSDK_DIR}")
+    if(EXISTS "${ASIOSDK_DIR}")
+        message(STATUS "  Directory exists: ${ASIOSDK_DIR}")
+        file(GLOB ASIO_COMMON_FILES "${ASIOSDK_DIR}/common/*")
+        message(STATUS "  Files in common/: ${ASIO_COMMON_FILES}")
+    else()
+        message(WARNING "  Directory does NOT exist: ${ASIOSDK_DIR}")
+    endif()
+    
+    # Verify the header file exists
+    if(EXISTS "${ASIOSDK_DIR}/common/iasiodrv.h")
+        message(STATUS "✓ ASIO SDK header found: ${ASIOSDK_DIR}/common/iasiodrv.h")
+    else()
+        message(FATAL_ERROR "✗ ASIO SDK header NOT found at: ${ASIOSDK_DIR}/common/iasiodrv.h")
+    endif()
+endif()
 
 # This is where you can set preprocessor definitions for JUCE and your plugin
 target_compile_definitions(SharedCode
@@ -120,6 +157,9 @@ target_compile_definitions(SharedCode
     JUCE_USE_CURL=0     # If you set this to 1, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
     JUCE_VST3_CAN_REPLACE_VST2=0
 
+    # Uncomment if you are paying for a an Indie/Pro license or releasing under GPLv3
+    # JUCE_DISPLAY_SPLASH_SCREEN=0
+
     # lets the app known if we're Debug or Release
     CMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}"
     VERSION="${CURRENT_VERSION}"
@@ -128,7 +168,14 @@ target_compile_definitions(SharedCode
     PRODUCT_NAME_WITHOUT_VERSION="ProPhat"
 
     JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1
+	JUCE_ASIO=1
 )
+
+if(WIN32)
+    target_include_directories(SharedCode INTERFACE
+        "${ASIOSDK_DIR}/common"
+    )
+endif()
 
 # Link to any other modules you added (with juce_add_module) here!
 # Usually JUCE modules must have PRIVATE visibility
@@ -151,6 +198,11 @@ target_link_libraries(SharedCode
 if(MSVC)
     target_link_libraries(SharedCode INTERFACE Dwmapi.lib)
 endif()
+
+#TODO: unclear that this does anything? -- it actually does, although clang complains that it doesn't understand it lol
+# if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+#     add_compile_options(-Wno-implicit-int-float-conversion)
+# endif()
 
 # Link the JUCE plugin targets our SharedCode target
 target_link_libraries("${PROJECT_NAME}" PRIVATE SharedCode)

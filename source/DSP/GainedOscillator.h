@@ -74,7 +74,10 @@ public:
         processorChain.process (context);
     }
 
-    void prepare (const juce::dsp::ProcessSpec& spec) { processorChain.prepare (spec); }
+    void prepare (const juce::dsp::ProcessSpec& spec)
+    {
+        processorChain.prepare (spec);
+    }
 
 private:
     enum
@@ -83,7 +86,7 @@ private:
         gainIndex
     };
 
-    std::atomic<OscShape::Values> currentOsc { OscShape::none }, nextOsc { { OscShape::saw } };
+    std::atomic<OscShape::Values> currentOsc { OscShape::none }, nextOsc { OscShape::saw };
 
     void updateOscillators();
 
@@ -124,7 +127,7 @@ void GainedOscillator<T>::updateOscillators()
         osc.initialise ([](T x)
                         {
                             //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-                            return juce::jmap (x, T (-juce::MathConstants<double>::pi), T (juce::MathConstants<double>::pi), T (-1), T (1));
+                            return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1));
                         }, 2);
     }
     break;
@@ -133,12 +136,12 @@ void GainedOscillator<T>::updateOscillators()
     {
         osc.initialise ([](T x)
                         {
-                            T y = juce::jmap (x, T (-juce::MathConstants<double>::pi), T (juce::MathConstants<double>::pi), T (-1), T (1)) / 2;
+                            T y = juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1)) / 2;
 
                             if (x < 0)
-                                return y += juce::jmap (x, T (-juce::MathConstants<double>::pi), T (0), T (-1), T (1)) / 2;
+                                return y += juce::jmap (x, T (-juce::MathConstants<T>::pi), T (0), T (-1), T (1)) / 2;
                             else
-                                return y += juce::jmap (x, T (0), T (juce::MathConstants<double>::pi), T (1), T (-1)) / 2;
+                                return y += juce::jmap (x, T (0), T (juce::MathConstants<T>::pi), T (1), T (-1)) / 2;
 
                         }, 128);
     }
@@ -149,9 +152,9 @@ void GainedOscillator<T>::updateOscillators()
         osc.initialise ([](T x)
                         {
                             if (x < 0)
-                                return juce::jmap (x, T (-juce::MathConstants<double>::pi), T (0), T (-1), T (1));
+                                return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (0), T (-1), T (1));
                             else
-                                return juce::jmap (x, T (0), T (juce::MathConstants<double>::pi), T (1), T (-1));
+                                return juce::jmap (x, T (0), T (juce::MathConstants<T>::pi), T (1), T (-1));
 
                         }, 128);
     }
@@ -178,6 +181,7 @@ void GainedOscillator<T>::updateOscillators()
     }
     break;
 
+    case OscShape::totalSelectable:
     default:
         jassertfalse;
         break;

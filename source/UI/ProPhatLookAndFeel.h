@@ -42,7 +42,7 @@ public:
 #else
         const auto factor { .8f };
 #endif
-        return fonts->getRegularFont (juce::jmin (static_cast<float> (Constants::labelFontHeight), buttonHeight * factor));
+        return fonts->getRegularFont (juce::jmin (static_cast<float> (Constants::labelFontHeight), static_cast<float>(buttonHeight) * factor));
     }
 
     void drawCornerResizer (juce::Graphics&, int, int, bool, bool) override {}

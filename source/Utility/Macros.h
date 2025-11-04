@@ -22,22 +22,16 @@
 
 #pragma once
 
-#ifndef CPU_USAGE
- #define CPU_USAGE 0
-#endif
+#define CPU_USAGE 0
 
-#ifndef DEBUG_VOICES
- #define DEBUG_VOICES 0
-#endif
+#define DEBUG_VOICES 0
 
-#ifndef PRINT_ALL_SAMPLES
- #define PRINT_ALL_SAMPLES 0
-#endif
+#define PRINT_ALL_SAMPLES 0
 
-#ifndef USE_NATIVE_TITLE_BAR
- #define USE_NATIVE_TITLE_BAR 1
-#endif
+#define USE_NATIVE_TITLE_BAR 1
 
-#ifndef USE_BACKGROUND_IMAGE
- #define USE_BACKGROUND_IMAGE 0
-#endif
+#define USE_BACKGROUND_IMAGE 0
+
+#define EFFECTS_PROCESSOR_PER_VOICE 0
+
+#define USE_ONLY_ONE_VOICE_TO_FORCE_KILLRAMP 0

@@ -20,6 +20,12 @@
   ==============================================================================
 */
 
+//many UI elements are constructed out of order here, which
+//doesn't affect anything but produces a lot of warnings 
+#if ! defined(_MSC_VER)
+    #pragma GCC diagnostic ignored "-Wreorder"
+#endif
+
 #include "ProPhatEditor.h"
 #include "ProPhatApplication.h"
 
@@ -52,7 +58,7 @@ constexpr auto totalWidth           { 2 * overallGap + 4 * panelGap + numButtonG
 
 ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     : juce::AudioProcessorEditor (p)
-    , processor (p)
+    , phatProcessor (p)
 #if USE_NATIVE_TITLE_BAR
     , optionsButton ("OPTIONS")
 #endif
@@ -97,13 +103,18 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
 
     //EFFECT
     , effectGroup ("effectGroup", effectGroupDesc)
-    , effectParam1Attachment (p.state, effectParam1ID.getParamID(), effectParam1Slider)
-    , effectParam2Attachment (p.state, effectParam2ID.getParamID(), effectParam2Slider)
+    , reverbParam1Attachment (p.state, reverbParam1ID.getParamID (), reverbParam1Slider)
+    , reverbParam2Attachment (p.state, reverbParam2ID.getParamID (), reverbParam2Slider)
+    , chorusParam1Attachment (p.state, chorusParam1ID.getParamID (), chorusParam1Slider)
+    , chorusParam2Attachment (p.state, chorusParam2ID.getParamID (), chorusParam2Slider)
+    , phaserParam1Attachment (p.state, phaserParam1ID.getParamID (), phaserParam1Slider)
+    , phaserParam2Attachment (p.state, phaserParam2ID.getParamID (), phaserParam2Slider)
+    , effectChangeButton (p.state, effectSelectedID.getParamID(), std::make_unique<SelectedEffect> (SelectedEffect()), effectGroupDesc, {effect1, effect2, effect3}, true)
 
     //OTHER
     , masterGainAttachment (p.state, masterGainID.getParamID(), masterGainSlider)
 {
-    processor.midiListeners.add (this);
+    phatProcessor.midiListeners.add (this);
 #if CPU_USAGE
     setSize (width, height + 50);
 
@@ -145,7 +156,7 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
         addAndMakeVisible (group);
 
         //setup components and labels
-        for (int i = 0; i < components.size (); ++i)
+        for (size_t i = 0; i < components.size (); ++i)
         {
             if (labels[i] != nullptr)
             {
@@ -158,34 +169,47 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     };
 
     addGroup (oscGroup, { &osc1FreqSliderLabel,  &osc1TuningSliderLabel, nullptr,           &oscSubSliderLabel, &osc2FreqSliderLabel, &osc2TuningSliderLabel, nullptr,           &oscMixSliderLabel, &oscNoiseSliderLabel, &oscSlopSliderLabel},
-                        { osc1FreqDesc,          osc1TuningDesc,         juce::String (),   oscSubOctDesc,      osc2FreqDesc,         osc2TuningDesc,         juce::String (),   oscMixDesc,         oscNoiseDesc,         oscSlopDesc},
-                        { &osc1FreqSlider,       &osc1TuningSlider,      &osc1ShapeButtons, &oscSubSlider,      &osc2FreqSlider,      &osc2TuningSlider,      &osc2ShapeButtons, &oscMixSlider,      &oscNoiseSlider,      &oscSlopSlider});
+              { osc1FreqDesc,          osc1TuningDesc,         juce::String (),   oscSubOctDesc,      osc2FreqDesc,         osc2TuningDesc,         juce::String (),   oscMixDesc,         oscNoiseDesc,         oscSlopDesc},
+              { &osc1FreqSlider,       &osc1TuningSlider,      &osc1ShapeButtons, &oscSubSlider,      &osc2FreqSlider,      &osc2TuningSlider,      &osc2ShapeButtons, &oscMixSlider,      &oscNoiseSlider,      &oscSlopSlider});
 
     addGroup (filterGroup, { &filterCutoffLabel,     &filterResonanceLabel,      &filterEnvAttackLabel,  &filterEnvDecayLabel,   &filterEnvSustainLabel,  &filterEnvReleaseLabel },
-                           { filterCutoffSliderDesc, filterResonanceSliderDesc,  ampAttackSliderDesc,    ampDecaySliderDesc,     ampSustainSliderDesc,    ampReleaseSliderDesc },
-                           { &filterCutoffSlider,    &filterResonanceSlider,     &filterEnvAttackSlider, &filterEnvDecaySlider,  &filterEnvSustainSlider, &filterEnvReleaseSlider });
+              { filterCutoffSliderDesc, filterResonanceSliderDesc,  ampAttackSliderDesc,    ampDecaySliderDesc,     ampSustainSliderDesc,    ampReleaseSliderDesc },
+              { &filterCutoffSlider,    &filterResonanceSlider,     &filterEnvAttackSlider, &filterEnvDecaySlider,  &filterEnvSustainSlider, &filterEnvReleaseSlider });
 
     addGroup (ampGroup, { &masterGainLabel,  &ampAttackLabel,     &ampDecayLabel,     &ampSustainLabel,     &ampReleaseLabel },
-                        { masterGainDesc,    ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc },
-                        { &masterGainSlider, &ampAttackSlider,    &ampDecaySlider,    &ampSustainSlider,    &ampReleaseSlider });
+              { masterGainDesc,    ampAttackSliderDesc, ampDecaySliderDesc, ampSustainSliderDesc, ampReleaseSliderDesc },
+              { &masterGainSlider, &ampAttackSlider,    &ampDecaySlider,    &ampSustainSlider,    &ampReleaseSlider });
 
     addGroup (lfoGroup, { nullptr,          &lfoFreqLabel,     nullptr,         &lfoAmountLabel },
-                        { {},               lfoFreqSliderDesc, juce::String (), lfoAmountSliderDesc },
-                        { &lfoShapeButtons, &lfoFreqSlider,    &lfoDestButtons, &lfoAmountSlider });
+              { {},               lfoFreqSliderDesc, juce::String (), lfoAmountSliderDesc },
+              { &lfoShapeButtons, &lfoFreqSlider,    &lfoDestButtons, &lfoAmountSlider });
 
-    addGroup (effectGroup, { &effectParam1Label,  &effectParam2Label},
-                           { effectParam1Desc,    effectParam2Desc },
-                           { &effectParam1Slider, &effectParam2Slider });
+    addGroup (effectGroup, { &reverbParam1Label, &reverbParam2Label, &reverbPlaceHolderLabel},
+              { effectParam1Desc,    effectParam2Desc, {} },
+              { &reverbParam1Slider, &reverbParam2Slider, &effectChangeButton });
 
-    osc1ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc1ShapeID.getParamID()));
-    osc2ShapeButtons.setSelectedButton ((int) Helpers::getRangedParamValue (processor.state, osc2ShapeID.getParamID()));
-    lfoShapeButtons.setSelectedButton  ((int) Helpers::getRangedParamValue (processor.state, lfoShapeID.getParamID()));
-    lfoDestButtons.setSelectedButton   ((int) Helpers::getRangedParamValue (processor.state, lfoDestID.getParamID()));
+    addGroup (effectGroup, { &chorusParam1Label, &chorusParam2Label,  },
+              { effectParam1Desc,    effectParam2Desc, {} },
+              { &chorusParam1Slider, &chorusParam2Slider });
+
+    addGroup (effectGroup, { &phaserParam1Label, &phaserParam2Label, },
+              { effectParam1Desc,    effectParam2Desc, {} },
+              { &phaserParam1Slider, &phaserParam2Slider });
+
+    osc1ShapeButtons.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, osc1ShapeID.getParamID())));
+    osc2ShapeButtons.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, osc2ShapeID.getParamID())));
+    lfoShapeButtons.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, lfoShapeID.getParamID())));
+    lfoDestButtons.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, lfoDestID.getParamID())));
+    effectChangeButton.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, effectSelectedID.getParamID())));
+
+    p.state.addParameterListener (effectSelectedID.getParamID(), this);
+    //TODO VB: there's probably a less verbose way to do this
+    parameterChanged (effectSelectedID.getParamID (), phatProcessor.state.getParameterAsValue (effectSelectedID.getParamID ()).getValue());
 }
 
 ProPhatEditor::~ProPhatEditor ()
 {
-    processor.midiListeners.remove (this);
+    phatProcessor.midiListeners.remove (this);
     cancelPendingUpdate ();
     setLookAndFeel (nullptr);
 }
@@ -205,6 +229,89 @@ void ProPhatEditor::handleAsyncUpdate ()
                 safePtr->repaint ();
             }
         });
+}
+
+void ProPhatEditor::parameterChanged ([[maybe_unused]] const juce::String& theParameterID, float newValue)
+{
+    jassert (theParameterID == effectSelectedID.getParamID());
+
+    juce::Component::SafePointer safePtr { this };
+    juce::MessageManager::callAsync ([safePtr, newInt { static_cast<int> (newValue) }]()
+    {
+        if (! safePtr)
+            return;
+
+    //TODO: DRY this logic, which is also in ProPhatSynthesiser<T>::parameterChanged (const juce::String& parameterID, float newValue)
+    EffectType effect { EffectType::none };
+    if (newInt == 0)
+        effect = EffectType::none;
+    else if (newInt == 1)
+        effect = EffectType::verb;
+    else if (newInt == 2)
+        effect = EffectType::chorus;
+    else if (newInt == 3)
+        effect = EffectType::phaser;
+    else
+        jassertfalse;
+
+    switch (effect)
+    {
+        case EffectType::verb:
+            safePtr->reverbParam1Label.setVisible (true);
+            safePtr->reverbParam2Label.setVisible (true);
+            safePtr->reverbParam1Slider.setVisible (true);
+            safePtr->reverbParam2Slider.setVisible (true);
+
+            safePtr->chorusParam1Label.setVisible (false);
+            safePtr->chorusParam2Label.setVisible (false);
+            safePtr->chorusParam1Slider.setVisible (false);
+            safePtr->chorusParam2Slider.setVisible (false);
+
+            safePtr->phaserParam1Label.setVisible (false);
+            safePtr->phaserParam2Label.setVisible (false);
+            safePtr->phaserParam1Slider.setVisible (false);
+            safePtr->phaserParam2Slider.setVisible (false);
+            break;
+
+        case EffectType::chorus:
+            safePtr->reverbParam1Label.setVisible (false);
+            safePtr->reverbParam2Label.setVisible (false);
+            safePtr->reverbParam1Slider.setVisible (false);
+            safePtr->reverbParam2Slider.setVisible (false);
+
+            safePtr->chorusParam1Label.setVisible (true);
+            safePtr->chorusParam2Label.setVisible (true);
+            safePtr->chorusParam1Slider.setVisible (true);
+            safePtr->chorusParam2Slider.setVisible (true);
+
+            safePtr->phaserParam1Label.setVisible (false);
+            safePtr->phaserParam2Label.setVisible (false);
+            safePtr->phaserParam1Slider.setVisible (false);
+            safePtr->phaserParam2Slider.setVisible (false);
+            break;
+
+        case EffectType::phaser:
+            safePtr->reverbParam1Label.setVisible (false);
+            safePtr->reverbParam2Label.setVisible (false);
+            safePtr->reverbParam1Slider.setVisible (false);
+            safePtr->reverbParam2Slider.setVisible (false);
+
+            safePtr->chorusParam1Label.setVisible (false);
+            safePtr->chorusParam2Label.setVisible (false);
+            safePtr->chorusParam1Slider.setVisible (false);
+            safePtr->chorusParam2Slider.setVisible (false);
+
+            safePtr->phaserParam1Label.setVisible (true);
+            safePtr->phaserParam2Label.setVisible (true);
+            safePtr->phaserParam1Slider.setVisible (true);
+            safePtr->phaserParam2Slider.setVisible (true);
+            break;
+        case EffectType::none:
+            break;
+        case EffectType::transitioning:
+        default:
+            jassertfalse;
+    } });
 }
 
 #if USE_NATIVE_TITLE_BAR
@@ -274,7 +381,7 @@ void ProPhatEditor::resized()
 
     const auto optionButtonBounds { rightSection.removeFromTop (25.f) };
 #if USE_NATIVE_TITLE_BAR && ! JUCE_ANDROID && ! JUCE_IOS
-    if (processor.wrapperType == juce::AudioProcessor::WrapperType::wrapperType_Standalone)
+    if (phatProcessor.wrapperType == juce::AudioProcessor::WrapperType::wrapperType_Standalone)
         optionsButton.setBounds (optionButtonBounds.toNearestInt ());
 #endif
     logoBounds = logoRow;
@@ -306,7 +413,7 @@ void ProPhatEditor::resized()
                 if (components[curComponentIndex] != nullptr)
                 {
                     auto columnW { sliderColumnW };
-                    if (auto buttonGroup { dynamic_cast<ButtonGroupComponent*> (components[curComponentIndex]) })
+                    if ([[maybe_unused]] auto buttonGroup { dynamic_cast<ButtonGroupComponent*> (components[curComponentIndex]) })
                         columnW = buttonGroupColumnW;
 
                     components[curComponentIndex]->setBounds (lineBounds.removeFromLeft (columnW).toNearestInt());
@@ -327,7 +434,10 @@ void ProPhatEditor::resized()
 
     //second line
     positionGroup (lfoGroup, bottomSection.removeFromLeft (sliderColumnW + buttonGroupColumnW + panelGap), { &lfoShapeButtons, &lfoFreqSlider, &lfoDestButtons, &lfoAmountSlider }, 2, 2);
-    positionGroup (effectGroup, bottomSection.removeFromLeft (2 * sliderColumnW + panelGap), { &effectParam1Slider, &effectParam2Slider }, 2, 2);
+    const auto effectSection { bottomSection.removeFromLeft (2 * sliderColumnW + panelGap) };
+    positionGroup (effectGroup, effectSection, { &reverbParam1Slider, &reverbParam2Slider, &effectChangeButton }, 2, 2);
+    positionGroup (effectGroup, effectSection, { &chorusParam1Slider, &chorusParam2Slider, &effectChangeButton }, 2, 2);
+    positionGroup (effectGroup, effectSection, { &phaserParam1Slider, &phaserParam2Slider, &effectChangeButton }, 2, 2);
     positionGroup (ampGroup, bottomSection, { &ampAttackSlider, &ampDecaySlider, &ampSustainSlider, &ampReleaseSlider, &masterGainSlider }, 1, 5);
 
 #if CPU_USAGE

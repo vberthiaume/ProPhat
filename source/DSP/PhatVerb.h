@@ -1,45 +1,46 @@
 #pragma once
 
 /** Holds the parameters being used by a Reverb object. */
+template <std::floating_point T>
 struct PhatVerbParameters
 {
-    float roomSize = 0.5f; /**< Room size, 0 to 1.0, where 1.0 is big, 0 is small. */
-    float damping = 0.5f; /**< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped. */
-    float wetLevel = 0.33f; /**< Wet level, 0 to 1.0 */
-    float dryLevel = 0.4f; /**< Dry level, 0 to 1.0 */
-    float width = 1.0f; /**< Reverb width, 0 to 1.0, where 1.0 is very wide. */
-    float freezeMode = 0.0f; /**< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop. */
+    T roomSize   = static_cast<T> (0.5);  /**< Room size, 0 to 1.0, where 1.0 is big, 0 is small. */
+    T damping    = static_cast<T> (0.5);  /**< Damping, 0 to 1.0, where 0 is not damped, 1.0 is fully damped. */
+    T wetLevel   = static_cast<T> (0.33); /**< Wet level, 0 to 1.0 */
+    T dryLevel   = static_cast<T> (0.4);  /**< Dry level, 0 to 1.0 */
+    T width      = static_cast<T> (1);    /**< Reverb width, 0 to 1.0, where 1.0 is very wide. */
+    T freezeMode = static_cast<T> (0);    /**< Freeze mode - values < 0.5 are "normal" mode, values > 0.5 put the reverb into a continuous feedback loop. */
 };
 
 //these are copied over from juce in order to support double-precision processing.
 template <std::floating_point T>
 class PhatVerb
 {
-public:
+  public:
     PhatVerb()
     {
-        setParameters (PhatVerbParameters());
+        setParameters (PhatVerbParameters<T>());
         setSampleRate (44100.0);
     }
 
     /** Returns the reverb's current parameters. */
-    const PhatVerbParameters& getParameters() const noexcept { return parameters; }
+    const PhatVerbParameters<T>& getParameters() const noexcept { return parameters; }
 
     /** Applies a new set of parameters to the reverb.
         Note that this doesn't attempt to lock the reverb, so if you call this in parallel with
         the process method, you may get artifacts.
     */
-    void setParameters (const PhatVerbParameters& newParams)
+    void setParameters (const PhatVerbParameters<T>& newParams)
     {
-        const float wetScaleFactor = 3.0f;
-        const float dryScaleFactor = 2.0f;
+        const T wetScaleFactor = 3.0;
+        const T dryScaleFactor = 2.0;
 
-        const float wet = newParams.wetLevel * wetScaleFactor;
+        const T wet = newParams.wetLevel * wetScaleFactor;
         dryGain.setTargetValue (newParams.dryLevel * dryScaleFactor);
-        wetGain1.setTargetValue (0.5f * wet * (1.0f + newParams.width));
-        wetGain2.setTargetValue (0.5f * wet * (1.0f - newParams.width));
+        wetGain1.setTargetValue (static_cast<T> (0.5 * wet * (1.0 + newParams.width)));
+        wetGain2.setTargetValue (static_cast<T> (0.5 * wet * (1.0 - newParams.width)));
 
-        gain = isFrozen (newParams.freezeMode) ? 0.0f : 0.015f;
+        gain       = static_cast<T> (isFrozen (newParams.freezeMode) ? 0.0 : 0.015);
         parameters = newParams;
         updateDamping();
     }
@@ -51,10 +52,10 @@ public:
     {
         jassert (sampleRate > 0);
 
-        static const short combTunings[] = { 1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617 }; // (at 44100Hz)
+        static const short combTunings[]    = { 1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617 }; // (at 44100Hz)
         static const short allPassTunings[] = { 556, 441, 341, 225 };
-        const int stereoSpread = 23;
-        const int intSampleRate = (int) sampleRate;
+        const int          stereoSpread     = 23;
+        const int          intSampleRate    = (int) sampleRate;
 
         for (int i = 0; i < numCombs; ++i)
         {
@@ -89,7 +90,6 @@ public:
         }
     }
 
-    //==============================================================================
     /** Applies the reverb to two stereo channels of audio data. */
     void processStereo (T* const left, T* const right, const int numSamples) noexcept
     {
@@ -100,9 +100,9 @@ public:
         {
             // NOLINTNEXTLINE(clang-analyzer-core.NullDereference)
             const T input = (left[i] + right[i]) * gain;
-            T outL = 0, outR = 0;
+            T       outL = 0, outR = 0;
 
-            const T damp = damping.getNextValue();
+            const T damp    = damping.getNextValue();
             const T feedbck = feedback.getNextValue();
 
             for (int j = 0; j < numCombs; ++j) // accumulate the comb filters in parallel
@@ -117,11 +117,11 @@ public:
                 outR = allPass[1][j].process (outR);
             }
 
-            const T dry = dryGain.getNextValue();
+            const T dry  = dryGain.getNextValue();
             const T wet1 = wetGain1.getNextValue();
             const T wet2 = wetGain2.getNextValue();
 
-            left[i] = outL * wet1 + outR * wet2 + left[i] * dry;
+            left[i]  = outL * wet1 + outR * wet2 + left[i] * dry;
             right[i] = outR * wet1 + outL * wet2 + right[i] * dry;
         }
         JUCE_END_IGNORE_WARNINGS_MSVC
@@ -135,10 +135,10 @@ public:
 
         for (int i = 0; i < numSamples; ++i)
         {
-            const T input = samples[i] * gain;
-            T output = 0;
+            const T input  = samples[i] * gain;
+            T       output = 0;
 
-            const T damp = damping.getNextValue();
+            const T damp    = damping.getNextValue();
             const T feedbck = feedback.getNextValue();
 
             for (int j = 0; j < numCombs; ++j) // accumulate the comb filters in parallel
@@ -147,7 +147,7 @@ public:
             for (int j = 0; j < numAllPasses; ++j) // run the allpass filters in series
                 output = allPass[0][j].process (output);
 
-            const T dry = dryGain.getNextValue();
+            const T dry  = dryGain.getNextValue();
             const T wet1 = wetGain1.getNextValue();
 
             samples[i] = output * wet1 + samples[i] * dry;
@@ -155,23 +155,23 @@ public:
         JUCE_END_IGNORE_WARNINGS_MSVC
     }
 
-private:
-    static bool isFrozen (const float freezeMode) noexcept { return freezeMode >= 0.5f; }
+  private:
+    static bool isFrozen (const T freezeMode) noexcept { return freezeMode >= 0.5; }
 
     void updateDamping() noexcept
     {
-        const float roomScaleFactor = 0.28f;
-        const float roomOffset = 0.7f;
-        const float dampScaleFactor = 0.4f;
+        const auto roomScaleFactor { static_cast<T> (0.28) };
+        const auto roomOffset { static_cast<T> (0.7) };
+        const auto dampScaleFactor { static_cast<T> (0.4) };
 
         if (isFrozen (parameters.freezeMode))
-            setDamping (0.0f, 1.0f);
+            setDamping (0.0, 1.0);
         else
             setDamping (parameters.damping * dampScaleFactor,
-                parameters.roomSize * roomScaleFactor + roomOffset);
+                        parameters.roomSize * roomScaleFactor + roomOffset);
     }
 
-    void setDamping (const float dampingToUse, const float roomSizeToUse) noexcept
+    void setDamping (const T dampingToUse, const T roomSizeToUse) noexcept
     {
         damping.setTargetValue (dampingToUse);
         feedback.setTargetValue (roomSizeToUse);
@@ -179,7 +179,7 @@ private:
 
     class CombFilter
     {
-    public:
+      public:
         CombFilter() noexcept {}
 
         void setSize (const int size)
@@ -203,27 +203,27 @@ private:
         T process (const T input, const T damp, const T feedbackLevel) noexcept
         {
             const T output = buffer[bufferIndex];
-            last = (output * (1.0f - damp)) + (last * damp);
+            last           = (output * (1.0f - damp)) + (last * damp);
             JUCE_UNDENORMALISE (last);
 
             T temp = input + (last * feedbackLevel);
             JUCE_UNDENORMALISE (temp);
             buffer[bufferIndex] = temp;
-            bufferIndex = (bufferIndex + 1) % bufferSize;
+            bufferIndex         = (bufferIndex + 1) % bufferSize;
             return output;
         }
 
-    private:
+      private:
         juce::HeapBlock<T> buffer;
-        int bufferSize = 0, bufferIndex = 0;
-        T last = 0.0f;
+        int                bufferSize = 0, bufferIndex = 0;
+        T                  last = 0.0f;
 
         JUCE_DECLARE_NON_COPYABLE (CombFilter)
     };
 
     class AllPassFilter
     {
-    public:
+      public:
         AllPassFilter() noexcept {}
 
         void setSize (const int size)
@@ -246,28 +246,31 @@ private:
         T process (const T input) noexcept
         {
             const T bufferedValue = buffer[bufferIndex];
-            T temp = input + (bufferedValue * 0.5f);
+            T       temp          = input + (bufferedValue * 0.5f);
             JUCE_UNDENORMALISE (temp);
             buffer[bufferIndex] = temp;
-            bufferIndex = (bufferIndex + 1) % bufferSize;
+            bufferIndex         = (bufferIndex + 1) % bufferSize;
             return bufferedValue - input;
         }
 
-    private:
+      private:
         juce::HeapBlock<T> buffer;
-        int bufferSize = 0, bufferIndex = 0;
+        int                bufferSize = 0, bufferIndex = 0;
 
         JUCE_DECLARE_NON_COPYABLE (AllPassFilter)
     };
 
-    enum { numCombs = 8,
+    enum
+    {
+        numCombs     = 8,
         numAllPasses = 4,
-        numChannels = 2 };
+        numChannels  = 2
+    };
 
-    PhatVerbParameters parameters;
-    float gain;
+    PhatVerbParameters<T> parameters;
+    T                     gain;
 
-    CombFilter comb[numChannels][numCombs];
+    CombFilter    comb[numChannels][numCombs];
     AllPassFilter allPass[numChannels][numAllPasses];
 
     juce::SmoothedValue<T> damping, feedback, dryGain, wetGain1, wetGain2;
@@ -275,23 +278,23 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhatVerb)
 };
 
-//====================================================================================================
+//==============================================================================
 
 template <std::floating_point T>
-class PhatVerbWrapper
+class PhatVerbProcessor
 {
-public:
+  public:
     /** Creates an uninitialised Reverb processor. Call prepare() before first use. */
-    PhatVerbWrapper() = default;
+    PhatVerbProcessor() = default;
 
     /** Returns the reverb's current parameters. */
-    const PhatVerbParameters& getParameters() const noexcept { return reverb.getParameters(); }
+    const PhatVerbParameters<T>& getParameters() const noexcept { return reverb.getParameters(); }
 
     /** Applies a new set of parameters to the reverb.
         Note that this doesn't attempt to lock the reverb, so if you call this in parallel with
         the process method, you may get artifacts.
     */
-    void setParameters (const PhatVerbParameters& newParams) { reverb.setParameters (newParams); }
+    void setParameters (const PhatVerbParameters<T>& newParams) { reverb.setParameters (newParams); }
 
     /** Returns true if the reverb is enabled. */
     bool isEnabled() const noexcept { return enabled; }
@@ -312,20 +315,19 @@ public:
     }
 
     /** Applies the reverb to a mono or stereo buffer. */
-    template <typename ProcessContext>
-    void process (const ProcessContext& context) noexcept
+    void process (const juce::dsp::ProcessContextReplacing<T>& context)
     {
-        const auto& inputBlock = context.getInputBlock();
-        auto& outputBlock = context.getOutputBlock();
-        const auto numInChannels = inputBlock.getNumChannels();
-        const auto numOutChannels = outputBlock.getNumChannels();
-        const auto numSamples = outputBlock.getNumSamples();
+        const auto& inputBlock     = context.getInputBlock();
+        auto&       outputBlock    = context.getOutputBlock();
+        const auto  numInChannels  = inputBlock.getNumChannels();
+        const auto  numOutChannels = outputBlock.getNumChannels();
+        const auto  numSamples     = outputBlock.getNumSamples();
 
         jassert (inputBlock.getNumSamples() == numSamples);
 
         outputBlock.copyFrom (inputBlock);
 
-        if (!enabled || context.isBypassed)
+        if (! enabled || context.isBypassed)
             return;
 
         if (numInChannels == 1 && numOutChannels == 1)
@@ -335,8 +337,8 @@ public:
         else if (numInChannels == 2 && numOutChannels == 2)
         {
             reverb.processStereo (outputBlock.getChannelPointer (0),
-                outputBlock.getChannelPointer (1),
-                (int) numSamples);
+                                  outputBlock.getChannelPointer (1),
+                                  (int) numSamples);
         }
         else
         {
@@ -344,7 +346,7 @@ public:
         }
     }
 
-private:
+  private:
     PhatVerb<T> reverb;
-    bool enabled = true;
+    bool        enabled = true;
 };

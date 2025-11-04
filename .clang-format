@@ -1,86 +1,68 @@
-# https://forum.juce.com/t/automatic-juce-like-code-formatting-with-clang-format/31624/20
----
-AccessModifierOffset: -4
-AlignAfterOpenBracket: DontAlign
-AlignConsecutiveAssignments: false
-AlignConsecutiveDeclarations: false
-AlignEscapedNewlines: Left
-AlignOperands: Align
-AlignTrailingComments: false
-AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortBlocksOnASingleLine: Never
-AllowShortCaseLabelsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: All
-AllowShortIfStatementsOnASingleLine: Never
-AllowShortLambdasOnASingleLine: All
-AllowShortLoopsOnASingleLine: false
+﻿---
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignEscapedNewlinesLeft: 'true'
+AlignOperands: true
+AlignTrailingComments: true
+AllowAllParametersOfDeclarationOnNextLine: 'false'
+AllowShortBlocksOnASingleLine: 'true'
+AllowShortCaseLabelsOnASingleLine: 'true'
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: 'false'
+AllowShortLoopsOnASingleLine: 'false'
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
-AlwaysBreakBeforeMultilineStrings: false
-AlwaysBreakTemplateDeclarations: Yes
-BinPackArguments: false
-BinPackParameters: false
-BreakAfterJavaFieldAnnotations: false
-BreakBeforeBinaryOperators: NonAssignment
-BreakBeforeBraces: Custom
-BraceWrapping: # Allman except for lambdas
-  AfterClass: true
-  AfterCaseLabel: true
-  AfterFunction: true
-  AfterNamespace: true
-  AfterStruct: true
-  BeforeElse: true
-  AfterControlStatement: Always
-  BeforeLambdaBody: false
-BreakBeforeTernaryOperators: true
-BreakConstructorInitializersBeforeComma: false
-BreakStringLiterals: false
-ColumnLimit: 0
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
-ConstructorInitializerIndentWidth: 4
-ContinuationIndentWidth: 4
-Cpp11BracedListStyle: false
-DerivePointerAlignment: false
-DisableFormat: false
-ExperimentalAutoDetectBinPacking: false
-IndentCaseLabels: true
-IndentPPDirectives: BeforeHash
-IndentWidth: 4
-IndentWrappedFunctionNames: true
-KeepEmptyLinesAtTheStartOfBlocks: false
+AlwaysBreakBeforeMultilineStrings: 'true'
+AlwaysBreakTemplateDeclarations: 'true'
+BinPackArguments: 'false'
+BinPackParameters: 'false'
+BreakConstructorInitializersBeforeComma: 'false'
+ColumnLimit: '0'
+ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
+ConstructorInitializerIndentWidth: '0'
+Cpp11BracedListStyle: 'false'
+SpaceBeforeCpp11BracedList: 'true'
+DerivePointerAlignment: 'true'
+DisableFormat: 'false'
+IndentCaseLabels: 'true'
+IndentWidth: '4'
+IndentWrappedFunctionNames: 'false'
+KeepEmptyLinesAtTheStartOfBlocks: 'false'
 Language: Cpp
-MaxEmptyLinesToKeep: 1
-FixNamespaceComments: false
-NamespaceIndentation: All
-PointerAlignment: Left
-ReflowComments: false
-SortIncludes: true
-SpaceAfterCStyleCast: true
-SpaceAfterLogicalNot: false
-SpaceBeforeAssignmentOperators: true
-SpaceBeforeCpp11BracedList: true
+MaxEmptyLinesToKeep: '1'
+NamespaceIndentation: Inner
+ReflowComments: 'false'
+SpaceAfterCStyleCast: 'true'
+SpaceBeforeAssignmentOperators: 'true'
 SpaceBeforeParens: NonEmptyParentheses
-SpaceInEmptyParentheses: false
-SpaceBeforeInheritanceColon: true
-SpacesInAngles: false
-SpacesInCStyleCastParentheses: false
-SpacesInContainerLiterals: true
-SpacesInParentheses: false
-SpacesInSquareBrackets: false
-Standard: "c++20"
-TabWidth: 4
+SpaceInEmptyParentheses: 'false'
+SpacesInCStyleCastParentheses: 'false'
+SpacesInContainerLiterals: 'false'
+SpacesInParentheses: 'false'
+SpacesInSquareBrackets: 'false'
+SpaceAfterLogicalNot: 'true'
+Standard: Cpp11
 UseTab: Never
-UseCRLF: false
----
-Language: ObjC
-BasedOnStyle: Chromium
+TabWidth: 4
+SortIncludes: false
+AccessModifierOffset: -2
+
+BraceWrapping:
+  AfterClass:      true
+  AfterControlStatement: true
+  AfterEnum:       true
+  AfterFunction:   true
+  AfterNamespace:  true
+  AfterObjCDeclaration: true
+  AfterStruct:     true
+  AfterUnion:      true
+  AfterExternBlock: true
+  BeforeCatch:     true
+  BeforeElse:      true
+  IndentBraces:    false
+  SplitEmptyFunction: false
+  SplitEmptyNamespace: false
+  SplitEmptyRecord: false
 BreakBeforeBraces: Allman
-ColumnLimit: 0
-IndentWidth: 4
-KeepEmptyLinesAtTheStartOfBlocks: false
-ObjCSpaceAfterProperty: true
-ObjCSpaceBeforeProtocolList: true
-PointerAlignment: Left
-SpacesBeforeTrailingComments: 1
-TabWidth: 4
-UseTab: Never
+BreakBeforeBinaryOperators: All

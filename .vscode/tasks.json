@@ -1,0 +1,82 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMake: Configure (Debug)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-B",
+                "Builds",
+                "-G",
+                "Ninja",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DCMAKE_C_COMPILER_LAUNCHER=sccache",
+                "-DCMAKE_CXX_COMPILER_LAUNCHER=sccache",
+                "-DFORMATS=Standalone", //change this to allow for other builds, e.g., -DFORMATS="Standalone;AU;VST3;AUv3"
+                "."
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "ProPhat CMake Debug Build",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "cmake --build Builds && cmake --build Builds -j`nproc` --config Debug"
+            ],
+            "dependsOn": [
+                "CMake: Configure (Debug)"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "CMake: Configure (Release)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-B",
+                "Builds",
+                "-G",
+                "Ninja",
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-DCMAKE_C_COMPILER_LAUNCHER=sccache",
+                "-DCMAKE_CXX_COMPILER_LAUNCHER=sccache",
+                "."
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "ProPhat CMake RELEASE Build",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "cmake --build Builds --target clean && cmake --build Builds -j8 --config Release"
+            ],
+            "dependsOn": [
+                "CMake: Configure (Release)"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
