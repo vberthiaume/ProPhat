@@ -32,8 +32,6 @@
 #include "PhatEffectsProcessor.hpp"
 #endif
 
-#define CLIP_OVERLAP 0
-
 struct ProPhatSound : public juce::SynthesiserSound
 {
     bool appliesToNote (int) override { return true; }
@@ -755,14 +753,8 @@ void ProPhatVoice<T>::processKillOverlap (juce::dsp::AudioBlock<T>& block, int c
         {
             const T prev { block.getSample (c, i) };
             const T overl { overlap->getSample (c, overlapIndex + i) };
-
-#if CLIP_OVERLAP
-            //well lol, that won't work bro, that'll def induce clipping
-            const T total { juce::jlimit (min, max, prev + overl) };
-#else
             const T total { prev + overl };
             jassert (total >= min && total <= max);
-#endif
 
             block.setSample (c, i, total);
 
