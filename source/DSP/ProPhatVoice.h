@@ -154,8 +154,7 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
     juce::ADSR             ampADSR, filterADSR;
     juce::ADSR::Parameters ampParams { Constants::defaultAmpA, Constants::defaultAmpD, Constants::defaultAmpS, Constants::defaultAmpR };
     juce::ADSR::Parameters filterEnvParams { ampParams };
-    //TODO: should these be atomic??? Are they set on the audio thread??
-    bool currentlyReleasingNote = false, justDoneReleaseEnvelope = false;
+    bool currentlyReleasingNote = false, justDoneReleaseEnvelope = false;   //written and read on audio thread only
 
     T curFilterCutoff { Constants::defaultFilterCutoff };
     T curFilterResonance { Constants::defaultFilterResonance };
@@ -783,7 +782,6 @@ void ProPhatVoice<T>::applyKillRamp (juce::AudioBuffer<T>& outputBuffer, int sta
 #if DEBUG_VOICES
     DBG ("\tDEBUG ProPhatVoice<T>::applyKillRamp on samples " << juce::String (startSample) << "-" << juce::String (startSample + numSamples));
 #endif
-    //    return;
     outputBuffer.applyGainRamp (startSample, numSamples, 1.f, 0.f);
     currentlyKillingVoice = false;
 
