@@ -13,7 +13,7 @@
                 "-DCMAKE_BUILD_TYPE=Debug",
                 "-DCMAKE_C_COMPILER_LAUNCHER=sccache",
                 "-DCMAKE_CXX_COMPILER_LAUNCHER=sccache",
-                "-DFORMATS=Standalone", //change this to allow for other builds, e.g., -DFORMATS="Standalone;AU;VST3;AUv3"
+                "-DFORMATS=VST3", //change this to allow for other builds, e.g., -DFORMATS="Standalone;AU;VST3;AUv3"
                 "."
             ],
             "group": {
@@ -22,12 +22,12 @@
             }
         },
         {
-            "label": "ProPhat CMake Debug Build",
+            "label": "ProPhat CMake Configure and Debug Build",
             "type": "shell",
             "command": "bash",
             "args": [
                 "-c",
-                "cmake --build Builds && cmake --build Builds -j`nproc` --config Debug"
+                "cmake --build Builds -j`nproc` --config Debug"
             ],
             "dependsOn": [
                 "CMake: Configure (Debug)"
@@ -46,7 +46,9 @@
             "command": "cmake",
             "args": [
                 "-B",
-                "Builds",
+                "Builds/Release",
+                "--target",
+                "clean",
                 "-G",
                 "Ninja",
                 "-DCMAKE_BUILD_TYPE=Release",
@@ -65,7 +67,7 @@
             "command": "bash",
             "args": [
                 "-c",
-                "cmake --build Builds --target clean && cmake --build Builds -j8 --config Release"
+                "cmake --build Builds -j8 --config Release"
             ],
             "dependsOn": [
                 "CMake: Configure (Release)"

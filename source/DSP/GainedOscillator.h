@@ -33,6 +33,8 @@ public:
     {
         setOscShape (OscShape::saw);
         setGain (Constants::defaultOscLevel);
+        //this doesn't change anything
+        // setFrequency (440, true);
     }
 
     void setFrequency (T newValue, bool force = false)
@@ -40,6 +42,8 @@ public:
         jassert (newValue > 0);
 
         auto& osc = processorChain.template get<oscIndex> ();
+        //I think the issue is that this isn't called in pluginval. How can i test this? What is the value for the freqency when it times out?
+        //it's infinity
         osc.setFrequency (newValue, force);
     }
 
