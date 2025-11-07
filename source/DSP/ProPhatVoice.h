@@ -332,6 +332,7 @@ void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
     oscillators.prepare (spec);
 
     overlap = std::make_unique<juce::AudioBuffer<T>> (spec.numChannels, Constants::killRampSamples);
+    overlap->clear();
 
     filterAndGainProcessorChain.prepare (spec);
 

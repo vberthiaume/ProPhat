@@ -202,13 +202,14 @@ ProPhatEditor::ProPhatEditor (ProPhatProcessor& p)
     lfoDestButtons.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, lfoDestID.getParamID())));
     effectChangeButton.setSelectedButton (static_cast<int> (Helpers::getRangedParamValue (phatProcessor.state, effectSelectedID.getParamID())));
 
-    p.state.addParameterListener (effectSelectedID.getParamID(), this);
+    phatProcessor.state.addParameterListener (effectSelectedID.getParamID(), this);
     //TODO VB: there's probably a less verbose way to do this
     parameterChanged (effectSelectedID.getParamID (), phatProcessor.state.getParameterAsValue (effectSelectedID.getParamID ()).getValue());
 }
 
 ProPhatEditor::~ProPhatEditor ()
 {
+    phatProcessor.state.removeParameterListener (effectSelectedID.getParamID (), this);
     phatProcessor.midiListeners.remove (this);
     cancelPendingUpdate ();
     setLookAndFeel (nullptr);

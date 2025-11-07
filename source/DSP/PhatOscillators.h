@@ -150,7 +150,7 @@ private:
     float lfoOsc1NoteOffset = 0.f;
     float lfoOsc2NoteOffset = 0.f;
 
-    int curMidiNote;
+    int curMidiNote { 60 };
 };
 
 //====================================================================================================
