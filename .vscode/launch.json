@@ -14,7 +14,7 @@
             "externalConsole": false,
             "MIMode": "gdb",
             "miDebuggerPath": "/usr/bin/gdb",
-            "preLaunchTask": "ProPhat CMake Debug Build"
+            "preLaunchTask": "ProPhat CMake Configure and Debug Build"
         },
         {
             "name": "(lldb) Launch",

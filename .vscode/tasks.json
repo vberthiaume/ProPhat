@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "CMake: Configure (Debug)",
+            "label": "CMake: Configure Prophat (Debug)",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -30,7 +30,7 @@
                 "cmake --build Builds -j`nproc` --config Debug"
             ],
             "dependsOn": [
-                "CMake: Configure (Debug)"
+                "CMake: Configure Prophat (Debug)"
             ],
             "group": {
                 "kind": "build",
