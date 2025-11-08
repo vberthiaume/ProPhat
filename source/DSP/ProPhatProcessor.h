@@ -43,8 +43,8 @@ public:
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
 #endif
 
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
-    void processBlock (juce::AudioBuffer<double>&, juce::MidiBuffer&) override;
+    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) [[clang::nonblocking]] override;
+    void processBlock (juce::AudioBuffer<double>&, juce::MidiBuffer&) [[clang::nonblocking]] override;
 
     template <std::floating_point T>
     void process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages);
