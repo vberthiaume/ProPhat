@@ -31,6 +31,9 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    # we only have a container if we are using the rtsan build
+    container:
+      image: ${{ matrix.image || '' }}
     strategy:
       fail-fast: false # show all errors for each platform (vs. cancel jobs on error)
       matrix:
@@ -47,8 +50,11 @@ jobs:
             pluginval-binary: ./pluginval.exe
           - name: Linux (Clang-20 rtsan)
             os: ubuntu-latest
-            extra-flags: -G"Ninja Multi-Config" -DCMAKE_C_FLAGS="-fsanitize=realtime"  -DCMAKE_CXX_FLAGS="-fsanitize=realtime"
+            # IMPORTANT: Explicitly set the compilers to use clang-20
+            extra-flags: -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-20 -DCMAKE_CXX_COMPILER=clang++-20 -DCMAKE_C_FLAGS="-fsanitize=realtime" -DCMAKE_CXX_FLAGS="-fsanitize=realtime"
             image: ghcr.io/guillaumeriousat/algogris-rtsan:latest
+            # Skip pluginval for rtsan build - it's meant to catch RT violations in tests
+            skip-pluginval: true
 
     steps:
       # Setup MSVC toolchain and developer command prompt (Windows)
@@ -56,12 +62,12 @@ jobs:
 
       # Use clang on Linux so we don't introduce a 3rd compiler (Windows and macOS use MSVC and Clang)
       - name: Set up Clang
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && matrix.image == ''
         uses: egor-tensin/setup-clang@v1
 
       # This also starts up our "fake" display (Xvfb), needed for pluginval
       - name: Install JUCE's Linux Deps
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && matrix.image == ''
         # Thanks to McMartin & co https://forum.juce.com/t/list-of-juce-dependencies-under-linux/15121/44
         run: |
           sudo apt-get update && sudo apt install libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev xvfb ninja-build
@@ -126,13 +132,6 @@ jobs:
       - name: Cache the build
         uses: mozilla-actions/sccache-action@v0.0.9
 
-      # - name: Import Certificates (macOS)
-      #   uses: apple-actions/import-codesign-certs@v3
-      #   if: ${{ matrix.name == 'macOS' }}
-      #   with:
-      #     p12-file-base64: ${{ secrets.DEV_ID_APP_CERT }}
-      #     p12-password: ${{ secrets.DEV_ID_APP_PASSWORD }}
-
       - name: Configure
         run: cmake -B ${{ env.BUILD_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ${{ matrix.extra-flags }} .
         env:
@@ -146,11 +145,13 @@ jobs:
         run: ctest --output-on-failure --verbose -C ${{ env.BUILD_TYPE }}
 
       - name: Read in .env from CMake # see GitHubENV.cmake
+        if: ${{ !matrix.skip-pluginval }}
         run: |
           cat .env # show us the config
           cat .env >> $GITHUB_ENV # pull in our PRODUCT_NAME, etc
 
       - name: Set additional env vars for next steps
+        if: ${{ !matrix.skip-pluginval }}
         run: |
           ARTIFACTS_PATH=${{ env.BUILD_DIR }}/${{ env.PROJECT_NAME }}_artefacts/${{ env.BUILD_TYPE }}
           echo "ARTIFACTS_PATH=$ARTIFACTS_PATH" >> $GITHUB_ENV
@@ -162,30 +163,11 @@ jobs:
           echo "ARTIFACT_NAME=${{ env.PRODUCT_NAME }}-${{ env.VERSION }}-${{ matrix.name }}" >> $GITHUB_ENV
 
       - name: Pluginval
+        if: ${{ !matrix.skip-pluginval }}
         run: |
           curl -LO "https://github.com/Tracktion/pluginval/releases/download/v1.0.3/pluginval_${{ matrix.name }}.zip"
           7z x pluginval_${{ matrix.name }}.zip
           ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate "${{ env.VST3_PATH }}"
-
-#      - name: Import Certificates (macOS)
-#        uses: sudara/basic-macos-keychain-action@v1
-#        id: keychain
-#        if: ${{ matrix.name == 'macOS'}}
-#        with:
-#          dev-id-app-cert: ${{ secrets.DEV_ID_APP_CERT }}
-#          dev-id-app-password: ${{ secrets.DEV_ID_APP_PASSWORD }}
-#          dev-id-installer-cert: ${{ secrets.DEV_ID_INSTALLER_CERT }}
-#          dev-id-installer-password: ${{ secrets.DEV_ID_INSTALLER_PASSWORD }}
-
-      # - name: Codesign (macOS)
-      #   if: ${{ matrix.name == 'macOS' }}
-      #   timeout-minutes: 5
-      #   run: |
-      #     # Each plugin must be code signed
-      #     codesign --force -s "${{ secrets.DEVELOPER_ID_APPLICATION}}" -v "${{ env.VST3_PATH }}" --deep --strict --options=runtime --timestamp
-      #     codesign --force -s "${{ secrets.DEVELOPER_ID_APPLICATION}}" -v "${{ env.AU_PATH }}" --deep --strict --options=runtime --timestamp
-      #     codesign --force -s "${{ secrets.DEVELOPER_ID_APPLICATION}}" -v "${{ env.CLAP_PATH }}" --deep --strict --options=runtime --timestamp
-      #     codesign --force -s "${{ secrets.DEVELOPER_ID_APPLICATION}}" -v "${{ env.STANDALONE_PATH }}" --deep --strict --options=runtime --timestamp
 
       - name: Add Custom Icons (macOS)
         if: ${{ matrix.name == 'macOS' }}
@@ -203,26 +185,6 @@ jobs:
           SetFile -a C "${{ env.AU_PATH }}"
           SetFile -a C "${{ env.CLAP_PATH }}"
 
-#      - name: pkgbuild, Productbuild and Notarize
-#        if: ${{ matrix.name == 'macOS' }}
-#        timeout-minutes: 5
-#        run: |
-#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.au.pkg" --version $VERSION --component "${{ env.AU_PATH }}" --install-location "/Library/Audio/Plug-Ins/Components"  "packaging/${{ env.PRODUCT_NAME }}.au.pkg"
-#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.vst3.pkg" --version $VERSION --component "${{ env.VST3_PATH }}" --install-location "/Library/Audio/Plug-Ins/VST3" "packaging/${{ env.PRODUCT_NAME }}.vst3.pkg"
-#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.clap.pkg" --version $VERSION --component "${{ env.CLAP_PATH }}" --install-location "/Library/Audio/Plug-Ins/CLAP" "packaging/${{ env.PRODUCT_NAME }}.clap.pkg"
-#
-#          # Standalone is special, needs a boolean to always install in /Applications
-#          pkgbuild --analyze --root "$(dirname "${{ env.STANDALONE_PATH }}")" standalone.plist
-#          plutil -replace BundleIsRelocatable -bool NO standalone.plist
-#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.app.pkg" --version $VERSION --root "$(dirname "${{ env.STANDALONE_PATH }}")" --component-plist standalone.plist --install-location "/Applications" "packaging/${{ env.PRODUCT_NAME }}.app.pkg"
-#
-#          cd packaging
-#          envsubst < distribution.xml.template > distribution.xml
-#          productbuild --resources ./resources --distribution distribution.xml --sign "${{ secrets.DEVELOPER_ID_INSTALLER }}" --timestamp "${{ env.ARTIFACT_NAME }}.pkg"
-#
-#          # xcrun notarytool submit "${{ env.ARTIFACT_NAME }}.pkg" --apple-id ${{ secrets.NOTARIZATION_USERNAME }} --password ${{ secrets.NOTARIZATION_PASSWORD }} --team-id ${{ secrets.TEAM_ID }} --wait
-#          # xcrun stapler staple "${{ env.ARTIFACT_NAME }}.pkg"
-
       - name: Zip
         if: ${{ matrix.name == 'Linux' }}
         working-directory: ${{ env.ARTIFACTS_PATH }}
@@ -237,32 +199,6 @@ jobs:
         run: |
           iscc "packaging\installer.iss"
           mv "packaging/Output/${{ env.ARTIFACT_NAME }}.exe" "${{ env.ARTIFACTS_PATH }}/"
-
-      # - name: Codesign with Azure Trusted Signing
-      #   if: ${{ matrix.name == 'Windows' }}
-      #   uses: azure/trusted-signing-action@v0.5.1
-      #   with:
-      #     # The Azure Active Directory tenant (directory) ID.
-      #     azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-
-      #     # The client (application) ID of an App Registration in the tenant.
-      #     azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      #     # A client secret that was generated for the App Registration.
-      #     azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-
-      #     # The Code Signing Account endpoint. The URI value must have a URI that aligns to the region your Code Signing Account and Certificate Profile you are specifying were created in during the setup of these resources.
-      #     endpoint: ${{ secrets.AZURE_ENDPOINT }}
-
-      #     # The Code Signing Account name.
-      #     trusted-signing-account-name: ${{ secrets.AZURE_CODE_SIGNING_NAME }}
-
-      #     # The Certificate Profile name.
-      #     certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
-
-      #     # This signs all exes inside the folder
-      #     files-folder: ${{ env.ARTIFACTS_PATH }}
-      #     files-folder-filter: exe
 
       - name: Upload Exe (Windows)
         if: ${{ matrix.name == 'Windows' }}
