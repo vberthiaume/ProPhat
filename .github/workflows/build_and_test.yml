@@ -45,6 +45,10 @@ jobs:
           - name: Windows
             os: windows-latest
             pluginval-binary: ./pluginval.exe
+          - name: Linux (Clang-20 rtsan)
+            os: ubuntu-latest
+            extra-flags: -G"Ninja Multi-Config" -DCMAKE_C_FLAGS="-fsanitize=realtime"  -DCMAKE_CXX_FLAGS="-fsanitize=realtime"
+            image: ghcr.io/guillaumeriousat/algogris-rtsan:latest
 
     steps:
       # Setup MSVC toolchain and developer command prompt (Windows)
