@@ -51,7 +51,7 @@ jobs:
           - name: Linux (Clang-20 rtsan)
             os: ubuntu-latest
             # IMPORTANT: Explicitly set the compilers to use clang-20
-            extra-flags: -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-20 -DCMAKE_CXX_COMPILER=clang++-20 -DCMAKE_C_FLAGS="-fsanitize=realtime" -DCMAKE_CXX_FLAGS="-fsanitize=realtime"
+            extra-flags: -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-20 -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-fsanitize=realtime" -DCMAKE_CXX_FLAGS="-fsanitize=realtime"
             image: ghcr.io/guillaumeriousat/algogris-rtsan:latest
             # Skip pluginval for rtsan build - it's meant to catch RT violations in tests
             skip-pluginval: true
