@@ -192,8 +192,15 @@ target_link_libraries(SharedCode
     juce_gui_basics
     juce_gui_extra
     juce::juce_recommended_config_flags
-    juce::juce_recommended_lto_flags
     juce::juce_recommended_warning_flags)
+
+# Only enable LTO when not using sanitizers (rtsan conflicts with LTO)
+if(NOT CMAKE_CXX_FLAGS MATCHES "fsanitize")
+    target_link_libraries(SharedCode INTERFACE juce::juce_recommended_lto_flags)
+    message(STATUS "LTO enabled")
+else()
+    message(STATUS "LTO disabled due to sanitizer flags")
+endif()
 
 if(MSVC)
     target_link_libraries(SharedCode INTERFACE Dwmapi.lib)
