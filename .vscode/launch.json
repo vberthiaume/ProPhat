@@ -47,11 +47,10 @@
             "request": "launch",
             "program": "${workspaceFolder}/Builds/Tests",
             "args": [],
+            "cwd": "${workspaceFolder}/Builds",
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": true,
-            "MIMode": "lldb", // or "gdb" if you prefer
+            "MIMode": "lldb", // use "gdb" on Linux if preferred
             "preLaunchTask": "Build and Debug Tests"
         }
     ]
