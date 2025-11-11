@@ -34,9 +34,17 @@ set(COMPANY_NAME "BMP4")
 # Change me! Used for the MacOS bundle identifier (and signing)
 set(BUNDLE_ID "com.BMP4.ProPhat")
 
-# Change me! Set the plugin formats you want built
-# Valid choices: AAX Unity VST VST3 AU AUv3 Standalone
-set(FORMATS Standalone AU VST3 AUv3)
+# Conditionally set plugin formats based on whether we're using sanitizers
+# rtsan builds should only build Standalone to avoid linking issues with plugin formats
+if(CMAKE_CXX_FLAGS MATCHES "fsanitize")
+    set(FORMATS Standalone)
+    message(STATUS "Sanitizer build detected - building Standalone only")
+else()
+    # Change me! Set the plugin formats you want built
+    # Valid choices: AAX Unity VST VST3 AU AUv3 Standalone
+    set(FORMATS Standalone AU VST3 AUv3)
+    message(STATUS "Building all plugin formats")
+endif()
 
 # For simplicity, the name of the CMake project is also the name of the target
 project(${PROJECT_NAME} VERSION ${CURRENT_VERSION})
@@ -95,9 +103,12 @@ juce_add_plugin("${PROJECT_NAME}"
 # Without running into ODR violations
 add_library(SharedCode INTERFACE)
 
-clap_juce_extensions_plugin(TARGET "${PROJECT_NAME}"
-    CLAP_ID "${BUNDLE_ID}"
-    CLAP_FEATURES audio-effect)
+# Only add CLAP if not building with sanitizers (same linking issues as VST3/AU)
+if(NOT CMAKE_CXX_FLAGS MATCHES "fsanitize")
+    clap_juce_extensions_plugin(TARGET "${PROJECT_NAME}"
+        CLAP_ID "${BUNDLE_ID}"
+        CLAP_FEATURES audio-effect)
+endif()
 
 # Enable fast math, C++20 and a few other target defaults
 include(SharedCodeDefaults)
