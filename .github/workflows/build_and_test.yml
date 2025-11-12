@@ -187,10 +187,11 @@ jobs:
         run: ctest --output-on-failure --verbose -C ${{ env.BUILD_TYPE }}
 
       - name: Read in .env from CMake # see GitHubENV.cmake
-        if: ${{ !matrix.skip-pluginval }}
+        if: ${{ !matrix.skip-pluginval && hashFiles('.env') != '' }}
         run: |
-          cat .env # show us the config
-          cat .env >> $GITHUB_ENV # pull in our PRODUCT_NAME, etc
+          echo "---- .env contents ----"
+          cat .env
+          cat .env >> $GITHUB_ENV
 
       - name: Set additional env vars for next steps
         if: ${{ !matrix.skip-pluginval }}
