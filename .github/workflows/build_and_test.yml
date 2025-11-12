@@ -59,14 +59,12 @@ jobs:
 
           - name: Linux (ThreadSanitizer)
             os: ubuntu-latest
-            extra-flags: -DCMAKE_C_COMPILER=clang-19 -DCMAKE_CXX_COMPILER=clang++-19 -G"Ninja Multi-Config" -DCMAKE_C_FLAGS="-fsanitize=thread -g" -DCMAKE_CXX_FLAGS="-fsanitize=thread -g" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread" -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=thread" -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
-            packages: clang-19 libclang-rt-19-dev
+            extra-flags: -G"Ninja Multi-Config" -DCMAKE_C_FLAGS="-fsanitize=thread -g" -DCMAKE_CXX_FLAGS="-fsanitize=thread -g" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread" -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=thread" -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
             skip-pluginval: true
 
           - name: Linux (AddressSanitizer)
             os: ubuntu-latest
-            extra-flags: -DCMAKE_C_COMPILER=clang-19 -DCMAKE_CXX_COMPILER=clang++-19 -G"Ninja Multi-Config" -DCMAKE_C_FLAGS="-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -g" -DCMAKE_CXX_FLAGS="-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -g" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address -fsanitize=undefined" -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address -fsanitize=undefined" -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
-            packages: clang-19 libclang-rt-19-dev
+            extra-flags: -G"Ninja Multi-Config" -DCMAKE_C_FLAGS="-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -g" -DCMAKE_CXX_FLAGS="-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -g" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address -fsanitize=undefined" -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address -fsanitize=undefined" -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
             skip-pluginval: true
 
     steps:
