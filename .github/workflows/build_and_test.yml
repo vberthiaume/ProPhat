@@ -39,11 +39,11 @@ jobs:
       matrix:
         include:
           - name: Linux
-            os: ubuntu-24.04
+            os: ubuntu-latest
             pluginval-binary: ./pluginval
 
           - name: macOS
-            os: macos-14
+            os: macos-latest
             pluginval-binary: pluginval.app/Contents/MacOS/pluginval
             extra-flags: -G Ninja -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
 
@@ -53,21 +53,49 @@ jobs:
 
           - name: Linux (Clang-20 rtsan)
             os: ubuntu-latest
-            extra-flags: -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-20 -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-fsanitize=realtime" -DCMAKE_CXX_FLAGS="-fsanitize=realtime" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=realtime" -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=realtime" -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
+            extra-flags: -G"Ninja Multi-Config"
+              -DCMAKE_C_COMPILER=clang-20
+              -DCMAKE_CXX_COMPILER=clang++
+              -DCMAKE_C_FLAGS="-fsanitize=realtime"
+              -DCMAKE_CXX_FLAGS="-fsanitize=realtime"
+              -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=realtime"
+              -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=realtime"
+              -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
             image: ghcr.io/guillaumeriousat/algogris-rtsan:latest
             skip-pluginval: true
 
           - name: Linux (ThreadSanitizer)
             os: ubuntu-latest
-            extra-flags: -G"Ninja Multi-Config" -DCMAKE_C_FLAGS="-fsanitize=thread -g" -DCMAKE_CXX_FLAGS="-fsanitize=thread -g" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread" -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=thread" -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
+            extra-flags: -G"Ninja Multi-Config"
+              -DCMAKE_C_FLAGS="-fsanitize=thread -g"
+              -DCMAKE_CXX_FLAGS="-fsanitize=thread -g"
+              -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread"
+              -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=thread"
+              -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
             skip-pluginval: true
 
           - name: Linux (AddressSanitizer)
             os: ubuntu-latest
-            extra-flags: -G"Ninja Multi-Config" -DCMAKE_C_FLAGS="-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -g" -DCMAKE_CXX_FLAGS="-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -g" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address -fsanitize=undefined" -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address -fsanitize=undefined" -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
+            extra-flags: -G"Ninja Multi-Config"
+              -DCMAKE_C_FLAGS="-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -g"
+              -DCMAKE_CXX_FLAGS="-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -g"
+              -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address -fsanitize=undefined"
+              -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address -fsanitize=undefined" -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
             skip-pluginval: true
             env:
-              ASAN_OPTIONS: "halt_on_error=1:abort_on_error=1"
+              UBSAN_OPTIONS: "halt_on_error=1:abort_on_error=1"
+
+          - name: Linux (UndefinedBehaviorSanitizer)
+            os: ubuntu-latest
+            extra-flags: >
+              -G"Ninja Multi-Config"
+              -DCMAKE_C_FLAGS="-fsanitize=undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer -g"
+              -DCMAKE_CXX_FLAGS="-fsanitize=undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer -g"
+              -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=undefined"
+              -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=undefined"
+              -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
+            skip-pluginval: true
+            env:
               UBSAN_OPTIONS: "halt_on_error=1:abort_on_error=1"
 
     steps:
