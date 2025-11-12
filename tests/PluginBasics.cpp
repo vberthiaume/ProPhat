@@ -73,6 +73,29 @@ TEST_CASE ("processBlock generates audio from MIDI input", "[processBlock]")
     }
 }
 
+TEST_CASE ("out-of-bounds write", "[asan]")
+{
+    int arr[3];
+    arr[3] = 42; // BOOM: write past end of array
+}
+
+int counter = 0;
+
+void increment()
+{
+    for (int i = 0; i < 1000; ++i)
+        counter++; // unsynchronized write
+}
+
+TEST_CASE ("data race", "[tsan]")
+{
+#include <thread>
+    std::thread t1 (increment);
+    std::thread t2 (increment);
+    t1.join();
+    t2.join();
+}
+
 #ifdef PAMPLEJUCE_IPP
     #include <ipp.h>
 
