@@ -73,10 +73,31 @@ TEST_CASE ("processBlock generates audio from MIDI input", "[processBlock]")
     }
 }
 
-TEST_CASE ("out-of-bounds write", "[asan]")
+TEST_CASE ("out-of-bounds write", "[ubsan]")
 {
     int arr[3];
     arr[3] = 42; // BOOM: write past end of array
+}
+
+TEST_CASE ("heap buffer overflow", "[asan]")
+{
+    int* arr = new int[3];
+    arr[3]   = 42; // Out-of-bounds heap write
+    delete[] arr;
+}
+
+TEST_CASE ("use after free", "[asan]")
+{
+    int* p = new int (1);
+    delete p;
+    *p = 5; // BOOM: write after free
+}
+
+// this is really the same thing as the "out-of-bounds write", but just one past the end of the buffer, so potentially not useful
+TEST_CASE ("stack buffer overflow", "[asan]")
+{
+    char buf[8];
+    buf[8] = 'x'; // BOOM: write past end of stack buffer
 }
 
 int counter = 0;
