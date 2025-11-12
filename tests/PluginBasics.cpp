@@ -69,7 +69,7 @@ TEST_CASE ("ProcessBlock generates audio from MIDI input", "[RTSan]")
 }
 
 //================================== Sanitizer tests ================================================
-
+#if 0
 TEST_CASE ("use after free", "[ASan]")
 {
     int* p = new int (1);
@@ -105,6 +105,7 @@ TEST_CASE ("stack buffer overflow", "[UBSan]")
     char buf[8];
     buf[8] = 'x'; // BOOM: write past end of stack buffer
 }
+#endif
 
 #ifdef PAMPLEJUCE_IPP
     #include <ipp.h>
