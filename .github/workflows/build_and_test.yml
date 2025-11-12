@@ -87,8 +87,7 @@ jobs:
 
           - name: Linux (UndefinedBehaviorSanitizer)
             os: ubuntu-latest
-            extra-flags: >
-              -G"Ninja Multi-Config"
+            extra-flags: -G"Ninja Multi-Config"
               -DCMAKE_C_FLAGS="-fsanitize=undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer -g"
               -DCMAKE_CXX_FLAGS="-fsanitize=undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer -g"
               -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=undefined"
@@ -187,11 +186,10 @@ jobs:
         run: ctest --output-on-failure --verbose -C ${{ env.BUILD_TYPE }}
 
       - name: Read in .env from CMake # see GitHubENV.cmake
-        if: ${{ !matrix.skip-pluginval && hashFiles('.env') != '' }}
+        if: ${{ !matrix.skip-pluginval }}
         run: |
-          echo "---- .env contents ----"
-          cat .env
-          cat .env >> $GITHUB_ENV
+          cat .env # show us the config
+          cat .env >> $GITHUB_ENV # pull in our PRODUCT_NAME, etc
 
       - name: Set additional env vars for next steps
         if: ${{ !matrix.skip-pluginval }}
