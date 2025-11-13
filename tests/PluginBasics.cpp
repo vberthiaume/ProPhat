@@ -69,7 +69,7 @@ TEST_CASE ("ProcessBlock generates audio from MIDI input", "[RTSan]")
 }
 
 //================================== Sanitizer Sanity Tests ================================================
-#if 1
+#if 0
 TEST_CASE ("use after free", "[ASan]")
 {
     int* p = new int (1);
