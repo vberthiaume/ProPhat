@@ -179,13 +179,13 @@ jobs:
         run: ctest --output-on-failure --verbose -C ${{ env.BUILD_TYPE }}
 
       - name: Read in .env from CMake # see GitHubENV.cmake
-        if: ${{ !matrix.skip-pluginval }}
+        if: ${{ ! matrix.pluginval-binary == '' }}
         run: |
           cat .env # show us the config
           cat .env >> $GITHUB_ENV # pull in our PRODUCT_NAME, etc
 
       - name: Set additional env vars for next steps
-        if: ${{ !matrix.skip-pluginval }}
+        if: ${{ ! matrix.pluginval-binary == '' }}
         run: |
           ARTIFACTS_PATH=${{ env.BUILD_DIR }}/${{ env.PROJECT_NAME }}_artefacts/${{ env.BUILD_TYPE }}
           echo "ARTIFACTS_PATH=$ARTIFACTS_PATH" >> $GITHUB_ENV
@@ -197,7 +197,7 @@ jobs:
           echo "ARTIFACT_NAME=${{ env.PRODUCT_NAME }}-${{ env.VERSION }}-${{ matrix.name }}" >> $GITHUB_ENV
 
       - name: Pluginval
-        if: ${{ !matrix.skip-pluginval }}
+        if: ${{ ! matrix.pluginval-binary == '' }}
         run: |
           curl -LO "https://github.com/Tracktion/pluginval/releases/download/v1.0.3/pluginval_${{ matrix.name }}.zip"
           7z x pluginval_${{ matrix.name }}.zip
