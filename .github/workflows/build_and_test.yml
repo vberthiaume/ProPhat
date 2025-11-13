@@ -77,6 +77,8 @@ jobs:
               -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer -g"
               -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address"
               -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address"
+            env:
+              ASAN_OPTIONS: "halt_on_error=1:abort_on_error=1"
 
           - name: Linux (UndefinedBehaviorSanitizer)
             os: ubuntu-latest
