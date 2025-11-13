@@ -40,6 +40,18 @@
             "externalConsole": false,
             "MIMode": "gdb",
             "miDebuggerPath": "C:\\path\\to\\gdb.exe"
+        },
+        {
+            "name": "Debug Catch2 Tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/Builds/Tests",
+            "args": [],
+            "cwd": "${workspaceFolder}/Builds",
+            "stopAtEntry": false,
+            "environment": [],
+            "MIMode": "lldb", // use "gdb" on Linux if preferred
+            "preLaunchTask": "Build and Debug Tests"
         }
     ]
 }

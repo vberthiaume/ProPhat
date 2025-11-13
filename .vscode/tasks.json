@@ -79,6 +79,31 @@
             "problemMatcher": [
                 "$gcc"
             ]
+        },
+        {
+            "label": "Build and Debug Tests",
+            "type": "cppbuild",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Builds",
+                "--target",
+                "Tests",
+                "--config",
+                "Debug",
+                "-j8"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Builds the Catch2 test executable",
+            "dependsOn": [
+                "CMake: Configure Prophat (Debug)"
+            ]
         }
     ]
 }

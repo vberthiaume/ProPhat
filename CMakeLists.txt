@@ -34,9 +34,17 @@ set(COMPANY_NAME "BMP4")
 # Change me! Used for the MacOS bundle identifier (and signing)
 set(BUNDLE_ID "com.BMP4.ProPhat")
 
-# Change me! Set the plugin formats you want built
-# Valid choices: AAX Unity VST VST3 AU AUv3 Standalone
-set(FORMATS Standalone AU VST3 AUv3)
+# Conditionally set plugin formats based on whether we're using sanitizers
+# rtsan builds should only build Standalone to avoid linking issues with plugin formats
+if(CMAKE_CXX_FLAGS MATCHES "fsanitize")
+    set(FORMATS Standalone)
+    message(STATUS "Sanitizer build detected - building Standalone only")
+else()
+    # Change me! Set the plugin formats you want built
+    # Valid choices: AAX Unity VST VST3 AU AUv3 Standalone
+    set(FORMATS Standalone AU VST3 AUv3)
+    message(STATUS "Building all plugin formats")
+endif()
 
 # For simplicity, the name of the CMake project is also the name of the target
 project(${PROJECT_NAME} VERSION ${CURRENT_VERSION})
@@ -98,6 +106,7 @@ add_library(SharedCode INTERFACE)
 clap_juce_extensions_plugin(TARGET "${PROJECT_NAME}"
     CLAP_ID "${BUNDLE_ID}"
     CLAP_FEATURES audio-effect)
+
 
 # Enable fast math, C++20 and a few other target defaults
 include(SharedCodeDefaults)
@@ -192,8 +201,15 @@ target_link_libraries(SharedCode
     juce_gui_basics
     juce_gui_extra
     juce::juce_recommended_config_flags
-    juce::juce_recommended_lto_flags
     juce::juce_recommended_warning_flags)
+
+# Only enable LTO when not using sanitizers (rtsan conflicts with LTO)
+if(NOT CMAKE_CXX_FLAGS MATCHES "fsanitize")
+    target_link_libraries(SharedCode INTERFACE juce::juce_recommended_lto_flags)
+    message(STATUS "LTO enabled")
+else()
+    message(STATUS "LTO disabled due to sanitizer flags")
+endif()
 
 if(MSVC)
     target_link_libraries(SharedCode INTERFACE Dwmapi.lib)
