@@ -104,11 +104,11 @@ juce_add_plugin("${PROJECT_NAME}"
 add_library(SharedCode INTERFACE)
 
 # Only add CLAP if not building with sanitizers (same linking issues as VST3/AU)
-if(NOT CMAKE_CXX_FLAGS MATCHES "fsanitize")
+# if(NOT CMAKE_CXX_FLAGS MATCHES "fsanitize")
     clap_juce_extensions_plugin(TARGET "${PROJECT_NAME}"
         CLAP_ID "${BUNDLE_ID}"
         CLAP_FEATURES audio-effect)
-endif()
+# endif()
 
 # Enable fast math, C++20 and a few other target defaults
 include(SharedCodeDefaults)

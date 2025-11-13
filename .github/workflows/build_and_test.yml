@@ -51,7 +51,7 @@ jobs:
             os: windows-latest
             pluginval-binary: ./pluginval.exe
 
-          - name: Linux (Clang-20 rtsan)
+          - name: Linux (Clang-20 RealtimeSanitizer)
             os: ubuntu-latest
             extra-flags: -G"Ninja Multi-Config"
               -DCMAKE_C_COMPILER=clang-20
@@ -62,28 +62,24 @@ jobs:
               -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=realtime"
               -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
             image: ghcr.io/guillaumeriousat/algogris-rtsan:latest
-            skip-pluginval: true
 
           - name: Linux (ThreadSanitizer)
             os: ubuntu-latest
             extra-flags: -G"Ninja Multi-Config"
-              -DCMAKE_C_FLAGS="-fsanitize=thread -g"
-              -DCMAKE_CXX_FLAGS="-fsanitize=thread -g"
+              -DCMAKE_C_FLAGS="-fsanitize=thread -fno-omit-frame-pointer -g"
+              -DCMAKE_CXX_FLAGS="-fsanitize=thread -fno-omit-frame-pointer -g"
               -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread"
               -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=thread"
               -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
-            skip-pluginval: true
 
           - name: Linux (AddressSanitizer)
             os: ubuntu-latest
             extra-flags: -G"Ninja Multi-Config"
-              -DCMAKE_C_FLAGS="-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -g"
-              -DCMAKE_CXX_FLAGS="-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -g"
-              -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address -fsanitize=undefined"
-              -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address -fsanitize=undefined" -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
-            skip-pluginval: true
-            env:
-              UBSAN_OPTIONS: "halt_on_error=1:abort_on_error=1"
+              -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer -g"
+              -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer -g"
+              -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address"
+              -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address"
+              -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
 
           - name: Linux (UndefinedBehaviorSanitizer)
             os: ubuntu-latest
@@ -93,9 +89,6 @@ jobs:
               -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=undefined"
               -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=undefined"
               -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
-            skip-pluginval: true
-            env:
-              UBSAN_OPTIONS: "halt_on_error=1:abort_on_error=1"
 
     steps:
       # Setup MSVC toolchain and developer command prompt (Windows)
@@ -111,7 +104,7 @@ jobs:
         if: runner.os == 'Linux' && matrix.image == ''
         # Thanks to McMartin & co https://forum.juce.com/t/list-of-juce-dependencies-under-linux/15121/44
         run: |
-          sudo apt-get update && sudo apt install libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev xvfb ninja-build ${{ matrix.packages }}
+          sudo apt-get update && sudo apt install libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev xvfb ninja-build
           sudo /usr/bin/Xvfb $DISPLAY &
 
       - name: Cache IPP (Windows)
