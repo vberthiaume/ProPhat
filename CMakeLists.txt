@@ -127,34 +127,6 @@ include(XcodePrettify)
 
 if(WIN32)
     set(JUCE_ASIO ON CACHE BOOL "Enable ASIO support" FORCE)
-    
-    # Use environment variable if set, otherwise fall back to default path
-    if(DEFINED ENV{ASIO_SDK_PATH})
-        # Normalize the path to use forward slashes consistently
-        file(TO_CMAKE_PATH "$ENV{ASIO_SDK_PATH}" ASIOSDK_DIR)
-        set(ASIOSDK_DIR "${ASIOSDK_DIR}" CACHE PATH "Path to ASIO SDK" FORCE)
-        message(STATUS "Using ASIO SDK from environment: ${ASIOSDK_DIR}")
-    elseif(NOT ASIOSDK_DIR)
-        set(ASIOSDK_DIR "C:/SDKs/ASIOSDK" CACHE PATH "Path to ASIO SDK")
-        message(STATUS "Using default ASIO SDK path: ${ASIOSDK_DIR}")
-    endif()
-    
-    # Debug: List what's in the directory
-    message(STATUS "Checking ASIO SDK at: ${ASIOSDK_DIR}")
-    if(EXISTS "${ASIOSDK_DIR}")
-        message(STATUS "  Directory exists: ${ASIOSDK_DIR}")
-        file(GLOB ASIO_COMMON_FILES "${ASIOSDK_DIR}/common/*")
-        message(STATUS "  Files in common/: ${ASIO_COMMON_FILES}")
-    else()
-        message(WARNING "  Directory does NOT exist: ${ASIOSDK_DIR}")
-    endif()
-    
-    # Verify the header file exists
-    if(EXISTS "${ASIOSDK_DIR}/common/iasiodrv.h")
-        message(STATUS "✓ ASIO SDK header found: ${ASIOSDK_DIR}/common/iasiodrv.h")
-    else()
-        message(FATAL_ERROR "✗ ASIO SDK header NOT found at: ${ASIOSDK_DIR}/common/iasiodrv.h")
-    endif()
 endif()
 
 # This is where you can set preprocessor definitions for JUCE and your plugin
