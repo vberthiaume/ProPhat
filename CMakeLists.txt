@@ -56,7 +56,7 @@ project(${PROJECT_NAME} VERSION ${CURRENT_VERSION})
 add_subdirectory(JUCE)
 
 # Add CLAP format
-add_subdirectory(modules/clap-juce-extensions EXCLUDE_FROM_ALL)
+# add_subdirectory(modules/clap-juce-extensions EXCLUDE_FROM_ALL)
 
 # Add any other modules you want modules here, before the juce_add_plugin call
 add_subdirectory (modules/farbot)
@@ -103,9 +103,9 @@ juce_add_plugin("${PROJECT_NAME}"
 # Without running into ODR violations
 add_library(SharedCode INTERFACE)
 
-clap_juce_extensions_plugin(TARGET "${PROJECT_NAME}"
-    CLAP_ID "${BUNDLE_ID}"
-    CLAP_FEATURES audio-effect)
+# clap_juce_extensions_plugin(TARGET "${PROJECT_NAME}"
+#    CLAP_ID "${BUNDLE_ID}"
+#    CLAP_FEATURES audio-effect)
 
 
 # Enable fast math, C++20 and a few other target defaults
