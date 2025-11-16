@@ -22,6 +22,8 @@ Testing
 
 # IDE config
 .idea
+.vs/
+out/
 
 # clion cmake builds
 cmake-build-debug
