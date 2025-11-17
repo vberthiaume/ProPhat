@@ -412,7 +412,6 @@ void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float n
              || parameterID == filterEnvReleaseID.getParamID())
         setFilterEnvParam (parameterID, newValue);
 
-    //TODO RT: need to use try_locks for both of these
     else if (parameterID == lfoShapeID.getParamID())
         setLfoShape ((int) newValue);
     else if (parameterID == lfoDestID.getParamID())
@@ -584,7 +583,6 @@ void ProPhatVoice<T>::setLfoDest (int dest)
     //reset everything
     oscillators.resetLfoOscNoteOffsets();
 
-    //TODO RT: this should also be behind a lock/try_lock
     //change the destination
     lfoDest.curSelection = dest;
 }
@@ -595,12 +593,13 @@ void ProPhatVoice<T>::updateLfo()
 {
     T lfoOut;
     {
-        std::unique_lock<std::mutex> tryLock (lfoMutex, std::defer_lock);
-        if (! tryLock.try_lock())
-        {
-            //TODO RT: I need to fade out or something when we can't acquire the lock
-            return;
-        }
+        //TODO RT: apparently unlocking this is a system call???
+        //std::unique_lock<std::mutex> tryLock (lfoMutex, std::defer_lock);
+        //if (! tryLock.try_lock())
+        //{
+        //    //TODO RT: I need to fade out or something when we can't acquire the lock
+        //    return;
+        //}
 
         lfoOut = lfo.processSample (T (0)) * lfoAmount;
     }

@@ -228,6 +228,8 @@ struct Selection
 
     Selection (int selection) : curSelection (selection) {}
 
+    //TODO RT: pretty sure this needs to be atomic
+    //std::atomic<int> curSelection = 0;
     int curSelection = 0;
 
     //TODO: getLastSelectionIndex() is virtual but it is the same in all children -- is there a way to
