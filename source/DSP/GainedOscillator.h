@@ -33,6 +33,7 @@ public:
     {
         setOscShape (OscShape::saw);
         setGain (Constants::defaultOscLevel);
+        updateOscillators ();
     }
 
     void setFrequency (T newValue, bool force = false)
@@ -69,7 +70,7 @@ public:
     template <typename ProcessContext>
     void process (const ProcessContext& context) noexcept
     {
-        updateOscillators();
+        /*updateOscillators();*/
 
         processorChain.process (context);
     }
@@ -118,7 +119,7 @@ void GainedOscillator<T>::updateOscillators()
     switch (nextOscBuf)
     {
     case OscShape::none:
-        //TODO RT: this calls new, so cannot be on the audio thread. We could have multiple oscillators pre-initialized and just switch pointers?
+        //TODO RT: this calls new, so cannot be on the audio thread. We need to have multiple oscillators pre-initialized and just switch pointers, and for that we need to get rid of processorChain
         osc.initialise ([&] (T /*x*/) { return T (0); });
         isActive = false;
         break;
