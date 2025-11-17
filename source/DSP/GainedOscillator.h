@@ -118,6 +118,7 @@ void GainedOscillator<T>::updateOscillators()
     switch (nextOscBuf)
     {
     case OscShape::none:
+        //TODO RT: this calls new, so cannot be on the audio thread. We could have multiple oscillators pre-initialized and just switch pointers?
         osc.initialise ([&] (T /*x*/) { return T (0); });
         isActive = false;
         break;

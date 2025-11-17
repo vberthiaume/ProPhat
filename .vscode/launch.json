@@ -5,8 +5,8 @@
             "name": "(gdb) Launch - Linux",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/Builds/ProPhat_artefacts/Debug/Standalone/ProPhat",
-            // "program": "/usr/local/bin/reaper",
+            // "program": "${workspaceFolder}/Builds/ProPhat_artefacts/Debug/Standalone/ProPhat",
+            "program": "/usr/local/bin/reaper",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -50,7 +50,7 @@
             "cwd": "${workspaceFolder}/Builds",
             "stopAtEntry": false,
             "environment": [],
-            "MIMode": "lldb", // use "gdb" on Linux if preferred
+            "MIMode": "gdb", // use "gdb" on Linux if preferred
             "preLaunchTask": "Build and Debug Tests"
         }
     ]
