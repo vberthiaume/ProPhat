@@ -219,21 +219,28 @@ constexpr auto effect3      { "Phaser" };
 
 struct Selection
 {
-    Selection () = default;
-    virtual ~Selection () = default;
+    Selection()          = default;
+    virtual ~Selection() = default;
 
-    Selection (int selection)                     { curSelection.store (selection); }
-    Selection (const Selection& s)                { curSelection.store (s.curSelection.load()); }
-    Selection& operator= (const Selection& s)     { curSelection.store (s.curSelection.load ()); return *this;}
-    Selection (Selection&& s) noexcept = delete;
+    Selection (int selection) { curSelection.store (selection); }
+    Selection (const Selection& s) { curSelection.store (s.curSelection.load()); }
+
+    Selection& operator= (const Selection& s)
+    {
+        if (this != &s)
+            curSelection.store (s.curSelection.load());
+        return *this;
+    }
+
+    Selection (Selection&& s) noexcept   = delete;
     Selection& operator= (Selection&& s) = delete;
 
     std::atomic<int> curSelection { 0 };
 
     //TODO: getLastSelectionIndex() is virtual but it is the same in all children -- is there a way to
     //have totalSelectable declared in the parent somehow?
-    virtual int getLastSelectionIndex () = 0;
-    virtual bool isNullSelectionAllowed () = 0;
+    virtual int  getLastSelectionIndex()  = 0;
+    virtual bool isNullSelectionAllowed() = 0;
 };
 
 struct OscShape : public Selection
