@@ -221,16 +221,14 @@ struct Selection
 {
     Selection () = default;
     virtual ~Selection () = default;
-    Selection (const Selection&) = default;
-    Selection& operator= (const Selection&) = default;
-    Selection (Selection&&) noexcept = default;
-    Selection& operator= (Selection&&) noexcept = default;
 
-    Selection (int selection) : curSelection (selection) {}
+    Selection (int selection)                     { curSelection.store (selection); }
+    Selection (const Selection& s)                { curSelection.store (s.curSelection.load()); }
+    Selection& operator= (const Selection& s)     { curSelection.store (s.curSelection.load ()); return *this;}
+    Selection (Selection&& s) noexcept            { curSelection.store (s.curSelection.load ()); }
+    Selection& operator= (Selection&& s) noexcept { curSelection.store (s.curSelection.load ()); return *this;}
 
-    //TODO RT: pretty sure this needs to be atomic
-    //std::atomic<int> curSelection = 0;
-    int curSelection = 0;
+    std::atomic<int> curSelection { 0 };
 
     //TODO: getLastSelectionIndex() is virtual but it is the same in all children -- is there a way to
     //have totalSelectable declared in the parent somehow?
