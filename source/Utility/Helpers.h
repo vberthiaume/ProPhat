@@ -225,8 +225,8 @@ struct Selection
     Selection (int selection)                     { curSelection.store (selection); }
     Selection (const Selection& s)                { curSelection.store (s.curSelection.load()); }
     Selection& operator= (const Selection& s)     { curSelection.store (s.curSelection.load ()); return *this;}
-    Selection (Selection&& s) noexcept            { curSelection.store (s.curSelection.load ()); }
-    Selection& operator= (Selection&& s) noexcept { curSelection.store (s.curSelection.load ()); return *this;}
+    Selection (Selection&& s) noexcept = delete;
+    Selection& operator= (Selection&& s) = delete;
 
     std::atomic<int> curSelection { 0 };
 
