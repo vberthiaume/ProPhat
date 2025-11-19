@@ -50,7 +50,7 @@
             "cwd": "${workspaceFolder}/Builds",
             "stopAtEntry": false,
             "environment": [],
-            "MIMode": "gdb", // use "gdb" on Linux if preferred
+            "MIMode": "lldb", // use "gdb" on Linux if preferred
             "preLaunchTask": "Build and Debug Tests"
         }
     ]
