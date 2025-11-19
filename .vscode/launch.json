@@ -2,10 +2,9 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Launch - Linux",
+            "name": "Launch Reaper Linux",
             "type": "cppdbg",
             "request": "launch",
-            // "program": "${workspaceFolder}/Builds/ProPhat_artefacts/Debug/Standalone/ProPhat",
             "program": "/usr/local/bin/reaper",
             "args": [],
             "stopAtEntry": false,
@@ -17,7 +16,21 @@
             "preLaunchTask": "ProPhat CMake Configure and Debug Build"
         },
         {
-            "name": "(lldb) Launch",
+            "name": "Launch Prophat Linux",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/Builds/ProPhat_artefacts/Debug/Standalone/ProPhat",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "ProPhat CMake Configure and Debug Build"
+        },
+        {
+            "name": "Launch Prophat Mac",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/Builds/ProPhat_artefacts/Debug/Standalone/ProPhat.app",
@@ -29,7 +42,7 @@
             "MIMode": "lldb"
         },
         {
-            "name": "(gdb) Launch - Windows",
+            "name": "Launch Prophat Windows",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}\\Builds\\ProPhat_artefacts\\Debug\\Standalone\\ProPhat.exe",
@@ -42,7 +55,7 @@
             "miDebuggerPath": "C:\\path\\to\\gdb.exe"
         },
         {
-            "name": "Debug Catch2 Tests",
+            "name": "Launch Catch2 Tests Mac",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/Builds/Tests",
@@ -50,7 +63,19 @@
             "cwd": "${workspaceFolder}/Builds",
             "stopAtEntry": false,
             "environment": [],
-            "MIMode": "lldb", // use "gdb" on Linux if preferred
+            "MIMode": "lldb",
+            "preLaunchTask": "Build and Debug Tests"
+        },
+        {
+            "name": "Launch Catch2 Tests Mac",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/Builds/Tests",
+            "args": [],
+            "cwd": "${workspaceFolder}/Builds",
+            "stopAtEntry": false,
+            "environment": [],
+            "MIMode": "gdb",
             "preLaunchTask": "Build and Debug Tests"
         }
     ]
