@@ -217,6 +217,7 @@ constexpr auto effect3      { "Phaser" };
 
 //====================================================================================================
 
+template <typename Derived>
 struct Selection
 {
     Selection()          = default;
@@ -237,13 +238,31 @@ struct Selection
 
     std::atomic<int> curSelection { 0 };
 
-    //TODO: getLastSelectionIndex() is virtual but it is the same in all children -- is there a way to
-    //have totalSelectable declared in the parent somehow?
-    virtual int  getLastSelectionIndex()  = 0;
-    virtual bool isNullSelectionAllowed() = 0;
+    using Enum = typename Derived::Values;
+
+    // Computes number of selectable values using the sentinel
+    static constexpr int getEnumSelectableCount ()
+    {
+        return static_cast<int>(Enum::totalSelectable);
+    }
+
+    // Non-virtual, compile-time
+    int getLastSelectionIndex () const
+    {
+        return getEnumSelectableCount () - 1;
+    }
+
+    // Derived provides: static constexpr bool nullAllowed
+    bool isNullSelectionAllowed () const
+    {
+        return Derived::nullAllowed;
+    }
+
+protected:
+    Selection () = default;
 };
 
-struct OscShape : public Selection
+struct OscShape : public Selection<OscShape>
 {
     enum Values
     {
@@ -256,13 +275,12 @@ struct OscShape : public Selection
         noise // noise needs to be after totalSelectable, because it's not selectable with the regular oscillators
     };
 
-    int getLastSelectionIndex () override { return totalSelectable - 1; }
-    bool isNullSelectionAllowed () override { return true; }
+    static constexpr bool nullAllowed = true;
 };
 
-struct LfoShape : public Selection
+struct LfoShape : public Selection<LfoShape>
 {
-    enum
+    enum Values
     {
         triangle = 0,
         saw,
@@ -272,13 +290,12 @@ struct LfoShape : public Selection
         totalSelectable
     };
 
-    int getLastSelectionIndex () override { return totalSelectable - 1; }
-    bool isNullSelectionAllowed () override { return false; }
+    static constexpr bool nullAllowed = true;
 };
 
-struct LfoDest : public Selection
+struct LfoDest : public Selection<LfoDest>
 {
-    enum
+    enum Values
     {
         osc1Freq = 0,
         osc2Freq,
@@ -287,14 +304,13 @@ struct LfoDest : public Selection
         totalSelectable
     };
 
-    int getLastSelectionIndex () override { return totalSelectable - 1; }
-    bool isNullSelectionAllowed () override { return false; }
+    static constexpr bool nullAllowed = true;
 };
 
-struct SelectedEffect : public Selection
+struct SelectedEffect : public Selection<SelectedEffect>
 {
     //this is essentially like EffectType, so we still need that enum?
-    enum
+    enum Values
     {
         none = 0,
         verb,
@@ -303,8 +319,7 @@ struct SelectedEffect : public Selection
         totalSelectable
     };
 
-    int getLastSelectionIndex () override { return totalSelectable - 1; }
-    bool isNullSelectionAllowed () override { return true; }
+    static constexpr bool nullAllowed = true;
 };
 
 //====================================================================================================
