@@ -217,7 +217,6 @@ constexpr auto effect3      { "Phaser" };
 
 //====================================================================================================
 
-template <typename Derived>
 struct Selection
 {
     Selection()          = default;
@@ -238,31 +237,11 @@ struct Selection
 
     std::atomic<int> curSelection { 0 };
 
-    using Enum = typename Derived::Values;
-
-    // Computes number of selectable values using the sentinel
-    static constexpr int getEnumSelectableCount ()
-    {
-        return static_cast<int>(Enum::totalSelectable);
-    }
-
-    // Non-virtual, compile-time
-    int getLastSelectionIndex () const
-    {
-        return getEnumSelectableCount () - 1;
-    }
-
-    // Derived provides: static constexpr bool nullAllowed
-    bool isNullSelectionAllowed () const
-    {
-        return Derived::nullAllowed;
-    }
-
-protected:
-    Selection () = default;
+    virtual int  getLastSelectionIndex()  = 0;
+    virtual bool isNullSelectionAllowed() = 0;
 };
 
-struct OscShape : public Selection<OscShape>
+struct OscShape : public Selection
 {
     enum Values
     {
@@ -275,10 +254,11 @@ struct OscShape : public Selection<OscShape>
         noise // noise needs to be after totalSelectable, because it's not selectable with the regular oscillators
     };
 
-    static constexpr bool nullAllowed = true;
+    int getLastSelectionIndex () override { return totalSelectable - 1; }
+    bool isNullSelectionAllowed () override { return true; }
 };
 
-struct LfoShape : public Selection<LfoShape>
+struct LfoShape : public Selection
 {
     enum Values
     {
@@ -290,10 +270,11 @@ struct LfoShape : public Selection<LfoShape>
         totalSelectable
     };
 
-    static constexpr bool nullAllowed = true;
+    int getLastSelectionIndex () override { return totalSelectable - 1; }
+    bool isNullSelectionAllowed () override { return false; }
 };
 
-struct LfoDest : public Selection<LfoDest>
+struct LfoDest : public Selection
 {
     enum Values
     {
@@ -304,10 +285,11 @@ struct LfoDest : public Selection<LfoDest>
         totalSelectable
     };
 
-    static constexpr bool nullAllowed = true;
+    int getLastSelectionIndex () override { return totalSelectable - 1; }
+    bool isNullSelectionAllowed () override { return false; }
 };
 
-struct SelectedEffect : public Selection<SelectedEffect>
+struct SelectedEffect : public Selection
 {
     //this is essentially like EffectType, so we still need that enum?
     enum Values
@@ -319,7 +301,8 @@ struct SelectedEffect : public Selection<SelectedEffect>
         totalSelectable
     };
 
-    static constexpr bool nullAllowed = true;
+    int getLastSelectionIndex () override { return totalSelectable - 1; }
+    bool isNullSelectionAllowed () override { return true; }
 };
 
 //====================================================================================================
