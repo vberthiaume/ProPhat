@@ -48,6 +48,9 @@ enum class ProcessorId
     filterIndex = 0,
     masterGainIndex,
 };
+
+//==============================================================================
+
 template <std::floating_point T>
 class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorValueTreeState::Listener
 {
@@ -413,6 +416,7 @@ void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float n
         setFilterEnvParam (parameterID, newValue);
 
     else if (parameterID == lfoShapeID.getParamID())
+        //TODO VB: is there any way we can save these as strings? probably not because of the automations?
         setLfoShape ((int) newValue);
     else if (parameterID == lfoDestID.getParamID())
         setLfoDest ((int) newValue);
