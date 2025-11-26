@@ -68,7 +68,15 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
 
     void setLfoShape (int shape);
     void setLfoDest (int dest);
-    void setLfoFreq (float newFreq) { lfo.setFrequency (newFreq); }
+    void setLfoFreq (float newFreq)
+    {
+        //TODO RT: none of this is atomic / thread safe
+        triangleLfo.setFrequency (newFreq);
+        sawLfo.setFrequency (newFreq);
+        revSawLfo.setFrequency (newFreq);
+        squareLfo.setFrequency (newFreq);
+        randomLfo.setFrequency (newFreq);
+    }
     void setLfoAmount (float newAmount) { lfoAmount = newAmount; }
 
     void setFilterCutoff (T newValue)
@@ -165,7 +173,11 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
     //lfo stuff
     static constexpr auto    lfoUpdateRate    = 100;
     int                      lfoUpdateCounter = lfoUpdateRate;
-    juce::dsp::Oscillator<T> lfo;
+    juce::dsp::Oscillator<T> triangleLfo;
+    juce::dsp::Oscillator<T> sawLfo;
+    juce::dsp::Oscillator<T> revSawLfo;
+    juce::dsp::Oscillator<T> squareLfo;
+    juce::dsp::Oscillator<T> randomLfo;
 
     /** TODO RT: implement this pattern for all things that need to be try-locked. Can I abstract/wrap this into an object?
         class WavetableSynthesizer
@@ -236,7 +248,11 @@ ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorStat
     lfoDest.curSelection = (int) defaultLfoDest;
 
     setLfoShape (LfoShape::triangle);
-    lfo.setFrequency (Constants::defaultLfoFreq);
+    triangleLfo.setFrequency (Constants::defaultLfoFreq);
+    sawLfo.setFrequency (Constants::defaultLfoFreq);
+    revSawLfo.setFrequency (Constants::defaultLfoFreq);
+    squareLfo.setFrequency (Constants::defaultLfoFreq);
+    randomLfo.setFrequency (Constants::defaultLfoFreq);
 }
 
 template <std::floating_point T>
@@ -421,7 +437,7 @@ void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float n
     else if (parameterID == lfoDestID.getParamID())
         setLfoDest ((int) newValue);
 
-    //TODO RT: I think because all of these end up setting smoothed values, it's fine to set them directly
+    //TODO RT: need to go through these and figure out what needs to be atomic, set async on the audio thread, or ramped or whatever it is
     else if (parameterID == lfoAmountID.getParamID())
         setLfoAmount (newValue);
     else if (parameterID == lfoFreqID.getParamID())
