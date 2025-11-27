@@ -65,7 +65,11 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
 
     void setLfoShape (int shape);
     void setLfoDest (int dest);
-    void setLfoFreq (float newFreq) { lfo.setFrequency (newFreq); }
+    void setLfoFreq (float newFreq)
+    {
+        for (auto& lfo : lfos)
+            lfo.setFrequency (newFreq);
+    }
     void setLfoAmount (float newAmount) { lfoAmount = newAmount; }
 
     void setFilterCutoff (T newValue)
@@ -162,7 +166,7 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
     //lfo stuff
     static constexpr auto    lfoUpdateRate    = 100;
     int                      lfoUpdateCounter = lfoUpdateRate;
-    juce::dsp::Oscillator<T> lfo;
+    std::array<juce::dsp::Oscillator<T>, LfoShape::totalSelectable> lfos;
 
     /** TODO RT: implement this pattern for all things that need to be try-locked. Can I abstract/wrap this into an object?
         class WavetableSynthesizer
@@ -233,7 +237,8 @@ ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorStat
     lfoDest.curSelection = (int) defaultLfoDest;
 
     setLfoShape (LfoShape::triangle);
-    lfo.setFrequency (Constants::defaultLfoFreq);
+    for (auto& lfo : lfos)
+        lfo.setFrequency (Constants::defaultLfoFreq);
 }
 
 template <std::floating_point T>
@@ -343,7 +348,8 @@ void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
     filterADSR.setSampleRate (spec.sampleRate);
     filterADSR.setParameters (filterEnvParams);
 
-    lfo.prepare ({ spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels });
+    for (auto& lfo : lfos)
+        lfo.prepare ({ spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels });
 
 #if EFFECTS_PROCESSOR_PER_VOICE
     effectsProcessor.prepare (spec);
