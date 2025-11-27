@@ -166,9 +166,52 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
     //lfo stuff
     static constexpr auto    lfoUpdateRate    = 100;
     int                      lfoUpdateCounter = lfoUpdateRate;
+
+    struct RandomLfoFunc
+    {
+        float lastPhase = 0.0f;
+        float lastValue = 0.0f;
+
+        float operator()(float phase)
+        {
+            // Detect wrap-around (phase goes from 0 → 2π)
+            if (phase < lastPhase)
+            {
+                lastValue = juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f;
+            }
+
+            lastPhase = phase;
+            return lastValue;
+        }
+    };
+    static RandomLfoFunc randomLfoFunc;
+
+    static constexpr std::array initLfoFunctions =
+    {
+        // triangle
+        [](auto& lfo) { lfo.initialise ([] (T x) { return (std::sin (x) + 1) / 2; }, 128); },
+        // saw
+        [](auto& lfo) { lfo.initialise ([] (T x) { return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T { 0 }, T { 1 }); }, 2); },
+        // square
+        [](auto& lfo) { lfo.initialise ([] (T x) { if (x < 0) return T { 0 }; else return T { 1 }; }); },   
+        //random
+        [](auto& lfo) { lfo.initialise (randomLfoFunc); }
+    };
+
+    //TODO add this once we have more room in the UI for lfo destinations
+    // case LfoShape::revSaw:
+    // {
+    // std::lock_guard<std::mutex> lock (lfoMutex);
+    // lfo.initialise ([](float x)
+    // {
+    // return (float) juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, 1.f, 0.f);
+    // }, 2);
+    // }
+    // break;
+
     std::array<juce::dsp::Oscillator<T>, LfoShape::totalSelectable> lfos;
 
-    /** TODO RT: implement this pattern for all things that need to be try-locked. Can I abstract/wrap this into an object?
+        /** TODO RT: implement this pattern for all things that need to be try-locked. Can I abstract/wrap this into an object?
         class WavetableSynthesizer
         {
         public:
@@ -202,23 +245,23 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
         };
         }
     */
-    std::mutex lfoMutex;
+        std::mutex lfoMutex;
 
-    //TODO RT: I think this (and all similar parameters set in the UI and read in the audio thread) sould be atomic
-    T       lfoAmount = static_cast<T> (Constants::defaultLfoAmount);
-    LfoDest lfoDest;
+        //TODO RT: I think this (and all similar parameters set in the UI and read in the audio thread) sould be atomic
+        T       lfoAmount = static_cast<T> (Constants::defaultLfoAmount);
+        LfoDest lfoDest;
 
-    //for the random lfo
-    juce::Random rng;
-    T            randomValue = 0.f;
-    bool         valueWasBig = false;
+        //for the random lfo
+        juce::Random rng;
+        T            randomValue = 0.f;
+        bool         valueWasBig = false;
 
-    bool rampingUp         = false;
-    int  rampUpSamplesLeft = 0;
+        bool rampingUp         = false;
+        int  rampUpSamplesLeft = 0;
 
-    T tiltCutoff { 0.f };
+        T tiltCutoff { 0.f };
 
-    int curPreparedSamples = 0;
+        int curPreparedSamples = 0;
 };
 
 //===========================================================================================================
@@ -509,78 +552,78 @@ void ProPhatVoice<T>::setFilterEnvParam (juce::StringRef parameterID, float newV
 template <std::floating_point T>
 void ProPhatVoice<T>::setLfoShape (int shape)
 {
-    switch (shape)
-    {
-        case LfoShape::triangle:
-        {
-            //TODO RT: I should really have 4 lfos and just have an atomic curLfo pointer that I swap when I change LFOs
-            std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([] (T x)
-                            { return (std::sin (x) + 1) / 2; },
-                            128);
-        }
-        break;
+    // switch (shape)
+    // {
+    //     case LfoShape::triangle:
+    //     {
+    //         //TODO RT: I should really have 4 lfos and just have an atomic curLfo pointer that I swap when I change LFOs
+    //         std::lock_guard<std::mutex> lock (lfoMutex);
+    //         lfo.initialise ([] (T x)
+    //                         { return (std::sin (x) + 1) / 2; },
+    //                         128);
+    //     }
+    //     break;
 
-        case LfoShape::saw:
-        {
-            std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([] (T x)
-                            {
-                //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-                return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T { 0 }, T { 1 }); },
-                            2);
-        }
-        break;
+    //     case LfoShape::saw:
+    //     {
+    //         std::lock_guard<std::mutex> lock (lfoMutex);
+    //         lfo.initialise ([] (T x)
+    //                         {
+    //             //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
+    //             return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T { 0 }, T { 1 }); },
+    //                         2);
+    //     }
+    //     break;
 
-            //TODO add this once we have more room in the UI for lfo destinations
-            /*
-             case LfoShape::revSaw:
-             {
-             std::lock_guard<std::mutex> lock (lfoMutex);
-             lfo.initialise ([](float x)
-             {
-             return (float) juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, 1.f, 0.f);
-             }, 2);
-             }
-             break;
-             */
+    //         //TODO add this once we have more room in the UI for lfo destinations
+    //         /*
+    //          case LfoShape::revSaw:
+    //          {
+    //          std::lock_guard<std::mutex> lock (lfoMutex);
+    //          lfo.initialise ([](float x)
+    //          {
+    //          return (float) juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, 1.f, 0.f);
+    //          }, 2);
+    //          }
+    //          break;
+    //          */
 
-        case LfoShape::square:
-        {
-            std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([] (T x)
-                            {
-                if (x < 0)
-                    return T { 0 };
-                else
-                    return T { 1 }; });
-        }
-        break;
+    //     case LfoShape::square:
+    //     {
+    //         std::lock_guard<std::mutex> lock (lfoMutex);
+    //         lfo.initialise ([] (T x)
+    //                         {
+    //             if (x < 0)
+    //                 return T { 0 };
+    //             else
+    //                 return T { 1 }; });
+    //     }
+    //     break;
 
-        case LfoShape::randomLfo:
-        {
-            std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([this] (T x)
-                            {
-                if (x <= 0.f && valueWasBig)
-                {
-                    randomValue = rng.nextFloat()/* * 2 - 1*/;
-                    valueWasBig = false;
-                }
-                else if (x > 0.f && ! valueWasBig)
-                {
-                    randomValue = rng.nextFloat()/* * 2 - 1*/;
-                    valueWasBig = true;
-                }
+    //     case LfoShape::randomLfo:
+    //     {
+    //         std::lock_guard<std::mutex> lock (lfoMutex);
+    //         lfo.initialise ([this] (T x)
+    //                         {
+    //             if (x <= 0.f && valueWasBig)
+    //             {
+    //                 randomValue = rng.nextFloat()/* * 2 - 1*/;
+    //                 valueWasBig = false;
+    //             }
+    //             else if (x > 0.f && ! valueWasBig)
+    //             {
+    //                 randomValue = rng.nextFloat()/* * 2 - 1*/;
+    //                 valueWasBig = true;
+    //             }
 
-                return randomValue; });
-        }
-        break;
+    //             return randomValue; });
+    //     }
+    //     break;
 
-        default:
-            jassertfalse;
-            break;
-    }
+    //     default:
+    //         jassertfalse;
+    //         break;
+    // }
 }
 
 template <std::floating_point T>
