@@ -186,16 +186,48 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
     };
     static RandomLfoFunc randomLfoFunc;
 
-    static constexpr std::array initLfoFunctions =
+    template <typename T>
+    void initTriangle (juce::dsp::Oscillator<T>& lfo)
     {
-        // triangle
-        [](auto& lfo) { lfo.initialise ([] (T x) { return (std::sin (x) + 1) / 2; }, 128); },
-        // saw
-        [](auto& lfo) { lfo.initialise ([] (T x) { return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T { 0 }, T { 1 }); }, 2); },
-        // square
-        [](auto& lfo) { lfo.initialise ([] (T x) { if (x < 0) return T { 0 }; else return T { 1 }; }); },   
-        //random
-        [](auto& lfo) { lfo.initialise (randomLfoFunc); }
+        lfo.initialise ([] (T x)
+                        { return (std::sin (x) + 1) / 2; },
+                        128);
+    }
+
+    template <typename T>
+    void initSaw (juce::dsp::Oscillator<T>& lfo)
+    {
+        lfo.initialise ([] (T x)
+                        { return juce::jmap (x,
+                                             -juce::MathConstants<T>::pi,
+                                             juce::MathConstants<T>::pi,
+                                             T (0),
+                                             T (1)); },
+                        2);
+    }
+
+    template <typename T>
+    void initSquare (juce::dsp::Oscillator<T>& lfo)
+    {
+        lfo.initialise ([] (T x)
+                        { return x < 0 ? T (0) : T (1); });
+    }
+
+    template <typename T>
+    void initRandom (juce::dsp::Oscillator<T>& lfo)
+    {
+        lfo.initialise (randomLfoFunc);
+    }
+
+    template <typename T>
+    using InitFunc = void (*) (juce::dsp::Oscillator<T>&);
+
+    template <typename T>
+    static constexpr std::array<InitFunc<T>, 4> initLfoFunctions = {
+        &initTriangle<T>,
+        &initSaw<T>,
+        &initSquare<T>,
+        &initRandom<T>
     };
 
     //TODO add this once we have more room in the UI for lfo destinations
