@@ -48,6 +48,9 @@ enum class ProcessorId
     filterIndex = 0,
     masterGainIndex,
 };
+
+//==============================================================================
+
 template <std::floating_point T>
 class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorValueTreeState::Listener
 {
@@ -67,6 +70,7 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
     void setLfoDest (int dest);
     void setLfoFreq (float newFreq)
     {
+        //TODO RT: none of this is atomic / thread safe
         for (auto& lfo : lfos)
             lfo.setFrequency (newFreq);
     }
@@ -243,57 +247,23 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
 
     std::array<juce::dsp::Oscillator<T>, LfoShape::totalSelectable> lfos;
 
-        /** TODO RT: implement this pattern for all things that need to be try-locked. Can I abstract/wrap this into an object?
-        class WavetableSynthesizer
-        {
-        public:
-            void audioCallback()
-            {
-                if (std::unique_lock<spin_lock> tryLock (mutex, std::try_to_lock); tryLock.owns_lock())
-                {
-                    // Do something with wavetable
-                }
-                else
-                {
-                    // Do something else as wavetable is not available
-                }
-            }
+    std::mutex lfoMutex;
 
-            void updateWavetable ()
-            {
-                // Create new Wavetable
-                auto newWavetable = std::make_unique<Wavetable>();
-                {
-                    std::lock_guard<spin_lock> lock (mutex);
-                    std::swap (wavetable, newWavetable);
-                }
+    //TODO RT: I think this (and all similar parameters set in the UI and read in the audio thread) sould be atomic
+    T       lfoAmount = static_cast<T> (Constants::defaultLfoAmount);
+    LfoDest lfoDest;
 
-                // Delete old wavetable here to lock for least time possible
-            }
+    //for the random lfo
+    juce::Random rng;
+    T            randomValue = 0.f;
+    bool         valueWasBig = false;
 
-        private:
-            spin_lock mutex;
-            std::unique_ptr<Wavetable> wavetable;
-        };
-        }
-    */
-        std::mutex lfoMutex;
+    bool rampingUp         = false;
+    int  rampUpSamplesLeft = 0;
 
-        //TODO RT: I think this (and all similar parameters set in the UI and read in the audio thread) sould be atomic
-        T       lfoAmount = static_cast<T> (Constants::defaultLfoAmount);
-        LfoDest lfoDest;
+    T tiltCutoff { 0.f };
 
-        //for the random lfo
-        juce::Random rng;
-        T            randomValue = 0.f;
-        bool         valueWasBig = false;
-
-        bool rampingUp         = false;
-        int  rampUpSamplesLeft = 0;
-
-        T tiltCutoff { 0.f };
-
-        int curPreparedSamples = 0;
+    int curPreparedSamples = 0;
 };
 
 //===========================================================================================================
@@ -498,7 +468,7 @@ void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float n
     else if (parameterID == lfoDestID.getParamID())
         setLfoDest ((int) newValue);
 
-    //TODO RT: I think because all of these end up setting smoothed values, it's fine to set them directly
+    //TODO RT: need to go through these and figure out what needs to be atomic, set async on the audio thread, or ramped or whatever it is
     else if (parameterID == lfoAmountID.getParamID())
         setLfoAmount (newValue);
     else if (parameterID == lfoFreqID.getParamID())
@@ -584,78 +554,7 @@ void ProPhatVoice<T>::setFilterEnvParam (juce::StringRef parameterID, float newV
 template <std::floating_point T>
 void ProPhatVoice<T>::setLfoShape (int shape)
 {
-    // switch (shape)
-    // {
-    //     case LfoShape::triangle:
-    //     {
-    //         //TODO RT: I should really have 4 lfos and just have an atomic curLfo pointer that I swap when I change LFOs
-    //         std::lock_guard<std::mutex> lock (lfoMutex);
-    //         lfo.initialise ([] (T x)
-    //                         { return (std::sin (x) + 1) / 2; },
-    //                         128);
-    //     }
-    //     break;
-
-    //     case LfoShape::saw:
-    //     {
-    //         std::lock_guard<std::mutex> lock (lfoMutex);
-    //         lfo.initialise ([] (T x)
-    //                         {
-    //             //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-    //             return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T { 0 }, T { 1 }); },
-    //                         2);
-    //     }
-    //     break;
-
-    //         //TODO add this once we have more room in the UI for lfo destinations
-    //         /*
-    //          case LfoShape::revSaw:
-    //          {
-    //          std::lock_guard<std::mutex> lock (lfoMutex);
-    //          lfo.initialise ([](float x)
-    //          {
-    //          return (float) juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, 1.f, 0.f);
-    //          }, 2);
-    //          }
-    //          break;
-    //          */
-
-    //     case LfoShape::square:
-    //     {
-    //         std::lock_guard<std::mutex> lock (lfoMutex);
-    //         lfo.initialise ([] (T x)
-    //                         {
-    //             if (x < 0)
-    //                 return T { 0 };
-    //             else
-    //                 return T { 1 }; });
-    //     }
-    //     break;
-
-    //     case LfoShape::randomLfo:
-    //     {
-    //         std::lock_guard<std::mutex> lock (lfoMutex);
-    //         lfo.initialise ([this] (T x)
-    //                         {
-    //             if (x <= 0.f && valueWasBig)
-    //             {
-    //                 randomValue = rng.nextFloat()/* * 2 - 1*/;
-    //                 valueWasBig = false;
-    //             }
-    //             else if (x > 0.f && ! valueWasBig)
-    //             {
-    //                 randomValue = rng.nextFloat()/* * 2 - 1*/;
-    //                 valueWasBig = true;
-    //             }
-
-    //             return randomValue; });
-    //     }
-    //     break;
-
-    //     default:
-    //         jassertfalse;
-    //         break;
-    // }
+    //TODO BRO
 }
 
 template <std::floating_point T>
