@@ -188,51 +188,45 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
             return lastValue;
         }
     };
-    static RandomLfoFunc randomLfoFunc;
+    // static RandomLfoFunc randomLfoFunc;
 
-    template <typename T>
-    void initTriangle (juce::dsp::Oscillator<T>& lfo)
-    {
-        lfo.initialise ([] (T x)
-                        { return (std::sin (x) + 1) / 2; },
-                        128);
-    }
+    // static constexpr void initTriangle (juce::dsp::Oscillator<T>& lfo)
+    // {
+    //     lfo.initialise ([] (T x)
+    //                     { return (std::sin (x) + 1) / 2; },
+    //                     128);
+    // }
 
-    template <typename T>
-    void initSaw (juce::dsp::Oscillator<T>& lfo)
-    {
-        lfo.initialise ([] (T x)
-                        { return juce::jmap (x,
-                                             -juce::MathConstants<T>::pi,
-                                             juce::MathConstants<T>::pi,
-                                             T (0),
-                                             T (1)); },
-                        2);
-    }
+    // static constexpr void initSaw (juce::dsp::Oscillator<T>& lfo)
+    // {
+    //     lfo.initialise ([] (T x)
+    //                     { return juce::jmap (x,
+    //                                          -juce::MathConstants<T>::pi,
+    //                                          juce::MathConstants<T>::pi,
+    //                                          T (0),
+    //                                          T (1)); },
+    //                     2);
+    // }
 
-    template <typename T>
-    void initSquare (juce::dsp::Oscillator<T>& lfo)
-    {
-        lfo.initialise ([] (T x)
-                        { return x < 0 ? T (0) : T (1); });
-    }
+    // static constexpr void initSquare (juce::dsp::Oscillator<T>& lfo)
+    // {
+    //     lfo.initialise ([] (T x)
+    //                     { return x < 0 ? T (0) : T (1); });
+    // }
 
-    template <typename T>
-    void initRandom (juce::dsp::Oscillator<T>& lfo)
-    {
-        lfo.initialise (randomLfoFunc);
-    }
+    // static constexpr void initRandom (juce::dsp::Oscillator<T>& lfo)
+    // {
+    //     lfo.initialise (randomLfoFunc);
+    // }
 
-    template <typename T>
-    using InitFunc = void (*) (juce::dsp::Oscillator<T>&);
+    // using InitFunc = void (*) (juce::dsp::Oscillator<T>&);
 
-    template <typename T>
-    static constexpr std::array<InitFunc<T>, 4> initLfoFunctions = {
-        &initTriangle<T>,
-        &initSaw<T>,
-        &initSquare<T>,
-        &initRandom<T>
-    };
+    // static constexpr std::array<InitFunc*, 4> initLfoFunctions = {
+    //     &initTriangle<T>,
+    //     &initSaw<T>,
+    //     &initSquare<T>,
+    //     &initRandom<T>
+    // };
 
     //TODO add this once we have more room in the UI for lfo destinations
     // case LfoShape::revSaw:
@@ -246,6 +240,7 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
     // break;
 
     std::array<juce::dsp::Oscillator<T>, LfoShape::totalSelectable> lfos;
+    juce::dsp::Oscillator<T>* curLfo {nullptr};
 
     std::mutex lfoMutex;
 
@@ -281,9 +276,38 @@ ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorStat
 
     lfoDest.curSelection = (int) defaultLfoDest;
 
+    lfos[LfoShape::triangle].initialise ([] (T x) { return (std::sin (x) + 1) / 2; }, 128);
+
+    /**
+     *     static constexpr void initSaw (juce::dsp::Oscillator<T>& lfo)
+    {
+        lfo.initialise ([] (T x)
+                        { return juce::jmap (x,
+                                             -juce::MathConstants<T>::pi,
+                                             juce::MathConstants<T>::pi,
+                                             T (0),
+                                             T (1)); },
+                        2);
+    }
+
+    static constexpr void initSquare (juce::dsp::Oscillator<T>& lfo)
+    {
+        lfo.initialise ([] (T x)
+                        { return x < 0 ? T (0) : T (1); });
+    }
+
+    static constexpr void initRandom (juce::dsp::Oscillator<T>& lfo)
+    {
+        lfo.initialise (randomLfoFunc);
+    }
+     */
+
     setLfoShape (LfoShape::triangle);
     for (auto& lfo : lfos)
+    {
+        //need to jassert (lfo.hasbeeninitialized() when the fucking intellisense works again
         lfo.setFrequency (Constants::defaultLfoFreq);
+    }
 }
 
 template <std::floating_point T>
@@ -581,7 +605,7 @@ void ProPhatVoice<T>::updateLfo()
         //    return;
         //}
 
-        lfoOut = lfo.processSample (T (0)) * lfoAmount;
+        lfoOut = curLfo->processSample (T (0)) * lfoAmount;
     }
 
     //TODO get this switch out of here, this is awful for performances
