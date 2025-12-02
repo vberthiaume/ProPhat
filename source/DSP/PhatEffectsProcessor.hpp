@@ -175,7 +175,7 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
         jassert (fade_buffer1.getNumSamples() >= numSamples && fade_buffer2.getNumSamples() >= numSamples);
 
         //copy the OG buffer into the individual processor ones
-        for (auto c = 0; c < inputBlock.getNumChannels (); ++c)
+        for (auto c = 0; c < (int) inputBlock.getNumChannels (); ++c)
         {
             //TODO VB: look into copyFromWithRamp!!! we could probably use this to do the crossfade
             fade_buffer1.copyFrom (c, 0, inputBlock.getChannelPointer (c), numSamples);

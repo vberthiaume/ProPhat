@@ -277,32 +277,12 @@ ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorStat
     lfoDest.curSelection = (int) defaultLfoDest;
 
     lfos[LfoShape::triangle].initialise ([] (T x) { return (std::sin (x) + 1) / 2; }, 128);
-
-    /**
-     *     static constexpr void initSaw (juce::dsp::Oscillator<T>& lfo)
-    {
-        lfo.initialise ([] (T x)
-                        { return juce::jmap (x,
-                                             -juce::MathConstants<T>::pi,
-                                             juce::MathConstants<T>::pi,
-                                             T (0),
-                                             T (1)); },
-                        2);
-    }
-
-    static constexpr void initSquare (juce::dsp::Oscillator<T>& lfo)
-    {
-        lfo.initialise ([] (T x)
-                        { return x < 0 ? T (0) : T (1); });
-    }
-
-    static constexpr void initRandom (juce::dsp::Oscillator<T>& lfo)
-    {
-        lfo.initialise (randomLfoFunc);
-    }
-     */
-
-    setLfoShape (LfoShape::triangle);
+    lfos[LfoShape::saw].initialise ([] (T x) { return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T (0), T (1)); }, 2);
+    // lfos[LfoShape::revSaw].initialise ([] (T x) { return (std::sin (x) + 1) / 2; }, 128);
+    lfos[LfoShape::square].initialise ([] (T x) { return x < 0 ? T (0) : T (1); });
+    //TODO
+    // lfos[LfoShape::randomLfo].initialise ([] (T x) { return (std::sin (x) + 1) / 2; }, 128);
+     setLfoShape (LfoShape::triangle);
     for (auto& lfo : lfos)
     {
         //need to jassert (lfo.hasbeeninitialized() when the fucking intellisense works again
