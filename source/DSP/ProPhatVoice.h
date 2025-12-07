@@ -171,23 +171,23 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
     static constexpr auto    lfoUpdateRate    = 100;
     int                      lfoUpdateCounter = lfoUpdateRate;
 
-    struct RandomLfoFunc
-    {
-        float lastPhase = 0.0f;
-        float lastValue = 0.0f;
+    //struct RandomLfoFunc
+    //{
+    //    float lastPhase = 0.0f;
+    //    float lastValue = 0.0f;
 
-        float operator()(float phase)
-        {
-            // Detect wrap-around (phase goes from 0 → 2π)
-            if (phase < lastPhase)
-            {
-                lastValue = juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f;
-            }
+    //    float operator()(float phase)
+    //    {
+    //        // Detect wrap-around (phase goes from 0 → 2π)
+    //        if (phase < lastPhase)
+    //        {
+    //            lastValue = juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f;
+    //        }
 
-            lastPhase = phase;
-            return lastValue;
-        }
-    };
+    //        lastPhase = phase;
+    //        return lastValue;
+    //    }
+    //};
 
 
     std::array<juce::dsp::Oscillator<T>, LfoShape::totalSelectable> lfos;
@@ -231,9 +231,23 @@ ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorStat
     lfos[LfoShape::saw].initialise ([] (T x)      { return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T (0), T (1)); }, 2);
     //lfos[LfoShape::revSaw].initialise ([] (T x)   { return (float) juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, 1.f, 0.f); }, 2);
     lfos[LfoShape::square].initialise ([] (T x)   { return x < 0 ? T (0) : T (1); });
-    //TODO
-    // lfos[LfoShape::randomLfo].initialise ([] (T x) { return (std::sin (x) + 1) / 2; }, 128);
 
+    // TODO: i really don't think this will be captured correctly in a table. i probably need to run this once and hardcode the table values
+    // As it is, it most likely involves non-RT safe system calls too
+    lfos[LfoShape::randomLfo].initialise ([this](T x)
+                                          {
+                                              if (x <= 0.f && valueWasBig)
+                                              {
+                                                  randomValue = rng.nextFloat ()/* * 2 - 1*/;
+                                                  valueWasBig = false;
+                                              }
+                                              else if (x > 0.f && ! valueWasBig)
+                                              {
+                                                  randomValue = rng.nextFloat ()/* * 2 - 1*/;
+                                                  valueWasBig = true;
+                                              }
+
+                                              return randomValue; }, 128);
 
     setLfoShape (LfoShape::triangle);
     for (auto& lfo : lfos)
