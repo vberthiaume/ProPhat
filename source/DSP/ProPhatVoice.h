@@ -191,7 +191,7 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
 
 
     std::array<juce::dsp::Oscillator<T>, LfoShape::totalSelectable> lfos;
-    juce::dsp::Oscillator<T>* curLfo {nullptr};
+    std::atomic<juce::dsp::Oscillator<T>*> curLfo {nullptr};
 
     std::mutex lfoMutex;
 
@@ -525,7 +525,20 @@ void ProPhatVoice<T>::setFilterEnvParam (juce::StringRef parameterID, float newV
 template <std::floating_point T>
 void ProPhatVoice<T>::setLfoShape (int shape)
 {
-    //TODO BRO
+    //reset everything
+    //oscillators.resetLfoOscNoteOffsets();
+
+    //TODO: shape is somehow always 0?
+    //change the shape
+    switch (shape)
+    {
+        case LfoShape::triangle:    curLfo.store (&lfos[LfoShape::triangle]); break;
+        case LfoShape::saw:         curLfo.store (&lfos[LfoShape::saw]); break;
+        //case LfoShape::revSaw:    curLfo.store (&lfos[LfoShape::revSaw]); break;
+        case LfoShape::square:      curLfo.store (&lfos[LfoShape::square]); break;
+        case LfoShape::randomLfo:   curLfo.store (&lfos[LfoShape::randomLfo]); break;
+        default: jassertfalse;
+    }
 }
 
 template <std::floating_point T>
@@ -552,7 +565,7 @@ void ProPhatVoice<T>::updateLfo()
         //    return;
         //}
 
-        lfoOut = curLfo->processSample (T (0)) * lfoAmount;
+        lfoOut = curLfo.load()->processSample (T (0)) * lfoAmount;
     }
 
     //TODO get this switch out of here, this is awful for performances
