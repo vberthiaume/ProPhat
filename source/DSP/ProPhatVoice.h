@@ -190,54 +190,11 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
     };
     // static RandomLfoFunc randomLfoFunc;
 
-    // static constexpr void initTriangle (juce::dsp::Oscillator<T>& lfo)
-    // {
-    //     lfo.initialise ([] (T x)
-    //                     { return (std::sin (x) + 1) / 2; },
-    //                     128);
-    // }
-
-    // static constexpr void initSaw (juce::dsp::Oscillator<T>& lfo)
-    // {
-    //     lfo.initialise ([] (T x)
-    //                     { return juce::jmap (x,
-    //                                          -juce::MathConstants<T>::pi,
-    //                                          juce::MathConstants<T>::pi,
-    //                                          T (0),
-    //                                          T (1)); },
-    //                     2);
-    // }
-
-    // static constexpr void initSquare (juce::dsp::Oscillator<T>& lfo)
-    // {
-    //     lfo.initialise ([] (T x)
-    //                     { return x < 0 ? T (0) : T (1); });
-    // }
-
     // static constexpr void initRandom (juce::dsp::Oscillator<T>& lfo)
     // {
     //     lfo.initialise (randomLfoFunc);
     // }
 
-    // using InitFunc = void (*) (juce::dsp::Oscillator<T>&);
-
-    // static constexpr std::array<InitFunc*, 4> initLfoFunctions = {
-    //     &initTriangle<T>,
-    //     &initSaw<T>,
-    //     &initSquare<T>,
-    //     &initRandom<T>
-    // };
-
-    //TODO add this once we have more room in the UI for lfo destinations
-    // case LfoShape::revSaw:
-    // {
-    // std::lock_guard<std::mutex> lock (lfoMutex);
-    // lfo.initialise ([](float x)
-    // {
-    // return (float) juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, 1.f, 0.f);
-    // }, 2);
-    // }
-    // break;
 
     std::array<juce::dsp::Oscillator<T>, LfoShape::totalSelectable> lfos;
     juce::dsp::Oscillator<T>* curLfo {nullptr};
@@ -277,15 +234,17 @@ ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorStat
     lfoDest.curSelection = (int) defaultLfoDest;
 
     lfos[LfoShape::triangle].initialise ([] (T x) { return (std::sin (x) + 1) / 2; }, 128);
-    lfos[LfoShape::saw].initialise ([] (T x) { return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T (0), T (1)); }, 2);
-    // lfos[LfoShape::revSaw].initialise ([] (T x) { return (std::sin (x) + 1) / 2; }, 128);
-    lfos[LfoShape::square].initialise ([] (T x) { return x < 0 ? T (0) : T (1); });
+    lfos[LfoShape::saw].initialise ([] (T x)      { return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T (0), T (1)); }, 2);
+    //lfos[LfoShape::revSaw].initialise ([] (T x)   { return (float) juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, 1.f, 0.f); }, 2);
+    lfos[LfoShape::square].initialise ([] (T x)   { return x < 0 ? T (0) : T (1); });
     //TODO
     // lfos[LfoShape::randomLfo].initialise ([] (T x) { return (std::sin (x) + 1) / 2; }, 128);
-     setLfoShape (LfoShape::triangle);
+
+
+    setLfoShape (LfoShape::triangle);
     for (auto& lfo : lfos)
     {
-        //need to jassert (lfo.hasbeeninitialized() when the fucking intellisense works again
+        jassert (lfo.isInitialised());
         lfo.setFrequency (Constants::defaultLfoFreq);
     }
 }
