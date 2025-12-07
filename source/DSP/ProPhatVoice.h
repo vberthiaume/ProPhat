@@ -247,7 +247,7 @@ ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorStat
                                                   valueWasBig = true;
                                               }
 
-                                              return randomValue; }, 128);
+                                              return randomValue; });
 
     setLfoShape (LfoShape::triangle);
     for (auto& lfo : lfos)
@@ -525,10 +525,11 @@ void ProPhatVoice<T>::setFilterEnvParam (juce::StringRef parameterID, float newV
 template <std::floating_point T>
 void ProPhatVoice<T>::setLfoShape (int shape)
 {
+    //TODO: this somehow made things sound worse when looping in reaper
     //reset everything
     //oscillators.resetLfoOscNoteOffsets();
 
-    //TODO: shape is somehow always 0?
+    //TODO: shape is somehow always 0 with reaper automations??
     //change the shape
     switch (shape)
     {
@@ -555,18 +556,8 @@ void ProPhatVoice<T>::setLfoDest (int dest)
 template <std::floating_point T>
 void ProPhatVoice<T>::updateLfo()
 {
-    T lfoOut;
-    {
-        //TODO RT: apparently unlocking this is a system call???
-        //std::unique_lock<std::mutex> tryLock (lfoMutex, std::defer_lock);
-        //if (! tryLock.try_lock())
-        //{
-        //    //TODO RT: I need to fade out or something when we can't acquire the lock
-        //    return;
-        //}
-
-        lfoOut = curLfo.load()->processSample (T (0)) * lfoAmount;
-    }
+    //TODO: so err, wat? we're only using the first sample of the lfo at every buffer size? So the lfo speed is tied to the buffer size?
+    const auto lfoOut { curLfo.load()->processSample (static_cast<T> (0)) * lfoAmount };
 
     //TODO get this switch out of here, this is awful for performances
     switch (lfoDest.curSelection)
