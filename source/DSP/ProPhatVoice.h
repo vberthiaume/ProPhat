@@ -188,12 +188,6 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
             return lastValue;
         }
     };
-    // static RandomLfoFunc randomLfoFunc;
-
-    // static constexpr void initRandom (juce::dsp::Oscillator<T>& lfo)
-    // {
-    //     lfo.initialise (randomLfoFunc);
-    // }
 
 
     std::array<juce::dsp::Oscillator<T>, LfoShape::totalSelectable> lfos;
