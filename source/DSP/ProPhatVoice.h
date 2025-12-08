@@ -168,32 +168,12 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
     T curFilterResonance { Constants::defaultFilterResonance };
 
     //lfo stuff
+    // TODO: how is this actually used? Especially because we always use only the first sample of the lfo process call?
     static constexpr auto    lfoUpdateRate    = 100;
     int                      lfoUpdateCounter = lfoUpdateRate;
 
-    //struct RandomLfoFunc
-    //{
-    //    float lastPhase = 0.0f;
-    //    float lastValue = 0.0f;
-
-    //    float operator()(float phase)
-    //    {
-    //        // Detect wrap-around (phase goes from 0 → 2π)
-    //        if (phase < lastPhase)
-    //        {
-    //            lastValue = juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f;
-    //        }
-
-    //        lastPhase = phase;
-    //        return lastValue;
-    //    }
-    //};
-
-
     std::array<juce::dsp::Oscillator<T>, LfoShape::totalSelectable> lfos;
     std::atomic<juce::dsp::Oscillator<T>*> curLfo {nullptr};
-
-    std::mutex lfoMutex;
 
     //TODO RT: I think this (and all similar parameters set in the UI and read in the audio thread) sould be atomic
     T       lfoAmount = static_cast<T> (Constants::defaultLfoAmount);

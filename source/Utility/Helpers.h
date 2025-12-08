@@ -251,7 +251,8 @@ struct OscShape : public Selection
         triangle,
         pulse,
         totalSelectable,
-        noise // noise needs to be after totalSelectable, because it's not selectable with the regular oscillators
+        noise, // noise needs to be after totalSelectable, because it's not selectable with the regular oscillators
+        actualTotal
     };
 
     int getLastSelectionIndex () override { return totalSelectable - 1; }

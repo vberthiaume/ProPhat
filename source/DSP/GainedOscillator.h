@@ -33,7 +33,30 @@ public:
     {
         setOscShape (OscShape::saw);
         setGain (Constants::defaultOscLevel);
-        updateOscillators ();
+
+        oscs[OscShape::none].initialise ([](T /*x*/) { return T (0); }, 1);      
+        oscs[OscShape::saw].initialise  ([] (T x) { return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1)); }, 2);
+
+        oscs[OscShape::sawTri].initialise ([] (T x)
+                                           {
+                                               T y = juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1)) / 2;
+
+                                               if (x < 0)
+                                                   return y += juce::jmap (x, T (-juce::MathConstants<T>::pi), T (0), T (-1), T (1)) / 2;
+                                               else
+                                                   return y += juce::jmap (x, T (0), T (juce::MathConstants<T>::pi), T (1), T (-1)) / 2;
+                                           }, 128);
+
+        oscs[OscShape::triangle].initialise ([] (T x)
+                                             {
+                                                 if (x < 0)
+                                                     return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (0), T (-1), T (1));
+                                                 else
+                                                     return juce::jmap (x, T (0), T (juce::MathConstants<T>::pi), T (1), T (-1));
+                                             }, 128);
+
+        oscs[OscShape::pulse].initialise ([] (T x) { if (x < 0) return T (-1); else return T (1); }, 2);
+        oscs[OscShape::noise].initialise ([this] (T /*x*/) { return distribution (generator); });
     }
 
     void setFrequency (T newValue, bool force = false)
@@ -70,7 +93,7 @@ public:
     template <typename ProcessContext>
     void process (const ProcessContext& context) noexcept
     {
-        /*updateOscillators();*/
+        updateOscillators();
 
         processorChain.process (context);
     }
@@ -89,12 +112,16 @@ private:
 
     std::atomic<OscShape::Values> currentOsc { OscShape::none }, nextOsc { OscShape::saw };
 
+    std::array<juce::dsp::Oscillator<T>, OscShape::actualTotal - 1> oscs;
+    std::atomic<juce::dsp::Oscillator<T>*> curOsc { nullptr };
+
     void updateOscillators();
 
     bool isActive = true;
 
     T lastActiveGain {};
 
+    //TODO: need to break that up so we can just swap pointers to oscillators instead of re-initializing them
     juce::dsp::ProcessorChain<juce::dsp::Oscillator<T>, juce::dsp::Gain<T>> processorChain;
 
     std::uniform_real_distribution<T> distribution;
@@ -115,78 +142,18 @@ void GainedOscillator<T>::updateOscillators()
     bool wasActive = isActive;
     isActive = true;
 
-    auto& osc = processorChain.template get<oscIndex>();
+    if (nextOscBuf == OscShape::none)
+        isActive = false;
+
     switch (nextOscBuf)
     {
-    case OscShape::none:
-        //TODO RT: this calls new, so cannot be on the audio thread. We need to have multiple oscillators pre-initialized and just switch pointers, and for that we need to get rid of processorChain
-        osc.initialise ([&] (T /*x*/) { return T (0); });
-        isActive = false;
-        break;
-
-    case OscShape::saw:
-    {
-        osc.initialise ([](T x)
-                        {
-                            //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-                            return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1));
-                        }, 2);
-    }
-    break;
-
-    case OscShape::sawTri:
-    {
-        osc.initialise ([](T x)
-                        {
-                            T y = juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1)) / 2;
-
-                            if (x < 0)
-                                return y += juce::jmap (x, T (-juce::MathConstants<T>::pi), T (0), T (-1), T (1)) / 2;
-                            else
-                                return y += juce::jmap (x, T (0), T (juce::MathConstants<T>::pi), T (1), T (-1)) / 2;
-
-                        }, 128);
-    }
-    break;
-
-    case OscShape::triangle:
-    {
-        osc.initialise ([](T x)
-                        {
-                            if (x < 0)
-                                return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (0), T (-1), T (1));
-                            else
-                                return juce::jmap (x, T (0), T (juce::MathConstants<T>::pi), T (1), T (-1));
-
-                        }, 128);
-    }
-    break;
-
-    case OscShape::pulse:
-    {
-        osc.initialise ([](T x)
-                        {
-                            if (x < 0)
-                                return T (-1);
-                            else
-                                return T (1);
-                        }, 128);
-    }
-    break;
-
-    case OscShape::noise:
-    {
-        osc.initialise ([&](T /*x*/)
-                        {
-                            return distribution (generator);
-                        });
-    }
-    break;
-
-    case OscShape::totalSelectable:
-    default:
-        jassertfalse;
-        break;
+        case OscShape::none:    curOsc.store (&oscs[OscShape::none]);   break;
+        case OscShape::saw:     curOsc.store (&oscs[OscShape::saw]);    break;
+        case OscShape::sawTri:  curOsc.store (&oscs[OscShape::sawTri]); break;
+        case OscShape::triangle:curOsc.store (&oscs[OscShape::triangle]); break;
+        case OscShape::pulse:   curOsc.store (&oscs[OscShape::pulse]);  break;
+        //TODO VB: noise was inited here before -- how did that work??
+        default: jassertfalse;
     }
 
     if (wasActive != isActive)
