@@ -232,8 +232,9 @@ ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorStat
     //lfos[LfoShape::revSaw].initialise ([] (T x)   { return (float) juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, 1.f, 0.f); }, 2);
     lfos[LfoShape::square].initialise ([] (T x)   { return x < 0 ? T (0) : T (1); });
 
-    // TODO: i really don't think this will be captured correctly in a table. i probably need to run this once and hardcode the table values
-    // As it is, it most likely involves non-RT safe system calls too
+    // TODO: because we don't give the lookupTableNumPoints parameter to the lfo, we're not building a lookup table, and we can't because of the state logic.
+    // So this means this function takes longer than the other ones. Which is only called once per buffer, so probably not a big deal, but the whole logic is kinda
+    // weird, so maybe we should refactor it later.
     lfos[LfoShape::randomLfo].initialise ([this](T x)
                                           {
                                               if (x <= 0.f && valueWasBig)
