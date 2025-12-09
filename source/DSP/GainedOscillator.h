@@ -34,7 +34,7 @@ public:
         setOscShape (OscShape::saw);
         setGain (Constants::defaultOscLevel);
 
-        oscs[OscShape::none].initialise ([](T /*x*/) { return T (0); }, 1);      
+        oscs[OscShape::none].initialise ([](T /*x*/) { return T (0); });
         oscs[OscShape::saw].initialise  ([] (T x) { return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1)); }, 2);
 
         oscs[OscShape::sawTri].initialise ([] (T x)
@@ -57,6 +57,8 @@ public:
 
         oscs[OscShape::pulse].initialise ([] (T x) { if (x < 0) return T (-1); else return T (1); }, 2);
         oscs[OscShape::noise].initialise ([this] (T /*x*/) { return distribution (generator); });
+
+        updateOscillators();
     }
 
     void setFrequency (T newValue, bool force = false)
@@ -112,7 +114,7 @@ private:
 
     std::atomic<OscShape::Values> currentOsc { OscShape::none }, nextOsc { OscShape::saw };
 
-    std::array<juce::dsp::Oscillator<T>, OscShape::actualTotal - 1> oscs;
+    std::array<juce::dsp::Oscillator<T>, OscShape::actualTotal> oscs;
     std::atomic<juce::dsp::Oscillator<T>*> curOsc { nullptr };
 
     void updateOscillators();
