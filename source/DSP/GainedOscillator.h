@@ -57,8 +57,6 @@ public:
 
         setOscShape (OscShape::saw);
         setGain (Constants::defaultOscLevel);
-
-        updateOscillators();
     }
 
     void setFrequency (T newValue, bool force = false)
@@ -70,7 +68,31 @@ public:
 
     void setOscShape (OscShape::Values newShape)
     {
-        nextOsc.store (newShape);
+        //this is to make sure we preserve the same gain after we re-init, right?
+        bool wasActive = isActive;
+        isActive = true;
+
+        if (newShape == OscShape::none)
+            isActive = false;
+
+        switch (newShape)
+        {
+            case OscShape::none:    curOsc.store (&oscs[OscShape::none]);   break;
+            case OscShape::saw:     curOsc.store (&oscs[OscShape::saw]);    break;
+            case OscShape::sawTri:  curOsc.store (&oscs[OscShape::sawTri]); break;
+            case OscShape::triangle:curOsc.store (&oscs[OscShape::triangle]); break;
+            case OscShape::pulse:   curOsc.store (&oscs[OscShape::pulse]);  break;
+            case OscShape::noise:   curOsc.store (&oscs[OscShape::noise]);  break;
+            default: jassertfalse;
+        }
+
+        if (wasActive != isActive)
+        {
+            if (isActive)
+                setGain (lastActiveGain);
+            else
+                setGain (0);
+        }
     }
 
     /**
@@ -100,8 +122,6 @@ public:
     template <typename ProcessContext>
     void process (const ProcessContext& context) noexcept
     {
-        updateOscillators();
-
         curOsc.load ()->process (context);
         gain.process (context);
     }
@@ -114,12 +134,8 @@ public:
 
 private:
 
-    std::atomic<OscShape::Values> currentOsc { OscShape::none }, nextOsc { OscShape::saw };
-
     std::array<juce::dsp::Oscillator<T>, OscShape::actualTotal> oscs;
     std::atomic<juce::dsp::Oscillator<T>*> curOsc { nullptr };
-
-    void updateOscillators();
 
     bool isActive = true;
 
@@ -133,40 +149,3 @@ private:
 };
 
 //====================================================================================================
-
-template <std::floating_point T>
-void GainedOscillator<T>::updateOscillators()
-{
-    //compare the current osc type with the (buffered next osc type). Get outta here if they the same
-    const auto nextOscBuf { nextOsc.load() };
-    if (currentOsc == nextOscBuf)
-        return;
-
-    //this is to make sure we preserve the same gain after we re-init, right?
-    bool wasActive = isActive;
-    isActive = true;
-
-    if (nextOscBuf == OscShape::none)
-        isActive = false;
-
-    switch (nextOscBuf)
-    {
-        case OscShape::none:    curOsc.store (&oscs[OscShape::none]);   break;
-        case OscShape::saw:     curOsc.store (&oscs[OscShape::saw]);    break;
-        case OscShape::sawTri:  curOsc.store (&oscs[OscShape::sawTri]); break;
-        case OscShape::triangle:curOsc.store (&oscs[OscShape::triangle]); break;
-        case OscShape::pulse:   curOsc.store (&oscs[OscShape::pulse]);  break;
-        //TODO VB: noise was inited here before -- how did that work??
-        default: jassertfalse;
-    }
-
-    if (wasActive != isActive)
-    {
-        if (isActive)
-            setGain (lastActiveGain);
-        else
-            setGain (0);
-    }
-
-    currentOsc.store (nextOscBuf);
-}
