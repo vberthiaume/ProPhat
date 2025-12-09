@@ -31,9 +31,6 @@ public:
     GainedOscillator () :
         distribution ((T) -1, (T) 1)
     {
-        setOscShape (OscShape::saw);
-        setGain (Constants::defaultOscLevel);
-
         oscs[OscShape::none].initialise ([](T /*x*/) { return T (0); });
         oscs[OscShape::saw].initialise  ([] (T x) { return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1)); }, 2);
 
@@ -58,6 +55,9 @@ public:
         oscs[OscShape::pulse].initialise ([] (T x) { if (x < 0) return T (-1); else return T (1); }, 2);
         oscs[OscShape::noise].initialise ([this] (T /*x*/) { return distribution (generator); });
 
+        setOscShape (OscShape::saw);
+        setGain (Constants::defaultOscLevel);
+
         updateOscillators();
     }
 
@@ -65,11 +65,13 @@ public:
     {
         jassert (newValue > 0);
 
-        auto& osc = processorChain.template get<oscIndex> ();
-        osc.setFrequency (newValue, force);
+        curOsc.load()->setFrequency (newValue, force);
     }
 
-    void setOscShape (OscShape::Values newShape) { nextOsc.store (newShape); }
+    void setOscShape (OscShape::Values newShape)
+    {
+        nextOsc.store (newShape);
+    }
 
     /**
      * @brief Sets the gain for the oscillator in the processorChain.
@@ -84,33 +86,33 @@ public:
         else
             lastActiveGain = newGain;
 
-        auto& gain = processorChain.template get<gainIndex> ();
         gain.setGainLinear (newGain);
     }
 
     T getGain () { return lastActiveGain; }
 
-    void reset () noexcept { processorChain.reset (); }
+    void reset () noexcept
+    {
+        curOsc.load ()->reset();
+        gain.reset();
+    }
 
     template <typename ProcessContext>
     void process (const ProcessContext& context) noexcept
     {
         updateOscillators();
 
-        processorChain.process (context);
+        curOsc.load ()->process (context);
+        gain.process (context);
     }
 
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
-        processorChain.prepare (spec);
+        curOsc.load()->prepare (spec);
+        gain.prepare (spec);
     }
 
 private:
-    enum
-    {
-        oscIndex,
-        gainIndex
-    };
 
     std::atomic<OscShape::Values> currentOsc { OscShape::none }, nextOsc { OscShape::saw };
 
@@ -124,7 +126,7 @@ private:
     T lastActiveGain {};
 
     //TODO: need to break that up so we can just swap pointers to oscillators instead of re-initializing them
-    juce::dsp::ProcessorChain<juce::dsp::Oscillator<T>, juce::dsp::Gain<T>> processorChain;
+    juce::dsp::Gain<T> gain;
 
     std::uniform_real_distribution<T> distribution;
     std::default_random_engine generator;
