@@ -128,7 +128,9 @@ public:
 
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
-        curOsc.load()->prepare (spec);
+        for (auto& osc : oscs)
+            osc.prepare (spec);
+
         gain.prepare (spec);
     }
 
