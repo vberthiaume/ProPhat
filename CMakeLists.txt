@@ -101,9 +101,7 @@ juce_add_plugin("${PROJECT_NAME}"
 
 # This lets us use our code in both the JUCE targets and our Test target
 # Without running into ODR violations
-add_library(SharedCode INTERFACE
-        source/DSP/LockFreeSynthesiser.cpp
-        source/DSP/LockFreeSynthesiser.h)
+add_library(SharedCode INTERFACE)
 
 # clap_juce_extensions_plugin(TARGET "${PROJECT_NAME}"
 #    CLAP_ID "${BUNDLE_ID}"
