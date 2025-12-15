@@ -26,7 +26,6 @@
 #include "PhatEffectsProcessor.hpp"
 #endif
 #include "ProPhatVoice.h"
-#include "PhatVerb.h"
 #include "../Utility/Helpers.h"
 
 /** The main Synthesiser for the plugin. It uses Constants::numVoices voices (of type ProPhatVoice),
