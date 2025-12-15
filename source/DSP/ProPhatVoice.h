@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "LockFreeSynthesiser.h"
 #include "PhatOscillators.h"
 
 #include "../UI/ButtonGroupComponent.h"
@@ -52,7 +53,7 @@ enum class ProcessorId
 //==============================================================================
 
 template <std::floating_point T>
-class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorValueTreeState::Listener
+class ProPhatVoice : public LockFreeSynthesiserVoice, public juce::AudioProcessorValueTreeState::Listener
 {
   public:
     ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet);

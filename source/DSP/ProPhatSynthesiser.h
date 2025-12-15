@@ -25,6 +25,7 @@
 #if ! EFFECTS_PROCESSOR_PER_VOICE
 #include "PhatEffectsProcessor.hpp"
 #endif
+#include "LockFreeSynthesiser.h"
 #include "ProPhatVoice.h"
 #include "../Utility/Helpers.h"
 
@@ -33,7 +34,7 @@
 *   state via juce::AudioProcessorValueTreeState::Listener().
 */
 template <std::floating_point T>
-class ProPhatSynthesiser : public juce::Synthesiser, public juce::AudioProcessorValueTreeState::Listener
+class ProPhatSynthesiser : public LockFreeSynthesiser, public juce::AudioProcessorValueTreeState::Listener
 {
   public:
     ProPhatSynthesiser (juce::AudioProcessorValueTreeState& processorState);
@@ -184,7 +185,7 @@ void ProPhatSynthesiser<T>::noteOn (const int midiChannel, const int midiNoteNum
     if (voicesBeingKilled.size() >= Constants::numVoices)
         return;
 
-    Synthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
+    LockFreeSynthesiser::noteOn (midiChannel, midiNoteNumber, velocity);
 
 #if LOG_EVERYTHING_AFTER_TRANSITION
     effectsProcessor.setIsPlaying (true);
