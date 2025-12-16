@@ -468,10 +468,6 @@ public:
     void setMinimumRenderingSubdivisionSize (int numSamples, bool shouldBeStrict = false) noexcept;
 
 protected:
-    //==============================================================================
-    /** This is used to control access to the rendering callback and the note trigger methods. */
-    // CriticalSection lock;
-
     juce::OwnedArray<LockFreeSynthesiserVoice> voices;
     juce::ReferenceCountedArray<juce::SynthesiserSound> sounds;
 

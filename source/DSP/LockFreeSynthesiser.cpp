@@ -100,12 +100,6 @@ juce::SynthesiserSound* LockFreeSynthesiser::addSound (const juce::SynthesiserSo
     return sounds.add (newSound);
 }
 
-void LockFreeSynthesiser::removeSound (const int index)
-{
-    //const ScopedLock sl (lock);
-    sounds.remove (index);
-}
-
 void LockFreeSynthesiser::setNoteStealingEnabled (const bool shouldSteal)
 {
     shouldStealNotes = shouldSteal;
