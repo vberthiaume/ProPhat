@@ -36,7 +36,7 @@
 */
 class LockFreeSynthesiserVoice
 {
-public:
+  public:
     //==============================================================================
     /** Creates a voice. */
     LockFreeSynthesiserVoice() = default;
@@ -69,10 +69,11 @@ public:
     /** Called to start a new note.
         This will be called during the rendering callback, so must be fast and thread-safe.
     */
-    virtual void startNote (int midiNoteNumber,
-                            float velocity,
+    virtual void startNote (int                     midiNoteNumber,
+                            float                   velocity,
                             juce::SynthesiserSound* sound,
-                            int currentPitchWheelPosition) = 0;
+                            int                     currentPitchWheelPosition)
+        = 0;
 
     /** Called to stop a note.
 
@@ -134,13 +135,14 @@ public:
         the voice's methods will be called to tell it about note and controller events.
     */
     virtual void renderNextBlock (juce::AudioBuffer<float>& outputBuffer,
-                                  int startSample,
-                                  int numSamples) = 0;
+                                  int                       startSample,
+                                  int                       numSamples)
+        = 0;
 
     /** A double-precision version of renderNextBlock() */
     virtual void renderNextBlock (juce::AudioBuffer<double>& outputBuffer,
-                                  int startSample,
-                                  int numSamples);
+                                  int                        startSample,
+                                  int                        numSamples);
 
     /** Changes the voice's reference sample rate.
 
@@ -162,30 +164,30 @@ public:
     /** Returns the current target sample rate at which rendering is being done.
         Subclasses may need to know this so that they can pitch things correctly.
     */
-    [[nodiscard]] double getSampleRate() const noexcept                       { return currentSampleRate; }
+    [[nodiscard]] double getSampleRate() const noexcept { return currentSampleRate; }
 
     /** Returns true if the key that triggered this voice is still held down.
         Note that the voice may still be playing after the key was released (e.g., because the
         sostenuto pedal is down).
     */
-    [[nodiscard]] bool isKeyDown() const noexcept                             { return keyIsDown; }
+    [[nodiscard]] bool isKeyDown() const noexcept { return keyIsDown; }
 
     /** Allows you to modify the flag indicating that the key that triggered this voice is still held down.
         @see isKeyDown
     */
-    void setKeyDown (bool isNowDown) noexcept                   { keyIsDown = isNowDown; }
+    void setKeyDown (bool isNowDown) noexcept { keyIsDown = isNowDown; }
 
     /** Returns true if the sustain pedal is currently active for this voice. */
-    [[nodiscard]] bool isSustainPedalDown() const noexcept                    { return sustainPedalDown; }
+    [[nodiscard]] bool isSustainPedalDown() const noexcept { return sustainPedalDown; }
 
     /** Modifies the sustain pedal flag. */
-    void setSustainPedalDown (bool isNowDown) noexcept          { sustainPedalDown = isNowDown; }
+    void setSustainPedalDown (bool isNowDown) noexcept { sustainPedalDown = isNowDown; }
 
     /** Returns true if the sostenuto pedal is currently active for this voice. */
-    [[nodiscard]] bool isSostenutoPedalDown() const noexcept                  { return sostenutoPedalDown; }
+    [[nodiscard]] bool isSostenutoPedalDown() const noexcept { return sostenutoPedalDown; }
 
     /** Modifies the sostenuto pedal flag. */
-    void setSostenutoPedalDown (bool isNowDown) noexcept        { sostenutoPedalDown = isNowDown; }
+    void setSostenutoPedalDown (bool isNowDown) noexcept { sostenutoPedalDown = isNowDown; }
 
     /** Returns true if a voice is sounding in its release phase **/
     [[nodiscard]] bool isPlayingButReleased() const noexcept
@@ -196,7 +198,7 @@ public:
     /** Returns true if this voice started playing its current note before the other voice did. */
     [[nodiscard]] bool wasStartedBefore (const LockFreeSynthesiserVoice& other) const noexcept;
 
-protected:
+  protected:
     /** Resets the state of this voice after a sound has finished playing.
 
         The subclass must call this when it finishes playing a note and becomes available
@@ -211,21 +213,19 @@ protected:
     */
     void clearCurrentNote();
 
-
-private:
+  private:
     friend class LockFreeSynthesiser;
 
-    double currentSampleRate = 44100.0;
-    int currentlyPlayingNote = -1, currentPlayingMidiChannel = 0;
-    juce::uint32 noteOnTime = 0;
+    double                      currentSampleRate    = 44100.0;
+    int                         currentlyPlayingNote = -1, currentPlayingMidiChannel = 0;
+    juce::uint32                noteOnTime = 0;
     juce::SynthesiserSound::Ptr currentlyPlayingSound;
-    bool keyIsDown = false, sustainPedalDown = false, sostenutoPedalDown = false;
+    bool                        keyIsDown = false, sustainPedalDown = false, sostenutoPedalDown = false;
 
     juce::AudioBuffer<float> tempBuffer;
 
     JUCE_LEAK_DETECTOR (LockFreeSynthesiserVoice)
 };
-
 
 //===================================================================
 /** This is a copy of juce::Synthesiser but modified to have a fixed number of voices and sounds, and thus avoid locks in the audio thread.
@@ -234,24 +234,23 @@ private:
 */
 class LockFreeSynthesiser
 {
-public:
+  public:
     /** Creates a new synthesiser.
         You'll need to add some sounds and voices before it'll make any sound.
     */
     LockFreeSynthesiser();
 
     /** Destructor. */
-    virtual ~LockFreeSynthesiser(){}
+    virtual ~LockFreeSynthesiser() {}
 
     /** Returns the number of voices that have been added. */
-    [[nodiscard]] int getNumVoices() const noexcept                               { return voices.size(); }
+    [[nodiscard]] int getNumVoices() const noexcept { return voices.size(); }
 
     /** Returns the number of sounds that have been added to the synth. */
-    [[nodiscard]] int getNumSounds() const noexcept                               { return sounds.size(); }
+    [[nodiscard]] int getNumSounds() const noexcept { return sounds.size(); }
 
     /** Returns one of the sounds. */
-    [[nodiscard]] juce::SynthesiserSound::Ptr getSound (int index) const noexcept       { return sounds[index]; }
-
+    [[nodiscard]] juce::SynthesiserSound::Ptr getSound (int index) const noexcept { return sounds[index]; }
 
     /** If set to true, then the synth will try to take over an existing voice if
         it runs out and needs to play another note.
@@ -264,7 +263,7 @@ public:
     /** Returns true if note-stealing is enabled.
         @see setNoteStealingEnabled
     */
-    [[nodiscard]] bool isNoteStealingEnabled() const noexcept                     { return shouldStealNotes; }
+    [[nodiscard]] bool isNoteStealingEnabled() const noexcept { return shouldStealNotes; }
 
     //==============================================================================
     /** Triggers a note-on event.
@@ -405,19 +404,19 @@ public:
         with timestamps outside the specified region will be ignored.
     */
     void renderNextBlock (juce::AudioBuffer<float>& outputAudio,
-                          const juce::MidiBuffer& inputMidi,
-                          int startSample,
-                          int numSamples);
+                          const juce::MidiBuffer&   inputMidi,
+                          int                       startSample,
+                          int                       numSamples);
 
     void renderNextBlock (juce::AudioBuffer<double>& outputAudio,
-                          const juce::MidiBuffer& inputMidi,
-                          int startSample,
-                          int numSamples);
+                          const juce::MidiBuffer&    inputMidi,
+                          int                        startSample,
+                          int                        numSamples);
 
     /** Returns the current target sample rate at which rendering is being done.
         Subclasses may need to know this so that they can pitch things correctly.
     */
-    [[nodiscard]] double getSampleRate() const noexcept                       { return sampleRate; }
+    [[nodiscard]] double getSampleRate() const noexcept { return sampleRate; }
 
     /** Sets a minimum limit on the size to which audio sub-blocks will be divided when rendering.
 
@@ -441,12 +440,12 @@ public:
     */
     void setMinimumRenderingSubdivisionSize (int numSamples, bool shouldBeStrict = false) noexcept;
 
-protected:
-    juce::OwnedArray<LockFreeSynthesiserVoice> voices;
+  protected:
+    juce::OwnedArray<LockFreeSynthesiserVoice>          voices;
     juce::ReferenceCountedArray<juce::SynthesiserSound> sounds;
 
     /** The last pitch-wheel values for each midi channel. */
-    int lastPitchWheelValues [16];
+    int lastPitchWheelValues[16];
 
     /** Adds a new voice to the synth.
 
@@ -470,9 +469,11 @@ protected:
         to override it to handle custom cases.
     */
     virtual void renderVoices (juce::AudioBuffer<float>& outputAudio,
-                               int startSample, int numSamples);
+                               int                       startSample,
+                               int                       numSamples);
     virtual void renderVoices (juce::AudioBuffer<double>& outputAudio,
-                               int startSample, int numSamples);
+                               int                        startSample,
+                               int                        numSamples);
 
     /** Searches through the voices to find one that's not currently playing, and
         which can play the given sound.
@@ -483,9 +484,9 @@ protected:
         method, or (preferably) override findVoiceToSteal().
     */
     virtual LockFreeSynthesiserVoice* findFreeVoice (juce::SynthesiserSound* soundToPlay,
-                                             int midiChannel,
-                                             int midiNoteNumber,
-                                             bool stealIfNoneAvailable) const;
+                                                     int                     midiChannel,
+                                                     int                     midiNoteNumber,
+                                                     bool                    stealIfNoneAvailable) const;
 
     /** Chooses a voice that is most suitable for being re-used.
         The default method will attempt to find the oldest voice that isn't the
@@ -493,36 +494,34 @@ protected:
         you can override this method and do something more cunning instead.
     */
     virtual LockFreeSynthesiserVoice* findVoiceToSteal (juce::SynthesiserSound* soundToPlay,
-                                                int midiChannel,
-                                                int midiNoteNumber) const;
+                                                        int                     midiChannel,
+                                                        int                     midiNoteNumber) const;
 
     /** Starts a specified voice playing a particular sound.
         You'll probably never need to call this, it's used internally by noteOn(), but
         may be needed by subclasses for custom behaviours.
     */
     void startVoice (LockFreeSynthesiserVoice* voice,
-                     juce::SynthesiserSound* sound,
-                     int midiChannel,
-                     int midiNoteNumber,
-                     float velocity);
-
+                     juce::SynthesiserSound*   sound,
+                     int                       midiChannel,
+                     int                       midiNoteNumber,
+                     float                     velocity);
 
     /** Can be overridden to do custom handling of incoming midi events. */
     virtual void handleMidiEvent (const juce::MidiMessage&);
 
-private:
+  private:
     //==============================================================================
-    double sampleRate = 0;
-    juce::uint32 lastNoteOnCounter = 0;
-    int minimumSubBlockSize = 32;
-    bool subBlockSubdivisionIsStrict = false;
-    bool shouldStealNotes = true;
-    juce::BigInteger sustainPedalsDown;
+    double                                         sampleRate                  = 0;
+    juce::uint32                                   lastNoteOnCounter           = 0;
+    int                                            minimumSubBlockSize         = 32;
+    bool                                           subBlockSubdivisionIsStrict = false;
+    bool                                           shouldStealNotes            = true;
+    juce::BigInteger                               sustainPedalsDown;
     mutable juce::Array<LockFreeSynthesiserVoice*> usableVoicesToStealArray;
 
     template <typename floatType>
     void processNextBlock (juce::AudioBuffer<floatType>&, const juce::MidiBuffer&, int startSample, int numSamples);
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LockFreeSynthesiser
-)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LockFreeSynthesiser)
 };

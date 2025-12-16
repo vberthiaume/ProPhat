@@ -95,7 +95,7 @@ void LockFreeSynthesiser::setNoteStealingEnabled (const bool shouldSteal)
 void LockFreeSynthesiser::setMinimumRenderingSubdivisionSize (int numSamples, bool shouldBeStrict) noexcept
 {
     jassert (numSamples > 0); // it wouldn't make much sense for this to be less than 1
-    minimumSubBlockSize = numSamples;
+    minimumSubBlockSize         = numSamples;
     subBlockSubdivisionIsStrict = shouldBeStrict;
 }
 
@@ -114,9 +114,9 @@ void LockFreeSynthesiser::setCurrentPlaybackSampleRate (const double newRate)
 
 template <typename floatType>
 void LockFreeSynthesiser::processNextBlock (juce::AudioBuffer<floatType>& outputAudio,
-                                    const juce::MidiBuffer& midiData,
-                                    int startSample,
-                                    int numSamples)
+                                            const juce::MidiBuffer&       midiData,
+                                            int                           startSample,
+                                            int                           numSamples)
 {
     // must set the sample rate before using this!
     jassert (! juce::exactlyEqual (sampleRate, 0.0));
@@ -136,8 +136,8 @@ void LockFreeSynthesiser::processNextBlock (juce::AudioBuffer<floatType>& output
             return;
         }
 
-        const auto metadata = *midiIterator;
-        const int samplesToNextMidiMessage = metadata.samplePosition - startSample;
+        const auto metadata                 = *midiIterator;
+        const int  samplesToNextMidiMessage = metadata.samplePosition - startSample;
 
         if (samplesToNextMidiMessage >= numSamples)
         {
@@ -161,26 +161,25 @@ void LockFreeSynthesiser::processNextBlock (juce::AudioBuffer<floatType>& output
 
         handleMidiEvent (metadata.getMessage());
         startSample += samplesToNextMidiMessage;
-        numSamples  -= samplesToNextMidiMessage;
+        numSamples -= samplesToNextMidiMessage;
     }
 
     std::for_each (midiIterator,
                    midiData.cend(),
-                   [&] (const juce::MidiMessageMetadata& meta) { handleMidiEvent (meta.getMessage()); });
+                   [&] (const juce::MidiMessageMetadata& meta)
+                   { handleMidiEvent (meta.getMessage()); });
 }
 
 // explicit template instantiation
-template void LockFreeSynthesiser::processNextBlock<float>  (juce::AudioBuffer<float>&,  const juce::MidiBuffer&, int, int);
+template void LockFreeSynthesiser::processNextBlock<float> (juce::AudioBuffer<float>&, const juce::MidiBuffer&, int, int);
 template void LockFreeSynthesiser::processNextBlock<double> (juce::AudioBuffer<double>&, const juce::MidiBuffer&, int, int);
 
-void LockFreeSynthesiser::renderNextBlock (juce::AudioBuffer<float>& outputAudio, const juce::MidiBuffer& inputMidi,
-                                   int startSample, int numSamples)
+void LockFreeSynthesiser::renderNextBlock (juce::AudioBuffer<float>& outputAudio, const juce::MidiBuffer& inputMidi, int startSample, int numSamples)
 {
     processNextBlock (outputAudio, inputMidi, startSample, numSamples);
 }
 
-void LockFreeSynthesiser::renderNextBlock (juce::AudioBuffer<double>& outputAudio, const juce::MidiBuffer& inputMidi,
-                                   int startSample, int numSamples)
+void LockFreeSynthesiser::renderNextBlock (juce::AudioBuffer<double>& outputAudio, const juce::MidiBuffer& inputMidi, int startSample, int numSamples)
 {
     processNextBlock (outputAudio, inputMidi, startSample, numSamples);
 }
@@ -215,8 +214,8 @@ void LockFreeSynthesiser::handleMidiEvent (const juce::MidiMessage& m)
     }
     else if (m.isPitchWheel())
     {
-        const int wheelPos = m.getPitchWheelValue();
-        lastPitchWheelValues [channel - 1] = wheelPos;
+        const int wheelPos                = m.getPitchWheelValue();
+        lastPitchWheelValues[channel - 1] = wheelPos;
         handlePitchWheel (channel, wheelPos);
     }
     else if (m.isAftertouch())
@@ -265,32 +264,34 @@ void LockFreeSynthesiser::noteOn (const int midiChannel, const int midiNoteNumbe
                     stopVoice (voice, 1.0f, true);
 
             startVoice (findFreeVoice (sound, midiChannel, midiNoteNumber, shouldStealNotes),
-                        sound, midiChannel, midiNoteNumber, velocity);
+                        sound,
+                        midiChannel,
+                        midiNoteNumber,
+                        velocity);
         }
     }
 }
 
-
 void LockFreeSynthesiser::startVoice (LockFreeSynthesiserVoice* const voice,
-                              juce::SynthesiserSound* const sound,
-                              const int midiChannel,
-                              const int midiNoteNumber,
-                              const float velocity)
+                                      juce::SynthesiserSound* const   sound,
+                                      const int                       midiChannel,
+                                      const int                       midiNoteNumber,
+                                      const float                     velocity)
 {
     if (voice != nullptr && sound != nullptr)
     {
         if (voice->currentlyPlayingSound != nullptr)
             voice->stopNote (0.0f, false);
 
-        voice->currentlyPlayingNote = midiNoteNumber;
+        voice->currentlyPlayingNote      = midiNoteNumber;
         voice->currentPlayingMidiChannel = midiChannel;
-        voice->noteOnTime = ++lastNoteOnCounter;
-        voice->currentlyPlayingSound = sound;
+        voice->noteOnTime                = ++lastNoteOnCounter;
+        voice->currentlyPlayingSound     = sound;
         voice->setKeyDown (true);
         voice->setSostenutoPedalDown (false);
         voice->setSustainPedalDown (sustainPedalsDown[midiChannel]);
 
-        voice->startNote (midiNoteNumber, velocity, sound, lastPitchWheelValues [midiChannel - 1]);
+        voice->startNote (midiNoteNumber, velocity, sound, lastPitchWheelValues[midiChannel - 1]);
     }
 }
 
@@ -304,7 +305,7 @@ void LockFreeSynthesiser::noteOff (const int midiChannel, const int midiNoteNumb
             {
                 if (sound->appliesToNote (midiNoteNumber) && sound->appliesToChannel (midiChannel))
                 {
-                    jassert (! voice->keyIsDown || voice->isSustainPedalDown() == sustainPedalsDown [midiChannel]);
+                    jassert (! voice->keyIsDown || voice->isSustainPedalDown() == sustainPedalsDown[midiChannel]);
 
                     voice->setKeyDown (false);
 
@@ -333,15 +334,15 @@ void LockFreeSynthesiser::handlePitchWheel (const int midiChannel, const int whe
 }
 
 void LockFreeSynthesiser::handleController (const int midiChannel,
-                                    const int controllerNumber,
-                                    const int controllerValue)
+                                            const int controllerNumber,
+                                            const int controllerValue)
 {
     switch (controllerNumber)
     {
-        case 0x40:  handleSustainPedal   (midiChannel, controllerValue >= 64); break;
-        case 0x42:  handleSostenutoPedal (midiChannel, controllerValue >= 64); break;
-        case 0x43:  handleSoftPedal      (midiChannel, controllerValue >= 64); break;
-        default:    break;
+        case 0x40: handleSustainPedal (midiChannel, controllerValue >= 64); break;
+        case 0x42: handleSostenutoPedal (midiChannel, controllerValue >= 64); break;
+        case 0x43: handleSoftPedal (midiChannel, controllerValue >= 64); break;
+        default: break;
     }
 
     for (auto* voice : voices)
@@ -353,7 +354,7 @@ void LockFreeSynthesiser::handleAftertouch (int midiChannel, int midiNoteNumber,
 {
     for (auto* voice : voices)
         if (voice->getCurrentlyPlayingNote() == midiNoteNumber
-              && (midiChannel <= 0 || voice->isPlayingChannel (midiChannel)))
+            && (midiChannel <= 0 || voice->isPlayingChannel (midiChannel)))
             voice->aftertouchChanged (aftertouchValue);
 }
 
@@ -415,15 +416,16 @@ void LockFreeSynthesiser::handleSoftPedal ([[maybe_unused]] int midiChannel, boo
 }
 
 void LockFreeSynthesiser::handleProgramChange ([[maybe_unused]] int midiChannel,
-                                       [[maybe_unused]] int programNumber)
+                                               [[maybe_unused]] int programNumber)
 {
     jassert (midiChannel > 0 && midiChannel <= 16);
 }
 
 //==============================================================================
 LockFreeSynthesiserVoice* LockFreeSynthesiser::findFreeVoice (juce::SynthesiserSound* soundToPlay,
-                                              int midiChannel, int midiNoteNumber,
-                                              const bool stealIfNoneAvailable) const
+                                                              int                     midiChannel,
+                                                              int                     midiNoteNumber,
+                                                              const bool              stealIfNoneAvailable) const
 {
     for (auto* voice : voices)
         if ((! voice->isVoiceActive()) && voice->canPlaySound (soundToPlay))
@@ -436,7 +438,8 @@ LockFreeSynthesiserVoice* LockFreeSynthesiser::findFreeVoice (juce::SynthesiserS
 }
 
 LockFreeSynthesiserVoice* LockFreeSynthesiser::findVoiceToSteal (juce::SynthesiserSound* soundToPlay,
-                                                 int /*midiChannel*/, int midiNoteNumber) const
+                                                                 int /*midiChannel*/,
+                                                                 int midiNoteNumber) const
 {
     // This voice-stealing algorithm applies the following heuristics:
     // - Re-use the oldest notes first
