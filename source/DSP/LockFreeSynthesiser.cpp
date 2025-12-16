@@ -22,9 +22,6 @@
 
 #include "LockFreeSynthesiser.h"
 
-LockFreeSynthesiserVoice::LockFreeSynthesiserVoice() {}
-LockFreeSynthesiserVoice::~LockFreeSynthesiserVoice() {}
-
 bool LockFreeSynthesiserVoice::isPlayingChannel (const int midiChannel) const
 {
     return currentPlayingMidiChannel == midiChannel;
@@ -42,31 +39,24 @@ bool LockFreeSynthesiserVoice::isVoiceActive() const
 
 void LockFreeSynthesiserVoice::clearCurrentNote()
 {
-    currentlyPlayingNote = -1;
-    currentlyPlayingSound = nullptr;
+    currentlyPlayingNote      = -1;
+    currentlyPlayingSound     = nullptr;
     currentPlayingMidiChannel = 0;
 }
-
-void LockFreeSynthesiserVoice::aftertouchChanged (int) {}
-void LockFreeSynthesiserVoice::channelPressureChanged (int) {}
 
 bool LockFreeSynthesiserVoice::wasStartedBefore (const LockFreeSynthesiserVoice& other) const noexcept
 {
     return noteOnTime < other.noteOnTime;
 }
 
-void LockFreeSynthesiserVoice::renderNextBlock (juce::AudioBuffer<double>& outputBuffer,
-                                        int startSample, int numSamples)
+void LockFreeSynthesiserVoice::renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples)
 {
-    juce::AudioBuffer<double> subBuffer (outputBuffer.getArrayOfWritePointers(),
-                                   outputBuffer.getNumChannels(),
-                                   startSample, numSamples);
+    juce::AudioBuffer<double> subBuffer (outputBuffer.getArrayOfWritePointers(), outputBuffer.getNumChannels(), startSample, numSamples);
 
     tempBuffer.makeCopyOf (subBuffer, true);
     renderNextBlock (tempBuffer, 0, numSamples);
     subBuffer.makeCopyOf (tempBuffer, true);
 }
-
 
 //======================================================
 
@@ -78,25 +68,23 @@ LockFreeSynthesiser::LockFreeSynthesiser()
 
 LockFreeSynthesiserVoice* LockFreeSynthesiser::addVoice (LockFreeSynthesiserVoice* const newVoice)
 {
-    LockFreeSynthesiserVoice* voice;
+    //this is in C:\Users\barth\Documents\git\ProPhat\JUCE\modules\juce_events\messages\juce_MessageManager.h
+    //JUCE_ASSERT_MESSAGE_THREAD;
 
-    {
-        //const ScopedLock sl (lock);
-        newVoice->setCurrentPlaybackSampleRate (sampleRate);
-        voice = voices.add (newVoice);
-    }
+    newVoice->setCurrentPlaybackSampleRate (sampleRate);
 
-    {
-        const juce::ScopedLock sl (stealLock);
-        usableVoicesToStealArray.ensureStorageAllocated (voices.size() + 1);
-    }
+    auto* voice = voices.add (newVoice);
+
+    usableVoicesToStealArray.ensureStorageAllocated (voices.size() + 1);
 
     return voice;
 }
 
 juce::SynthesiserSound* LockFreeSynthesiser::addSound (const juce::SynthesiserSound::Ptr& newSound)
 {
-    //const ScopedLock sl (lock);
+    //this is in C:\Users\barth\Documents\git\ProPhat\JUCE\modules\juce_events\messages\juce_MessageManager.h
+    //JUCE_ASSERT_MESSAGE_THREAD;
+
     return sounds.add (newSound);
 }
 
@@ -117,7 +105,6 @@ void LockFreeSynthesiser::setCurrentPlaybackSampleRate (const double newRate)
 {
     if (! juce::approximatelyEqual (sampleRate, newRate))
     {
-        //const ScopedLock sl (lock);
         allNotesOff (0, false);
         sampleRate = newRate;
 
@@ -139,8 +126,6 @@ void LockFreeSynthesiser::processNextBlock (juce::AudioBuffer<floatType>& output
     auto midiIterator = midiData.findNextSamplePosition (startSample);
 
     bool firstEvent = true;
-
-    ////const ScopedLock sl (lock);
 
     for (; numSamples > 0; ++midiIterator)
     {
@@ -258,8 +243,6 @@ void LockFreeSynthesiser::noteOn (const int midiChannel,
                           const int midiNoteNumber,
                           const float velocity)
 {
-    //const ScopedLock sl (lock);
-
     for (auto* sound : sounds)
     {
         if (sound->appliesToNote (midiNoteNumber) && sound->appliesToChannel (midiChannel))
@@ -319,8 +302,6 @@ void LockFreeSynthesiser::noteOff (const int midiChannel,
                            const float velocity,
                            const bool allowTailOff)
 {
-    //const ScopedLock sl (lock);
-
     for (auto* voice : voices)
     {
         if (voice->getCurrentlyPlayingNote() == midiNoteNumber
@@ -345,8 +326,6 @@ void LockFreeSynthesiser::noteOff (const int midiChannel,
 
 void LockFreeSynthesiser::allNotesOff (const int midiChannel, const bool allowTailOff)
 {
-    //const ScopedLock sl (lock);
-
     for (auto* voice : voices)
         if (midiChannel <= 0 || voice->isPlayingChannel (midiChannel))
             voice->stopNote (1.0f, allowTailOff);
@@ -356,8 +335,6 @@ void LockFreeSynthesiser::allNotesOff (const int midiChannel, const bool allowTa
 
 void LockFreeSynthesiser::handlePitchWheel (const int midiChannel, const int wheelValue)
 {
-    //const ScopedLock sl (lock);
-
     for (auto* voice : voices)
         if (midiChannel <= 0 || voice->isPlayingChannel (midiChannel))
             voice->pitchWheelMoved (wheelValue);
@@ -375,8 +352,6 @@ void LockFreeSynthesiser::handleController (const int midiChannel,
         default:    break;
     }
 
-    //const ScopedLock sl (lock);
-
     for (auto* voice : voices)
         if (midiChannel <= 0 || voice->isPlayingChannel (midiChannel))
             voice->controllerMoved (controllerNumber, controllerValue);
@@ -384,8 +359,6 @@ void LockFreeSynthesiser::handleController (const int midiChannel,
 
 void LockFreeSynthesiser::handleAftertouch (int midiChannel, int midiNoteNumber, int aftertouchValue)
 {
-    //const ScopedLock sl (lock);
-
     for (auto* voice : voices)
         if (voice->getCurrentlyPlayingNote() == midiNoteNumber
               && (midiChannel <= 0 || voice->isPlayingChannel (midiChannel)))
@@ -394,8 +367,6 @@ void LockFreeSynthesiser::handleAftertouch (int midiChannel, int midiNoteNumber,
 
 void LockFreeSynthesiser::handleChannelPressure (int midiChannel, int channelPressureValue)
 {
-    //const ScopedLock sl (lock);
-
     for (auto* voice : voices)
         if (midiChannel <= 0 || voice->isPlayingChannel (midiChannel))
             voice->channelPressureChanged (channelPressureValue);
@@ -404,7 +375,6 @@ void LockFreeSynthesiser::handleChannelPressure (int midiChannel, int channelPre
 void LockFreeSynthesiser::handleSustainPedal (int midiChannel, bool isDown)
 {
     jassert (midiChannel > 0 && midiChannel <= 16);
-    //const ScopedLock sl (lock);
 
     if (isDown)
     {
@@ -434,7 +404,6 @@ void LockFreeSynthesiser::handleSustainPedal (int midiChannel, bool isDown)
 void LockFreeSynthesiser::handleSostenutoPedal (int midiChannel, bool isDown)
 {
     jassert (midiChannel > 0 && midiChannel <= 16);
-    //const ScopedLock sl (lock);
 
     for (auto* voice : voices)
     {
@@ -464,8 +433,6 @@ LockFreeSynthesiserVoice* LockFreeSynthesiser::findFreeVoice (juce::SynthesiserS
                                               int midiChannel, int midiNoteNumber,
                                               const bool stealIfNoneAvailable) const
 {
-    //const ScopedLock sl (lock);
-
     for (auto* voice : voices)
         if ((! voice->isVoiceActive()) && voice->canPlaySound (soundToPlay))
             return voice;
@@ -489,11 +456,6 @@ LockFreeSynthesiserVoice* LockFreeSynthesiser::findVoiceToSteal (juce::Synthesis
     // These are the voices we want to protect (ie: only steal if unavoidable)
     LockFreeSynthesiserVoice* low = nullptr; // Lowest sounding note, might be sustained, but NOT in release phase
     LockFreeSynthesiserVoice* top = nullptr; // Highest sounding note, might be sustained, but NOT in release phase
-
-    // All major OSes use double-locking so this will be lock- and wait-free as long as the lock is not
-    // contended. This is always the case if you do not call findVoiceToSteal on multiple threads at
-    // the same time.
-    const juce::ScopedLock sl (stealLock);
 
     // this is a list of voices we can steal, sorted by how long they've been running
     usableVoicesToStealArray.clear();

@@ -39,10 +39,10 @@ class LockFreeSynthesiserVoice
 public:
     //==============================================================================
     /** Creates a voice. */
-    LockFreeSynthesiserVoice();
+    LockFreeSynthesiserVoice() {}
 
     /** Destructor. */
-    virtual ~LockFreeSynthesiserVoice();
+    virtual ~LockFreeSynthesiserVoice() {}
 
     //==============================================================================
     /** Returns the midi note that this voice is currently playing.
@@ -110,12 +110,12 @@ public:
     /** Called to let the voice know that the aftertouch has changed.
         This will be called during the rendering callback, so must be fast and thread-safe.
     */
-    virtual void aftertouchChanged (int newAftertouchValue);
+    virtual void aftertouchChanged (int newAftertouchValue) {}
 
     /** Called to let the voice know that the channel pressure has changed.
         This will be called during the rendering callback, so must be fast and thread-safe.
     */
-    virtual void channelPressureChanged (int newChannelPressureValue);
+    virtual void channelPressureChanged (int newChannelPressureValue) {}
 
     //==============================================================================
     /** Renders the next block of data for this voice.
@@ -533,7 +533,6 @@ private:
     bool subBlockSubdivisionIsStrict = false;
     bool shouldStealNotes = true;
     juce::BigInteger sustainPedalsDown;
-    mutable juce::CriticalSection stealLock;
     mutable juce::Array<LockFreeSynthesiserVoice*> usableVoicesToStealArray;
 
     template <typename floatType>
