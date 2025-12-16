@@ -506,12 +506,6 @@ protected:
                      int midiNoteNumber,
                      float velocity);
 
-    /** Stops a given voice.
-        You should never need to call this, it's used internally by noteOff, but is protected
-        in case it's useful for some custom subclasses. It basically just calls through to
-        SynthesiserVoice::stopNote(), and has some assertions to sanity-check a few things.
-    */
-    void stopVoice (LockFreeSynthesiserVoice*, float velocity, bool allowTailOff);
 
     /** Can be overridden to do custom handling of incoming midi events. */
     virtual void handleMidiEvent (const juce::MidiMessage&);

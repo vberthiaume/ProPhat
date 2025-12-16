@@ -238,9 +238,21 @@ void LockFreeSynthesiser::handleMidiEvent (const juce::MidiMessage& m)
 }
 
 //==============================================================================
-void LockFreeSynthesiser::noteOn (const int midiChannel,
-                          const int midiNoteNumber,
-                          const float velocity)
+static void stopVoice (LockFreeSynthesiserVoice* voice, float velocity, const bool allowTailOff)
+{
+    if (voice == nullptr)
+    {
+        jassertfalse;
+        return;
+    }
+
+    voice->stopNote (velocity, allowTailOff);
+
+    // the subclass MUST call clearCurrentNote() if it's not tailing off! RTFM for stopNote()!
+    jassert (allowTailOff || (voice->getCurrentlyPlayingNote() < 0 && voice->getCurrentlyPlayingSound() == nullptr));
+}
+
+void LockFreeSynthesiser::noteOn (const int midiChannel, const int midiNoteNumber, const float velocity)
 {
     for (auto* sound : sounds)
     {
@@ -257,6 +269,7 @@ void LockFreeSynthesiser::noteOn (const int midiChannel,
         }
     }
 }
+
 
 void LockFreeSynthesiser::startVoice (LockFreeSynthesiserVoice* const voice,
                               juce::SynthesiserSound* const sound,
@@ -277,36 +290,19 @@ void LockFreeSynthesiser::startVoice (LockFreeSynthesiserVoice* const voice,
         voice->setSostenutoPedalDown (false);
         voice->setSustainPedalDown (sustainPedalsDown[midiChannel]);
 
-        voice->startNote (midiNoteNumber, velocity, sound,
-                          lastPitchWheelValues [midiChannel - 1]);
+        voice->startNote (midiNoteNumber, velocity, sound, lastPitchWheelValues [midiChannel - 1]);
     }
-}
-
-void LockFreeSynthesiser::stopVoice (LockFreeSynthesiserVoice* voice, float velocity, const bool allowTailOff)
-{
-    if (voice == nullptr)
-    {
-        jassertfalse;
-        return;
-    }
-
-    voice->stopNote (velocity, allowTailOff);
-
-    // the subclass MUST call clearCurrentNote() if it's not tailing off! RTFM for stopNote()!
-    jassert (allowTailOff || (voice->getCurrentlyPlayingNote() < 0 && voice->getCurrentlyPlayingSound() == nullptr));
 }
 
 void LockFreeSynthesiser::noteOff (const int midiChannel, const int midiNoteNumber, const float velocity, const bool allowTailOff)
 {
     for (auto* voice : voices)
     {
-        if (voice->getCurrentlyPlayingNote() == midiNoteNumber
-              && voice->isPlayingChannel (midiChannel))
+        if (voice->getCurrentlyPlayingNote() == midiNoteNumber && voice->isPlayingChannel (midiChannel))
         {
-            if (auto sound = voice->getCurrentlyPlayingSound())
+            if (const auto sound = voice->getCurrentlyPlayingSound())
             {
-                if (sound->appliesToNote (midiNoteNumber)
-                     && sound->appliesToChannel (midiChannel))
+                if (sound->appliesToNote (midiNoteNumber) && sound->appliesToChannel (midiChannel))
                 {
                     jassert (! voice->keyIsDown || voice->isSustainPedalDown() == sustainPedalsDown [midiChannel]);
 
@@ -471,11 +467,12 @@ LockFreeSynthesiserVoice* LockFreeSynthesiser::findVoiceToSteal (juce::Synthesis
                 bool operator() (const LockFreeSynthesiserVoice* a, const LockFreeSynthesiserVoice* b) const noexcept { return a->wasStartedBefore (*b); }
             };
 
-            std::sort (usableVoicesToStealArray.begin(), usableVoicesToStealArray.end(), Sorter());
+            //TODO: this used to be `std::sort (usableVoicesToStealArray.begin(), usableVoicesToStealArray.end(), Sorter());`, i should probably check that this new code works the same
+            std::ranges::sort (usableVoicesToStealArray, Sorter());
 
             if (! voice->isPlayingButReleased()) // Don't protect released notes
             {
-                auto note = voice->getCurrentlyPlayingNote();
+                const auto note = voice->getCurrentlyPlayingNote();
 
                 if (low == nullptr || note < low->getCurrentlyPlayingNote())
                     low = voice;
