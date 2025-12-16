@@ -76,17 +76,6 @@ LockFreeSynthesiser::LockFreeSynthesiser()
         lastPitchWheelValues[i] = 0x2000;
 }
 
-LockFreeSynthesiser::~LockFreeSynthesiser()
-{
-}
-
-//==============================================================================
-LockFreeSynthesiserVoice* LockFreeSynthesiser::getVoice (const int index) const
-{
-    //const ScopedLock sl (lock);
-    return voices [index];
-}
-
 LockFreeSynthesiserVoice* LockFreeSynthesiser::addVoice (LockFreeSynthesiserVoice* const newVoice)
 {
     LockFreeSynthesiserVoice* voice;

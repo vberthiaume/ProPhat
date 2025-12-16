@@ -242,13 +242,10 @@ public:
     LockFreeSynthesiser();
 
     /** Destructor. */
-    virtual ~LockFreeSynthesiser();
+    virtual ~LockFreeSynthesiser(){}
 
     /** Returns the number of voices that have been added. */
     int getNumVoices() const noexcept                               { return voices.size(); }
-
-    /** Returns one of the voices that have been added. */
-    LockFreeSynthesiserVoice* getVoice (int index) const;
 
     /** Adds a new voice to the synth.
 
