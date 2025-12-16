@@ -87,12 +87,6 @@ LockFreeSynthesiserVoice* LockFreeSynthesiser::getVoice (const int index) const
     return voices [index];
 }
 
-void LockFreeSynthesiser::clearVoices()
-{
-    //const ScopedLock sl (lock);
-    voices.clear();
-}
-
 LockFreeSynthesiserVoice* LockFreeSynthesiser::addVoice (LockFreeSynthesiserVoice* const newVoice)
 {
     LockFreeSynthesiserVoice* voice;

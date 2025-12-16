@@ -244,10 +244,6 @@ public:
     /** Destructor. */
     virtual ~LockFreeSynthesiser();
 
-    //==============================================================================
-    /** Deletes all voices. */
-    void clearVoices();
-
     /** Returns the number of voices that have been added. */
     int getNumVoices() const noexcept                               { return voices.size(); }
 
