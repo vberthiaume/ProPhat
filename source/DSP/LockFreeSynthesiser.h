@@ -213,7 +213,6 @@ protected:
 
 
 private:
-    //==============================================================================
     friend class LockFreeSynthesiser;
 
     double currentSampleRate = 44100.0;
@@ -229,6 +228,11 @@ private:
 
 
 //===================================================================
+/** This is a copy of juce::Synthesiser but modified to use LockFreeSynthesiserVoice instead of SynthesiserVoice.
+    It is intended to be used in situations where low latency and lock-free audio processing is required.
+    @see juce::Synthesiser, LockFreeSynthesiserVoice
+    @tags{Audio}
+*/
 class LockFreeSynthesiser
 {
 public:
