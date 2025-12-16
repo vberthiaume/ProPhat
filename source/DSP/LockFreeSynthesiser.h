@@ -228,8 +228,7 @@ private:
 
 
 //===================================================================
-/** This is a copy of juce::Synthesiser but modified to use LockFreeSynthesiserVoice instead of SynthesiserVoice.
-    It is intended to be used in situations where low latency and lock-free audio processing is required.
+/** This is a copy of juce::Synthesiser but modified to have a fixed number of voices and sounds, and thus avoid locks in the audio thread.
     @see juce::Synthesiser, LockFreeSynthesiserVoice
     @tags{Audio}
 */
@@ -256,13 +255,6 @@ public:
         voice.
     */
     LockFreeSynthesiserVoice* addVoice (LockFreeSynthesiserVoice* newVoice);
-
-    /** Deletes one of the voices. */
-    void removeVoice (int index);
-
-    //==============================================================================
-    /** Deletes all sounds. */
-    void clearSounds();
 
     /** Returns the number of sounds that have been added to the synth. */
     int getNumSounds() const noexcept                               { return sounds.size(); }

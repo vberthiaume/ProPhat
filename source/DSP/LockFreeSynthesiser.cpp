@@ -94,18 +94,6 @@ LockFreeSynthesiserVoice* LockFreeSynthesiser::addVoice (LockFreeSynthesiserVoic
     return voice;
 }
 
-void LockFreeSynthesiser::removeVoice (const int index)
-{
-    //const ScopedLock sl (lock);
-    voices.remove (index);
-}
-
-void LockFreeSynthesiser::clearSounds()
-{
-    //const ScopedLock sl (lock);
-    sounds.clear();
-}
-
 juce::SynthesiserSound* LockFreeSynthesiser::addSound (const juce::SynthesiserSound::Ptr& newSound)
 {
     //const ScopedLock sl (lock);
