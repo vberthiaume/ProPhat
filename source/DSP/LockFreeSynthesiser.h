@@ -269,9 +269,6 @@ public:
     */
     juce::SynthesiserSound* addSound (const juce::SynthesiserSound::Ptr& newSound);
 
-    /** Removes and deletes one of the sounds. */
-    void removeSound (int index);
-
     //==============================================================================
     /** If set to true, then the synth will try to take over an existing voice if
         it runs out and needs to play another note.
