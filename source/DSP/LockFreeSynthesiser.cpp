@@ -296,10 +296,7 @@ void LockFreeSynthesiser::stopVoice (LockFreeSynthesiserVoice* voice, float velo
     jassert (allowTailOff || (voice->getCurrentlyPlayingNote() < 0 && voice->getCurrentlyPlayingSound() == nullptr));
 }
 
-void LockFreeSynthesiser::noteOff (const int midiChannel,
-                           const int midiNoteNumber,
-                           const float velocity,
-                           const bool allowTailOff)
+void LockFreeSynthesiser::noteOff (const int midiChannel, const int midiNoteNumber, const float velocity, const bool allowTailOff)
 {
     for (auto* voice : voices)
     {
