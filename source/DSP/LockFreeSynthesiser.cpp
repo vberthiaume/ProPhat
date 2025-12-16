@@ -21,6 +21,7 @@
 */
 
 #include "LockFreeSynthesiser.h"
+#include "juce_events/juce_events.h"
 
 bool LockFreeSynthesiserVoice::isPlayingChannel (const int midiChannel) const
 {
@@ -68,8 +69,7 @@ LockFreeSynthesiser::LockFreeSynthesiser()
 
 LockFreeSynthesiserVoice* LockFreeSynthesiser::addVoice (LockFreeSynthesiserVoice* const newVoice)
 {
-    //this is in C:\Users\barth\Documents\git\ProPhat\JUCE\modules\juce_events\messages\juce_MessageManager.h
-    //JUCE_ASSERT_MESSAGE_THREAD;
+    JUCE_ASSERT_MESSAGE_THREAD;
 
     newVoice->setCurrentPlaybackSampleRate (sampleRate);
 
@@ -82,8 +82,7 @@ LockFreeSynthesiserVoice* LockFreeSynthesiser::addVoice (LockFreeSynthesiserVoic
 
 juce::SynthesiserSound* LockFreeSynthesiser::addSound (const juce::SynthesiserSound::Ptr& newSound)
 {
-    //this is in C:\Users\barth\Documents\git\ProPhat\JUCE\modules\juce_events\messages\juce_MessageManager.h
-    //JUCE_ASSERT_MESSAGE_THREAD;
+    JUCE_ASSERT_MESSAGE_THREAD;
 
     return sounds.add (newSound);
 }

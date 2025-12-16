@@ -39,21 +39,21 @@ class LockFreeSynthesiserVoice
 public:
     //==============================================================================
     /** Creates a voice. */
-    LockFreeSynthesiserVoice() {}
+    LockFreeSynthesiserVoice() = default;
 
     /** Destructor. */
-    virtual ~LockFreeSynthesiserVoice() {}
+    virtual ~LockFreeSynthesiserVoice() = default;
 
     //==============================================================================
     /** Returns the midi note that this voice is currently playing.
         Returns a value less than 0 if no note is playing.
     */
-    int getCurrentlyPlayingNote() const noexcept                        { return currentlyPlayingNote; }
+    [[nodiscard]] int getCurrentlyPlayingNote() const noexcept { return currentlyPlayingNote; }
 
     /** Returns the sound that this voice is currently playing.
         Returns nullptr if it's not playing.
     */
-    juce::SynthesiserSound::Ptr getCurrentlyPlayingSound() const noexcept     { return currentlyPlayingSound; }
+    [[nodiscard]] juce::SynthesiserSound::Ptr getCurrentlyPlayingSound() const noexcept { return currentlyPlayingSound; }
 
     /** Must return true if this voice object is capable of playing the given sound.
 
@@ -92,10 +92,10 @@ public:
     virtual void stopNote (float velocity, bool allowTailOff) = 0;
 
     /** Returns true if this voice is currently busy playing a sound.
-        By default this just checks the getCurrentlyPlayingNote() value, but can
+        By default, this just checks the getCurrentlyPlayingNote() value, but can
         be overridden for more advanced checking.
     */
-    virtual bool isVoiceActive() const;
+    [[nodiscard]] virtual bool isVoiceActive() const;
 
     /** Called to let the voice know that the pitch wheel has been moved.
         This will be called during the rendering callback, so must be fast and thread-safe.
@@ -110,12 +110,12 @@ public:
     /** Called to let the voice know that the aftertouch has changed.
         This will be called during the rendering callback, so must be fast and thread-safe.
     */
-    virtual void aftertouchChanged (int newAftertouchValue) {}
+    virtual void aftertouchChanged (int /*newAftertouchValue*/) {}
 
     /** Called to let the voice know that the channel pressure has changed.
         This will be called during the rendering callback, so must be fast and thread-safe.
     */
-    virtual void channelPressureChanged (int newChannelPressureValue) {}
+    virtual void channelPressureChanged (int /*newChannelPressureValue*/) {}
 
     //==============================================================================
     /** Renders the next block of data for this voice.
@@ -162,13 +162,13 @@ public:
     /** Returns the current target sample rate at which rendering is being done.
         Subclasses may need to know this so that they can pitch things correctly.
     */
-    double getSampleRate() const noexcept                       { return currentSampleRate; }
+    [[nodiscard]] double getSampleRate() const noexcept                       { return currentSampleRate; }
 
     /** Returns true if the key that triggered this voice is still held down.
-        Note that the voice may still be playing after the key was released (e.g because the
+        Note that the voice may still be playing after the key was released (e.g., because the
         sostenuto pedal is down).
     */
-    bool isKeyDown() const noexcept                             { return keyIsDown; }
+    [[nodiscard]] bool isKeyDown() const noexcept                             { return keyIsDown; }
 
     /** Allows you to modify the flag indicating that the key that triggered this voice is still held down.
         @see isKeyDown
@@ -176,25 +176,25 @@ public:
     void setKeyDown (bool isNowDown) noexcept                   { keyIsDown = isNowDown; }
 
     /** Returns true if the sustain pedal is currently active for this voice. */
-    bool isSustainPedalDown() const noexcept                    { return sustainPedalDown; }
+    [[nodiscard]] bool isSustainPedalDown() const noexcept                    { return sustainPedalDown; }
 
     /** Modifies the sustain pedal flag. */
     void setSustainPedalDown (bool isNowDown) noexcept          { sustainPedalDown = isNowDown; }
 
     /** Returns true if the sostenuto pedal is currently active for this voice. */
-    bool isSostenutoPedalDown() const noexcept                  { return sostenutoPedalDown; }
+    [[nodiscard]] bool isSostenutoPedalDown() const noexcept                  { return sostenutoPedalDown; }
 
     /** Modifies the sostenuto pedal flag. */
     void setSostenutoPedalDown (bool isNowDown) noexcept        { sostenutoPedalDown = isNowDown; }
 
     /** Returns true if a voice is sounding in its release phase **/
-    bool isPlayingButReleased() const noexcept
+    [[nodiscard]] bool isPlayingButReleased() const noexcept
     {
         return isVoiceActive() && ! (isKeyDown() || isSostenutoPedalDown() || isSustainPedalDown());
     }
 
     /** Returns true if this voice started playing its current note before the other voice did. */
-    bool wasStartedBefore (const LockFreeSynthesiserVoice& other) const noexcept;
+    [[nodiscard]] bool wasStartedBefore (const LockFreeSynthesiserVoice& other) const noexcept;
 
 protected:
     /** Resets the state of this voice after a sound has finished playing.
@@ -244,13 +244,13 @@ public:
     virtual ~LockFreeSynthesiser(){}
 
     /** Returns the number of voices that have been added. */
-    int getNumVoices() const noexcept                               { return voices.size(); }
+    [[nodiscard]] int getNumVoices() const noexcept                               { return voices.size(); }
 
     /** Returns the number of sounds that have been added to the synth. */
-    int getNumSounds() const noexcept                               { return sounds.size(); }
+    [[nodiscard]] int getNumSounds() const noexcept                               { return sounds.size(); }
 
     /** Returns one of the sounds. */
-    juce::SynthesiserSound::Ptr getSound (int index) const noexcept       { return sounds[index]; }
+    [[nodiscard]] juce::SynthesiserSound::Ptr getSound (int index) const noexcept       { return sounds[index]; }
 
 
     /** If set to true, then the synth will try to take over an existing voice if
@@ -264,7 +264,7 @@ public:
     /** Returns true if note-stealing is enabled.
         @see setNoteStealingEnabled
     */
-    bool isNoteStealingEnabled() const noexcept                     { return shouldStealNotes; }
+    [[nodiscard]] bool isNoteStealingEnabled() const noexcept                     { return shouldStealNotes; }
 
     //==============================================================================
     /** Triggers a note-on event.
@@ -280,9 +280,7 @@ public:
 
         The midiChannel parameter is the channel, between 1 and 16 inclusive.
     */
-    virtual void noteOn (int midiChannel,
-                         int midiNoteNumber,
-                         float velocity);
+    virtual void noteOn (int midiChannel, int midiNoteNumber, float velocity);
 
     /** Triggers a note-off event.
 
@@ -296,17 +294,14 @@ public:
 
         The midiChannel parameter is the channel, between 1 and 16 inclusive.
     */
-    virtual void noteOff (int midiChannel,
-                          int midiNoteNumber,
-                          float velocity,
-                          bool allowTailOff);
+    virtual void noteOff (int midiChannel, int midiNoteNumber, float velocity, bool allowTailOff);
 
     /** Turns off all notes.
 
         This will turn off any voices that are playing a sound on the given midi channel.
 
         If midiChannel is 0 or less, then all voices will be turned off, regardless of
-        which channel they're playing. Otherwise it represents a valid midi channel, from
+        which channel they're playing. Otherwise, it represents a valid midi channel, from
         1 to 16 inclusive.
 
         If allowTailOff is true, the voices will be allowed to fade out the notes gracefully
@@ -315,8 +310,7 @@ public:
         This method will be called automatically according to the midi data passed into
         renderNextBlock(), but may be called explicitly too.
     */
-    virtual void allNotesOff (int midiChannel,
-                              bool allowTailOff);
+    virtual void allNotesOff (int midiChannel, bool allowTailOff);
 
     /** Sends a pitch-wheel message to any active voices.
 
@@ -344,9 +338,7 @@ public:
         @param controllerNumber     the midi controller type, as returned by MidiMessage::getControllerNumber()
         @param controllerValue      the midi controller value, between 0 and 127, as returned by MidiMessage::getControllerValue()
     */
-    virtual void handleController (int midiChannel,
-                                   int controllerNumber,
-                                   int controllerValue);
+    virtual void handleController (int midiChannel, int controllerNumber, int controllerValue);
 
     /** Sends an aftertouch message.
 
@@ -390,8 +382,7 @@ public:
         The base class implementation of this has no effect, but you may want to make your
         own synth react to program changes.
     */
-    virtual void handleProgramChange (int midiChannel,
-                                      int programNumber);
+    virtual void handleProgramChange (int midiChannel, int programNumber);
 
     //==============================================================================
     /** Tells the synthesiser what the sample rate is for the audio it's being used to render.
@@ -426,7 +417,7 @@ public:
     /** Returns the current target sample rate at which rendering is being done.
         Subclasses may need to know this so that they can pitch things correctly.
     */
-    double getSampleRate() const noexcept                       { return sampleRate; }
+    [[nodiscard]] double getSampleRate() const noexcept                       { return sampleRate; }
 
     /** Sets a minimum limit on the size to which audio sub-blocks will be divided when rendering.
 
@@ -475,7 +466,7 @@ protected:
     juce::SynthesiserSound* addSound (const juce::SynthesiserSound::Ptr& newSound);
 
     /** Renders the voices for the given range.
-        By default this just calls renderNextBlock() on each voice, but you may need
+        By default, this just calls renderNextBlock() on each voice, but you may need
         to override it to handle custom cases.
     */
     virtual void renderVoices (juce::AudioBuffer<float>& outputAudio,
