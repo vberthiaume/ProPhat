@@ -246,30 +246,13 @@ public:
     /** Returns the number of voices that have been added. */
     int getNumVoices() const noexcept                               { return voices.size(); }
 
-    /** Adds a new voice to the synth.
-
-        All the voices should be the same class of object and are treated equally.
-
-        The object passed in will be managed by the synthesiser, which will delete
-        it later on when no longer needed. The caller should not retain a pointer to the
-        voice.
-    */
-    LockFreeSynthesiserVoice* addVoice (LockFreeSynthesiserVoice* newVoice);
-
     /** Returns the number of sounds that have been added to the synth. */
     int getNumSounds() const noexcept                               { return sounds.size(); }
 
     /** Returns one of the sounds. */
     juce::SynthesiserSound::Ptr getSound (int index) const noexcept       { return sounds[index]; }
 
-    /** Adds a new sound to the synthesiser.
 
-        The object passed in is reference counted, so will be deleted when the
-        synthesiser and all voices are no longer using it.
-    */
-    juce::SynthesiserSound* addSound (const juce::SynthesiserSound::Ptr& newSound);
-
-    //==============================================================================
     /** If set to true, then the synth will try to take over an existing voice if
         it runs out and needs to play another note.
 
@@ -473,6 +456,23 @@ protected:
 
     /** The last pitch-wheel values for each midi channel. */
     int lastPitchWheelValues [16];
+
+    /** Adds a new voice to the synth.
+
+    All the voices should be the same class of object and are treated equally.
+
+    The object passed in will be managed by the synthesiser, which will delete
+    it later on when no longer needed. The caller should not retain a pointer to the
+    voice.
+    */
+    LockFreeSynthesiserVoice* addVoice (LockFreeSynthesiserVoice* newVoice);
+
+    /** Adds a new sound to the synthesiser.
+
+        The object passed in is reference counted, so will be deleted when the
+        synthesiser and all voices are no longer using it.
+    */
+    juce::SynthesiserSound* addSound (const juce::SynthesiserSound::Ptr& newSound);
 
     /** Renders the voices for the given range.
         By default this just calls renderNextBlock() on each voice, but you may need
