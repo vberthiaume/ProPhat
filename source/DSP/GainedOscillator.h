@@ -32,7 +32,7 @@ public:
         distribution ((T) -1, (T) 1)
     {
         oscs[OscShape::none].initialise ([](T /*x*/) { return T (0); });
-        oscs[OscShape::saw].initialise  ([] (T x) { return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1)); }, 2);
+        oscs[OscShape::saw].initialise  ([] (T x) { return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1)); }, 64);
 
         oscs[OscShape::sawTri].initialise ([] (T x)
                                            {
@@ -68,6 +68,13 @@ public:
 
     void setOscShape (OscShape::Values newShape)
     {
+        //TODO: AFAICT we never get in here so probably useless?
+        // Early-out if the requested shape is already selected.
+        auto* currentPtr = curOsc.load();
+        auto* requestedPtr = &oscs[static_cast<std::size_t> (newShape)];
+        if (currentPtr == requestedPtr)
+            return;
+
         //this is to make sure we preserve the same gain after we re-init, right?
         bool wasActive = isActive;
         isActive = true;
@@ -77,12 +84,12 @@ public:
 
         switch (newShape)
         {
-            case OscShape::none:    curOsc.store (&oscs[OscShape::none]);   break;
-            case OscShape::saw:     curOsc.store (&oscs[OscShape::saw]);    break;
-            case OscShape::sawTri:  curOsc.store (&oscs[OscShape::sawTri]); break;
-            case OscShape::triangle:curOsc.store (&oscs[OscShape::triangle]); break;
-            case OscShape::pulse:   curOsc.store (&oscs[OscShape::pulse]);  break;
-            case OscShape::noise:   curOsc.store (&oscs[OscShape::noise]);  break;
+            case OscShape::none:     curOsc.store (&oscs[OscShape::none]);      break;
+            case OscShape::saw:      curOsc.store (&oscs[OscShape::saw]);       break;
+            case OscShape::sawTri:   curOsc.store (&oscs[OscShape::sawTri]);    break;
+            case OscShape::triangle: curOsc.store (&oscs[OscShape::triangle]);  break;
+            case OscShape::pulse:    curOsc.store (&oscs[OscShape::pulse]);     break;
+            case OscShape::noise:    curOsc.store (&oscs[OscShape::noise]);     break;
             default: jassertfalse;
         }
 
