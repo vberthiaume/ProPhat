@@ -31,8 +31,9 @@ public:
     GainedOscillator () :
         distribution ((T) -1, (T) 1)
     {
-        oscs[OscShape::none].initialise ([](T /*x*/) { return T (0); });
-        oscs[OscShape::saw].initialise  ([] (T x) { return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1)); }, 64);
+        //TODO: I should compare these waves on the scope with the waves from the prophet
+        oscs[OscShape::none].initialise ([] (T /*x*/) { return T (0); });
+        oscs[OscShape::saw].initialise  ([] (T x) { return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1)); }, 2);
 
         oscs[OscShape::sawTri].initialise ([] (T x)
                                            {
@@ -52,7 +53,7 @@ public:
                                                      return juce::jmap (x, T (0), T (juce::MathConstants<T>::pi), T (1), T (-1));
                                              }, 128);
 
-        oscs[OscShape::pulse].initialise ([] (T x) { if (x < 0) return T (-1); else return T (1); }, 2);
+        oscs[OscShape::pulse].initialise ([] (T x) { if (x < 0) return T (-1); else return T (1); }, 16);
         oscs[OscShape::noise].initialise ([this] (T /*x*/) { return distribution (generator); });
 
         setOscShape (OscShape::saw);
