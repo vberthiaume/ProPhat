@@ -31,6 +31,31 @@ public:
     GainedOscillator () :
         distribution ((T) -1, (T) 1)
     {
+        //TODO: I should compare these waves on the scope with the waves from the prophet
+        oscs[OscShape::none].initialise ([] (T /*x*/) { return T (0); });
+        oscs[OscShape::saw].initialise  ([] (T x) { return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1)); }, 2);
+
+        oscs[OscShape::sawTri].initialise ([] (T x)
+                                           {
+                                               T y = juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1)) / 2;
+
+                                               if (x < 0)
+                                                   return y += juce::jmap (x, T (-juce::MathConstants<T>::pi), T (0), T (-1), T (1)) / 2;
+                                               else
+                                                   return y += juce::jmap (x, T (0), T (juce::MathConstants<T>::pi), T (1), T (-1)) / 2;
+                                           }, 128);
+
+        oscs[OscShape::triangle].initialise ([] (T x)
+                                             {
+                                                 if (x < 0)
+                                                     return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (0), T (-1), T (1));
+                                                 else
+                                                     return juce::jmap (x, T (0), T (juce::MathConstants<T>::pi), T (1), T (-1));
+                                             }, 128);
+
+        oscs[OscShape::pulse].initialise ([] (T x) { if (x < 0) return T (-1); else return T (1); }, 16);
+        oscs[OscShape::noise].initialise ([this] (T /*x*/) { return distribution (generator); });
+
         setOscShape (OscShape::saw);
         setGain (Constants::defaultOscLevel);
     }
@@ -39,11 +64,44 @@ public:
     {
         jassert (newValue > 0);
 
-        auto& osc = processorChain.template get<oscIndex> ();
-        osc.setFrequency (newValue, force);
+        curOsc.load()->setFrequency (newValue, force);
     }
 
-    void setOscShape (OscShape::Values newShape) { nextOsc.store (newShape); }
+    void setOscShape (OscShape::Values newShape)
+    {
+        //TODO: AFAICT we never get in here so probably useless?
+        // Early-out if the requested shape is already selected.
+        auto* currentPtr = curOsc.load();
+        auto* requestedPtr = &oscs[static_cast<std::size_t> (newShape)];
+        if (currentPtr == requestedPtr)
+            return;
+
+        //this is to make sure we preserve the same gain after we re-init, right?
+        bool wasActive = isActive;
+        isActive = true;
+
+        if (newShape == OscShape::none)
+            isActive = false;
+
+        switch (newShape)
+        {
+            case OscShape::none:     curOsc.store (&oscs[OscShape::none]);      break;
+            case OscShape::saw:      curOsc.store (&oscs[OscShape::saw]);       break;
+            case OscShape::sawTri:   curOsc.store (&oscs[OscShape::sawTri]);    break;
+            case OscShape::triangle: curOsc.store (&oscs[OscShape::triangle]);  break;
+            case OscShape::pulse:    curOsc.store (&oscs[OscShape::pulse]);     break;
+            case OscShape::noise:    curOsc.store (&oscs[OscShape::noise]);     break;
+            default: jassertfalse;
+        }
+
+        if (wasActive != isActive)
+        {
+            if (isActive)
+                setGain (lastActiveGain);
+            else
+                setGain (0);
+        }
+    }
 
     /**
      * @brief Sets the gain for the oscillator in the processorChain.
@@ -58,142 +116,44 @@ public:
         else
             lastActiveGain = newGain;
 
-        auto& gain = processorChain.template get<gainIndex> ();
         gain.setGainLinear (newGain);
     }
 
     T getGain () { return lastActiveGain; }
 
-    void reset () noexcept { processorChain.reset (); }
+    void reset () noexcept
+    {
+        curOsc.load ()->reset();
+        gain.reset();
+    }
 
     template <typename ProcessContext>
     void process (const ProcessContext& context) noexcept
     {
-        updateOscillators();
-
-        processorChain.process (context);
+        curOsc.load ()->process (context);
+        gain.process (context);
     }
 
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
-        processorChain.prepare (spec);
+        for (auto& osc : oscs)
+            osc.prepare (spec);
+
+        gain.prepare (spec);
     }
 
 private:
-    enum
-    {
-        oscIndex,
-        gainIndex
-    };
 
-    std::atomic<OscShape::Values> currentOsc { OscShape::none }, nextOsc { OscShape::saw };
-
-    void updateOscillators();
+    std::array<juce::dsp::Oscillator<T>, OscShape::actualTotal> oscs;
+    std::atomic<juce::dsp::Oscillator<T>*> curOsc { nullptr };
 
     bool isActive = true;
 
     T lastActiveGain {};
-
-    juce::dsp::ProcessorChain<juce::dsp::Oscillator<T>, juce::dsp::Gain<T>> processorChain;
+    juce::dsp::Gain<T> gain;
 
     std::uniform_real_distribution<T> distribution;
     std::default_random_engine generator;
 };
 
 //====================================================================================================
-
-template <std::floating_point T>
-void GainedOscillator<T>::updateOscillators()
-{
-    //compare the current osc type with the (buffered next osc type). Get outta here if they the same
-    const auto nextOscBuf { nextOsc.load() };
-    if (currentOsc == nextOscBuf)
-        return;
-
-    //this is to make sure we preserve the same gain after we re-init, right?
-    bool wasActive = isActive;
-    isActive = true;
-
-    auto& osc = processorChain.template get<oscIndex>();
-    switch (nextOscBuf)
-    {
-    case OscShape::none:
-        osc.initialise ([&] (T /*x*/) { return T (0); });
-        isActive = false;
-        break;
-
-    case OscShape::saw:
-    {
-        osc.initialise ([](T x)
-                        {
-                            //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-                            return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1));
-                        }, 2);
-    }
-    break;
-
-    case OscShape::sawTri:
-    {
-        osc.initialise ([](T x)
-                        {
-                            T y = juce::jmap (x, T (-juce::MathConstants<T>::pi), T (juce::MathConstants<T>::pi), T (-1), T (1)) / 2;
-
-                            if (x < 0)
-                                return y += juce::jmap (x, T (-juce::MathConstants<T>::pi), T (0), T (-1), T (1)) / 2;
-                            else
-                                return y += juce::jmap (x, T (0), T (juce::MathConstants<T>::pi), T (1), T (-1)) / 2;
-
-                        }, 128);
-    }
-    break;
-
-    case OscShape::triangle:
-    {
-        osc.initialise ([](T x)
-                        {
-                            if (x < 0)
-                                return juce::jmap (x, T (-juce::MathConstants<T>::pi), T (0), T (-1), T (1));
-                            else
-                                return juce::jmap (x, T (0), T (juce::MathConstants<T>::pi), T (1), T (-1));
-
-                        }, 128);
-    }
-    break;
-
-    case OscShape::pulse:
-    {
-        osc.initialise ([](T x)
-                        {
-                            if (x < 0)
-                                return T (-1);
-                            else
-                                return T (1);
-                        }, 128);
-    }
-    break;
-
-    case OscShape::noise:
-    {
-        osc.initialise ([&](T /*x*/)
-                        {
-                            return distribution (generator);
-                        });
-    }
-    break;
-
-    case OscShape::totalSelectable:
-    default:
-        jassertfalse;
-        break;
-    }
-
-    if (wasActive != isActive)
-    {
-        if (isActive)
-            setGain (lastActiveGain);
-        else
-            setGain (0);
-    }
-
-    currentOsc.store (nextOscBuf);
-}

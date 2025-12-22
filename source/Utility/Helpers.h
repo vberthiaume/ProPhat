@@ -219,21 +219,26 @@ constexpr auto effect3      { "Phaser" };
 
 struct Selection
 {
-    Selection () = default;
-    virtual ~Selection () = default;
-    Selection (const Selection&) = default;
-    Selection& operator= (const Selection&) = default;
-    Selection (Selection&&) noexcept = default;
-    Selection& operator= (Selection&&) noexcept = default;
+    Selection()          = default;
+    virtual ~Selection() = default;
 
-    Selection (int selection) : curSelection (selection) {}
+    Selection (int selection) { curSelection.store (selection); }
+    Selection (const Selection& s) { curSelection.store (s.curSelection.load()); }
 
-    int curSelection = 0;
+    Selection& operator= (const Selection& s)
+    {
+        if (this != &s)
+            curSelection.store (s.curSelection.load());
+        return *this;
+    }
 
-    //TODO: getLastSelectionIndex() is virtual but it is the same in all children -- is there a way to
-    //have totalSelectable declared in the parent somehow?
-    virtual int getLastSelectionIndex () = 0;
-    virtual bool isNullSelectionAllowed () = 0;
+    Selection (Selection&& s) noexcept   = delete;
+    Selection& operator= (Selection&& s) = delete;
+
+    std::atomic<int> curSelection { 0 };
+
+    virtual int  getLastSelectionIndex()  = 0;
+    virtual bool isNullSelectionAllowed() = 0;
 };
 
 struct OscShape : public Selection
@@ -246,7 +251,8 @@ struct OscShape : public Selection
         triangle,
         pulse,
         totalSelectable,
-        noise // noise needs to be after totalSelectable, because it's not selectable with the regular oscillators
+        noise, // noise needs to be after totalSelectable, because it's not selectable with the regular oscillators
+        actualTotal
     };
 
     int getLastSelectionIndex () override { return totalSelectable - 1; }
@@ -255,7 +261,7 @@ struct OscShape : public Selection
 
 struct LfoShape : public Selection
 {
-    enum
+    enum Values
     {
         triangle = 0,
         saw,
@@ -271,7 +277,7 @@ struct LfoShape : public Selection
 
 struct LfoDest : public Selection
 {
-    enum
+    enum Values
     {
         osc1Freq = 0,
         osc2Freq,
@@ -287,7 +293,7 @@ struct LfoDest : public Selection
 struct SelectedEffect : public Selection
 {
     //this is essentially like EffectType, so we still need that enum?
-    enum
+    enum Values
     {
         none = 0,
         verb,

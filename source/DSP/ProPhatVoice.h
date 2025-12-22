@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "LockFreeSynthesiser.h"
 #include "PhatOscillators.h"
 
 #include "../UI/ButtonGroupComponent.h"
@@ -48,8 +49,11 @@ enum class ProcessorId
     filterIndex = 0,
     masterGainIndex,
 };
+
+//==============================================================================
+
 template <std::floating_point T>
-class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorValueTreeState::Listener
+class ProPhatVoice : public LockFreeSynthesiserVoice, public juce::AudioProcessorValueTreeState::Listener
 {
   public:
     ProPhatVoice (juce::AudioProcessorValueTreeState& processorState, int vId, std::set<int>* activeVoiceSet);
@@ -63,9 +67,14 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
     void setAmpParam (juce::StringRef parameterID, float newValue);
     void setFilterEnvParam (juce::StringRef parameterID, float newValue);
 
-    void setLfoShape (int shape);
+    void setLfoShape (LfoShape::Values shape);
     void setLfoDest (int dest);
-    void setLfoFreq (float newFreq) { lfo.setFrequency (newFreq); }
+    void setLfoFreq (float newFreq)
+    {
+        //TODO RT: none of this is atomic / thread safe
+        for (auto& lfo : lfos)
+            lfo.setFrequency (newFreq);
+    }
     void setLfoAmount (float newAmount) { lfoAmount = newAmount; }
 
     void setFilterCutoff (T newValue)
@@ -160,45 +169,12 @@ class ProPhatVoice : public juce::SynthesiserVoice, public juce::AudioProcessorV
     T curFilterResonance { Constants::defaultFilterResonance };
 
     //lfo stuff
+    //TODO #63: how is this actually used? Especially because we always use only the first sample of the lfo process call?
     static constexpr auto    lfoUpdateRate    = 100;
     int                      lfoUpdateCounter = lfoUpdateRate;
-    juce::dsp::Oscillator<T> lfo;
 
-    /** TODO RT: implement this pattern for all things that need to be try-locked. Can I abstract/wrap this into an object?
-        class WavetableSynthesizer
-        {
-        public:
-            void audioCallback()
-            {
-                if (std::unique_lock<spin_lock> tryLock (mutex, std::try_to_lock); tryLock.owns_lock())
-                {
-                    // Do something with wavetable
-                }
-                else
-                {
-                    // Do something else as wavetable is not available
-                }
-            }
-
-            void updateWavetable ()
-            {
-                // Create new Wavetable
-                auto newWavetable = std::make_unique<Wavetable>();
-                {
-                    std::lock_guard<spin_lock> lock (mutex);
-                    std::swap (wavetable, newWavetable);
-                }
-
-                // Delete old wavetable here to lock for least time possible
-            }
-
-        private:
-            spin_lock mutex;
-            std::unique_ptr<Wavetable> wavetable;
-        };
-        }
-    */
-    std::mutex lfoMutex;
+    std::array<juce::dsp::Oscillator<T>, LfoShape::totalSelectable> lfos;
+    std::atomic<juce::dsp::Oscillator<T>*> curLfo {nullptr};
 
     //TODO RT: I think this (and all similar parameters set in the UI and read in the audio thread) sould be atomic
     T       lfoAmount = static_cast<T> (Constants::defaultLfoAmount);
@@ -232,8 +208,35 @@ ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorStat
 
     lfoDest.curSelection = (int) defaultLfoDest;
 
+    lfos[LfoShape::triangle].initialise ([] (T x) { return (std::sin (x) + 1) / 2; }, 128);
+    lfos[LfoShape::saw].initialise ([] (T x)      { return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T (0), T (1)); }, 2);
+    //lfos[LfoShape::revSaw].initialise ([] (T x)   { return (float) juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, 1.f, 0.f); }, 2);
+    lfos[LfoShape::square].initialise ([] (T x)   { return x < 0 ? T (0) : T (1); });
+
+    // TODO #63: because we don't give the lookupTableNumPoints parameter to the lfo, we're not building a lookup table, and we can't because of the state logic.
+    // So this means this function takes longer than the other ones. Which is only called once per buffer, so probably not a big deal, but the whole logic is kinda
+    // weird, so maybe we should refactor it later.
+    lfos[LfoShape::randomLfo].initialise ([this](T x)
+                                          {
+                                              if (x <= 0.f && valueWasBig)
+                                              {
+                                                  randomValue = rng.nextFloat ()/* * 2 - 1*/;
+                                                  valueWasBig = false;
+                                              }
+                                              else if (x > 0.f && ! valueWasBig)
+                                              {
+                                                  randomValue = rng.nextFloat ()/* * 2 - 1*/;
+                                                  valueWasBig = true;
+                                              }
+
+                                              return randomValue; });
+
     setLfoShape (LfoShape::triangle);
-    lfo.setFrequency (Constants::defaultLfoFreq);
+    for (auto& lfo : lfos)
+    {
+        jassert (lfo.isInitialised());
+        lfo.setFrequency (Constants::defaultLfoFreq);
+    }
 }
 
 template <std::floating_point T>
@@ -343,7 +346,8 @@ void ProPhatVoice<T>::prepare (const juce::dsp::ProcessSpec& spec)
     filterADSR.setSampleRate (spec.sampleRate);
     filterADSR.setParameters (filterEnvParams);
 
-    lfo.prepare ({ spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels });
+    for (auto& lfo : lfos)
+        lfo.prepare ({ spec.sampleRate / lfoUpdateRate, spec.maximumBlockSize, spec.numChannels });
 
 #if EFFECTS_PROCESSOR_PER_VOICE
     effectsProcessor.prepare (spec);
@@ -412,13 +416,12 @@ void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float n
              || parameterID == filterEnvReleaseID.getParamID())
         setFilterEnvParam (parameterID, newValue);
 
-    //TODO RT: need to use try_locks for both of these
     else if (parameterID == lfoShapeID.getParamID())
-        setLfoShape ((int) newValue);
+        setLfoShape (static_cast<LfoShape::Values> (newValue));
     else if (parameterID == lfoDestID.getParamID())
         setLfoDest ((int) newValue);
 
-    //TODO RT: I think because all of these end up setting smoothed values, it's fine to set them directly
+    //TODO RT: need to go through these and figure out what needs to be atomic, set async on the audio thread, or ramped or whatever it is
     else if (parameterID == lfoAmountID.getParamID())
         setLfoAmount (newValue);
     else if (parameterID == lfoFreqID.getParamID())
@@ -500,81 +503,18 @@ void ProPhatVoice<T>::setFilterEnvParam (juce::StringRef parameterID, float newV
     filterADSR.setParameters (filterEnvParams);
 }
 
-//@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscilate between [-1, 1]
+//@TODO #63 For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscilate between [-1, 1]
 template <std::floating_point T>
-void ProPhatVoice<T>::setLfoShape (int shape)
+void ProPhatVoice<T>::setLfoShape (LfoShape::Values shape)
 {
     switch (shape)
     {
-        case LfoShape::triangle:
-        {
-            //TODO RT: I should really have 4 lfos and just have an atomic curLfo pointer that I swap when I change LFOs
-            std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([] (T x)
-                            { return (std::sin (x) + 1) / 2; },
-                            128);
-        }
-        break;
-
-        case LfoShape::saw:
-        {
-            std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([] (T x)
-                            {
-                //this is a sawtooth wave; as x goes from -pi to pi, y goes from -1 to 1
-                return juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, T { 0 }, T { 1 }); },
-                            2);
-        }
-        break;
-
-            //TODO add this once we have more room in the UI for lfo destinations
-            /*
-             case LfoShape::revSaw:
-             {
-             std::lock_guard<std::mutex> lock (lfoMutex);
-             lfo.initialise ([](float x)
-             {
-             return (float) juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, 1.f, 0.f);
-             }, 2);
-             }
-             break;
-             */
-
-        case LfoShape::square:
-        {
-            std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([] (T x)
-                            {
-                if (x < 0)
-                    return T { 0 };
-                else
-                    return T { 1 }; });
-        }
-        break;
-
-        case LfoShape::randomLfo:
-        {
-            std::lock_guard<std::mutex> lock (lfoMutex);
-            lfo.initialise ([this] (T x)
-                            {
-                if (x <= 0.f && valueWasBig)
-                {
-                    randomValue = rng.nextFloat()/* * 2 - 1*/;
-                    valueWasBig = false;
-                }
-                else if (x > 0.f && ! valueWasBig)
-                {
-                    randomValue = rng.nextFloat()/* * 2 - 1*/;
-                    valueWasBig = true;
-                }
-
-                return randomValue; });
-        }
-        break;
-
-        default:
-            jassertfalse;
-            break;
+        case LfoShape::triangle:    curLfo.store (&lfos[LfoShape::triangle]); break;
+        case LfoShape::saw:         curLfo.store (&lfos[LfoShape::saw]); break;
+        //case LfoShape::revSaw:    curLfo.store (&lfos[LfoShape::revSaw]); break;
+        case LfoShape::square:      curLfo.store (&lfos[LfoShape::square]); break;
+        case LfoShape::randomLfo:   curLfo.store (&lfos[LfoShape::randomLfo]); break;
+        default: jassertfalse;
     }
 }
 
@@ -584,7 +524,6 @@ void ProPhatVoice<T>::setLfoDest (int dest)
     //reset everything
     oscillators.resetLfoOscNoteOffsets();
 
-    //TODO RT: this should also be behind a lock/try_lock
     //change the destination
     lfoDest.curSelection = dest;
 }
@@ -593,17 +532,8 @@ void ProPhatVoice<T>::setLfoDest (int dest)
 template <std::floating_point T>
 void ProPhatVoice<T>::updateLfo()
 {
-    T lfoOut;
-    {
-        std::unique_lock<std::mutex> tryLock (lfoMutex, std::defer_lock);
-        if (! tryLock.try_lock())
-        {
-            //TODO RT: I need to fade out or something when we can't acquire the lock
-            return;
-        }
-
-        lfoOut = lfo.processSample (T (0)) * lfoAmount;
-    }
+    //TODO: so err, wat? we're only using the first sample of the lfo at every buffer size? So the lfo speed is tied to the buffer size?
+    const auto lfoOut { curLfo.load()->processSample (static_cast<T> (0)) * lfoAmount };
 
     //TODO get this switch out of here, this is awful for performances
     switch (lfoDest.curSelection)
