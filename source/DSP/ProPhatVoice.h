@@ -67,7 +67,7 @@ class ProPhatVoice : public LockFreeSynthesiserVoice, public juce::AudioProcesso
     void setAmpParam (juce::StringRef parameterID, float newValue);
     void setFilterEnvParam (juce::StringRef parameterID, float newValue);
 
-    void setLfoShape (int shape);
+    void setLfoShape (LfoShape::Values shape);
     void setLfoDest (int dest);
     void setLfoFreq (float newFreq)
     {
@@ -417,7 +417,7 @@ void ProPhatVoice<T>::parameterChanged (const juce::String& parameterID, float n
         setFilterEnvParam (parameterID, newValue);
 
     else if (parameterID == lfoShapeID.getParamID())
-        setLfoShape ((int) newValue);
+        setLfoShape (static_cast<LfoShape::Values> (newValue));
     else if (parameterID == lfoDestID.getParamID())
         setLfoDest ((int) newValue);
 
@@ -505,7 +505,7 @@ void ProPhatVoice<T>::setFilterEnvParam (juce::StringRef parameterID, float newV
 
 //@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscilate between [-1, 1]
 template <std::floating_point T>
-void ProPhatVoice<T>::setLfoShape (int shape)
+void ProPhatVoice<T>::setLfoShape (LfoShape::Values shape)
 {
     //TODO: this somehow made things sound worse when looping in reaper
     //reset everything

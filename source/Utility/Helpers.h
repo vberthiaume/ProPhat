@@ -277,7 +277,7 @@ struct LfoShape : public Selection
 
 struct LfoDest : public Selection
 {
-    enum Values
+    enum
     {
         osc1Freq = 0,
         osc2Freq,
@@ -293,7 +293,7 @@ struct LfoDest : public Selection
 struct SelectedEffect : public Selection
 {
     //this is essentially like EffectType, so we still need that enum?
-    enum Values
+    enum
     {
         none = 0,
         verb,
