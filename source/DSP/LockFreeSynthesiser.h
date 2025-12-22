@@ -25,6 +25,8 @@
 #include "juce_audio_basics/juce_audio_basics.h"
 
 /**
+    This is a lock-free copy of juce::SynthesiserVoice.
+
     Represents a voice that a Synthesiser can use to play a SynthesiserSound.
 
     A voice plays a single sound at a time, and a synthesiser holds an array of

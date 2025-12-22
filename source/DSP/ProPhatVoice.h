@@ -169,7 +169,7 @@ class ProPhatVoice : public LockFreeSynthesiserVoice, public juce::AudioProcesso
     T curFilterResonance { Constants::defaultFilterResonance };
 
     //lfo stuff
-    // TODO: how is this actually used? Especially because we always use only the first sample of the lfo process call?
+    //TODO #63: how is this actually used? Especially because we always use only the first sample of the lfo process call?
     static constexpr auto    lfoUpdateRate    = 100;
     int                      lfoUpdateCounter = lfoUpdateRate;
 
@@ -213,7 +213,7 @@ ProPhatVoice<T>::ProPhatVoice (juce::AudioProcessorValueTreeState& processorStat
     //lfos[LfoShape::revSaw].initialise ([] (T x)   { return (float) juce::jmap (x, -juce::MathConstants<T>::pi, juce::MathConstants<T>::pi, 1.f, 0.f); }, 2);
     lfos[LfoShape::square].initialise ([] (T x)   { return x < 0 ? T (0) : T (1); });
 
-    // TODO: because we don't give the lookupTableNumPoints parameter to the lfo, we're not building a lookup table, and we can't because of the state logic.
+    // TODO #63: because we don't give the lookupTableNumPoints parameter to the lfo, we're not building a lookup table, and we can't because of the state logic.
     // So this means this function takes longer than the other ones. Which is only called once per buffer, so probably not a big deal, but the whole logic is kinda
     // weird, so maybe we should refactor it later.
     lfos[LfoShape::randomLfo].initialise ([this](T x)
@@ -503,16 +503,10 @@ void ProPhatVoice<T>::setFilterEnvParam (juce::StringRef parameterID, float newV
     filterADSR.setParameters (filterEnvParams);
 }
 
-//@TODO For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscilate between [-1, 1]
+//@TODO #63 For now, all lfos oscillate between [0, 1], even though the random one (and only that one) should oscilate between [-1, 1]
 template <std::floating_point T>
 void ProPhatVoice<T>::setLfoShape (LfoShape::Values shape)
 {
-    //TODO: this somehow made things sound worse when looping in reaper
-    //reset everything
-    //oscillators.resetLfoOscNoteOffsets();
-
-    //TODO: shape is somehow always 0 with reaper automations??
-    //change the shape
     switch (shape)
     {
         case LfoShape::triangle:    curLfo.store (&lfos[LfoShape::triangle]); break;

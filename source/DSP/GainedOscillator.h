@@ -150,8 +150,6 @@ private:
     bool isActive = true;
 
     T lastActiveGain {};
-
-    //TODO: need to break that up so we can just swap pointers to oscillators instead of re-initializing them
     juce::dsp::Gain<T> gain;
 
     std::uniform_real_distribution<T> distribution;
