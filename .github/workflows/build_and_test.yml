@@ -165,15 +165,15 @@ jobs:
           7z x pluginval_${{ runner.os }}.zip
           ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate "${{ env.VST3_PATH }}"
 
-#       - name: Import Certificates (macOS)
-#         uses: sudara/basic-macos-keychain-action@v1
-#         id: keychain
-#         if: ${{ runner.os == 'macOS'}}
-#         with:
-#           dev-id-app-cert: ${{ secrets.DEV_ID_APP_CERT }}
-#           dev-id-app-password: ${{ secrets.DEV_ID_APP_PASSWORD }}
-#           dev-id-installer-cert: ${{ secrets.DEV_ID_INSTALLER_CERT }}
-#           dev-id-installer-password: ${{ secrets.DEV_ID_INSTALLER_PASSWORD }}
+#      - name: Import Certificates (macOS)
+#        uses: sudara/basic-macos-keychain-action@v1
+#        id: keychain
+#        if: ${{ runner.os == 'macOS'}}
+#        with:
+#          dev-id-app-cert: ${{ secrets.DEV_ID_APP_CERT }}
+#          dev-id-app-password: ${{ secrets.DEV_ID_APP_PASSWORD }}
+#          dev-id-installer-cert: ${{ secrets.DEV_ID_INSTALLER_CERT }}
+#          dev-id-installer-password: ${{ secrets.DEV_ID_INSTALLER_PASSWORD }}
 
       # - name: Codesign (macOS)
       #   if: ${{ runner.os == 'macOS' }}
@@ -201,25 +201,25 @@ jobs:
           SetFile -a C "${{ env.AU_PATH }}"
           SetFile -a C "${{ env.CLAP_PATH }}"
 
-#       - name: pkgbuild, Productbuild and Notarize
-#         if: ${{ runner.os == 'macOS' }}
-#         timeout-minutes: 5
-#         run: |
-#           pkgbuild --identifier "${{ env.BUNDLE_ID }}.au.pkg" --version $VERSION --component "${{ env.AU_PATH }}" --install-location "/Library/Audio/Plug-Ins/Components"  "packaging/${{ env.PRODUCT_NAME }}.au.pkg"
-#           pkgbuild --identifier "${{ env.BUNDLE_ID }}.vst3.pkg" --version $VERSION --component "${{ env.VST3_PATH }}" --install-location "/Library/Audio/Plug-Ins/VST3" "packaging/${{ env.PRODUCT_NAME }}.vst3.pkg"
-#           pkgbuild --identifier "${{ env.BUNDLE_ID }}.clap.pkg" --version $VERSION --component "${{ env.CLAP_PATH }}" --install-location "/Library/Audio/Plug-Ins/CLAP" "packaging/${{ env.PRODUCT_NAME }}.clap.pkg"
+#      - name: pkgbuild, Productbuild and Notarize
+#        if: ${{ runner.os == 'macOS' }}
+#        timeout-minutes: 5
+#        run: |
+#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.au.pkg" --version $VERSION --component "${{ env.AU_PATH }}" --install-location "/Library/Audio/Plug-Ins/Components"  "packaging/${{ env.PRODUCT_NAME }}.au.pkg"
+#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.vst3.pkg" --version $VERSION --component "${{ env.VST3_PATH }}" --install-location "/Library/Audio/Plug-Ins/VST3" "packaging/${{ env.PRODUCT_NAME }}.vst3.pkg"
+#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.clap.pkg" --version $VERSION --component "${{ env.CLAP_PATH }}" --install-location "/Library/Audio/Plug-Ins/CLAP" "packaging/${{ env.PRODUCT_NAME }}.clap.pkg"
 #
-#           # Standalone is special, needs a boolean to always install in /Applications
-#           pkgbuild --analyze --root "$(dirname "${{ env.STANDALONE_PATH }}")" standalone.plist
-#           plutil -replace BundleIsRelocatable -bool NO standalone.plist
-#           pkgbuild --identifier "${{ env.BUNDLE_ID }}.app.pkg" --version $VERSION --root "$(dirname "${{ env.STANDALONE_PATH }}")" --component-plist standalone.plist --install-location "/Applications" "packaging/${{ env.PRODUCT_NAME }}.app.pkg"
+#          # Standalone is special, needs a boolean to always install in /Applications
+#          pkgbuild --analyze --root "$(dirname "${{ env.STANDALONE_PATH }}")" standalone.plist
+#          plutil -replace BundleIsRelocatable -bool NO standalone.plist
+#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.app.pkg" --version $VERSION --root "$(dirname "${{ env.STANDALONE_PATH }}")" --component-plist standalone.plist --install-location "/Applications" "packaging/${{ env.PRODUCT_NAME }}.app.pkg"
 #
-#           cd packaging
-#           envsubst < distribution.xml.template > distribution.xml
-#           productbuild --resources ./resources --distribution distribution.xml --sign "${{ secrets.DEVELOPER_ID_INSTALLER }}" --timestamp "${{ env.ARTIFACT_NAME }}.pkg"
+#          cd packaging
+#          envsubst < distribution.xml.template > distribution.xml
+#          productbuild --resources ./resources --distribution distribution.xml --sign "${{ secrets.DEVELOPER_ID_INSTALLER }}" --timestamp "${{ env.ARTIFACT_NAME }}.pkg"
 #
-#           xcrun notarytool submit "${{ env.ARTIFACT_NAME }}.pkg" --apple-id ${{ secrets.NOTARIZATION_USERNAME }} --password ${{ secrets.NOTARIZATION_PASSWORD }} --team-id ${{ secrets.TEAM_ID }} --wait
-#           xcrun stapler staple "${{ env.ARTIFACT_NAME }}.pkg"
+#          xcrun notarytool submit "${{ env.ARTIFACT_NAME }}.pkg" --apple-id ${{ secrets.NOTARIZATION_USERNAME }} --password ${{ secrets.NOTARIZATION_PASSWORD }} --team-id ${{ secrets.TEAM_ID }} --wait
+#          xcrun stapler staple "${{ env.ARTIFACT_NAME }}.pkg"
 
       - name: Zip
         if: ${{ matrix.name == 'Linux' }}
