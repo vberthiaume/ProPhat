@@ -153,15 +153,8 @@ target_compile_definitions(SharedCode
     PRODUCT_NAME_WITHOUT_VERSION="ProPhat"
 
     JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1
-    # TODO VB: IS THIS STILL REQUIRED WITH THE LATEST JUCE UPDATE?
 	JUCE_ASIO=1
 )
-
-# if(WIN32)
-#     target_include_directories(SharedCode INTERFACE
-#         "${ASIOSDK_DIR}/common"
-#     )
-# endif()
 
 # Link to any other modules you added (with juce_add_module) here!
 # Usually JUCE modules must have PRIVATE visibility
@@ -188,7 +181,6 @@ else()
     message(STATUS "LTO disabled due to sanitizer flags")
 endif()
 
-# TODO VB: IS THIS STILL REQUIRED, WHAT IS IT FOR?
 if(MSVC)
     target_link_libraries(SharedCode INTERFACE Dwmapi.lib)
 endif()
