@@ -19,10 +19,10 @@
    });
 
  */
-[[maybe_unused]] void runWithinPluginEditor (const std::function<void (ProPhatProcessor& plugin)>& testCode)
+[[maybe_unused]] static void runWithinPluginEditor (const std::function<void (ProPhatProcessor& plugin)>& testCode)
 {
     ProPhatProcessor plugin;
-    auto editor = plugin.createEditorIfNeeded();
+    const auto editor = plugin.createEditorIfNeeded();
 
     testCode (plugin);
 

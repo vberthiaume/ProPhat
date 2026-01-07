@@ -17,13 +17,13 @@ env:
   HOMEBREW_NO_INSTALL_CLEANUP: 1
   SCCACHE_GHA_ENABLED: true
   SCCACHE_CACHE_MULTIARCH: 1
-  IPP_DIR: C:\Program Files (x86)\Intel\oneAPI\ipp\latest\lib\cmake\ipp
+  SCCACHE_IDLE_TIMEOUT: 0
 
 defaults:
   run:
     shell: bash
 
-# jobs are run in paralell on different machines
+# jobs are run in parallel on different machines
 # all steps run in series
 jobs:
   build_and_test:
@@ -102,45 +102,25 @@ jobs:
         if: runner.os == 'Linux' && matrix.image == ''
         # Thanks to McMartin & co https://forum.juce.com/t/list-of-juce-dependencies-under-linux/15121/44
         run: |
-          sudo apt-get update && sudo apt install libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev xvfb ninja-build
-          sudo /usr/bin/Xvfb $DISPLAY &
-
-      - name: Cache IPP (Windows)
-        if: runner.os == 'Windows'
-        id: cache-ipp
-        uses: actions/cache@v5
-        with:
-          key: ipp-v6
-          path: C:\Program Files (x86)\Intel
+          # IPP stuff
+          wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+          
+          sudo apt-get update && sudo apt install libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev xvfb ninja-build intel-oneapi-ipp-devel
+          sudo /usr/bin/Xvfb $DISPLAY & 
 
       - name: Install IPP (Windows)
-        if: (runner.os == 'Windows') && (steps.cache-ipp.outputs.cache-hit != 'true')
+        if: (runner.os == 'Windows')
         run: |
-          curl --output oneapi.exe https://registrationcenter-download.intel.com/akdlm/IRC_NAS/2e89fab4-e1c7-4f14-a1ef-6cddba8c5fa7/intel-ipp-2022.0.0.796_offline.exe
-          ./oneapi.exe -s -x -f oneapi
-          ./oneapi/bootstrapper.exe -s -c --action install --components=intel.oneapi.win.ipp.devel --eula=accept -p=NEED_VS2022_INTEGRATION=1 --log-dir=.
-
-      - name: Save IPP cache (even on CI fail)
-        if: runner.os == 'Windows' && (steps.cache-ipp.outputs.cache-hit != 'true')
-        uses: actions/cache/save@v5
-        with:
-          path: C:\Program Files (x86)\Intel
-          key: ipp-v6
+          nuget install intelipp.static.win-x64 -Version 2022.3.0.387
 
       - name: Install Ninja (Windows)
         if: runner.os == 'Windows'
         run: choco install ninja
 
       - name: Install macOS Deps
-        if: ${{ matrix.name == 'macOS' }}
+        if: ${{ runner.os == 'macOS' }}
         run: brew install ninja osxutils
-
-      # This block can be removed once 15.1 is default (JUCE requires it when building on macOS 14)
-      - name: Use latest Xcode on system (macOS)
-        if: ${{ matrix.name == 'macOS' }}
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
 
       - name: Checkout code
         uses: actions/checkout@v6
@@ -150,15 +130,8 @@ jobs:
       - name: Cache the build
         uses: mozilla-actions/sccache-action@v0.0.9
 
-      # - name: Import Certificates (macOS)
-      #   uses: apple-actions/import-codesign-certs@v3
-      #   if: ${{ matrix.name == 'macOS' }}
-      #   with:
-      #     p12-file-base64: ${{ secrets.DEV_ID_APP_CERT }}
-      #     p12-password: ${{ secrets.DEV_ID_APP_PASSWORD }}
-
       - name: Configure
-        run: cmake -B ${{ env.BUILD_DIR }} -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ${{ matrix.extra-flags }} .
+        run: cmake -B ${{ env.BUILD_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ${{ matrix.extra-flags }} .
 
       - name: Build
         run: cmake --build ${{ env.BUILD_DIR }} --config ${{ env.BUILD_TYPE }}
@@ -181,91 +154,89 @@ jobs:
           echo "VST3_PATH=$ARTIFACTS_PATH/VST3/${{ env.PRODUCT_NAME }}.vst3" >> $GITHUB_ENV
           echo "AU_PATH=$ARTIFACTS_PATH/AU/${{ env.PRODUCT_NAME }}.component" >> $GITHUB_ENV
           echo "AUV3_PATH=$ARTIFACTS_PATH/AUv3/${{ env.PRODUCT_NAME }}.appex" >> $GITHUB_ENV
-          # echo "CLAP_PATH=$ARTIFACTS_PATH/CLAP/${{ env.PRODUCT_NAME }}.clap" >> $GITHUB_ENV
+          echo "CLAP_PATH=$ARTIFACTS_PATH/CLAP/${{ env.PRODUCT_NAME }}.clap" >> $GITHUB_ENV
           echo "STANDALONE_PATH=$ARTIFACTS_PATH/Standalone/${{ env.PRODUCT_NAME }}.app" >> $GITHUB_ENV
-          echo "ARTIFACT_NAME=${{ env.PRODUCT_NAME }}-${{ env.VERSION }}-${{ matrix.name }}" >> $GITHUB_ENV
+          echo "ARTIFACT_NAME=${{ env.PRODUCT_NAME }}-${{ env.VERSION }}-${{ runner.os }}" >> $GITHUB_ENV
 
       - name: Pluginval
-        if: ${{ ! matrix.pluginval-binary == '' }}
         run: |
-          curl -LO "https://github.com/Tracktion/pluginval/releases/download/v1.0.3/pluginval_${{ matrix.name }}.zip"
-          7z x pluginval_${{ matrix.name }}.zip
+          curl -LO "https://github.com/Tracktion/pluginval/releases/download/v1.0.3/pluginval_${{ runner.os }}.zip"
+          7z x pluginval_${{ runner.os }}.zip
           ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate "${{ env.VST3_PATH }}"
 
-#      - name: Import Certificates (macOS)
-#        uses: sudara/basic-macos-keychain-action@v1
-#        id: keychain
-#        if: ${{ matrix.name == 'macOS'}}
-#        with:
-#          dev-id-app-cert: ${{ secrets.DEV_ID_APP_CERT }}
-#          dev-id-app-password: ${{ secrets.DEV_ID_APP_PASSWORD }}
-#          dev-id-installer-cert: ${{ secrets.DEV_ID_INSTALLER_CERT }}
-#          dev-id-installer-password: ${{ secrets.DEV_ID_INSTALLER_PASSWORD }}
+      # - name: Import Certificates (macOS)
+      #   uses: sudara/basic-macos-keychain-action@v1
+      #   id: keychain
+      #   if: ${{ runner.os == 'macOS'}}
+      #   with:
+      #     dev-id-app-cert: ${{ secrets.DEV_ID_APP_CERT }}
+      #     dev-id-app-password: ${{ secrets.DEV_ID_APP_PASSWORD }}
+      #     dev-id-installer-cert: ${{ secrets.DEV_ID_INSTALLER_CERT }}
+      #     dev-id-installer-password: ${{ secrets.DEV_ID_INSTALLER_PASSWORD }}
 
       # - name: Codesign (macOS)
-      #   if: ${{ matrix.name == 'macOS' }}
+      #   if: ${{ runner.os == 'macOS' }}
       #   timeout-minutes: 5
       #   run: |
       #     # Each plugin must be code signed
-      #     codesign --force -s "${{ secrets.DEVELOPER_ID_APPLICATION}}" -v "${{ env.VST3_PATH }}" --deep --strict --options=runtime --timestamp
-      #     codesign --force -s "${{ secrets.DEVELOPER_ID_APPLICATION}}" -v "${{ env.AU_PATH }}" --deep --strict --options=runtime --timestamp
-      #     codesign --force -s "${{ secrets.DEVELOPER_ID_APPLICATION}}" -v "${{ env.CLAP_PATH }}" --deep --strict --options=runtime --timestamp
-      #     codesign --force -s "${{ secrets.DEVELOPER_ID_APPLICATION}}" -v "${{ env.STANDALONE_PATH }}" --deep --strict --options=runtime --timestamp
+      #     codesign --force --keychain ${{ steps.keychain.outputs.keychain-path }} -s "${{ secrets.DEVELOPER_ID_APPLICATION}}" -v "${{ env.VST3_PATH }}" --deep --strict --options=runtime --timestamp
+      #     codesign --force --keychain ${{ steps.keychain.outputs.keychain-path }} -s "${{ secrets.DEVELOPER_ID_APPLICATION}}" -v "${{ env.AU_PATH }}" --deep --strict --options=runtime --timestamp
+      #     codesign --force --keychain ${{ steps.keychain.outputs.keychain-path }} -s "${{ secrets.DEVELOPER_ID_APPLICATION}}" -v "${{ env.CLAP_PATH }}" --deep --strict --options=runtime --timestamp
+      #     codesign --force --keychain ${{ steps.keychain.outputs.keychain-path }} -s "${{ secrets.DEVELOPER_ID_APPLICATION}}" -v "${{ env.STANDALONE_PATH }}" --deep --strict --options=runtime --timestamp
 
       - name: Add Custom Icons (macOS)
-        if: ${{ matrix.name == 'macOS' }}
+        if: ${{ runner.os == 'macOS' }}
         run: |
           # add the icns as its own icon resource (meta!)
           sips -i packaging/ProPhat.icns
+
           # Grab the resource, put in tempfile
           DeRez -only icns packaging/ProPhat.icns > /tmp/icons
+
           # Stuff the resource into the strange Icon? file's resource fork
           Rez -a /tmp/icons -o "${{ env.VST3_PATH }}/Icon"$'\r'
           Rez -a /tmp/icons -o "${{ env.AU_PATH }}/Icon"$'\r'
-          # Rez -a /tmp/icons -o "${{ env.CLAP_PATH }}/Icon"$'\r'
+          Rez -a /tmp/icons -o "${{ env.CLAP_PATH }}/Icon"$'\r'
+
           # Set custom icon attribute
           SetFile -a C "${{ env.VST3_PATH }}"
           SetFile -a C "${{ env.AU_PATH }}"
-          # SetFile -a C "${{ env.CLAP_PATH }}"
+          SetFile -a C "${{ env.CLAP_PATH }}"
 
-#      - name: pkgbuild, Productbuild and Notarize
-#        if: ${{ matrix.name == 'macOS' }}
-#        timeout-minutes: 5
-#        run: |
-#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.au.pkg" --version $VERSION --component "${{ env.AU_PATH }}" --install-location "/Library/Audio/Plug-Ins/Components"  "packaging/${{ env.PRODUCT_NAME }}.au.pkg"
-#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.vst3.pkg" --version $VERSION --component "${{ env.VST3_PATH }}" --install-location "/Library/Audio/Plug-Ins/VST3" "packaging/${{ env.PRODUCT_NAME }}.vst3.pkg"
-#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.clap.pkg" --version $VERSION --component "${{ env.CLAP_PATH }}" --install-location "/Library/Audio/Plug-Ins/CLAP" "packaging/${{ env.PRODUCT_NAME }}.clap.pkg"
-#
-#          # Standalone is special, needs a boolean to always install in /Applications
-#          pkgbuild --analyze --root "$(dirname "${{ env.STANDALONE_PATH }}")" standalone.plist
-#          plutil -replace BundleIsRelocatable -bool NO standalone.plist
-#          pkgbuild --identifier "${{ env.BUNDLE_ID }}.app.pkg" --version $VERSION --root "$(dirname "${{ env.STANDALONE_PATH }}")" --component-plist standalone.plist --install-location "/Applications" "packaging/${{ env.PRODUCT_NAME }}.app.pkg"
-#
-#          cd packaging
-#          envsubst < distribution.xml.template > distribution.xml
-#          productbuild --resources ./resources --distribution distribution.xml --sign "${{ secrets.DEVELOPER_ID_INSTALLER }}" --timestamp "${{ env.ARTIFACT_NAME }}.pkg"
-#
-#          # xcrun notarytool submit "${{ env.ARTIFACT_NAME }}.pkg" --apple-id ${{ secrets.NOTARIZATION_USERNAME }} --password ${{ secrets.NOTARIZATION_PASSWORD }} --team-id ${{ secrets.TEAM_ID }} --wait
-#          # xcrun stapler staple "${{ env.ARTIFACT_NAME }}.pkg"
+      # - name: pkgbuild, Productbuild and Notarize
+      #   if: ${{ runner.os == 'macOS' }}
+      #   timeout-minutes: 5
+      #   run: |
+      #     pkgbuild --identifier "${{ env.BUNDLE_ID }}.au.pkg" --version $VERSION --component "${{ env.AU_PATH }}" --install-location "/Library/Audio/Plug-Ins/Components"  "packaging/${{ env.PRODUCT_NAME }}.au.pkg"
+      #     pkgbuild --identifier "${{ env.BUNDLE_ID }}.vst3.pkg" --version $VERSION --component "${{ env.VST3_PATH }}" --install-location "/Library/Audio/Plug-Ins/VST3" "packaging/${{ env.PRODUCT_NAME }}.vst3.pkg"
+      #     pkgbuild --identifier "${{ env.BUNDLE_ID }}.clap.pkg" --version $VERSION --component "${{ env.CLAP_PATH }}" --install-location "/Library/Audio/Plug-Ins/CLAP" "packaging/${{ env.PRODUCT_NAME }}.clap.pkg"
+
+      #     # Standalone is special, needs a boolean to always install in /Applications
+      #     pkgbuild --analyze --root "$(dirname "${{ env.STANDALONE_PATH }}")" standalone.plist
+      #     plutil -replace BundleIsRelocatable -bool NO standalone.plist
+      #     pkgbuild --identifier "${{ env.BUNDLE_ID }}.app.pkg" --version $VERSION --root "$(dirname "${{ env.STANDALONE_PATH }}")" --component-plist standalone.plist --install-location "/Applications" "packaging/${{ env.PRODUCT_NAME }}.app.pkg"
+
+      #     cd packaging
+      #     envsubst < distribution.xml.template > distribution.xml
+      #     productbuild --resources ./resources --distribution distribution.xml --sign "${{ secrets.DEVELOPER_ID_INSTALLER }}" --timestamp "${{ env.ARTIFACT_NAME }}.pkg"
+
+      #     xcrun notarytool submit "${{ env.ARTIFACT_NAME }}.pkg" --apple-id ${{ secrets.NOTARIZATION_USERNAME }} --password ${{ secrets.NOTARIZATION_PASSWORD }} --team-id ${{ secrets.TEAM_ID }} --wait
+      #     xcrun stapler staple "${{ env.ARTIFACT_NAME }}.pkg"
 
       - name: Zip
-        if: ${{ matrix.name == 'Linux' }}
+        if: ${{ runner.os == 'Linux' }}
         working-directory: ${{ env.ARTIFACTS_PATH }}
         run: 7z a -tzip "${{ env.ARTIFACT_NAME }}.zip" "-xr!lib${{ env.PRODUCT_NAME }}_SharedCode.a" .
 
-      - name: Install Inno Setup (Windows)
-        if: ${{ matrix.name == 'Windows' }}
-        run: choco install innosetup -y
-
       - name: Generate Installer
-        if: ${{ matrix.name == 'Windows' }}
+        if: ${{ runner.os == 'Windows' }}
         run: |
           iscc "packaging\installer.iss"
           mv "packaging/Output/${{ env.ARTIFACT_NAME }}.exe" "${{ env.ARTIFACTS_PATH }}/"
 
       # - name: Codesign with Azure Trusted Signing
-      #   if: ${{ matrix.name == 'Windows' }}
-      #   uses: azure/trusted-signing-action@v0.5.1
+      #   if: ${{ runner.os == 'Windows' }}
+      #   uses: azure/trusted-signing-action@v0.5.11
       #   with:
       #     # The Azure Active Directory tenant (directory) ID.
       #     azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -290,21 +261,21 @@ jobs:
       #     files-folder-filter: exe
 
       - name: Upload Exe (Windows)
-        if: ${{ matrix.name == 'Windows' }}
+        if: ${{ runner.os == 'Windows' }}
         uses: actions/upload-artifact@v6
         with:
           name: ${{ env.ARTIFACT_NAME }}.exe
           path: "${{ env.ARTIFACTS_PATH }}/${{ env.ARTIFACT_NAME }}.exe"
 
       - name: Upload Zip (Linux)
-        if: ${{ matrix.name == 'Linux' }}
+        if: ${{ runner.os == 'Linux' }}
         uses: actions/upload-artifact@v6
         with:
           name: ${{ env.ARTIFACT_NAME }}.zip
           path: "${{ env.ARTIFACTS_PATH }}/${{ env.ARTIFACT_NAME }}.zip"
 
       - name: Upload pkg (macOS)
-        if: ${{ matrix.name == 'macOS' }}
+        if: ${{ runner.os == 'macOS' }}
         uses: actions/upload-artifact@v6
         with:
           name: ${{ env.ARTIFACT_NAME }}.pkg
