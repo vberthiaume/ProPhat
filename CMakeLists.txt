@@ -46,6 +46,11 @@ else()
     message(STATUS "Building all plugin formats")
 endif()
 
+# Force JUCE to work with sccache
+# instruct MSVC to embed debug info (/Z7) instead of emitting a .pdb
+set(CMAKE_POLICY_DEFAULT_CMP0141        NEW      CACHE STRING "" FORCE)
+set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT Embedded CACHE STRING "" FORCE)
+
 # For simplicity, the name of the CMake project is also the name of the target
 project(${PROJECT_NAME} VERSION ${CURRENT_VERSION})
 
@@ -56,7 +61,7 @@ project(${PROJECT_NAME} VERSION ${CURRENT_VERSION})
 add_subdirectory(JUCE)
 
 # Add CLAP format
-# add_subdirectory(modules/clap-juce-extensions EXCLUDE_FROM_ALL)
+add_subdirectory(modules/clap-juce-extensions EXCLUDE_FROM_ALL)
 
 # Add any other modules you want modules here, before the juce_add_plugin call
 add_subdirectory (modules/farbot)
@@ -103,10 +108,9 @@ juce_add_plugin("${PROJECT_NAME}"
 # Without running into ODR violations
 add_library(SharedCode INTERFACE)
 
-# clap_juce_extensions_plugin(TARGET "${PROJECT_NAME}"
-#    CLAP_ID "${BUNDLE_ID}"
-#    CLAP_FEATURES audio-effect)
-
+clap_juce_extensions_plugin(TARGET "${PROJECT_NAME}"
+    CLAP_ID "${BUNDLE_ID}"
+    CLAP_FEATURES audio-effect)
 
 # Enable fast math, C++20 and a few other target defaults
 include(SharedCodeDefaults)
@@ -151,12 +155,6 @@ target_compile_definitions(SharedCode
     JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1
 	JUCE_ASIO=1
 )
-
-if(WIN32)
-    target_include_directories(SharedCode INTERFACE
-        "${ASIOSDK_DIR}/common"
-    )
-endif()
 
 # Link to any other modules you added (with juce_add_module) here!
 # Usually JUCE modules must have PRIVATE visibility
