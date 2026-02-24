@@ -25,7 +25,7 @@
 #include "../Utility/Macros.h"
 #include "ProPhatSynthesiser.h"
 
-#define TRIGGER_RTSAN 1
+#define TRIGGER_RTSAN 0
 
 /** The main AudioProcessor for the plugin.
 *   All we do in here is basically set up the state and init the ProPhatSynth.

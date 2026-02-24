@@ -23,17 +23,15 @@
 #include "ProPhatProcessor.h"
 #include "../UI/ProPhatEditor.h"
 
-#define SIMD_BRO JUCE_WINDOWS
-#if SIMD_BRO
+#define TEST_SIMD JUCE_WINDOWS
+#if TEST_SIMD
 
 #include <vector>
-#include <iterator> // for std::ostream_iterator
+#include <iterator>  // for std::ostream_iterator
 #include <algorithm> // for std::ranges::copy depending on lib support
 
 //this is only available on intel machines
 #include <immintrin.h>
-
-//when we
 
 using Vector = std::vector<float>;
 Vector simdAdd (const Vector& a, const Vector& b)
@@ -70,7 +68,7 @@ Vector simdAdd (const Vector& a, const Vector& b)
         // store the result back to the buffer
         _mm256_storeu_ps (resultVector.data() + i, intermediateSum);
     }
-    
+
     //then deal with the samples that we couldn't vectorize
     for (; i < a.size(); ++i)
         resultVector[i] = a[i] + b[i];
@@ -89,7 +87,7 @@ ProPhatProcessor::ProPhatProcessor()
     , perfCounter ("ProcessBlock")
 #endif
 {
-#if SIMD_BRO
+#if TEST_SIMD
     Vector a(17, 1.f);
     auto result = simdAdd (a, a);
     //print the result vector using ranges
