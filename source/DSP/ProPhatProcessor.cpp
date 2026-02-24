@@ -174,13 +174,13 @@ bool ProPhatProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 }
 #endif
 
-void ProPhatProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) [[clang::nonblocking]]
+void ProPhatProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) NONBLOCKING
 {
     jassert (! isUsingDoublePrecision());
     process (buffer, midiMessages);
 }
 
-void ProPhatProcessor::processBlock (juce::AudioBuffer<double>& buffer, juce::MidiBuffer& midiMessages) [[clang::nonblocking]]
+void ProPhatProcessor::processBlock (juce::AudioBuffer<double>& buffer, juce::MidiBuffer& midiMessages) NONBLOCKING
 {
     jassert (isUsingDoublePrecision());
     process (buffer, midiMessages);

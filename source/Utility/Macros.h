@@ -35,3 +35,9 @@
 #define EFFECTS_PROCESSOR_PER_VOICE 0
 
 #define USE_ONLY_ONE_VOICE_TO_FORCE_KILLRAMP 0
+
+#ifdef __clang__
+#define NONBLOCKING [[clang::nonblocking]]
+#else
+#define NONBLOCKING
+#endif

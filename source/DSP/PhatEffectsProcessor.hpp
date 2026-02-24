@@ -148,7 +148,7 @@ void process (const juce::dsp::ProcessContextReplacing<T>& context)
     needToClearEffect = true;
 #endif
 
-    const auto inputBlock { context.getInputBlock () };
+    const auto& inputBlock { context.getInputBlock () };
     const auto numSamples { static_cast<int> (inputBlock.getNumSamples ()) };
     //TODO: surround with trylock or something, although not here because we don't have a proper fallback
     const auto currentEffectType { effectCrossFader.getCurrentEffectType () };

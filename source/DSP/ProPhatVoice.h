@@ -249,7 +249,7 @@ void ProPhatVoice<T>::renderNextBlockTemplate (juce::AudioBuffer<T>& outputBuffe
     //with new buffer sizes, so just making sure we're not taking more samples than the audio block was prepared with.
     jassert (numSamples <= curPreparedSamples);
     numSamples = juce::jmin (numSamples, curPreparedSamples);
-    auto currentAudioBlock { oscillators.prepareRender (numSamples) };
+    auto& currentAudioBlock { oscillators.prepareRender (numSamples) };
 
     for (int pos = 0; pos < numSamples;)
     {
