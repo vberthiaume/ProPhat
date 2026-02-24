@@ -23,6 +23,61 @@
 #include "ProPhatProcessor.h"
 #include "../UI/ProPhatEditor.h"
 
+#define TEST_SIMD JUCE_WINDOWS
+#if TEST_SIMD
+
+#include <vector>
+#include <iterator>  // for std::ostream_iterator
+#include <algorithm> // for std::ranges::copy depending on lib support
+
+//this is only available on intel machines
+#include <immintrin.h>
+
+using Vector = std::vector<float>;
+Vector simdAdd (const Vector& a, const Vector& b)
+{
+    jassert (a.size() == b.size());
+    Vector resultVector (a.size());
+
+    //there's 8 floats that fit in an avx register (256 / 32 = 8)
+    constexpr auto FLOATS_IN_AVX_REGISTER = 8u;
+
+    //Calculate the actual number of float samples we can vectorize. We're dividing and multiplying by the same value,
+    //so this is using int rounding. The leftover samples from the buffer will have to be dealt with separately
+    const auto vectorizableSamples = (a.size() / FLOATS_IN_AVX_REGISTER) * FLOATS_IN_AVX_REGISTER;
+
+    //perform the simd addition
+    auto i = 0u;
+    for (; i < vectorizableSamples; i += FLOATS_IN_AVX_REGISTER)    //here we're looping in chunks of whatever the registers can take
+    {
+        // load data from the buffer to the simd registers
+        // the ai suggested this
+        // auto aRegister = _mm256_loadu_ps (&a[i]);
+        // auto bRegister = _mm256_loadu_ps (&b[i]);
+
+        // but he's got this instead, which I'm sure is equivalent but I have no way of testing for now
+        // The 256 means we're using 256 bit registers,
+        // u is for unaligned access, because we assume our data has unaligned data
+        // ps is for single precision (float and not double)
+        auto aRegister = _mm256_loadu_ps (a.data() + i);
+        auto bRegister = _mm256_loadu_ps (b.data() + i);
+
+        // add the registers
+        auto intermediateSum = _mm256_add_ps (aRegister, bRegister);
+
+        // store the result back to the buffer
+        _mm256_storeu_ps (resultVector.data() + i, intermediateSum);
+    }
+
+    //then deal with the samples that we couldn't vectorize
+    for (; i < a.size(); ++i)
+        resultVector[i] = a[i] + b[i];
+
+    return resultVector;
+}
+
+#endif
+
 ProPhatProcessor::ProPhatProcessor()
     : juce::AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true))
     , state { constructState () }
@@ -32,6 +87,12 @@ ProPhatProcessor::ProPhatProcessor()
     , perfCounter ("ProcessBlock")
 #endif
 {
+#if TEST_SIMD
+    Vector a(17, 1.f);
+    auto result = simdAdd (a, a);
+    //print the result vector using ranges
+    std::ranges::copy(result, std::ostream_iterator<char>(std::cout, " "));
+#endif
 }
 
 void ProPhatProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
@@ -111,15 +172,25 @@ bool ProPhatProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 }
 #endif
 
-void ProPhatProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) [[clang::nonblocking]]
+void ProPhatProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) NONBLOCKING
 {
     jassert (! isUsingDoublePrecision());
+
+#if TRIGGER_RTSAN
+    juce::ScopedLock lock (processBlockLock);
+#endif
+
     process (buffer, midiMessages);
 }
 
-void ProPhatProcessor::processBlock (juce::AudioBuffer<double>& buffer, juce::MidiBuffer& midiMessages) [[clang::nonblocking]]
+void ProPhatProcessor::processBlock (juce::AudioBuffer<double>& buffer, juce::MidiBuffer& midiMessages) NONBLOCKING
 {
     jassert (isUsingDoublePrecision());
+
+#if TRIGGER_RTSAN
+    juce::ScopedLock lock (processBlockLock);
+#endif
+
     process (buffer, midiMessages);
 }
 

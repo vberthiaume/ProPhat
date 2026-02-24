@@ -113,7 +113,7 @@ class EffectsCrossfadeProcessor
                   const juce::AudioBuffer<T>&                  nextEffectBuffer,
                   const juce::dsp::ProcessContextReplacing<T>& context)
     {
-        const auto inputBlock { context.getInputBlock() };
+        const auto& inputBlock { context.getInputBlock() };
         jassert ((int) previousEffectBuffer.getNumChannels() >= nextEffectBuffer.getNumChannels()
                  && (int) nextEffectBuffer.getNumChannels() >= inputBlock.getNumChannels());
         jassert ((int) previousEffectBuffer.getNumSamples() >= nextEffectBuffer.getNumSamples()
@@ -130,16 +130,9 @@ class EffectsCrossfadeProcessor
 
             for (int sample = 0; sample < (int) inputBlock.getNumSamples(); ++sample)
             {
-                //TODO VB: this could be an IIFE to get curGain
-                //figure out curGain value based on the current channel and whether we're running the smoothedGains in reverse
-                T nextGain {};
-                if (channel == 0)
-                    nextGain = smoothedGainL.getNextValue ();
-                else if (channel == 1)
-                    nextGain = smoothedGainR.getNextValue ();
-                else
-                    jassertfalse;
-                curGain = needToInverse ? (1 - nextGain) : nextGain;
+                jassert (channel == 0 || channel == 1);
+                auto nextGain = (channel == 0) ? smoothedGainL.getNextValue() : smoothedGainR.getNextValue();
+                curGain = needToInverse ? (T{1} - nextGain) : nextGain;
 
                 outData[sample] = prevData[sample] * curGain + nextData[sample] * (1 - curGain);
 

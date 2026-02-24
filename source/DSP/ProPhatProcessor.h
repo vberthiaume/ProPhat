@@ -25,6 +25,8 @@
 #include "../Utility/Macros.h"
 #include "ProPhatSynthesiser.h"
 
+#define TRIGGER_RTSAN 0
+
 /** The main AudioProcessor for the plugin.
 *   All we do in here is basically set up the state and init the ProPhatSynth.
 */
@@ -43,8 +45,8 @@ public:
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
 #endif
 
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) [[clang::nonblocking]] override;
-    void processBlock (juce::AudioBuffer<double>&, juce::MidiBuffer&) [[clang::nonblocking]] override;
+    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) NONBLOCKING override;
+    void processBlock (juce::AudioBuffer<double>&, juce::MidiBuffer&) NONBLOCKING override;
 
     template <std::floating_point T>
     void process (juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages);
@@ -91,6 +93,10 @@ private:
     ProPhatSynthesiser<double> proPhatSynthDouble;
 
     juce::AudioProcessorValueTreeState constructState ();
+
+#if TRIGGER_RTSAN
+    juce::CriticalSection processBlockLock;
+#endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProPhatProcessor)
 };
