@@ -25,6 +25,8 @@
 #include "../Utility/Macros.h"
 #include "ProPhatSynthesiser.h"
 
+#define TRIGGER_RTSAN 1
+
 /** The main AudioProcessor for the plugin.
 *   All we do in here is basically set up the state and init the ProPhatSynth.
 */
@@ -91,6 +93,10 @@ private:
     ProPhatSynthesiser<double> proPhatSynthDouble;
 
     juce::AudioProcessorValueTreeState constructState ();
+
+#if TRIGGER_RTSAN
+    juce::CriticalSection processBlockLock;
+#endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProPhatProcessor)
 };
