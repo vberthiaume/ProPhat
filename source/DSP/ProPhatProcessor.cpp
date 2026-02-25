@@ -90,8 +90,8 @@ ProPhatProcessor::ProPhatProcessor()
 #if TEST_SIMD
     Vector a(17, 1.f);
     auto result = simdAdd (a, a);
-    //print the result vector using ranges
-    std::ranges::copy(result, std::ostream_iterator<char>(std::cout, " "));
+    for (const auto& value : result)
+        DBG(value);
 #endif
 }
 

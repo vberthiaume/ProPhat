@@ -69,7 +69,7 @@ public:
 
     void setOscShape (OscShape::Values newShape)
     {
-        //this is to make sure we preserve the same gain after we re-init, right?
+        //TODO VB: this is to make sure we preserve the same gain after we re-init, right?
         bool wasActive = isActive;
         isActive = true;
 
@@ -111,8 +111,6 @@ public:
 
         gain.setGainLinear (newGain);
     }
-
-    T getGain () { return lastActiveGain; }
 
     void reset () noexcept
     {
