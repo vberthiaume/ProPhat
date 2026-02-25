@@ -69,13 +69,6 @@ public:
 
     void setOscShape (OscShape::Values newShape)
     {
-        //TODO: AFAICT we never get in here so probably useless?
-        // Early-out if the requested shape is already selected.
-        auto* currentPtr = curOsc.load();
-        auto* requestedPtr = &oscs[static_cast<std::size_t> (newShape)];
-        if (currentPtr == requestedPtr)
-            return;
-
         //this is to make sure we preserve the same gain after we re-init, right?
         bool wasActive = isActive;
         isActive = true;
