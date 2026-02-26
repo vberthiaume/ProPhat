@@ -69,13 +69,6 @@ public:
 
     void setOscShape (OscShape::Values newShape)
     {
-        //TODO VB: this is to make sure we preserve the same gain after we re-init, right?
-        bool wasActive = isActive;
-        isActive = true;
-
-        if (newShape == OscShape::none)
-            isActive = false;
-
         switch (newShape)
         {
             case OscShape::none:     curOsc.store (&oscs[OscShape::none]);      break;
@@ -86,29 +79,13 @@ public:
             case OscShape::noise:    curOsc.store (&oscs[OscShape::noise]);     break;
             default: jassertfalse;
         }
-
-        if (wasActive != isActive)
-        {
-            if (isActive)
-                setGain (lastActiveGain);
-            else
-                setGain (0);
-        }
     }
 
-    /**
-     * @brief Sets the gain for the oscillator in the processorChain.
+    /** @brief Sets the gain for the oscillator in the processorChain.
         This ends up calling juce::dsp::Gain::setGainLinear(), which will ramp the change.
-        The newGain is also cached in lastActiveGain, so we can recall that value if the
-        oscillator is deactivated and reactivated.
     */
     void setGain (T newGain)
     {
-        if (! isActive)
-            newGain = 0;
-        else
-            lastActiveGain = newGain;
-
         gain.setGainLinear (newGain);
     }
 
@@ -137,8 +114,6 @@ private:
 
     std::array<juce::dsp::Oscillator<T>, OscShape::actualTotal> oscs;
     std::atomic<juce::dsp::Oscillator<T>*> curOsc { nullptr };
-
-    bool isActive = true;
 
     T lastActiveGain {};
     juce::dsp::Gain<T> gain;
