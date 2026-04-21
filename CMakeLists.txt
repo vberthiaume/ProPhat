@@ -63,9 +63,6 @@ add_subdirectory(JUCE)
 # Add CLAP format
 add_subdirectory(modules/clap-juce-extensions EXCLUDE_FROM_ALL)
 
-# Add any other modules you want modules here, before the juce_add_plugin call
-add_subdirectory (modules/farbot)
-
 # This adds the melatonin inspector module
 add_subdirectory (modules/melatonin_inspector)
 
